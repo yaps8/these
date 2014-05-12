@@ -1,0 +1,105 @@
+\select@language {french}
+\@frame@switchfalse 
+\@framechaptersintoc 
+\contentsline {spsection}{Introduction g\IeC {\'e}n\IeC {\'e}rale}{ix}
+\@numbertocswitchtrue 
+\@numberintocfalse 
+\contentsline {part}{Partie\ I\hspace {1em}Une partie}{xi}
+\@numbertocswitchfalse 
+\contentsline {xpart}{Une partie}{xiii}
+\@frame@switchtrue 
+\@thisnotframedfalse 
+\@numbertocswitchtrue 
+\@numberintoctrue 
+\partbegin 
+\contentsline {starpart}{Introduction (La premi\IeC {\`e}re partie)}{xv}
+\@numbertocswitchfalse 
+\@frame@switchfalse 
+\@numbertocswitchtrue 
+\@numberintoctrue 
+\contentsline {tlstarchapter}{Introduction (Le premier chapitre)}{1}
+\@numbertocswitchfalse 
+\contentsline {section}{\numberline {1}Une premi\IeC {\`e}re section}{1}
+\@frame@switchtrue 
+\@thisnotframedtrue 
+\contentsline {tlstarchapter}{Introduction (Le premier chapitre)}{3}
+\@frame@switchfalse 
+\contentsline {chapter}{\numberline {Chapitre\ 1}Encore un chapitre (test de \oe )}{5}
+\@frame@switchtrue 
+\@thisnotframedtrue 
+\contentsline {chapter}{\numberline {Chapitre\ 2}Et un chapitre (cha\^{\i }ne ou cha\^\i ne ?)}{7}
+\@frame@switchfalse 
+\contentsline {section}{\numberline {2.1}Ceci est une section}{7}
+\contentsline {section}{\numberline {2.2}Une autre section}{7}
+\@toc@line 
+\newpage 
+\contentsline {chapter}{\numberline {Chapitre\ 3}Le second chapitre}{9}
+\contentsline {section}{\numberline {3.1}Une section}{9}
+\contentsline {section}{\numberline {3.2}Encore une section}{9}
+\@numbertocswitchtrue 
+\@numberintoctrue 
+\contentsline {part}{Partie\ II\hspace {1em}Une autre partie}{11}
+\@numbertocswitchfalse 
+\contentsline {xpart}{Une autre partie}{13}
+\@frame@switchtrue 
+\@thisnotframedfalse 
+\contentsline {chapter}{\numberline {Chapitre\ 1}Le troisi\IeC {\`e}me chapitre}{13}
+\@frame@switchfalse 
+\contentsline {section}{\numberline {1.1}Une section du troisi\IeC {\`e}me chapitre}{13}
+\@toc@line 
+\contentsline {section}{\numberline {1.2}Une section}{13}
+\contentsline {section}{\numberline {1.3}Une section}{14}
+\contentsline {section}{\numberline {1.4}Une section}{14}
+\contentsline {section}{\numberline {1.5}Une section}{14}
+\contentsline {section}{\numberline {1.6}Une section}{14}
+\contentsline {section}{\numberline {1.7}Une section}{14}
+\contentsline {section}{\numberline {1.8}Une section}{14}
+\contentsline {section}{\numberline {1.9}Une section}{14}
+\contentsline {section}{\numberline {1.10}Une section}{14}
+\contentsline {section}{\numberline {1.11}Une section}{14}
+\contentsline {section}{\numberline {1.12}Une section}{14}
+\contentsline {section}{\numberline {1.13}Une section}{15}
+\contentsline {section}{\numberline {1.14}Une section}{15}
+\contentsline {section}{\numberline {1.15}Une section}{15}
+\contentsline {section}{\numberline {1.16}Une section}{15}
+\contentsline {section}{\numberline {1.17}Une section}{16}
+\contentsline {section}{\numberline {1.18}Une section}{16}
+\contentsline {section}{\numberline {1.19}Une section}{16}
+\contentsline {chapter}{\numberline {Chapitre\ 2}Le quatri\`eme chapitre}{17}
+\contentsline {section}{\numberline {2.1}Une section}{17}
+\contentsline {section}{\numberline {2.2}Une section}{17}
+\contentsline {section}{\numberline {2.3}Une section}{17}
+\contentsline {section}{\numberline {2.4}Une section}{17}
+\contentsline {section}{\numberline {2.5}Une section}{17}
+\contentsline {section}{\numberline {2.6}Une section}{17}
+\contentsline {section}{\numberline {2.7}Une section}{17}
+\contentsline {section}{\numberline {2.8}Une section}{18}
+\contentsline {section}{\numberline {2.9}Une section}{18}
+\contentsline {section}{\numberline {2.10}Une section}{18}
+\contentsline {section}{\numberline {2.11}Une section}{18}
+\contentsline {section}{\numberline {2.12}Une section}{19}
+\contentsline {section}{\numberline {2.13}Une section}{19}
+\contentsline {section}{\numberline {2.14}Une section}{19}
+\contentsline {section}{\numberline {2.15}Une section}{19}
+\contentsline {section}{\numberline {2.16}Une section}{19}
+\contentsline {section}{\numberline {2.17}Une section}{19}
+\contentsline {section}{\numberline {2.18}Une section}{19}
+\contentsline {section}{\numberline {2.19}Une section}{19}
+\contentsline {section}{\numberline {2.20}Une section}{19}
+\contentsline {section}{\numberline {2.21}Une section}{20}
+\@dontframechaptersintoc 
+\contentsline {tlstarchapter}{\appendixname s}{21}
+\contentsline {chapter}{\numberline {Annexe\ A}premi\IeC {\`e}re annexe}{21}
+\contentsline {section}{\numberline {A.1}Une section}{21}
+\contentsline {section}{\numberline {A.2}Une section}{21}
+\contentsline {section}{\numberline {A.3}Une section}{21}
+\contentsline {section}{\numberline {A.4}Une section}{21}
+\contentsline {section}{\numberline {A.5}Une section}{21}
+\contentsline {section}{\numberline {A.6}Une section}{21}
+\contentsline {section}{\numberline {A.7}Une section}{21}
+\@framechaptersintoc 
+\contentsline {chapter}{\numberline {Annexe\ B}deuxi\IeC {\`e}me annexe}{23}
+\contentsline {section}{\numberline {B.1}Une section}{23}
+\contentsline {section}{\numberline {B.2}Une section}{23}
+\contentsline {section}{\numberline {B.3}Une section}{23}
+\contentsline {spsection}{Bibliographie}{25}

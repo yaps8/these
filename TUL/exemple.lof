@@ -1,0 +1,27 @@
+\select@language {french}
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {xpart}{Une partie}{xiii}
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {xchapter}{Encore un chapitre (test de \oe )}{5}
+\addvspace {10\p@ }
+\contentsline {xchapter}{Et un chapitre (cha\^{\i }ne ou cha\^\i ne ?)}{7}
+\addvspace {10\p@ }
+\contentsline {xchapter}{Le second chapitre}{9}
+\contentsline {xpart}{Une autre partie}{13}
+\addvspace {10\p@ }
+\contentsline {xchapter}{Le troisi\IeC {\`e}me chapitre}{13}
+\contentsline {figure}{\numberline {1.1}{\ignorespaces x}}{15}
+\contentsline {figure}{\numberline {1.2}{\ignorespaces x}}{16}
+\contentsline {figure}{\numberline {1.3}{\ignorespaces x}}{16}
+\addvspace {10\p@ }
+\contentsline {xchapter}{Le quatri\`eme chapitre}{17}
+\contentsline {figure}{\numberline {2.1}{\ignorespaces x}}{18}
+\contentsline {figure}{\numberline {2.2}{\ignorespaces x}}{19}
+\contentsline {figure}{\numberline {2.3}{\ignorespaces x}}{20}
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
