@@ -1,0 +1,276 @@
+%             Exemple d'utilisation de la classe thesul
+%             ------------------------------------------
+%
+%
+% (de manière generale, les commandes de thesul sont celles
+% qui ne sont pas complètement en minuscules)
+%
+% Voir la documentation complète pour plus de détails.
+%
+%
+% D. Roegel, 30 mars 2013
+%
+\documentclass[11pt]{TUL/thesul}
+%----------------------------------------------------------------------
+%                     Chargement de quelques packages
+%----------------------------------------------------------------------
+
+% Si l'on veut produire une version PDF avec des hyperliens :
+%\usepackage[pageanchor=false]{tulhypref}
+
+% Si on veut le style de bibliographie named :
+%\usepackage{named}
+
+% Pour les figures :
+\usepackage{graphicx}
+
+% Si on veut des mini-tables des matières (utiliser minitoc-hyper 
+% en conjonction avec tulhypref) :
+\usepackage[french]{minitoc}
+
+
+%-------------------------------------------------------------------
+%                             Marges
+%-------------------------------------------------------------------
+
+% pour positionner les vraies marges:
+%\SetRealMargins{1mm}{1mm}
+
+%-------------------------------------------------------------------
+%                             En-têtes
+%-------------------------------------------------------------------
+
+% Les en-têtes: quelques exemples
+%\UppercaseHeadings 
+%\UnderlineHeadings
+%\newcommand\bfheadings[1]{{\bf #1}}
+%\FormatHeadingsWith{\bfheadings}
+%\FormatHeadingsWith{\uppercase}
+%\FormatHeadingsWith{\underline}
+\newcommand\upun[1]{\uppercase{\underline{\underline{#1}}}}
+\FormatHeadingsWith\upun
+
+\newcommand\itheadings[1]{\textit{#1}}
+\FormatHeadingsWith{\itheadings}
+
+% pour avoir un trait sous l'en-tete:
+\setlength{\HeadRuleWidth}{0.4pt}
+
+%-------------------------------------------------------------------
+%                         Les références
+%-------------------------------------------------------------------
+
+\NoChapterNumberInRef
+\NoChapterPrefix
+
+%-------------------------------------------------------------------
+%                           Brouillons
+%-------------------------------------------------------------------
+
+% ceci ajoute une marque « brouillon » et la date
+%\ThesisDraft
+
+%-------------------------------------------------------------------
+%                   Pour collecter un glossaire et un index
+%-------------------------------------------------------------------
+
+\makeglossary
+\makeindex
+
+\begin{document}
+
+
+      \OddHead={{\leftmark\rightmark}{\hfil\slshape\rightmark}}
+      \EvenHead={{\leftmark}{{\slshape\leftmark}\hfil}}
+      \OddFoot={\hfil\thepage}
+      \EvenFoot={\thepage\hfil}
+      \pagestyle{ThesisHeadingsII}
+
+%-------------------------------------------------------------------
+%                          Encadrements
+%-------------------------------------------------------------------
+
+% encadre les chapitres dans la table des matières:
+% (ces commandes doivent figurer apres \begin{document}
+
+\FrameChaptersInToc  
+%\FramePartsInToc
+
+
+%-------------------------------------------------------------------
+%            Réinitialisation de la numérotation des chapitres
+%-------------------------------------------------------------------
+
+% Si la commande suivante est présente,
+% elle doit figurer APRÈS \begin{document}
+% et avant la première commande \part
+\ResetChaptersAtParts 
+
+%-------------------------------------------------------------------
+%               mini-tables des matières par chapitre
+%-------------------------------------------------------------------
+
+% préparer les mini-tables des matières par chapitre.
+% (commande de minitoc.sty)
+\dominitoc
+
+%-------------------------------------------------------------------
+%                         Page de titre:
+%-------------------------------------------------------------------
+
+\ThesisTitle{Comment j'ai r\'eussi \`a prouver mon existence}
+\ThesisDate{28 janvier 1986}
+\ThesisAuthor{Auteur anonyme}
+
+% Type de la these
+\ThesisUL
+
+% Jury:
+
+% (ne pas mettre de \\ apres la dernière entree)
+
+% Exemple de création d'une nouvelle catégorie dans le jury:
+
+\NewJuryCategory{family}{\it Membre de la famille :}
+                        {\it Membres de la famille :}
+
+\family={Mon frère\\Ma sœur}
+
+\def\blanc{\hspace*{1cm}}
+
+\President    = {Le président}
+\Rapporteurs  = {Le rapporteur 1&de Paris\\
+                 Le rapporteur 2\\
+                 \blanc suite&taratata\\
+                 Le rapporteur 3}
+\Examinateurs = {L'examinateur 1&d'ici\\
+                 L'examinateur 2}
+%\Invites=       {}
+
+% Création de la page de titre:
+\MakeThesisTitlePage
+
+% on peut en faire plusieurs:
+%\MakeThesisTitlePage
+
+%-------------------------------------------------------------------
+
+
+%-------------------------------------------------------------------
+%                          remerciements
+%-------------------------------------------------------------------
+
+%\DontFrameThisInToc
+\begin{ThesisAcknowledgments}
+Merci.
+\end{ThesisAcknowledgments}
+
+%-------------------------------------------------------------------
+%                            dédicace
+%-------------------------------------------------------------------
+
+\begin{ThesisDedication}
+Je dédie cette thèse\\
+à ma machine.\\
+Oui, à Pandore,\\
+qui fut la première de toutes.
+\end{ThesisDedication}
+
+
+%-------------------------------------------------------------------
+%                  écriture de `Chapitre' et `Partie' 
+%                      dans la table des matières
+%-------------------------------------------------------------------
+
+\WritePartLabelInToc
+\WriteChapterLabelInToc
+
+%-------------------------------------------------------------------
+%                        table des matières
+%-------------------------------------------------------------------
+
+\tableofcontents
+
+%-------------------------------------------------------------------
+%              Exemple d'utilisation de \SpecialSection
+%-------------------------------------------------------------------
+
+% \SpecialSection{Introduction générale}
+
+
+% Pour ne pas avoir le mot « Chapitre » au début de chaque chapitre.
+\NoChapterHead
+
+\DontWriteThisInToc   
+\listoffigures
+
+
+% La commande \mainmatter permet de passer
+% à la numérotation arabe (ce que fait \pagenumbering{arabic}) 
+% et de faire commencer la nouvelle page 1 sur une page impaire.
+% On évitera donc d'utiliser directement \pagenumbering{arabic}.
+\mainmatter
+
+\WriteThisInToc
+\FrameThisInToc
+\NumberThisInToc
+\part{Introduction}
+
+\NumberThisInToc
+\DontFrameThisInToc
+\chapter*{Introduction}
+\section{Premiere section}
+
+Une « autre » page avec « plein » de texte « et » très varié.
+Une autre page avec plein de texte très varié .
+Une autre page avec plein de texte très varié.
+
+\WriteThisInToc
+\FrameThisInToc
+\NumberThisInToc
+\part{Seconde partie}
+\DontFrameThisInToc
+\chapter*{Second chapitre}
+\section{Premiere section}
+
+Une autre page avec plein de texte très varié.
+Une autre page avec plein de texte très varié.
+
+\PutLineInToc
+% \PutNewPageInToc
+
+%-------------------------------------------------------------------
+%              L'index (toujours sur deux colonnes)
+%-------------------------------------------------------------------
+\BeginIndWith{Voici un index}
+\PrintIndex
+
+\onecolumn
+
+%-------------------------------------------------------------------
+%                       La bibliographie
+%-------------------------------------------------------------------
+
+% La bibliographie (comme d'habitude)
+
+\nocite{*}
+\bibliographystyle{named}
+\bibliography{these}
+
+
+\NumberAbstractPages
+\begin{ThesisAbstract}
+  \begin{FrenchAbstract}
+    Résumé.
+    \KeyWords{a, b, c.}
+  \end{FrenchAbstract}
+  \begin{EnglishAbstract}
+    Abstract.
+    \KeyWords{a, b, c.}
+  \end{EnglishAbstract}
+\end{ThesisAbstract}
+
+
+\end{document}
+
+
