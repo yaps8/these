@@ -16,7 +16,7 @@
 %----------------------------------------------------------------------
 
 % Si l'on veut produire une version PDF avec des hyperliens :
-%\usepackage[pageanchor=false]{tulhypref}
+\usepackage[pageanchor=false]{TUL/tulhypref}
 
 % Si on veut le style de bibliographie named :
 %\usepackage{named}
@@ -104,7 +104,7 @@
 % Si la commande suivante est présente,
 % elle doit figurer APRÈS \begin{document}
 % et avant la première commande \part
-\ResetChaptersAtParts 
+% \ResetChaptersAtParts 
 
 %-------------------------------------------------------------------
 %               mini-tables des matières par chapitre
@@ -118,9 +118,9 @@
 %                         Page de titre:
 %-------------------------------------------------------------------
 
-\ThesisTitle{Comment j'ai r\'eussi \`a prouver mon existence}
-\ThesisDate{28 janvier 1986}
-\ThesisAuthor{Auteur anonyme}
+\ThesisTitle{Analyse morphologique pour la détection de malwares auto-modifiants}
+\ThesisDate{dd/mm/aaaa}
+\ThesisAuthor{Aurélien Thierry}
 
 % Type de la these
 \ThesisUL
@@ -169,12 +169,9 @@ Merci.
 %                            dédicace
 %-------------------------------------------------------------------
 
-\begin{ThesisDedication}
-Je dédie cette thèse\\
-à ma machine.\\
-Oui, à Pandore,\\
-qui fut la première de toutes.
-\end{ThesisDedication}
+% \begin{ThesisDedication}
+% Ah.
+% \end{ThesisDedication}
 
 
 %-------------------------------------------------------------------
@@ -215,9 +212,9 @@ qui fut la première de toutes.
 \NumberThisInToc
 \chapter{Introduction}
 
-\WriteThisInToc
-\FrameThisInToc
-\NumberThisInToc
+% \WriteThisInToc
+% \FrameThisInToc
+% \NumberThisInToc
 \part{Désassemblage et analyse de binaires}
 
 % \NumberThisInToc
@@ -225,16 +222,33 @@ qui fut la première de toutes.
 \chapter{Assembleur}
 \input{1-assembleur}
 
-\WriteThisInToc
-\FrameThisInToc
-\NumberThisInToc
+\DontFrameThisInToc
+\chapter{Désassemblage et analyse statique}
+% \input{1-assembleur}
+
+\DontFrameThisInToc
+\chapter{Analyse dynamique et hybride}
+% \input{1-assembleur}
+
+\DontFrameThisInToc
+\chapter{Résultats}
+% \input{1-assembleur}
+
+% \WriteThisInToc
+% \FrameThisInToc
+% \NumberThisInToc
 \part{Analyse morphologique}
 \DontFrameThisInToc
-\chapter*{Second chapitre}
-\section{Premiere section}
+\chapter{Analyse de graphes et algorithmes}
 
-Une autre page avec plein de texte très varié.
-Une autre page avec plein de texte très varié.
+\DontFrameThisInToc
+\chapter{Validation de l'approche}
+
+\DontFrameThisInToc
+\chapter{Application à la détection de librairies}
+
+\DontFrameThisInToc
+\chapter{Cas d'étude : Duqu et Stuxnet}
 
 \PutLineInToc
 % \PutNewPageInToc
