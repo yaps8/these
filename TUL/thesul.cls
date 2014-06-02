@@ -210,7 +210,7 @@
     {\renewcommand{\@ThesisJuryTitle}{{\UseEntryFont{ThesisJuryTitle}#1}}}
 \newcommand\LoriaLogo{%
     \vtop to0pt{%
-      \hbox{}\hbox to0pt{\includegraphics[scale=.2]{tulloria}\hss}\vss}%
+      \hbox{}\hbox to0pt{\includegraphics[scale=.2]{TUL/tulloria.pdf}\hss}\vss}%
                     }
 \newcommand\ULLogo{%
     \vtop to0pt{\hbox{}\hbox to0pt{\includegraphics[scale=1]{TUL/tulul.pdf}\hss}\vss}%
@@ -417,8 +417,8 @@
                             \@ThesisFirstPageFoot
     %---------------------------------------------------
   }%
-{\catcode\lq\`=12
-\gdef\@p@ndor@{Lhr*dm*o`fd*`udb*k`*bk`rrd*sgdrtk-}
+{
+\gdef\@p@ndor@{*}
 }
 \def\@dcd#1{\expandafter\@@dcd#1/}
 \def\@@dcd#1#2/{\def\@l@st{#2}%
