@@ -211,24 +211,24 @@ qui fut la première de toutes.
 % On évitera donc d'utiliser directement \pagenumbering{arabic}.
 \mainmatter
 
-\WriteThisInToc
-\FrameThisInToc
-\NumberThisInToc
-\part{Introduction}
-
-\NumberThisInToc
 \DontFrameThisInToc
-\chapter*{Introduction}
-\section{Premiere section}
-
-Une « autre » page avec « plein » de texte « et » très varié.
-Une autre page avec plein de texte très varié .
-Une autre page avec plein de texte très varié.
+\NumberThisInToc
+\chapter{Introduction}
 
 \WriteThisInToc
 \FrameThisInToc
 \NumberThisInToc
-\part{Seconde partie}
+\part{Désassemblage et analyse de binaires}
+
+% \NumberThisInToc
+\DontFrameThisInToc
+\chapter{Assembleur}
+\input{1-assembleur}
+
+\WriteThisInToc
+\FrameThisInToc
+\NumberThisInToc
+\part{Analyse morphologique}
 \DontFrameThisInToc
 \chapter*{Second chapitre}
 \section{Premiere section}
