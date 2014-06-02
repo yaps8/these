@@ -16,7 +16,8 @@
 %----------------------------------------------------------------------
 
 % Si l'on veut produire une version PDF avec des hyperliens :
-\usepackage[pageanchor=false]{TUL/tulhypref}
+% \usepackage[pageanchor=false]{TUL/tulhypref}
+\usepackage[hidelinks, pdftex]{TUL/tulhypref}
 
 % Si on veut le style de bibliographie named :
 %\usepackage{named}
@@ -28,6 +29,19 @@
 % en conjonction avec tulhypref) :
 \usepackage[french]{minitoc}
 
+\usepackage{todonotes}
+\usepackage{titlesec}
+\usepackage{url}
+\usepackage[backend=biber, language=french, citestyle=alphabetic,bibstyle=alphabetic,backref,abbreviate=false,dateabbrev=false,isbn=false,url=false,doi=true]{biblatex}
+
+\addbibresource{these.bib}
+
+\titleformat{\chapter}[display]
+  {\bfseries\huge}
+  {\filleft\Large\chaptertitlename~\thechapter}
+  {3ex}
+  {\titlerule\vspace{1.5ex}\filright}
+  [\vspace{1ex}\titlerule]
 
 %-------------------------------------------------------------------
 %                             Marges
@@ -196,7 +210,7 @@ Merci.
 
 
 % Pour ne pas avoir le mot « Chapitre » au début de chaque chapitre.
-\NoChapterHead
+% \NoChapterHead
 
 \DontWriteThisInToc   
 \listoffigures
@@ -211,6 +225,7 @@ Merci.
 \DontFrameThisInToc
 \NumberThisInToc
 \chapter{Introduction}
+\input{1-introduction}
 
 % \WriteThisInToc
 % \FrameThisInToc
@@ -220,7 +235,7 @@ Merci.
 % \NumberThisInToc
 \DontFrameThisInToc
 \chapter{Assembleur}
-\input{1-assembleur}
+\input{2-assembleur}
 
 \DontFrameThisInToc
 \chapter{Désassemblage et analyse statique}
@@ -268,9 +283,10 @@ Merci.
 % La bibliographie (comme d'habitude)
 
 \nocite{*}
-\bibliographystyle{named}
-\bibliography{these}
-
+% \bibliographystyle{unsrt}
+% \bibliographystyle{named}
+% \bibliography{these}
+\printbibliography
 
 \NumberAbstractPages
 \begin{ThesisAbstract}
