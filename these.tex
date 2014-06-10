@@ -10,7 +10,7 @@
 %
 % D. Roegel, 30 mars 2013
 %
-\documentclass[11pt]{TUL/thesul}
+\documentclass[10pt]{TUL/thesul}
 %----------------------------------------------------------------------
 %                     Chargement de quelques packages
 %----------------------------------------------------------------------
@@ -36,6 +36,16 @@
 \usepackage[backend=biber, language=french, maxnames=5, citestyle=alphabetic,bibstyle=alphabetic,backref,abbreviate=false,dateabbrev=false,isbn=false,url=false,doi=true]{biblatex}
 
 \addbibresource{these.bib}
+
+% Structure
+\newtheorem{theo}{Théorème}
+\newtheorem{defi}{Définition}
+\newtheorem{prop}{Proposition}
+% \theoremstyle{remark}\newtheorem*{preuve}{Preuve}
+
+% Abbreviations :
+\newcommand{\xq}{x86}
+\newcommand{\xs}{x86$\_$64}
 
 \titleformat{\chapter}[display]
   {\bfseries\huge}
@@ -95,11 +105,14 @@
 \begin{document}
 
 
-      \OddHead={{\leftmark\rightmark}{\hfil\slshape\rightmark}}
-      \EvenHead={{\leftmark}{{\slshape\leftmark}\hfil}}
-      \OddFoot={\hfil\thepage}
-      \EvenFoot={\thepage\hfil}
-      \pagestyle{ThesisHeadingsII}
+
+
+
+\OddHead={{\leftmark\rightmark}{\hfil\slshape\rightmark}}
+\EvenHead={{\leftmark}{{\slshape\leftmark}\hfil}}
+\OddFoot={\hfil\thepage}
+\EvenFoot={\thepage\hfil}
+\pagestyle{ThesisHeadingsII}
 
 %-------------------------------------------------------------------
 %                          Encadrements
@@ -133,7 +146,7 @@
 %                         Page de titre:
 %-------------------------------------------------------------------
 
-\ThesisTitle{Analyse morphologique pour la détection de malwares auto-modifiants}
+\ThesisTitle{Analyse morphologique de logiciels malveillants auto-modifiants}
 \ThesisDate{dd/mm/aaaa}
 \ThesisAuthor{Aurélien Thierry}
 
@@ -240,10 +253,12 @@ Merci.
 
 \DontFrameThisInToc
 \chapter{Désassemblage et analyse statique}
+\todo[inline]{Sémantique, Layers\\ sémantique SM: SM-VSA + emulation BAP}
 % \input{1-assembleur}
 
 \DontFrameThisInToc
 \chapter{Analyse dynamique et hybride}
+\todo[inline]{Limites analyse statique, analyse dynamique et waves\\ disasm.py}
 % \input{1-assembleur}
 
 \DontFrameThisInToc
@@ -259,9 +274,11 @@ Merci.
 
 \DontFrameThisInToc
 \chapter{Validation de l'approche}
+\todo[inline]{Perfs + FP/FN}
 
 \DontFrameThisInToc
 \chapter{Application à la détection de librairies}
+\todo[inline]{Cas Waledac / OpenSSL}
 
 \DontFrameThisInToc
 \chapter{Cas d'étude : Duqu et Stuxnet}
