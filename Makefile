@@ -1,6 +1,6 @@
 default: these.bbl these.pdf
 
-these.pdf: these.tex
+these.pdf: *.tex these.bbl
 	pdflatex these.tex
 
 these.bbl: these.bib
