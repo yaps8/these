@@ -20,10 +20,24 @@ Les actions malveillantes peuvent être de trois nature. On parle d'atteinte à 
 
 Les logiciels malveillants s'attaquent en général à la confidentialité et la disponibilité du système bien que les outils d'administration à distance soient capables, une fois la machine infectée, d'attaquer les trois aspects de la sécurité de la machine.
 
-
+Ainsi, en général, un logiciel malveillant diffère d'un logiciel légitime en ce qu'il cherche à dissimuler son existence et son action sur le système. Il déploie à cette fin des techniques de protection logicielles rendant son analyse plus difficile que celle du programme légitime.
 
 
 \section{Détection de logiciels malveillants}
 \todo[inline]{+ anti-détection}
+Les premiers travaux traitant de virologie informatique datent de 1986 avec Cohen \cite{Cohen86} puis Adleman \cite{Adleman88} en 1988. Ils s'intéressent particulièrement au comportement auto-reproducteur de certains programmes. Adleman \todo{vrai?} aboutit au résultat suivant dans le cas des logiciels malveillants : la classification d'un logiciel comme malveillant est un problème $\Pi_2$ complet, soit plus difficile que le problème de l'arrêt qui est déjà indécidable.
+
+Les décennies qui ont suivi ont vu apparaître différentes techniques de détection partielles dont la plus répandue est l'analyse de signatures syntaxiques. Les approches par signatures consistent dans un premier temps à extraire d'un corpus de logiciels malveillants connus des caractéristiques comme certaines instructions ou plus généralement une expression rationnelle. Dans un second temps, pour classifier un logiciel inconnu, on regarde s'il possèdent une des caractéristiques extraites du corpus.
+Cette technique, dans le cas des expressions rationnelles, possède le double avantage d'être rapide et de générer peu de fausses alarmes.
+
+Cependant chaque souche originale d'un logiciel malveillant est généralement déclinée en de nombreuses versions dont les fonctionnalités varient. Ces souches formes une famille de logiciels malveillants. Pour éviter la détection par signatures syntaxiques, il suffit souvent d'insérer du code inutile ou de réorganiser le code.
+
+Nous nous sommes alors intéressés à la technique de détection initiée par Kaczmarek \cite{AThierry_BKM08} lors de sa thèse. Il s'agit d'une technique de détection par signatures basée sur la comparaison de graphes de flots de contrôles, c'est à dire du graphe structurant l'exécution du logiciel.
+\todo[inline]{exemple prog -> CFG}
+
+Dans la pratique, les logiciels malveillants sont souvent protégés par une technique d'encapsulation cachant complètement la charge utile à un analyste 
+
+\section{Problèmes de recherche}
+
 
 \section{Organisation du document}

@@ -4,6 +4,7 @@ these.pdf: *.tex these.bbl
 	pdflatex these.tex
 
 these.bbl: these.bib
+	pdflatex these.tex
 	biber these
 
 clean: these.bib
