@@ -1,8 +1,10 @@
-default: these.tex these.bib clean
-	rm -f these.bbl these.aux
-	pdflatex these.tex
-	biber these
+default: these.bbl these.pdf
+
+these.pdf: these.tex
 	pdflatex these.tex
 
-clean:
-	rm -f *.aux *.bbl *.blg *.log *.nav *.out *.snm *.toc
+these.bbl: these.bib
+	biber these
+
+clean: these.bib
+	rm -f these.aux these.bbl these.blg these.log these.nav these.out these.snm these.toc these.pdf
