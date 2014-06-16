@@ -6,29 +6,53 @@ Les programmes s'exécutant sur ces machines sont compilés afin d'être exécut
 \section{Compilation et décompilation}
 Un programme est généralement écrit dans un langage de haut niveau (C par exemple). Chacun de ses modules est ensuite compilé en un fichier objet (binaire) encodant le langage assembleur spécifique à la machine. La dernière étape est l'édition de liens qui consiste à regrouper tous les fichiers objets en un exécutable unique.
 
-On peut prendre l'exemple d'un simple programme ``Hello World'' en C. Le code source pour un tel programme peut être celui donné en figure ?.
-
+On peut prendre l'exemple d'un simple programme ``Hello World'' en C. Le code source pour un tel programme peut être celui donné en figure \ref{fig:helloword_c}.
+\begin{figure}
+\begin{lstlisting}[language={C}]
 int main(int argc, char* argv[]){
   printf("Hello, world.");
 }
-
-\missingfigure{Code C de helloworld}
-
-\begin{lstlisting}[language={C}]
-NTSTATUS __cdecl ParsePE(
-    return STATUS_WAIT_1; 
 \end{lstlisting}
+\caption{Code C de helloworld}
+\label{fig:helloword_c}
+\end{figure}
 
+Le code assembleur \xq\ correspondant, après compilation sous un système d'exploitation Linux (cf syscalls?), est donné figure \ref{fig:helloword_asm}.
 
+\begin{figure}
 \begin{lstlisting}[language={[x86masm]Assembler}, escapechar=~]
-(01) PAGE:004ED1AD                  loc_4ED1AD: [...]                      
-(22) PAGE:004ED1EF 3B C3            cmp     eax, ebx
+section .data
+msg     db      "Hello, world", 0xa	; ~La chaîne à afficher~
+len     equ     $ - msg                 ; ~La taille de la chaîne~
+
+section .text
+global _start
+
+_start:
+; ~Afficher la chaîne de caractères~
+mov     eax, 4      ; ~Numéro d'appel système (sys$\_$write)~
+mov     ebx, 1      ; ~Premier argument : le fichier de sortie (ici stdout)~
+mov     ecx, msg    ; ~Second argument : un pointeur vers la châine à afficher~
+mov	edx, len    ; ~Troisième argument : la taille de la chaîne~
+int     0x80        ; ~Appel effectif au noyau~
+
+; ~Fermer proprement le programme~
+mov     eax, 1      ; ~Numéro d'appel système (sys$\_$exit)~
+mov	ebx, 0	    ; ~Premier argument : le code de retour (0 : normal)~
+int     0x80	    ; ~Appel au noyau~
 \end{lstlisting}
+\caption{Code assembleur \xq\ de helloworld}
+\label{fig:helloword_asm}
+\end{figure}
 
-Le code assembleur \xq\ correspondant, après compilation sous un système d'exploitation Linux (cf syscalls?), est le suivant.
-\missingfigure{Assembleur}
+Le fichier binaire exécutable résultant de la compilation est donné figure \ref{fig:helloword_binaire}. Il contient des entêtes dans lesquels sont indiqués les différentes sections du programme et deux sections : une section .data contenant les données du programmes (dont la chaîne de caractères ``Hello World'') et une section .text contenant le code assembleur à exécuter.
 
-Le fichier binaire exécutable résultant de la compilation est le suivant. Il contient des entêtes dans lesquels sont indiqués les différentes sections du programme et deux sections : une section .data contenant les données du programmes (dont la chaîne de caractères ``Hello World'') et une section .text contenant le code assembleur à exécuter.\missingfigure{Binaire}
+\begin{figure}
+\missingfigure{Binaire: présentation des sections}
+\caption{Binaire pour helloworld}
+\label{fig:helloword_binaire}
+\end{figure}
+
 % \x64
 \section{Malwares binaires}
 La principale difficulté lors de l'analyse d'un programme malveillant est que le code source n'est pas disponible à l'analyste qui doit se contenter du fichier binaire compilé.
@@ -37,5 +61,27 @@ Un programme compilé se présente donc sous la forme d'un fichier binaire conte
 
 \section{Assembleur \xq\ et \xs}
 L'architecture la plus fréquente sur ces ordinateurs personnels est celle des processeurs Intel CISC avec le jeu d'instructions \xq\ pour les machines adressant la mémoire sur 32 bits, et le jeu d'instructions \xs\ pour celles adressant la mémoire sur 64 bits.
+\todo[inline]{
+Architecture de Harvard modifiée \\
+Jeu d'instructions \\
+Intuition de sémantique \\
+Différence 32 / 64 bits ?
+}
 
 \section{Obfuscations}
+\subsection{Auto-modification}
+\todo[inline]{
+Qu'est-ce ? \\
+Autorisé par l'OS (NX ?) \\
+Comment ? \\
+Exemple
+}
+
+\subsection{Obscurcissement statique}
+\todo[inline]{
+Ajout de junk code \\
+Réorganisation du code \\
+Applatissement de CFG \\
+Détournement de calls \\
+Chevauchements \\
+}
