@@ -21,6 +21,7 @@ Les actions malveillantes peuvent être de trois nature. On parle d'atteinte à 
 Les logiciels malveillants s'attaquent en général à la confidentialité et la disponibilité du système bien que les outils d'administration à distance soient capables, une fois la machine infectée, d'attaquer les trois aspects de la sécurité de la machine.
 
 Ainsi, en général, un logiciel malveillant diffère d'un logiciel légitime en ce qu'il cherche à dissimuler son existence et son action sur le système. Il déploie à cette fin des techniques de protection logicielles rendant son analyse plus difficile que celle du programme légitime.
+On parle alors de \emph{charge utile} pour désigner l'action finale d'une attaque sur le système compromis. L'attaquant cherche à progresser dans le réseau en propageant son attaque tout en dissimulant la charge finale à des analystes éventuels.
 
 
 \section{Détection de logiciels malveillants}
@@ -35,9 +36,40 @@ Cependant chaque souche originale d'un logiciel malveillant est généralement d
 Nous nous sommes alors intéressés à la technique de détection initiée par Kaczmarek \cite{AThierry_BKM08} lors de sa thèse. Il s'agit d'une technique de détection par signatures basée sur la comparaison de graphes de flots de contrôles, c'est à dire du graphe structurant l'exécution du logiciel.
 \todo[inline]{exemple prog -> CFG}
 
-Dans la pratique, les logiciels malveillants sont souvent protégés par une technique d'encapsulation cachant complètement la charge utile à un analyste 
+Dans la pratique, les logiciels malveillants sont souvent protégés par une technique d'encapsulation cachant complètement la charge utile à un analyste.
+Aucune technique basée sur une observation passive du programme à analyser ne peut permettre de prédire le programme encapsulé et donc de détecter s'il est malveillant.
+
+Afin de lutter contre différentes techniques d'obscurcissement, nous avons travaillé sur une méthode d'analyse hybride permettant avec de l'analyse dynamique, d'exécuter le programme original puis, statiquement, d'analyser les parties non exécutées afin d'y rechercher d'autres méthodes d'obscurcissement ainsi que d'y effectuer une détection.
 
 \section{Problèmes de recherche}
+La principale difficulté lors de l'analyse d'un logiciel malveillant est qu'il est auto-modifiant. En effet un programme encapsulé se décompresse en réécrivant sur lui-même en mémoire. L'auto-modification complexifie grandement la sémantique du programme puisqu'une instruction peut-être amenée à être modifiée au cours de l'exécution de celui-ci.
 
+\begin{pb}
+ Définir une sémantique et une technique d'analyse compatible avec l'auto-modification.
+\end{pb}
+
+En ce sens nous avons repris les sémantiques définies par Reynaud et Calvet \todo{cite} séparant l'exécution d'un programme auto-modifiant en vagues. Chacun des vagues représente une étape d'exécuter dans laquelle le programme n'est pas modifié. Cette représentation permet d'analyser chaque vague indépendamment des autres et d'articuler l'analyse d'un programme autour d'une trace d'exécution particulière.
+La contribution de cette thèse réside dans une sémantique et un algorithme permettant une analyse bornée de toutes les traces d'exécution possibles d'un programme.
+
+Nous avons ensuite cherché à désassembler un programme obscurci. Le but est de déterminer l'ensemble du code atteignable en étant à la fois correct (on doit couvrir tout le code potentiel) et précis (le code désassemblé doit pouvoir être exécuté). 
+
+\begin{pb}
+ Désassembler et reconstruire le graphe de flot de contrôle d'un programme obscurci.
+\end{pb}
+
+Puisque notre objectif est de comparer les graphes de programmes connus et inconnus, nous utilisons le désassemblage pour reconstruire un graphe de flot de contrôle du programme analysé.
+Notre contribution est la définition et l'implémentation d'un désassembleur hybride partant d'une trace d'exécution et permettant de reconstruire le graphe de flot de contrôle de chacune des vagues du binaire à l'aide d'une analyse statique.
+
+Enfin la comparaison des graphes de flot de contrôles, ou analyse morphologique, consistait en la détection d'isomorphismes de graphes entre des parties des graphes de flot considérés. L'algorithme utilisé fonctionnait par reconnaissance d'arbres à l'aide d'un automate d'arbres. Il n'existait pas de cadre formel définissant les objets détectés par cette analyse. Sans cadre formel il était également difficile de mesurer les performances de implémentation utilisée en termes de précision des résultats.
+
+\begin{pb}
+ Formaliser et optimiser la reconnaissance de graphes dans l'optique de la détection de programmes malveillants.
+\end{pb}
+
+Notre travail a permis de dégager la notion de site. Les sites sont des sous-graphes du graphe de flot de contrôle et sont l'entité atomique que nos algorithmes de détection d'isomorphismes cherchent à faire correspondre entre plusieurs programmes à analyser. Nous avons élaboré un algorithme correct et rapide pour des petites bases de logiciels malveillants ainsi qu'un algorithme sous-optimal mais donnant de bons résultats et dont le temps d'exécution ne dépend pas de la taille de la base.
 
 \section{Organisation du document}
+
+Nous commencerons, dans une première partie, par définir les notions d'assembleur et de désassemblage qui seront utilisées dans la suite du manuscrit, puis détaillerons une technique d'analyse dynamique, puis statique de programmes obscurcis. Cette partie se terminera par la combinaison des deux approches et la présentation de notre outil de désassemblage.
+
+La seconde partie portera plus particulièrement sur l'analyse morphologique et les algorithmes de comparaison de graphes. Nous reviendrons sur les applications d'une telle méthode à la détection de programmes malveillants, à la détection de librairie et à l'analyse pratique de programmes malveillants avec l'exemple de Stuxnet de Duqu.
