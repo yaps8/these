@@ -9,6 +9,17 @@ Un programme est généralement écrit dans un langage de haut niveau (C par exe
 On peut prendre l'exemple d'un simple programme ``Hello World'' en C. Le code source pour un tel programme peut être celui donné en figure ?.
 \missingfigure{Code C de helloworld}
 
+\begin{lstlisting}[language={C}]
+NTSTATUS __cdecl ParsePE(
+    return STATUS_WAIT_1; 
+\end{lstlisting}
+
+
+\begin{lstlisting}[language={[x86masm]Assembler}, escapechar=~]
+(01) PAGE:004ED1AD                  loc_4ED1AD: [...]                      
+(22) PAGE:004ED1EF 3B C3            cmp     eax, ebx
+\end{lstlisting}
+
 Le code assembleur \xq\ correspondant, après compilation sous un système d'exploitation Linux (cf syscalls?), est le suivant.
 \missingfigure{Assembleur}
 
