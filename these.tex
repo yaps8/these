@@ -10,7 +10,8 @@
 %
 % D. Roegel, 30 mars 2013
 %
-\documentclass[10pt]{TUL/thesul}
+\documentclass[10pt, oneside]{TUL/thesul}
+% \documentclass[12pt]{TUL/thesul}
 %----------------------------------------------------------------------
 %                     Chargement de quelques packages
 %----------------------------------------------------------------------
@@ -34,6 +35,7 @@
 \usepackage{titlesec}
 \usepackage{url}
 \usepackage{listings}
+\usepackage{subfigure}
 \usepackage[backend=biber, language=french, maxnames=5, citestyle=alphabetic,bibstyle=alphabetic,backref,abbreviate=false,dateabbrev=false,isbn=false,url=false,doi=true]{biblatex}
 
 \addbibresource{these.bib}
@@ -46,13 +48,15 @@
 % \theoremstyle{remark}\newtheorem*{preuve}{Preuve}
 
 % Abbreviations :
+\newcommand{\helloworld}{\texttt{Hello World}}
+\newcommand{\nasm}{NASM}
 \newcommand{\xq}{x86}
 \newcommand{\xs}{x86$\_$64}
 
 \titleformat{\chapter}[display]
   {\bfseries\huge}
   {\filleft\Large\chaptertitlename~\thechapter}
-  {3ex}
+  {1ex}
   {\titlerule\vspace{1.5ex}\filright}
   [\vspace{1ex}\titlerule]
 
