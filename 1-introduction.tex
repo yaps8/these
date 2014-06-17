@@ -1,11 +1,10 @@
-% Ceci est une introduction.\todo{Mettre une intro}
-% \todo[inline]{Une bonne introduction.}
-\todo[inline]{Contexte, enjeux\\ Buts de la thèse\\ Contributions}
-
 % \section{Contexte et enjeux}
-\todo[inline]{Contexte, enjeux:}
-\todo[inline]{Malware, sécurité, détection}
-% Un logiciel opérant sur un ordinateur est dit malveillant s'il réalise volontairement des opérations allant à l'encontre de l'intérêt de l'utilisateur et ce à l'insu de celui-ci. 
+\todo[inline]{Ajouter:}
+\todo[inline]{Attaque -> Malware\\
+Marché des vulnérabilités, des malwares\\
+Citations 
+}
+% Un logiciel opérant sur un ordinateur est dit malveillant s'il réalise volontairement des opérations allant à l'encontre de l'intérêt de l'utilisateur et ce à l'insu de celui-ci.
 Un logiciel malveillant réalise volontairement des opérations allant à l'encontre de l'intérêt de l'utilisateur. 
 Certaines de ces actions peuvent être objectivement malveillantes comme c'est le cas avec Stuxnet qui vise des éléments d'un système de contrôle industriel afin de le rendre inutilisable. 
 % Les administrateurs utilisent quotidiennement des programmes de gestion de machine à distance. 
@@ -16,7 +15,7 @@ Nous proposons donc la définition suivante pour un logiciel malveillant.
 Un logiciel est dit malveillant s'il réalise volontairement des opérations allant à l'encontre de l'intérêt de l'utilisateur, et ce à l'insu de celui-ci.
 \end{defi}
 
-Les actions malveillantes peuvent être de trois nature. On parle d'atteinte à la confidentialité lorsque des données privées sont obtenues par l'attaquant, d'atteinte à l'intégrité lorsque de l'information présente sur le système attaqué est modifiée par l'attaquant et d'atteinte à la disponibilité du système si l'attaquant rend le système inutilisable ou le surcharge\todo{dispo?}.
+Les actions malveillantes peuvent être de trois nature. On parle d'atteinte à la confidentialité lorsque des données privées sont obtenues par l'attaquant, d'atteinte à l'intégrité lorsque de l'information présente sur le système attaqué est altérée par l'attaquant et d'atteinte à la disponibilité du système si l'attaquant rend le système inutilisable ou plus difficile à opérer.
 
 Les logiciels malveillants s'attaquent en général à la confidentialité et la disponibilité du système bien que les outils d'administration à distance soient capables, une fois la machine infectée, d'attaquer les trois aspects de la sécurité de la machine.
 
@@ -25,31 +24,31 @@ On parle alors de \emph{charge utile} pour désigner l'action finale d'une attaq
 
 
 \section{Détection de logiciels malveillants}
-\todo[inline]{+ anti-détection}
 Les premiers travaux traitant de virologie informatique datent de 1986 avec Cohen \cite{Cohen86} puis Adleman \cite{Adleman88} en 1988. Ils s'intéressent particulièrement au comportement auto-reproducteur de certains programmes. Adleman \todo{vrai?} aboutit au résultat suivant dans le cas des logiciels malveillants : la classification d'un logiciel comme malveillant est un problème $\Pi_2$ complet, soit plus difficile que le problème de l'arrêt qui est déjà indécidable.
 
 Les décennies qui ont suivi ont vu apparaître différentes techniques de détection partielles dont la plus répandue est l'analyse de signatures syntaxiques. Les approches par signatures consistent dans un premier temps à extraire d'un corpus de logiciels malveillants connus des caractéristiques comme certaines instructions ou plus généralement une expression rationnelle. Dans un second temps, pour classifier un logiciel inconnu, on regarde s'il possèdent une des caractéristiques extraites du corpus.
 Cette technique, dans le cas des expressions rationnelles, possède le double avantage d'être rapide et de générer peu de fausses alarmes.
 
-Cependant chaque souche originale d'un logiciel malveillant est généralement déclinée en de nombreuses versions dont les fonctionnalités varient. Ces souches formes une famille de logiciels malveillants. Pour éviter la détection par signatures syntaxiques, il suffit souvent d'insérer du code inutile ou de réorganiser le code.
+Cependant chaque souche originale d'un logiciel malveillant est généralement déclinée en de nombreuses versions dont les fonctionnalités varient. Ces souches formes une famille de logiciels malveillants. Pour éviter la détection par signatures syntaxiques, il suffit souvent d'insérer du code inutile ou de réorganiser le code : le nouveau logiciel malveillant est identique fonctionnellement au code initial mais les signatures précédemment extraites n'y sont plus présentes.
 
 Nous nous sommes alors intéressés à la technique de détection initiée par Kaczmarek \cite{AThierry_BKM08} lors de sa thèse. Il s'agit d'une technique de détection par signatures basée sur la comparaison de graphes de flots de contrôles, c'est à dire du graphe structurant l'exécution du logiciel.
-\todo[inline]{exemple prog -> CFG}
+% \todo[inline]{exemple prog ->  CFG}
 
 Dans la pratique, les logiciels malveillants sont souvent protégés par une technique d'encapsulation cachant complètement la charge utile à un analyste.
 Aucune technique basée sur une observation passive du programme à analyser ne peut permettre de prédire le programme encapsulé et donc de détecter s'il est malveillant.
 
-Afin de lutter contre différentes techniques d'obscurcissement, nous avons travaillé sur une méthode d'analyse hybride permettant avec de l'analyse dynamique, d'exécuter le programme original puis, statiquement, d'analyser les parties non exécutées afin d'y rechercher d'autres méthodes d'obscurcissement ainsi que d'y effectuer une détection.
+Afin de lutter contre différentes techniques d'obscurcissement, nous avons travaillé sur une méthode d'analyse hybride.
+Dans un premier temps nous exécutons le programme pour le faire décompresser les parties encapsulées. Dans un second temps nous analysons statiquement les parties non exécutées dans lesquelles nous identifions d'autres méthodes d'obscurcissement et y effectuons une détection.
 
 \section{Problèmes de recherche}
-La principale difficulté lors de l'analyse d'un logiciel malveillant est qu'il est auto-modifiant. En effet un programme encapsulé se décompresse en réécrivant sur lui-même en mémoire. L'auto-modification complexifie grandement la sémantique du programme puisqu'une instruction peut-être amenée à être modifiée au cours de l'exécution de celui-ci.
+La principale difficulté lors de l'analyse d'un logiciel malveillant est qu'il est auto-modifiant : un programme encapsulé se décompresse en réécrivant sur lui-même en mémoire. L'auto-modification complexifie grandement la sémantique du programme puisqu'une instruction peut-être amenée à être modifiée au cours de l'exécution de celui-ci.
 
 \begin{pb}
  Définir une sémantique et une technique d'analyse compatible avec l'auto-modification.
 \end{pb}
 
-En ce sens nous avons repris les sémantiques définies par Reynaud et Calvet \todo{cite} séparant l'exécution d'un programme auto-modifiant en vagues. Chacun des vagues représente une étape d'exécuter dans laquelle le programme n'est pas modifié. Cette représentation permet d'analyser chaque vague indépendamment des autres et d'articuler l'analyse d'un programme autour d'une trace d'exécution particulière.
-La contribution de cette thèse réside dans une sémantique et un algorithme permettant une analyse bornée de toutes les traces d'exécution possibles d'un programme.
+En ce sens nous avons repris les sémantiques définies par Reynaud et Calvet \todo{cite} séparant l'exécution d'un programme auto-modifiant en vagues. Chacune des vagues représente une étape d'exécution dans laquelle le programme n'est pas modifié. Cette représentation permet d'analyser chaque vague indépendamment des autres et d'articuler l'analyse d'un programme autour d'une trace d'exécution particulière.
+La contribution de cette thèse réside dans une sémantique et un algorithme permettant une analyse bornée de toutes les traces d'exécution possibles d'un programme. Un émulateur de code \xq\ auto-modifiant a été implémenté : il est capable de reconstruire les vagues de la trace émulée.
 
 Nous avons ensuite cherché à désassembler un programme obscurci. Le but est de déterminer l'ensemble du code atteignable en étant à la fois correct (on doit couvrir tout le code potentiel) et précis (le code désassemblé doit pouvoir être exécuté). 
 
@@ -60,7 +59,7 @@ Nous avons ensuite cherché à désassembler un programme obscurci. Le but est d
 Puisque notre objectif est de comparer les graphes de programmes connus et inconnus, nous utilisons le désassemblage pour reconstruire un graphe de flot de contrôle du programme analysé.
 Notre contribution est la définition et l'implémentation d'un désassembleur hybride partant d'une trace d'exécution et permettant de reconstruire le graphe de flot de contrôle de chacune des vagues du binaire à l'aide d'une analyse statique.
 
-Enfin la comparaison des graphes de flot de contrôles, ou analyse morphologique, consistait en la détection d'isomorphismes de graphes entre des parties des graphes de flot considérés. L'algorithme utilisé fonctionnait par reconnaissance d'arbres à l'aide d'un automate d'arbres. Il n'existait pas de cadre formel définissant les objets détectés par cette analyse. Sans cadre formel il était également difficile de mesurer les performances de implémentation utilisée en termes de précision des résultats.
+Enfin la comparaison des graphes de flot de contrôles, ou analyse morphologique, consistait en la détection d'isomorphismes de graphes entre des parties des graphes de flot considérés. L'algorithme utilisé fonctionnait par reconnaissance d'arbres à l'aide d'un automate d'arbres. Il n'existait pas de cadre formel définissant les objets détectés par cette analyse. Sans cadre formel il était difficile de mesurer les performances de implémentation utilisée en termes de précision des résultats.
 
 \begin{pb}
  Formaliser et optimiser la reconnaissance de graphes dans l'optique de la détection de programmes malveillants.
