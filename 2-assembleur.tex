@@ -131,11 +131,31 @@ Différence 32 / 64 bits ?
 
 \paragraph{Architecture de Harvard modifiée.}
 Les ordinateurs actuels fonctionnent selon une version modifiée de l'architecture de Harvard.
-La première implémentation de l'architecture de Harvard était L’ASCC (Automatic Sequence Controlled Calculator) d'IBM, également appelé le Mark I et considéré comme le premier calculateur universel, en 1944 \todo{cite autre que wikipedia}. Il lisait les instructions sur des cartes perforées et les données étaient entrées manuellement à l'aide d'interrupteurs. Ainsi le code exécutable était physiquement non modifiable et séparé des données. La seconde différence entre ce modèle et l'architecture de Von Neumann, qui acceptait la modification de la logique des programmes, est que cette dernière ne peut utiliser qu'un seul bus de données entre le processeur et la mémoire. Cette restriction limite grandement les capacités de lecture et écriture mémoire d'une machine utilisant le modèle de Von Neumann. On appelle alors architecture de Harvard modifiée l'architecture de Harvard à plusieurs bus mémoire dans laquelle les instructions et les données sont stockées dans la même mémoire et donc accessibles autant en lecture qu'en écriture.
+La première implémentation de l'architecture de Harvard était L’ASCC (Automatic Sequence Controlled Calculator) d'IBM, également appelé le Mark I et considéré comme le premier calculateur universel, en 1944 \todo{cite autre que wikipedia}. Il lisait les instructions sur des cartes perforées et les données étaient entrées manuellement à l'aide d'interrupteurs. Ainsi le code exécutable était physiquement non modifiable et séparé des données. La seconde différence entre ce modèle et l'architecture de Von Neumann, qui acceptait la modification de la logique des programmes, est que cette dernière ne peut utiliser qu'un seul bus de données entre le processeur et la mémoire. Cette restriction limite grandement les capacités de lecture et écriture mémoire d'une machine utilisant le modèle de Von Neumann. On appelle alors architecture de Harvard modifiée l'architecture de Harvard à plusieurs bus mémoire dans laquelle les instructions et les données sont stockées dans la même mémoire et donc accessibles autant en 
+lecture qu'en écriture.
 
 Dans ce modèle, la machine est articulée autour du processeur
 
 
+\paragraph{Jeu d'instructions.}
+Les processeurs Intel \xq\ utilisent un jeu d'instruction complexe (CISC). La représentation d'une instruction en une suite d'octets inclut principalement un type opération (opcode\todo{opcode?}) et ses arguments. Des informations supplémentaire peuvent être codées dans l'instruction, comme des préfixes. Le format des instructions détaillé est donné figure \ref{fig:format_insts_x86}. L'instruction \texttt{mov ecx, 0x080490a4} de la figure \ref{fig:text_helloworld}, codée sur \texttt{b9 a4 90 04 08} est composée de l'opcode \texttt{b8+r} indiquant une opération de copie d'une valeur immédiate vers un registre. Ici le modificateur r est égal à 1, ce qui indique que le registre concerné est ecx. La valeur à copier vers le registre est 0x080490a4 soient les octets \texttt{a4 90 04 08} codés en petit-boutistes \todo{endianness ??}, c'est à dire que les mots de poids faibles sont écrits en premiers, à l'inverse de l'écriture usuelle. Il s'agit d'une assignation immédiate et la valeur à copier vers \texttt{ecx} est la valeur immédiate.
+Le décalage permet de modifier une instruction d'adressage indirect comme \texttt{mov ecx, [eax]}, écrivant le contenu en mémoire à l'adresse \texttt{eax} dans le registre \texttt{ecx} en \texttt{mov ebx, [eax+d]} où \texttt{d} est le décalage.
+Enfin les préfixes permettent par exemple de répéter plusieurs fois l'instruction jusqu'à ce qu'une condition sur un registre soit remplie.
+
+\begin{figure}
+\begin{center} 
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+% Prefixe & Opcode & Modificateur & SIB & Déplacement d'octet & Adressage\\
+% 1 à 4 & 1 à 3 & 0 ou 1 & 0 ou 1 & 0 à 4 & 0 à 4\\
+Prefixe & Opcode & Modificateur & Décalage & Valeur immédiate\\
+1 à 4 & 1 à 3 & 0 à 2 & 0 à 4 & 0 à 4\\
+\hline
+\end{tabular}
+\end{center} 
+\caption{Format d'une instruction \xq}
+\label{fig:format_insts_x86}
+\end{figure}
 
 \section{Obfuscations}
 \subsection{Auto-modification}
