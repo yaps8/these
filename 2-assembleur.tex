@@ -140,8 +140,15 @@ Ainsi le code exécutable était physiquement non modifiable et séparé des don
 La seconde différence entre ce modèle et l'architecture de Von Neumann, qui acceptait la modification de la logique des programmes, est que cette dernière ne peut utiliser qu'un seul bus de données entre le processeur et la mémoire. 
 Cette restriction limite grandement les capacités de lecture et écriture mémoire d'une machine utilisant le modèle de Von Neumann. On appelle alors architecture de Harvard modifiée l'architecture de Harvard à plusieurs bus mémoire dans laquelle les instructions et les données sont stockées dans la même mémoire et donc accessibles autant en lecture qu'en écriture.
 
-Dans ce modèle, la machine est articulée autour du processeur
+Dans ce modèle la machine est articulée autour du processeur et de son unité de contrôle chargée de synchroniser les autres composants, d'exécuter les instructions du binaire chargé en mémoire, de gérer les entrées et les sorties, de lire et d'écrire dans la mémoire et les registres. L'unité artithmétique et logique opère toute l'arithmétique du processeur et modifie les registres en conséquence selon les résultats des opérations effectuées. Par exemple si une addition provoque un débordement d'entier, c'est à dire que le résultat de l'addition ne peut être stocké dans un seul registre, alors le registre OF (overflow) est passé à 1.
 
+\begin{figure}
+\begin{center}
+\input{supports/architecture/arch.tex}
+\caption{Architecture de Harvard modifiée}
+\label{fig:arch_harvard_mod}
+\end{center}
+\end{figure}
 
 \paragraph{Jeu d'instructions.}
 Les processeurs Intel \xq\ utilisent un jeu d'instruction complexe (CISC). La représentation d'une instruction en une suite d'octets inclut principalement un type opération (opcode\todo{opcode?}) et ses arguments. Des informations supplémentaire peuvent être codées dans l'instruction, comme des préfixes. Le format des instructions détaillé est donné figure \ref{fig:format_insts_x86}. 
