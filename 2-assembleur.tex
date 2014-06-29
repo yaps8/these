@@ -140,7 +140,28 @@ Ainsi le code exécutable était physiquement non modifiable et séparé des don
 La seconde différence entre ce modèle et l'architecture de Von Neumann, qui acceptait la modification de la logique des programmes, est que cette dernière ne peut utiliser qu'un seul bus de données entre le processeur et la mémoire. 
 Cette restriction limite grandement les capacités de lecture et écriture mémoire d'une machine utilisant le modèle de Von Neumann. On appelle alors architecture de Harvard modifiée l'architecture de Harvard à plusieurs bus mémoire dans laquelle les instructions et les données sont stockées dans la même mémoire et donc accessibles autant en lecture qu'en écriture.
 
-Dans ce modèle la machine est articulée autour du processeur et de son unité de contrôle chargée de synchroniser les autres composants, d'exécuter les instructions du binaire chargé en mémoire, de gérer les entrées et les sorties, de lire et d'écrire dans la mémoire et les registres. L'unité artithmétique et logique opère toute l'arithmétique du processeur et modifie les registres en conséquence selon les résultats des opérations effectuées. Par exemple si une addition provoque un débordement d'entier, c'est à dire que le résultat de l'addition ne peut être stocké dans un seul registre, alors le registre OF (overflow) est passé à 1.
+Dans ce modèle la machine est articulée autour du processeur et de son unité de contrôle chargée de synchroniser les autres composants, d'exécuter les instructions du binaire chargé en mémoire, de gérer les entrées et les sorties, de lire et d'écrire dans la mémoire et les registres. L'unité arithmétique et logique opère toute l'arithmétique du processeur et modifie les registres en conséquence selon les résultats des opérations effectuées. Par exemple si une addition provoque un débordement d'entier, c'est à dire que le résultat de l'addition ne peut être stocké dans un seul registre, alors le registre OF (overflow) est passé à 1.
+
+\paragraph{Structure de la mémoire.}~\\
+\todo[inline]{segmentation, pagination? mémoire d'un processus VS mémoire globale?}
+En pratique, lors de l'exécution d'un programme, des informations peuvent être stockées en plusieurs lieux. 
+Premièrement les registres du processeur permettent un accès rapide à quelques variables.
+Certains registres sont réservés, souvent par convention. Par exemple, lors d'un appel de fonction, la convention par défaut en C \todo{cite CDELCL} stipule que la valeur de retour est passé dans le registre \texttt{eax}.
+La seconde structure de mémoire est la pile. 
+Il s'agit d'une structure de type LIFO (\emph{Last In First Out}) dans laquelle les mots (de 32 bits en \xq, 64 en \xs) sont empilés à l'aide de l'instruction \texttt{push} et dépilés avec l'instruction \texttt{pull} de sorte que le mot dépilé est celui qui a été empilé en dernier.
+Les variables locales sont en général enregistrées sur la pile et, lors d'un appel de fonction, les arguments sont passés sur la pile.
+La dernière structure est le tas qui est géré par l'appel de fonctions d'allocations dynamiques (telles \texttt{malloc} en C) et est généralement utilisé pour entreposer les structures mémoire plus encombrantes telles que des tableaux ou des structures complexes.
+En pratique la mémoire d'un processus contient d'abord les sections de code, puis les sections de données, puis le tas qui est susceptible de s'étendre ainsi que la pile qui peut également s'étendre dans le sens inverse (Figure \ref{fig:mem_process}).
+
+
+\begin{figure}
+\begin{center}
+% \includegraphics{supports/architecture/pile.pdf}
+% \input{supports/architecture/pile.tex}
+\caption{Organisation de la mémoire d'un processus}
+\label{fig:mem_process}
+\end{center}
+\end{figure}
 
 \begin{figure}
 \begin{center}
