@@ -9,7 +9,7 @@ Un exécutable est en général d'abord écrit dans un langage de haut niveau. C
 
 Prenons l'exemple d'un simple \helloworld\ en C (Figure \ref{fig:helloword_c}). Il est uniquement composé d'un appel à la fonction \texttt{printf} permettant l'affichage, à l'exécution, de la chaîne de caractère ``Hello, world.''.
 Une implémentation possible en assembleur \nasm\ \xq\ pouvant tourner sous une distribution GNU/Linux est donnée en figure \ref{fig:helloword_asm}. Il est alors composé de deux appels système vers le noyau Linux : une première (sys$\_$write) permettant l'affichage de la chaîne et une seconde (sys$\_$exit) permettant de fermer le processus.
-On peut déjà remarque que le programme est séparé en une section de données (.data) contenant la chaîne de caractère à afficher et une section de code (.text) contenant le code assembleur à exécuter.
+On peut déjà remarquer que le programme est séparé en une section de données (.data) contenant la chaîne de caractère à afficher et une section de code (.text) contenant le code assembleur à exécuter.
 \begin{figure}
 \begin{lstlisting}[language={C}]
 int main(int argc, char* argv[]){
@@ -47,13 +47,14 @@ int     0x80	    ; ~Appel au noyau~
 \label{fig:helloword_asm}
 \end{figure}
 
-Le fichier binaire exécutable résultant de la compilation est donné figure est un exécutable binaire pour Linux, sous format ELF. Le format ELF est structuré de la manière suivante. 
-Comme indiqué sur la figure \ref{fig:structure_elf}, il contient des entêtes dans lesquels sont indiqués des informations générales sur le binaire, les différentes sections du programme (leur taille, leurs adresses) et les différentes sections : ici une section .data contient les données du programmes (dont la chaîne de caractères ``Hello World'') et une section .text contenant le code assembleur à exécuter.
+Le fichier binaire exécutable résultant de la compilation est un exécutable binaire pour Linux, sous format ELF.
+% Le format ELF est structuré de la manière suivante. 
+Comme indiqué sur la figure \ref{fig:structure_elf}, il contient des entêtes dans lesquels sont indiqués des informations générales sur le binaire telle que le point d'entrée du programme, les différentes sections du programme (leur taille, leurs adresses) et les différentes sections : ici une section .data (Figure \ref{fig:data_helloworld}) contient les données du programmes (dont la chaîne de caractères ``Hello World'') et une section .text (Figure \ref{fig:text_helloworld}) contenant le code assembleur à exécuter.
 À l'instar de la figure \ref{fig:structure_elf} donnant une structure simplifiée du format ELF pour Linux, la figure \ref{fig:structure_pe} donne un aperçu du format des fichiers exécutables pour un binaire \xq\ sous Windows.
 
 \begin{figure}
 \begin{center}
-\subfigure[Format d'un fichier ELF]{
+\subfigure[Fichier ELF]{
 \begin{tabular}[b]{|c|}
 \hline
 Entête ELF\\
@@ -73,7 +74,7 @@ Table des sections\\
 \end{tabular}
 \label{fig:structure_elf}
 }
-\subfigure[Format d'un fichier PE]{
+\subfigure[Fichier PE]{
 \begin{tabular}[b]{|c|}
 \hline
 Entête PE\\
@@ -90,17 +91,35 @@ Sections de données\\
 \label{fig:structure_pe}
 }
 \end{center}
+\caption{Format des exécutables ELF (Linux) et PE (Windows)}
+\label{fig:structure_exe}
 \end{figure}
 
 \begin{figure}
 \begin{center}
 \begin{tabular}{|c|c|l|l|}
 \hline
-Emplacement dans le fichier ELF & Adresses une fois le binaire chargé & Octets & Instruction\\ 
+Emplacement dans le fichier & Adresses de chargement & Octets & Caractères ascii\\ 
 \hline
-80 & 8048080 & b9 a4 90 04 08 & mov    ecx,0x80490a4 \\
+94 & 80490a4 & 48 65 6c 6c 6f 2c 20 & H e l l o ,   \\
+9b & 80490ab & 77 6f 72 6x 64 & W o r l d \\
+a0 & 80490b0 & 0a & Caractère de fin de chaîne       \\
+\hline
+\end{tabular}
+\end{center}
+\caption{Section .data de \helloworld}
+\label{fig:data_helloworld}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+\begin{tabular}{|c|c|l|l|}
+\hline
+Emplacement dans le fichier & Adresses de chargement & Octets & Instruction\\ 
+\hline
+80 & 8048080 & b8 04 00 00 00 & mov    eax,0x4       \\
 85 & 8048085 & bb 01 00 00 00 & mov    ebx,0x1       \\
-8a & 804808a & b8 04 00 00 00 & mov    eax,0x4       \\
+8a & 804808a & b9 a4 90 04 08 & mov    ecx,0x80490a4 \\
 8f & 804808f & ba 11 00 00 00 & mov    edx,0x11      \\
 94 & 8048094 & cd 80          & int    0x80          \\
 96 & 8048096 & bb 00 00 00 00 & mov    ebx,0x0       \\
@@ -109,7 +128,6 @@ a0 & 80480a0 & cd 80          & int    0x80          \\
 \hline
 \end{tabular}
 \end{center}
- 
 \caption{Section .text de \helloworld}
 \label{fig:text_helloworld}
 \end{figure}
@@ -118,7 +136,6 @@ a0 & 80480a0 & cd 80          & int    0x80          \\
 % \x64
 \paragraph{Analyse de binaires}
 La principale difficulté lors de l'analyse d'un programme malveillant est que le code source n'est pas disponible à l'analyste qui doit se contenter du fichier binaire compilé.
-
 Un programme compilé se présente donc sous la forme d'un fichier binaire contenant le code machine devant être lancé à l'exécution du programme ainsi que des informations de chargement du binaire : la distinctions de différentes sections (sections de code et sections de données), les adresses mémoires auxquelles le système devra les charger en mémoire ainsi que les librairies du système dont il a besoin et qui devront être chargées.
 
 La principale tâche de l'analyste est alors d'extraire du fichier binaires les quelques informations utiles et surtout d'analyser les parties de code assembleur de l'exécutable.
@@ -126,9 +143,6 @@ La principale tâche de l'analyste est alors d'extraire du fichier binaires les 
 \section{Assembleur \xq\ et \xs}
 L'architecture la plus fréquente sur ces ordinateurs personnels est celle des processeurs Intel CISC avec le jeu d'instructions \xq\ pour les machines adressant la mémoire sur 32 bits, et le jeu d'instructions \xs\ pour celles adressant la mémoire sur 64 bits.
 \todo[inline]{
-Architecture de Harvard modifiée \\
-Jeu d'instructions \\
-Intuition de sémantique \\
 Différence 32 / 64 bits ?
 }
 
@@ -137,10 +151,13 @@ Les ordinateurs actuels fonctionnent selon une version modifiée de l'architectu
 La première implémentation de l'architecture de Harvard était L’ASCC (Automatic Sequence Controlled Calculator) d'IBM, également appelé le Mark I et considéré comme le premier calculateur universel, en 1944 \todo{cite autre que wikipedia}. 
 Il lisait les instructions sur des cartes perforées et les données étaient entrées manuellement à l'aide d'interrupteurs. 
 Ainsi le code exécutable était physiquement non modifiable et séparé des données. 
-La seconde différence entre ce modèle et l'architecture de Von Neumann, qui acceptait la modification de la logique des programmes, est que cette dernière ne peut utiliser qu'un seul bus de données entre le processeur et la mémoire. 
+
+
+L'architecture de Von Neumann, qui acceptait la modification de la logique des programmes, était limitée à l'utilisation d'un seul bus de données entre le processeur et la mémoire.
 Cette restriction limite grandement les capacités de lecture et écriture mémoire d'une machine utilisant le modèle de Von Neumann. On appelle alors architecture de Harvard modifiée l'architecture de Harvard à plusieurs bus mémoire dans laquelle les instructions et les données sont stockées dans la même mémoire et donc accessibles autant en lecture qu'en écriture.
 
 Dans ce modèle la machine est articulée autour du processeur et de son unité de contrôle chargée de synchroniser les autres composants, d'exécuter les instructions du binaire chargé en mémoire, de gérer les entrées et les sorties, de lire et d'écrire dans la mémoire et les registres. L'unité arithmétique et logique opère toute l'arithmétique du processeur et modifie les registres en conséquence selon les résultats des opérations effectuées. Par exemple si une addition provoque un débordement d'entier, c'est à dire que le résultat de l'addition ne peut être stocké dans un seul registre, alors le registre OF (overflow) est passé à 1.
+Une organisation simplifiée d'une machine utilisant le modèle de Harvard modifié est donnée Figure \ref{fig:arch_harvard_mod}.
 
 \paragraph{Structure de la mémoire.}~\\
 \todo[inline]{segmentation, pagination? mémoire d'un processus VS mémoire globale?}
@@ -152,12 +169,13 @@ Il s'agit d'une structure de type LIFO (\emph{Last In First Out}) dans laquelle 
 Les variables locales sont en général enregistrées sur la pile et, lors d'un appel de fonction, les arguments sont passés sur la pile.
 La dernière structure est le tas qui est géré par l'appel de fonctions d'allocations dynamiques (telles \texttt{malloc} en C) et est généralement utilisé pour entreposer les structures mémoire plus encombrantes telles que des tableaux ou des structures complexes.
 En pratique la mémoire d'un processus contient d'abord les sections de code, puis les sections de données, puis le tas qui est susceptible de s'étendre ainsi que la pile qui peut également s'étendre dans le sens inverse (Figure \ref{fig:mem_process}).
-\todo[inline]{Sous windows, sous linus ?}
+\todo[inline]{Sous windows, sous linux ?}
 
 \begin{figure}
 \begin{center}
 % \includegraphics{supports/architecture/pile.pdf}
 % \input{supports/architecture/pile2.tex}
+\missingfigure{!}
 \caption{Organisation de la mémoire d'un processus}
 \label{fig:mem_process}
 \end{center}
@@ -224,7 +242,86 @@ Ces sauts peuvent être inconditionnels comme un \texttt{jmp 8048085} qui provoq
 Les sauts peuvent aussi être conditionnels : \texttt{je +10}, à l'adresse $a$ et de taille $n$, sera suivie de l'instruction à l'adresse $a+10$ si le registre ZF vaut 1 (en cas d'égalité) et de l'instruction à l'adresse $a+n$ dans le cas contraire.
 
 
+\section{Désassemblage}
+Le désassemblage est l'opération inverse de l'assemblage : il consiste à récupérer le code assembleur source du binaire.
+Cette tâche semble particulièrement simple puisque l'assemblage consiste simplement à trouver les octets correspondants à chaque instruction à l'aide de la documentation officielle du processeur puis à mettre en forme le fichier binaire en remplissant correctement ses entêtes et ses sections.
+Pourtant on a vu que, dans le modèle d'Harvard modifié, les données et le code peuvent être mêlés. 
+En particulier les parties de données (comme la section .data) peuvent être exécutées. 
+De même les sections de code peuvent contenir des informations destinées à être simplement lues ou modifiées mais jamais exécutées.
+La difficulté du désassemblage consiste donc à séparer les parties potentiellement exécutables des données.
 
+Ainsi un désassemblage à priori cohérent de \helloworld\ consisterait à considérer les deux sections comme contenant du code potentiellement exécutable. Ce désassemblage sera composé de la section .text déjà désassemblé Figure \ref{fig:text_helloworld} et la section .data donnée Figure \ref{fig:data_exec_helloworld}.
+Ce désassemblage n'est pas correct et on peut le prédire. 
+On connaît le point d'entrée du binaire, qui est l'adresse \texttt{8048080} dans la section .text.
+Les instructions exécutées dans la section .text à la suite du point d'entrée sont séquentielles et ne peuvent détourner l'exécution vers la section .data. 
+Le code désassemblé dans cette section n'est donc pas atteignable. Dans ce cas on sait alors que la section .data ne contient pas de code et ne doit pas être désassemblée.
+
+\paragraph{Utilisation de sauts dynamiques.}
+En pratique un programme est constitué d'un grand nombre d'instructions de saut et notamment de sauts dynamiques de type \texttt{jmp eax}.
+Ce type d'instructions posent un souci lors de l'analyse : sans connaître précisément la ou les valeurs potentielles d'\eax, impossible de prédire la cible du saut et donc de savoir le code potentiellement exécuté à la suite de cette instruction.
+Dans l'exemple du \helloworld, si une telle instruction est présente dans la section .text, il devient difficile d'exclure l'exécution possible de code dans la section .data.
+
+\paragraph{Difficulté théorique du désassemblage.}
+On a vu que le problème du désassemblage tient dans la difficulté de séparer les parties de code potentiel des parties de données.
+Plus précisément le but du désassemblage d'un programme P est alors de déterminer l'ensemble des adresses $a$ du programme pour lesquelles il existe une entrée I telle que l'exécution de P(I) atteint $a$.
+Nous citons ici un argument tiré de la thèse de Joan Calvet \cite{Calvet2013} montrant le caractère indécidable de ce problème en réduisant le problème de l'arrêt à celui-ci.
+
+Supposons que le problème soit décidable et notons, pour tout programme P, $CODE(P)$ l'ensemble des adresses des instructions de P atteignables lors de l'exécution de P. Pour tout programme P et toute entrée I à P, on peut définir le programme P' suivant qui ne prend pas d'entrée :
+
+\begin{center}
+\begin{tabular}{|l|l|}
+\hline
+Adresse & Commande \\
+\hline
+0 & call P(I)\\
+$\alpha$ & halt \\
+\hline
+\end{tabular}
+\end{center}
+
+Deux cas sont alors possibles.
+\begin{itemize}
+ \item Soit $\alpha\in\ CODE(P')$ et dans ce cas l'exécution atteint l'adresse $\alpha$ donc le programme P termine sur l'entrée I.
+ \item Soit $\alpha\notin\ CODE(P')$ donc le programme P ne termine pas sur l'entrée I.
+\end{itemize}
+~\\
+On en déduit donc que le désassemblage permet de résoudre le problème de l'arrêt qui est pourtant connu pour être indécidable ; c'est absurde.
+Ainsi le problème du désassemblage est indécidable.
+
+
+\begin{figure}
+\begin{center}
+\begin{tabular}{|c|c|l|l|}
+\hline
+Emplacement dans le fichier & Adresses de chargement & Octets & Instruction\\ 
+\hline
+94 & 80490a4 & 48    & dec    eax			\\
+95 & 80490a5 & 65    & gs				\\
+96 & 80490a6 & 6c    & ins    BYTE PTR es:[edi],dx	\\
+97 & 80490a7 & 6c    & ins    BYTE PTR es:[edi],dx	\\
+98 & 80490a8 & 6f    & outs   dx,DWORD PTR ds:[esi]	\\
+99 & 80490a9 & 2c 20 & sub    al,0x20			\\
+9b & 80490ab & 77 6f & ja     0x804911c			\\
+9d & 80490ad & 72 6c & jb     0x804911b			\\
+9f & 80490af & 64    & fs				\\
+a0 & 80490b0 & 0a    & .byte 0xa			\\
+\hline
+\end{tabular}
+\end{center}
+\caption{Section .data de \helloworld\ désassemblée comme du code}
+\label{fig:data_exec_helloworld}
+\end{figure}
+
+\todo[inline]{Analyse statique, analyse dynamique ?\\
+linear sweep, recursive traversal, speculative disassembly}
+
+\subsection{Analyse statique}
+\paragraph{Linear sweep.}
+\paragraph{Recursive disassembly.}
+
+\subsection{Analyse dynamique}
+
+% \paragraph{Décompilation.}
 
 \section{Obfuscations}
 \subsection{Auto-modification}
@@ -238,12 +335,15 @@ Exemple
 \subsection{Obscurcissement statique}
 \todo[inline]{
 Ajout de junk code \\
-Réorganisation du code \\
-Aplatissement de CFG \\
 Détournement de calls \\
 Chevauchements \\
+Prédicats opaques\\
+}
+\todo[inline]{
+Réorganisation du code \\
+Aplatissement de CFG \\
 }
 
-\section{Difficulté calculatoire de l'analyse de binaire}
-\subsection{Désassemblage}
-\subsection{Décompilation}
+% \section{Difficulté calculatoire de l'analyse de binaire}
+% \subsection{Désassemblage}
+% \subsection{Décompilation}
