@@ -1,0 +1,18 @@
+digraph G{
+"1" [label="mov eax, 0"]
+"2" [label="jmp suite"]
+"3" [label="mov eax, 3"]
+"4" [label="suite: cmp eax, 0"]
+"5" [label="je fin2"]
+"6" [label="mov eax, 1"]
+"7" [label="ret"]
+"8" [label="fin2: mov eax, 2"]
+"9" [label="ret"]
+"1" -> "2"
+"2" -> "4"
+"4" -> "5"
+"5" -> "6"
+"6" -> "7"
+"5" -> "8"
+"8" -> "9"
+}

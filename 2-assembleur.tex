@@ -266,7 +266,7 @@ On a vu que le problème du désassemblage tient dans la difficulté de séparer
 Plus précisément le but du désassemblage d'un programme P est alors de déterminer l'ensemble des adresses $a$ du programme pour lesquelles il existe une entrée I telle que l'exécution de P(I) atteint $a$.
 Nous citons ici un argument tiré de la thèse de Joan Calvet \cite{Calvet2013} montrant le caractère indécidable de ce problème en réduisant le problème de l'arrêt à celui-ci.
 
-Supposons que le problème soit décidable et notons, pour tout programme P, $CODE(P)$ l'ensemble des adresses des instructions de P atteignables lors de l'exécution de P. Pour tout programme P et toute entrée I à P, on peut définir le programme P' suivant qui ne prend pas d'entrée :
+Supposons que le problème soit décidable et notons $CODE$ le programme tel que, pour tout programme P, $CODE(P)$ est l'ensemble des adresses des instructions de P atteignables lors de l'exécution de P. Pour tout programme P et toute entrée I à P, on peut définir le programme P' suivant qui ne prend pas d'entrée :
 
 \begin{center}
 \begin{tabular}{|l|l|}
@@ -312,12 +312,51 @@ a0 & 80490b0 & 0a    & .byte 0xa			\\
 \label{fig:data_exec_helloworld}
 \end{figure}
 
+\paragraph{Reconstruction du graphe de flot de contrôle (GFC).}
+Nous avons vu jusqu'ici une réprésentation des programmes assembleur et binaires sous forme de code linéaire mais il est plus aisé de visualiser les programmes à l'aide d'un graphe de flot de contrôle (GFC).
+Ce graphe représente les instructions sous forme de sommets et les sauts du flot de contrôle d'une instruction à une autre sous forme d'arcs.
+Prenons le programme assembleur donné en figure \ref{fig:asm_eax}. Il ne fait que modifier le registre \eax, effectue des sauts selon la valeur d'\eax\ et se termine avec une valeur pour \eax\ à 1 ou 2. L'instruction \texttt{mov eax, 3} n'est pas atteignable puisqu'elle suit un saut inconditionnel et qu'aucune autre instruction ne provoque un saut vers elle.
+Ainsi le graphe de flot de contrôle de ce programme est celui donné en figure \ref{fig:asm_eax_cfg}.
+Un graphe de flot idéal inclut exactement l'ensemble des instructions atteignables dans le programme et un arc ne relie deux instructions que s'il existe au moins une exécution du programme dans laquelle les deux instructions sont exécutées consécutivement.
+\\
+
+Dans la partie suivante nous introduisons les deux techniques d'analyse de code que sont l'analyse statique et l'analyse dynamique.
+On parle d'analyse dynamique lorsque le fichier binaire à analyser est exécuté au moins partiellement et que l'analyse consiste à observer une ou des exécutions du programme. Au contraire lors d'une analyse statique on cherche à inférer des propriétés sur le programme sans l'exécuter.
+
+\begin{figure}
+\begin{lstlisting}[language={[x86masm]Assembler}, escapechar=~]
+mov eax, 0
+jmp suite
+mov eax, 3
+suite:
+cmp eax, 0
+je fin2
+mov eax, 1
+ret
+
+fin2:
+mov eax, 2
+ret
+\end{lstlisting}
+\caption{Fonction assembleur modifiant \eax}
+\label{fig:asm_eax}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=0.6\textwidth]{supports/eax-cfg/eax.pdf}
+\end{center}
+\caption{GFC de l'exemple de la figure \ref{fig:asm_eax}}
+\label{fig:asm_eax_cfg}
+\end{figure}
+
 \todo[inline]{Analyse statique, analyse dynamique ?\\
 linear sweep, recursive traversal, speculative disassembly}
 
 \subsection{Analyse statique}
-\paragraph{Linear sweep.}
-\paragraph{Recursive disassembly.}
+\paragraph{Parcours linéaire.}
+\paragraph{Parcours récursif.}
+\paragraph{Parcours spéculatif.}
 
 \subsection{Analyse dynamique}
 
