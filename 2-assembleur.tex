@@ -315,7 +315,7 @@ a0 & 80490b0 & 0a    & .byte 0xa			\\
 \paragraph{Reconstruction du graphe de flot de contrôle (GFC).}
 Nous avons vu jusqu'ici une réprésentation des programmes assembleur et binaires sous forme de code linéaire mais il est plus aisé de visualiser les programmes à l'aide d'un graphe de flot de contrôle (GFC).
 Ce graphe représente les instructions sous forme de sommets et les sauts du flot de contrôle d'une instruction à une autre sous forme d'arcs.
-Prenons le programme assembleur donné en figure \ref{fig:asm_eax}. Il ne fait que modifier le registre \eax, effectue des sauts selon la valeur d'\eax\ et se termine avec une valeur pour \eax\ à 1 ou 2. L'instruction \texttt{mov eax, 3} n'est pas atteignable puisqu'elle suit un saut inconditionnel et qu'aucune autre instruction ne provoque un saut vers elle.
+Prenons le programme assembleur donné en figure \ref{fig:asm_eax_code}. Il ne fait que modifier le registre \eax, effectue des sauts selon la valeur d'\eax\ et se termine avec une valeur pour \eax\ à 1 ou 2. L'instruction \texttt{mov eax, 3} n'est pas atteignable puisqu'elle suit un saut inconditionnel et qu'aucune autre instruction ne provoque un saut vers elle.
 Ainsi le graphe de flot de contrôle de ce programme est celui donné en figure \ref{fig:asm_eax_cfg}.
 Un graphe de flot idéal inclut exactement l'ensemble des instructions atteignables dans le programme et un arc ne relie deux instructions que s'il existe au moins une exécution du programme dans laquelle les deux instructions sont exécutées consécutivement.
 \\
@@ -324,30 +324,32 @@ Dans la partie suivante nous introduisons les deux techniques d'analyse de code 
 On parle d'analyse dynamique lorsque le fichier binaire à analyser est exécuté au moins partiellement et que l'analyse consiste à observer une ou des exécutions du programme. Au contraire lors d'une analyse statique on cherche à inférer des propriétés sur le programme sans l'exécuter.
 
 \begin{figure}
-\begin{lstlisting}[language={[x86masm]Assembler}, escapechar=~]
-mov eax, 0
-jmp suite
-mov eax, 3
-suite:
-cmp eax, 0
-je fin2
-mov eax, 1
-ret
-
-fin2:
-mov eax, 2
-ret
-\end{lstlisting}
-\caption{Fonction assembleur modifiant \eax}
-\label{fig:asm_eax}
-\end{figure}
-
-\begin{figure}
 \begin{center}
-\includegraphics[width=0.6\textwidth]{supports/eax-cfg/eax.pdf}
-\end{center}
-\caption{GFC de l'exemple de la figure \ref{fig:asm_eax}}
+\subfigure[Code assembleur]{
+\begin{tabular}[b]{|l|l|l|}
+\hline
+Adresse & Octets & Instruction\\ 
+\hline
+ 8048067  &  b8 00 00 00 00         &  mov    eax,0x0 \\
+ 804806c  &  eb 05                  &  jmp    0x8048073 \\
+ 804806e  &  b8 03 00 00 00         &  mov    eax,0x3 \\
+ 8048073  &  83 f8 00               &  cmp    eax,0x0 \\
+ 8048076  &  74 06                  &  je     0x804807e \\
+ 8048078  &  b8 01 00 00 00         &  mov    eax,0x1 \\
+ 804807d  &  c3                     &  ret     \\
+ 804807e  &  b8 02 00 00 00         &  mov    eax,0x2 \\
+ 8048083  &  c3                     &  ret     \\
+\hline
+\end{tabular}
+\label{fig:asm_eax_code}
+}
+\subfigure[Graphe de flot de contrôle]{
+\includegraphics[width=0.4\textwidth]{supports/eax-cfg/eax.pdf}
 \label{fig:asm_eax_cfg}
+}
+\end{center}
+\caption{Représentation d'une fonction assembleur modifiant \eax}
+\label{fig:asm_eax}
 \end{figure}
 
 \todo[inline]{Analyse statique, analyse dynamique ?\\
@@ -355,8 +357,28 @@ linear sweep, recursive traversal, speculative disassembly}
 
 \subsection{Analyse statique}
 \paragraph{Parcours linéaire.}
+Un désassemblage suivant un parcours linéaire désassemble, pour chaque section, la première instruction à l'adresse $a$ puis l'instruction à l'adresse $a+k$ où k est la nombre d'octets sur lesquels l'instruction est codée.
+Ainsi pour une suite d'instructions séquentielles cette méthode suit le flot de contrôle mais si une instruction de type \jmp\ est rencontrée, le désassemblage s'intéressera à l'instruction qui suit en mémoire et non celle qui sera logiquement exécutée ensuite.
+La figure \ref{fig:asm_eax_code} donne un exemple de désassemblage linéaire d'une fonction assembleur.
+L'avantage de cette technique réside dans sa simplicité et le fait qu'elle couvre l'ensemble de la mémoire.
+Pourtant, ne cherchant pas à suivre le flot de contrôle, elle ne permet pas de séparer le code exécutable des données et désassemble des instructions qui ne sont pas atteignables comme l'instruction \mov\ à l'adresse $804806e$ de la figure \ref{fig:asm_eax}.
+\todo[inline]{objdump, radare?}
+
 \paragraph{Parcours récursif.}
+À l'inverse du parcours linéaire, le parcours récursif suit le flot de contrôle et désassemble les instructions que se suivent logiquement en partant du point d'entrée du programme. Le graphe de flot de contrôle peut être déduit du parcours récursif : la figure \ref{fig:asm_eax_cfg} donne celui de l'exemple précédent.
+L'avantage de cette technique est qu'elle ne désassemble que des instructions dont on peut raisonnablement penser qu'elles sont atteignables.
+
+Cependant certains chemins ne sont pas atteignables en raison de variables définies. 
+L'instruction à l'adresse \texttt{8048076} provoque un saut vers l'adresse \texttt{804807e} si la comparaison effectuée à l'instruction précédente est vraie, c'est à dire si $\eax=0$, et saute vers l'adresse \texttt{8048078} dans le cas contraire.
+Or la première instruction de la fonction donne à \eax\ la valeur 0. Dans tous les cas le saut se produira donc vers l'adresse \texttt{804807e} et l'autre branche n'est pas atteignable.
+
+D'autre part si des sauts dynamiques sont utilisés comme \texttt{jmp eax}, le parcours récursif s'arrête alors qu'il est clair que d'autres instructions seront exécutées.
+
+\todo[inline]{IDA}
+
 \paragraph{Parcours spéculatif.}
+Pour pallier à l'incomplétude d'un parcours récursif, des chercheurs \todo{cite} ont proposé un parcours spéculatif pour les parties de mémoire non désassemblées par l'approche récursive.
+Il s'agit d'effectuer un parcours linéaire sur ces zones mémoires et d'utiliser des heuristiques pour déterminer s'il s'agit de code ou de données.
 
 \subsection{Analyse dynamique}
 

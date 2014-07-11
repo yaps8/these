@@ -1,13 +1,12 @@
 digraph G{
-"1" [label="mov eax, 0"]
-"2" [label="jmp suite"]
-"3" [label="mov eax, 3"]
-"4" [label="suite: cmp eax, 0"]
-"5" [label="je fin2"]
-"6" [label="mov eax, 1"]
-"7" [label="ret"]
-"8" [label="fin2: mov eax, 2"]
-"9" [label="ret"]
+"1" [label="8048067: mov eax, 0"]
+"2" [label="804806c: jmp 0x8048073"]
+"4" [label="8048073: cmp eax, 0"]
+"5" [label="8048076: je 0x804807e"]
+"6" [label="8048078: mov eax, 1"]
+"7" [label="804807d: ret"]
+"8" [label="804807e: mov eax, 2"]
+"9" [label="8048083: ret"]
 "1" -> "2"
 "2" -> "4"
 "4" -> "5"
