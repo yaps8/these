@@ -37,6 +37,12 @@
 \usepackage{listings}
 \usepackage{pstricks}
 \usepackage{subfigure}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{tabularx}
+\usepackage{textcomp}
+
 \usepackage[backend=biber, language=french, maxnames=5, citestyle=alphabetic,bibstyle=alphabetic,backref,abbreviate=false,dateabbrev=false,isbn=false,url=false,doi=true]{biblatex}
 
 \addbibresource{these.bib}
@@ -46,6 +52,8 @@
 \newtheorem{theo}{Théorème}
 \newtheorem{defi}{Définition}
 \newtheorem{prop}{Proposition}
+\newtheorem{pr}{Preuve}
+\newtheorem{cor}{Corollaire}
 % \theoremstyle{remark}\newtheorem*{preuve}{Preuve}
 
 % % Abbreviations :
@@ -64,6 +72,26 @@
 \newcommand{\cmp}{\texttt{cmp}}
 \newcommand{\add}{\texttt{add}}
 \newcommand{\jmp}{\texttt{jmp}}
+
+% Sémantique
+\newcommand{\BN}{\mathbb N}
+\newcommand{\BV}{\mathbb V}
+\newcommand{\BX}{\mathbb X}
+\newcommand{\BA}{\mathbb A}
+\newcommand{\BP}{\mathbb P}
+\newcommand{\BT}{\mathbb T}
+\newcommand{\BL}{\mathbb L}
+\newcommand{\BB}{\mathbb B}
+\newcommand{\BNB}{\mathbb N\cup\{\bot\}}
+\newcommand{\PN}{\mathcal{P}(\BN)}
+\newcommand{\PMN}{\mathcal{P}_M(\BN)}
+\newcommand{\Trs}{\mathbb N\cup\{\bot,\top\}}
+\newcommand{\TTrs}{\mathcal P(\mathbb V\rightarrow\mathbb N\cup\{\bot,\top\})}
+\newcommand{\Tr}{\PN\cup{\top,\bot}}
+\newcommand{\TrM}{\PMN\cup\{\top,\bot\}}
+\newcommand{\si}{\sigma_{init}}
+\newcommand{\specialcell}[2][c]{%
+  \begin{tabular}[#1]{@{}l@{}}#2\end{tabular}}
 
 \titleformat{\chapter}[display]
   {\bfseries\huge}
