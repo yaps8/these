@@ -34,13 +34,16 @@ $\sigma : \BV \rightarrow \Trs$ représente un store : à une variable du progra
 
 \section{Interprêtation abstraite}
 \todo[inline]{citer \cite{Kildall73}, \cite{CousotC77}, \cite{BHV11}}
-\subsection{Value Set Analysis (VSA)}
+\section{Value Set Analysis (VSA)}
 \todo[inline]{Sémantique + interp abstraite pour VSA || explication informelle + limites ?}
 
-\subsection{VSA pour les programmes auto-modifiants}
+\section{VSA pour les programmes auto-modifiants}
+
 \todo[inline]{Relire pour comprendre}
 \todo[inline]{Polir les notations avec D et adapter aussi pour VSA (?)}
 \todo[inline]{Ajouter les sous-titres}
+
+\section{Limites de VSA}
 
 \section{Propagation}
 \begin{defi}
@@ -67,9 +70,7 @@ Soit $\Sigma$ et $\Sigma'$ dans $\TTrs,\ \Sigma \vee \Sigma'=\Sigma \cup \Sigma'
 \end{defi}
 
 \begin{defi}
-Soit $g:\BN^m  \rightarrow \BN$ (avec $m\in\BN$) une fonction totale sur son domaine, on définit $f(l,\sigma)$ :
-\begin{itemize}
-\item Si l'instruction $l$ est de type $x\leftarrow g(x_1, ..., x_m)$ avec $x_1, x_2, ..., x_m$ dans $\BX$ alors : \\
+Soit $g:\BN^m  \rightarrow \BN$ (avec $m\in\BN$) une fonction totale sur son domaine.
 Notons V l'évaluation de $g(x_1, ..., x_m)$ :
 $V=
 \left\{
@@ -80,7 +81,12 @@ $V=
   \end{array}
 \right.
 $\\
+\end{defi}
 
+\begin{defi}
+Soit $g:\BN^m  \rightarrow \BN$ (avec $m\in\BN$) une fonction totale sur son domaine, on définit $f(l,\sigma)$ :
+\begin{itemize}
+\item Si l'instruction $l$ est de type $x\leftarrow g(x_1, ..., x_m)$ avec $x_1, x_2, ..., x_m$ dans $\BX$ alors : \\
 $f(l, \sigma) = \sigma$ modifié comme suit : $
 \left\{
   \begin{array}{ll}
