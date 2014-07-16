@@ -163,7 +163,7 @@ Une organisation simplifiée d'une machine utilisant le modèle de Harvard modif
 \todo[inline]{segmentation, pagination? mémoire d'un processus VS mémoire globale?}
 En pratique, lors de l'exécution d'un programme, des informations peuvent être stockées en plusieurs lieux. 
 Premièrement les registres du processeur permettent un accès rapide à quelques variables.
-Certains registres sont réservés, souvent par convention. Par exemple, lors d'un appel de fonction, la convention par défaut en C \todo{cite CDELCL} stipule que la valeur de retour est passée dans le registre \texttt{eax}.
+Certains registres sont réservés, souvent par convention. Par exemple, lors d'un appel de fonction, la convention par défaut (CDECL) stipule que la valeur de retour est passée dans le registre \texttt{eax}.
 La seconde structure de mémoire est la pile. 
 Il s'agit d'une structure de type LIFO (\emph{Last In First Out}) dans laquelle les mots (de 32 bits en \xq, 64 en \xs) sont empilés à l'aide de l'instruction \texttt{push} et dépilés avec l'instruction \texttt{pull} de sorte que le mot dépilé est celui qui a été empilé en dernier.
 Les variables locales sont en général enregistrées sur la pile et, lors d'un appel de fonction, les arguments sont passés sur la pile.
@@ -383,7 +383,7 @@ D'autre part si des sauts dynamiques sont utilisés comme \texttt{jmp eax}, le p
 \paragraph{Parcours spéculatif.}
 Pour pallier à l'incomplétude d'un parcours récursif, un parcours spéculatif a été proposé pour les parties de mémoire non désassemblées par l'approche récursive. 
 Il s'agit d'effectuer un parcours linéaire sur ces zones mémoires et d'utiliser des heuristiques pour déterminer s'il s'agit de code ou de données.
-Les heuristiques proposées portent sur la détection de fonctions assembleur \cite{KruegelRVV04}, repérables grâce à une suite d'instructions caractéristiques ;  sur des approches statistiques cherchant à déterminer la probabilité qu'un bloc mémoire soit de l'assembleur par calcul d'entropie. Une autre approche évalue la probabilité qu'une suite d'instructions soit effectivement du code en apprenant au préalable des suites d'instructions réelles lancées lors de l'exécution d'un programme \cite{KDF09}\todo{c'est la bonne citation?}.
+Les heuristiques proposées portent sur la détection de fonctions assembleur \cite{KruegelRVV04}, repérables grâce à une suite d'instructions caractéristiques ;  sur des approches statistiques cherchant à déterminer la probabilité qu'un bloc mémoire soit de l'assembleur par calcul d'entropie. Une autre approche évalue la probabilité qu'une suite d'instructions soit effectivement du code en apprenant au préalable des suites d'instructions réelles lancées lors de l'exécution d'un programme \cite{KDF09}.
 
 \subsection{Analyse dynamique}
 
@@ -447,18 +447,9 @@ Une autre technique courante d'obscurcissement \todo{cite} consiste à utiliser 
 Une telle condition est appelée un prédicat opaque et peut par exemple être implémentée par des relations d'arithmétique. Par exemple en appliquant le petit théorème de Fermat \cite{fermat} : quel que soit l'entier e, $e^3\ =\ e\ mod\ 3$.
 Le programmeur sait que l'égalité est toujours vérifiée mais un analyseur statique ne pourra pas le déterminer aisément.
 
+\paragraph{Chevauchements.}
 
-% Non standard control flow can be used against a recursive disassembler so it explores
-% unreachable code. For instance, the standard behavior of a binary after executing a \emph{call} at address $a$ is to push the 
-% return instruction $a+1$ on the stack. Upon execution of the next \ret\ instruction, the value on top of the stack is
-% popped and the control flow is transferred to it. A classical obfuscation technique is to use \emph{push $a'$} immediately
-% followed by a \emph{ret}, which behaves like a direct jump to address $a'$. If this is done after a \emph{call} at address $a$,
-% the control flow will never return to address $a+1$.
-% \\
-
-% These two obfuscation methods have been addressed in the litterature: Kruegel et al. \cite{KruegelRVV04} proposed a solution based on the asumption that legitimate code do not overlap.
-
-
+~\\
 \todo[inline]{
 Réorganisation du code \\
 Aplatissement de CFG \\
