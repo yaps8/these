@@ -357,8 +357,6 @@ Adresse & Octets & Instruction\\
 \label{fig:asm_eax}
 \end{figure}
 
-\todo[inline]{Analyse statique, analyse dynamique ?\\
-linear sweep, recursive traversal, speculative disassembly}
 
 \subsection{Analyse statique}
 \paragraph{Parcours linéaire.}
@@ -402,11 +400,65 @@ Exemple
 
 \subsection{Obscurcissement statique}
 \todo[inline]{
-Ajout de junk code \\
-Détournement de calls \\
-Chevauchements \\
-Prédicats opaques\\
+Chevauchements
 }
+
+\paragraph{Insertion de code mort.}
+Insérer du non atteignable (ou code mort) peut forcer un désassembleur par parcours linéaire à se désaligner avec le code réellement exécuté et à favoriser le code mort au détriment du code légitime.
+L'exemple donné en figure \ref{fig:junk_right} montre de l'assembleur avec deux octets de données placés à la suite d'un instruction \jmp. Ces deux octets aux adresses $0x08048062$ et $0x08048063$ ne sont pas atteignables. Pourtant un désassembleur linéaire (Figure \ref{fig:junk_fooled}) chercherait à les désassembler et serait alors incapable de voir une partie des instructions réellement exécutées.
+
+
+\begin{figure}
+\begin{lstlisting}[language={[x86masm]Assembler}, escapechar=~]
+08048060    eb 02               jmp 0x8048064
+08048062    0a 05		(unreachable code)
+08048064    83 f9 02            cmp ecx, 0x2
+08048067    74 00               je 0x8048069
+08048069    bb 02 00 00 00      mov ebx, 0x2 ;  0x00000002
+\end{lstlisting}
+\caption{Insertion de code mort dans du code légitime}
+\label{fig:junk_right}
+\end{figure}
+
+\begin{figure}
+\begin{lstlisting}[language={[x86masm]Assembler}, escapechar=~]
+08048060    eb 02               jmp 0x8048064
+08048062    0a 05 83 f9 02 74   or al, [0x7402f983]
+08048068    00 bb 02 00 00 00   add [ebx+0x2], bh
+\end{lstlisting}
+\caption{L'insertion de code mort dupe facilement un désassemblage par parcours linéaire}
+\label{fig:junk_fooled}
+\end{figure}
+
+
+\paragraph{Appels de fonctions sans retour.}
+L'utilisation d'un contrôle de flot non standard peut forcer un désassembleur par parcours récursif à explorer du code non atteignable. 
+Le comportement par défaut de l'instruction \call\ à une adresse $a$ et de taille $n$ est d'empiler l'adresse de retour $a+n$.
+L'instruction \ret\ placée à la fin de la fonction appelée dépile la première valeur de la pile et provoque est saut vers celle-ci.
+Normalement cette valeur est $a+n$ afin de le flot d'exécution revienne à la fonction appelant.
+Ainsi un désassembleur récursif désassemble à partir de la cible du \call\ ainsi que de l'adresse de retour.
+
+Une technique classique d'obscurcissement \todo{cite} consiste à combiner l'empilement d'une adresse (\push\ $a$) et l'instruction \ret. Ces deux instructions provoquent un saut vers l'adresse $a$ sans possibilité de revenir à l'instruction suivant le \call.
+
+\paragraph{Prédicats opaques.}
+% À l'instar de son comportement avec une instruction \call, 
+Lorsqu'un désassembleur récursif rencontre une instruction de saut conditionnel comme \je, qui provoque un saut si les deux valeurs comparées sont égales, il cherche à désassembler à la fois la cible potentielle du saut comme l'instruction suivante, qui sera exécutée si la condition n'est pas remplie.
+Une autre technique courante d'obscurcissement \todo{cite} consiste à utiliser comme condition du saut une relation que le programmeur sait toujours vraie ou fausse. De cette manière il prédit qu'une seule des deux branches est atteignable alors qu'un désassembleur va parcourir également la branche inutile.
+Une telle condition est appelée un prédicat opaque et peut par exemple être implémentée par des relations d'arithmétique. Par exemple en appliquant le petit théorème de Fermat \cite{fermat} : quel que soit l'entier e, $e^3\ =\ e\ mod\ 3$.
+Le programmeur sait que l'égalité est toujours vérifiée mais un analyseur statique ne pourra pas le déterminer aisément.
+
+
+% Non standard control flow can be used against a recursive disassembler so it explores
+% unreachable code. For instance, the standard behavior of a binary after executing a \emph{call} at address $a$ is to push the 
+% return instruction $a+1$ on the stack. Upon execution of the next \ret\ instruction, the value on top of the stack is
+% popped and the control flow is transferred to it. A classical obfuscation technique is to use \emph{push $a'$} immediately
+% followed by a \emph{ret}, which behaves like a direct jump to address $a'$. If this is done after a \emph{call} at address $a$,
+% the control flow will never return to address $a+1$.
+% \\
+
+% These two obfuscation methods have been addressed in the litterature: Kruegel et al. \cite{KruegelRVV04} proposed a solution based on the asumption that legitimate code do not overlap.
+
+
 \todo[inline]{
 Réorganisation du code \\
 Aplatissement de CFG \\
