@@ -140,6 +140,7 @@ Un programme compilé se présente donc sous la forme d'un fichier binaire conte
 
 La principale tâche de l'analyste est alors d'extraire du fichier binaires les quelques informations utiles et surtout d'analyser les parties de code assembleur de l'exécutable.
 
+\label{section:assembleur}
 \section{Assembleur \xq\ et \xs}
 L'architecture la plus fréquente sur ces ordinateurs personnels est celle des processeurs Intel CISC avec le jeu d'instructions \xq\ pour les machines adressant la mémoire sur 32 bits, et le jeu d'instructions \xs\ pour celles adressant la mémoire sur 64 bits.
 \todo[inline]{
@@ -398,6 +399,15 @@ Comment ? \\
 Exemple
 }
 
+Il a été expliqué dans la section \ref{section:assembleur} que, avec l'architecture de Harvard modifiée, le code n'est pas physiquement séparé est données lors de l'exécution sur une machine réelle.
+Un programme auto-modifiant est simplement un programme utilisant cette propriété pour modifier le code assembleur le définissant au cours même de son exécution.
+Ainsi on parle de comportement auto-modifiant lorsqu'une instruction du programme est codée sur au moins un octet qui a au préalable été modifié par ce programme.
+Prenons le programme de la figure \ref{fig:unevague_v0_code}. Ce programme commence par autoriser l'accès en écriture à la la section de code \emph{.text} puis écrit sur la pile, modifie la valeur du registre \edi\ et termine par l'affichage de la valeur de \edi.
+Si on ne prend pas en compte l'écriture sur la pile, il semble évident au vu du graphe de flot de contrôle (Figure \ref{fig:unevague_v0_cfg}), vu que la première instruction de saut provoque un saut vers l'instruction \texttt{mov edi,0x3} et que la seconde provoque l'affichage de \edi, que la valeur finale du registre est 3.
+Pourtant l'instruction \texttt{mov [eax],0x7eb} à l'adresse $0x8048086$ remplace saut initial par un saut vers l'adresse $0x8048095$ où la valeur de \edi\ sera fixée à 2 avant l'affichage de celle-ci.
+
+
+
 \subsection{Obscurcissement statique}
 \todo[inline]{
 Chevauchements
@@ -447,7 +457,20 @@ Une autre technique courante d'obscurcissement \todo{cite} consiste à utiliser 
 Une telle condition est appelée un prédicat opaque et peut par exemple être implémentée par des relations d'arithmétique. Par exemple en appliquant le petit théorème de Fermat \cite{fermat} : quel que soit l'entier e, $e^3\ =\ e\ mod\ 3$.
 Le programmeur sait que l'égalité est toujours vérifiée mais un analyseur statique ne pourra pas le déterminer aisément.
 
-\paragraph{Chevauchements.}
+\paragraph{Chevauchement de code.}
+On a vu que la taille d'une instruction assembleur varie de un à 16 octets \todo{15 ou 16?}.
+De plus rien n'empêche que la cible d'un saut soit une adresse se trouvant être au milieu d'une autre instruction.
+Ainsi on parle de chevauchement de code lorsqu'au moins deux instructions à des adresses différentes sont codés sur des adresses communes. Si une instruction à l'adresse $a$ de taille $k\geq 2$ est atteignable, il peut y avoir une autre instruction valide et atteignable à l'adresse $a+1$ et ces deux instructions se chevauchent.
+
+\paragraph{Exemples.}
+Les programmes packés par tELock et UPX utilisent du chevauchement de code.
+
+\paragraph{tELock0.99}
+
+\paragraph{UPX}
+
+\paragraph{État de l'art.}
+\paragraph{Cacher une séquence de longueur arbitraire.}
 
 ~\\
 \todo[inline]{
