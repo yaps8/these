@@ -358,8 +358,9 @@ Adresse & Octets & Instruction\\
 \label{fig:asm_eax}
 \end{figure}
 
-
 \subsection{Analyse statique}
+\todo[inline]{Avantages et inconvénients des deux (couverture, précision, complétude)\\
+Exemple sur les programmes donnés}
 \paragraph{Parcours linéaire.}
 Un désassemblage suivant un parcours linéaire désassemble, pour chaque section, la première instruction à l'adresse $a$ puis l'instruction à l'adresse $a+k$ où k est le nombre d'octets sur lesquels l'instruction est codée.
 Ainsi pour une suite d'instructions séquentielles cette méthode suit le flot de contrôle mais si une instruction de type \jmp\ est rencontrée, le désassemblage s'intéressera à l'instruction qui suit en mémoire et non celle qui sera logiquement exécutée ensuite.

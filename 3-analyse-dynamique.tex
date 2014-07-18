@@ -2,9 +2,185 @@
 
 \section{Analyse dynamique en détail}
 \todo[inline]{Problème des entrées, comment gérer SM ?}
+\todo[inline]{Sémantique (ou chapitre d'avant?), implémentation}
 
 \section{Modèle des vagues}
-Si on reprend l'exemple de code auto-modifiant de la figure \ref{fig:unevague_v0_cfg}, on peut construire deux représentations en mémoire des parties exécutables programme.
-La première correspond à la 
-\subsection{Trace d'exécution}
+Si on reprend l'exemple de code auto-modifiant de la figure \ref{fig:unevague_v0_cfg}, on peut construire trois représentations en mémoire des parties exécutables du programme.
+La première correspond à la vision du programme lors de son chargement : la section .text est dans son état initial.
+La seconde est celle après que la première modification du programme faite à l'adresse \adr{?} et la troisième après la seconde modification faite à l'adresse \adr{?+1}.
+En fait vu qu'aucune des adresses modifiées par la première instruction auto-modifiante n'est exécutées avant que la seconde modification ne soit faite, on peut regrouper les deux instructions auto-modifiantes et considérer que le programme n'a que deux représentations en mémoire : la représentation initiale et la représentation au moment où l'instruction modifiée à l'adresse \adr{??} est exécutée.
+
+Dans ce découpage informel on appelle vague une représentation mémoire à un instant donné. 
+L'exécution d'un programme est alors caractérisé par une suite d'exécutions sur des vagues successives comme représenté en figure \ref{fig:vagues_visuel}.
+On passe d'une vague $i$ à la vague suivante $i+1$ lorsqu'une adresse mémoire écrite dans la vague $i$ est exécutée.
+Ainsi dans une vague $k$, toutes les instructions exécutées ont été écrites au moins à la vague $k-1$. 
+En ce sens chacune des vagues, prise indépendamment des autres, ne présente pas d'auto-modification.
+
+Nous détaillerons par la suite ce qu'est une trace d'exécution pour l'analyse dynamique ainsi que la sémantique d'enchaînement des vagues.
+
+\begin{figure}
+ \missingfigure{!}
+ \caption{Vision informelle des vagues}
+ \label{fig:vagues_visuel}
+\end{figure}
+
+
+\subsection{Trace et niveaux d'exécution}
+\todo[inline]{Opérandes explicites et implicites}
+\todo[inline]{Cas du non arrêt}
+
+Le programme exécuté a pour sources principales de données les registres et la mémoire constituée de la pile et du tas qui sont tous les deux adressables par des entiers. Une variable d'un programme est donc soit un registre du processeur soit une adresse mémoire, comme indiqué en définition \ref{def:variable}.
+\begin{defi}
+On définit l'ensemble $\BV$ des variables comme contenant un ensemble fini de registres $a\in\BA$ et un tableau de taille finie $\mathbb{T}=\textlbrackdbl 0,\ t\textrbrackdbl$.
+\label{def:variable}
+\end{defi}
+
+En utilisant la sémantique opérationnelle précédemment définie on est capable, à partir d'un ensemble de valeurs initiales pour les registres et la mémoire, d'exécuter un programme sur cette entrée.
+Une trace d'exécution d'un programme est simplement l'enchaînement des instructions auxquelles l'exécution du programme a fait appel. Si on note $I_i$ une instruction dynamique, la trace d'exécution est $T=I_1, I_2, ..., I_n$ où $I_n$ est la dernière instruction du programme.
+
+Nous définissons une instruction dynamique (définition \ref{def:ensembles_inst_dyn}) par son adresse, les adresses mémoires sur lesquelles elle est codée et l'instruction machine correspondant. Ces informations sont données par un désassemblage atomique d'une instruction à l'adresse mémoire spécifiée.
+Afin de pouvoir séparer la trace d'exécution selon le moment où chaque instruction a été écrite, nous définissons aussi pour chaque instruction l'ensemble des variables sur lesquelles elle provoque une écriture. Cette information sera donnée par la sémantique opérationnelle choisie \todo{sémantique}.
+
+\begin{defi}
+On note $D$ une instruction dynamique constituée des éléments suivants.
+\begin{itemize}
+ \item \da{D} l'adresse mémoire de l'instruction dynamique
+ \item \dc{D} le segment des adresses mémoire sur lequel \di{D} est codée
+ \item \di{D} l'instruction machine à l'adresse \da{D}
+%  \item \dr{D_i} l'ensemble des variables sur lesquelles l'exécution de \di{D_i} provoque une lecture
+ \item \dw{D} l'ensemble des variables sur lesquelles l'exécution de \di{D} provoque une écriture
+\end{itemize}
+\label{def:ensembles_inst_dyn}
+\end{defi}
+
+Nous avons donc, pour une trace d'exécution donnée, des vagues successives $1, 2, ..., n$. 
+Au cours de l'exécution du programme on définit, pour chaque adresse en mémoire $m$, un niveau d'écriture $W^M[m]$ correspondant à la dernière vague $k$ durant laquelle une instruction a modifié la valeur à l'adresse $m$.
+
+
+Une instruction $D$ a un niveau d'exécution $X$, comme indiqué en définition \ref{def:write_exec_levels}, qui est déterminé par la vague durant laquelle l'instruction est exécutée.
+Elle a également a un niveau d'écriture $W_D$ qui est le niveau d'écriture le plus élevé parmi les adresses sur lesquelles elle est codée : $W_D=max(W^M[a],\ a\in\ $\dc{D_i}$)$.
+
+En pratique une instruction $D$ écrite pendant la vague $k$ puis directement exécutée aura pour niveau d'écriture $W_D=k$ et pour niveau d'exécution $X=k+1$.
+
+\begin{defi}
+Nous définissons une trace d'exécution comme la donnée d'une suite $T=t_1, t_2, ..., t_n$ composée de triplets de la forme $t_i=(i, D_i, X_i)$ tels que
+\begin{itemize}
+ \item $D_i$ est la $i^{eme}$ instruction exécutée.
+ \item Avant l'exécution de l'instruction $D_i$, le niveau d'exécution est \texttt{$X_{i-1}$}.
+ \item Après l'exécution de l'instruction $D_i$, le niveau d'exécution est \texttt{$X_i$}.
+\end{itemize}
+\label{def:write_exec_levels}
+\end{defi}
+
+\todo[inline]{lien entre les explications / defs et l'algo \\
+définition des niveaux d'exécution souhaités / explications pk l'algo marche \\
+exemple
+}
+
+\begin{defi}
+ Étant donné une trace d'exécution $T=t_1, ..., t_n$ avec $t_i=(i, D_i, X_i)$ et $k\in\{X_j, 1\leq i\leq n\}$, on appelle vague $k$ l'état de la mémoire juste après l'exécution de la dernière instruction ayant pour niveau d'exécution $k$.
+ C'est à dire l'état de la mémoire juste après l'instruction $D_j$ avec $X_{j+1}>k$.
+ \label{def:vagues}
+\end{defi}
+
+% \begin{algorithm}[H] %or another one check
+% \caption{Mise à jour des niveaux d'exécution et d'écriture lors de l'exécution d'une instruction}
+% \SetAlgoLined
+% \KwIn{La mémoire, l'opérateur de niveau d'écriture, une instruction dynamique et le niveau d'exécution courant}
+% \KwResult{L'opérateur de niveau d'écriture et le niveau d'exécution courant mis à jour}
+% \SetKwProg{Fn}{}{}{}
+% \SetKwFunction{FRecurs}{calculNiveau}
+% \Fn(
+% ){\FRecurs{M, $W^M$, D, X}}{
+% $W_D \leftarrow\ max(W^M[a],\ a\in\ $\dc{D}$)$\\
+% $X \leftarrow\ max(X,\ W_D+1)$ \\
+% \For {$m\in\ $\dw{D}}{
+%   $W^M[m]\leftarrow\ X$
+% }
+% \Return ($W^M$, X)
+% }
+% \label{algo:update_vagues}
+% \end{algorithm}
+
+\begin{algorithm}[H] %or another one check
+\caption{Mise à jour du niveau d'exécution d'une instruction}
+\SetAlgoLined
+\KwIn{La mémoire, l'opérateur de niveau d'écriture, une instruction dynamique et le niveau d'exécution courant}
+\KwResult{Le niveau d'exécution courant mis à jour}
+\SetKwProg{Fn}{}{}{}
+\SetKwFunction{FRecurs}{MAJExecution}
+\Fn(
+){\FRecurs{M, $W^M$, D, X}}{
+$W_D \leftarrow\ max(W^M[a],\ a\in\ $\dc{D}$)$\\
+$X \leftarrow\ max(X,\ W_D+1)$ \\
+\Return X
+}
+\label{algo:update_vagues}
+\end{algorithm}
+
+\begin{algorithm}[H] %or another one check
+\caption{Mise à jour des niveaux d'écriture lors de l'exécution d'une instruction}
+\SetAlgoLined
+\KwIn{La mémoire, l'opérateur de niveau d'écriture, une instruction dynamique et le niveau d'exécution courant}
+\KwResult{L'opérateur de niveau d'écriture mis à jour}
+\SetKwProg{Fn}{}{}{}
+\SetKwFunction{FRecurs}{MAJEcriture}
+\Fn(
+){\FRecurs{M, $W^M$, D, X}}{
+\For {$m\in\ $\dw{D}}{
+  $W^M[m]\leftarrow\ X$
+}
+\Return $W^M$
+}
+\label{algo:update_vagues}
+\end{algorithm}
+
+\todo[inline]{définir sem\_eval dans la sémantique}
+
+\begin{algorithm}[H] %or another one check
+\caption{Analyse dynamique avec calcul des niveaux d'exécution}
+\SetAlgoLined
+\KwIn{Les registres R et une mémoire M dans laquelle un programme a été chargé à son point d'entrée \texttt{ep}}
+\KwResult{La trace des instructions dynamiques chacune associée à leur niveau d'exécution et les différentes vagues de la trace}
+\SetKwProg{Fn}{}{}{}
+\SetKwFunction{FRecurs}{analyseDynamique}
+\Fn(
+% \tcc*[h]{C : matrice des associations possibles, i : numéro du prochain sommet de P à associer, F : liste des couples d'associations déjà faites}
+){\FRecurs{R, M, ep}}{
+\For{$m\in M$}{
+  $W^M[m]\leftarrow 0$\\
+}
+$X\leftarrow 1$\\
+$X_{-1}\leftarrow 0$\\
+$i\leftarrow 0$\\
+$T\leftarrow \emptyset$\\
+$vagues\leftarrow \emptyset$\\
+$eip\leftarrow ep$\\
+\While {la fin du programme n'est pas atteinte} {
+$i\leftarrow i+1$\\
+~\\
+$D\leftarrow decode(eip, M)$\\
+$X\leftarrow MAJExecution(M, W^M, D, X)$\\
+\If {$X \ne X_{-1}$}{
+  $vagues\leftarrow vagues\cup \{(X_{-1}, M)\}$
+}
+$X_{-1} \leftarrow X$\\
+~\\
+$(eip, R, M, D)\leftarrow sem\_eval(eip, R, M)$\\
+$W^M\leftarrow MAJEcriture(M, W^M, D, X)$\\
+$T\leftarrow T\cup\{(i, D_i, X)\}$\\
+}
+\Return T
+}
+\label{algo:analyse_dyn_vagues}
+\end{algorithm}
+
+\begin{rem}
+ Étant donné la définition croissante des vagues, la même instruction $D$ peut-être exécutée non seulement plusieurs fois dans la même vague mais également être présente à des vagues différentes.
+\end{rem}
+
+
 \subsection{Séparation de l'exécution en vagues}
+
+
+\subsection{Revue de littérature}

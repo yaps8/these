@@ -43,62 +43,12 @@
 \usepackage{tabularx}
 \usepackage{textcomp}
 \usepackage{multirow}
+\usepackage[algoruled,french,onelanguage]{algorithm2e}
 
 \usepackage[backend=biber, language=french, maxnames=5, citestyle=alphabetic,bibstyle=alphabetic,backref,abbreviate=false,dateabbrev=false,isbn=false,url=false,doi=true]{biblatex}
-
 \addbibresource{these.bib}
+\input{abbreviations}
 
-% Structure
-\newtheorem{pb}{Problème}
-\newtheorem{theo}{Théorème}
-\newtheorem{defi}{Définition}
-\newtheorem{prop}{Proposition}
-\newtheorem{pr}{Preuve}
-\newtheorem{cor}{Corollaire}
-% \theoremstyle{remark}\newtheorem*{preuve}{Preuve}
-
-% % Abbreviations :
-\newcommand{\helloworld}{\texttt{Hello World}}
-\newcommand{\nasm}{NASM}
-\newcommand{\xq}{x86}
-\newcommand{\xs}{x86$\_$64}
-
-% Registres
-\newcommand{\eax}{\texttt{eax}}
-\newcommand{\ebx}{\texttt{ebx}}
-\newcommand{\ecx}{\texttt{ecx}}
-\newcommand{\edi}{\texttt{edi}}
-
-% Instructions
-\newcommand{\mov}{\texttt{mov}}
-\newcommand{\cmp}{\texttt{cmp}}
-\newcommand{\add}{\texttt{add}}
-\newcommand{\jmp}{\texttt{jmp}}
-\newcommand{\ret}{\texttt{ret}}
-\newcommand{\call}{\texttt{call}}
-\newcommand{\push}{\texttt{push}}
-\newcommand{\jne}{\texttt{jne}}
-\newcommand{\je}{\texttt{je}}
-
-% Sémantique
-\newcommand{\BN}{\mathbb N}
-\newcommand{\BV}{\mathbb V}
-\newcommand{\BX}{\mathbb X}
-\newcommand{\BA}{\mathbb A}
-\newcommand{\BP}{\mathbb P}
-\newcommand{\BT}{\mathbb T}
-\newcommand{\BL}{\mathbb L}
-\newcommand{\BB}{\mathbb B}
-\newcommand{\BNB}{\mathbb N\cup\{\bot\}}
-\newcommand{\PN}{\mathcal{P}(\BN)}
-\newcommand{\PMN}{\mathcal{P}_M(\BN)}
-\newcommand{\Trs}{\mathbb N\cup\{\bot,\top\}}
-\newcommand{\TTrs}{\mathcal P(\mathbb V\rightarrow\mathbb N\cup\{\bot,\top\})}
-\newcommand{\Tr}{\PN\cup{\top,\bot}}
-\newcommand{\TrM}{\PMN\cup\{\top,\bot\}}
-\newcommand{\si}{\sigma_{init}}
-\newcommand{\specialcell}[2][c]{%
-  \begin{tabular}[#1]{@{}l@{}}#2\end{tabular}}
 
 \titleformat{\chapter}[display]
   {\bfseries\huge}
