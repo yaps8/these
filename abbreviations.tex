@@ -1,0 +1,67 @@
+% Structure
+\newtheorem{pb}{Problème}
+\newtheorem{theo}{Théorème}
+\newtheorem{defi}{Définition}
+\newtheorem{prop}{Proposition}
+\newtheorem{pr}{Preuve}
+\newtheorem{cor}{Corollaire}
+\newtheorem{rem}{Remarque}
+% \theoremstyle{remark}\newtheorem*{preuve}{Preuve}
+
+% % Abbreviations :
+\newcommand{\helloworld}{\texttt{Hello World}}
+\newcommand{\nasm}{NASM}
+\newcommand{\xq}{x86}
+\newcommand{\xs}{x86$\_$64}
+
+% Adresses mémoire :
+\newcommand{\adr}[1]{$#1$}
+
+% Registres
+\newcommand{\eax}{\texttt{eax}}
+\newcommand{\ebx}{\texttt{ebx}}
+\newcommand{\ecx}{\texttt{ecx}}
+\newcommand{\edi}{\texttt{edi}}
+
+% Instructions
+\newcommand{\mov}{\texttt{mov}}
+\newcommand{\cmp}{\texttt{cmp}}
+\newcommand{\add}{\texttt{add}}
+\newcommand{\jmp}{\texttt{jmp}}
+\newcommand{\ret}{\texttt{ret}}
+\newcommand{\call}{\texttt{call}}
+\newcommand{\push}{\texttt{push}}
+\newcommand{\jne}{\texttt{jne}}
+\newcommand{\je}{\texttt{je}}
+
+% Sémantique statique
+\newcommand{\BN}{\mathbb N}
+\newcommand{\BV}{\mathbb V}
+\newcommand{\BX}{\mathbb X}
+\newcommand{\BA}{\mathbb A}
+\newcommand{\BP}{\mathbb P}
+\newcommand{\BT}{\mathbb T}
+\newcommand{\BL}{\mathbb L}
+\newcommand{\BB}{\mathbb B}
+\newcommand{\BNB}{\mathbb N\cup\{\bot\}}
+\newcommand{\PN}{\mathcal{P}(\BN)}
+\newcommand{\PMN}{\mathcal{P}_M(\BN)}
+\newcommand{\Trs}{\mathbb N\cup\{\bot,\top\}}
+\newcommand{\TTrs}{\mathcal P(\mathbb V\rightarrow\mathbb N\cup\{\bot,\top\})}
+\newcommand{\Tr}{\PN\cup{\top,\bot}}
+\newcommand{\TrM}{\PMN\cup\{\top,\bot\}}
+\newcommand{\si}{\sigma_{init}}
+\newcommand{\specialcell}[2][c]{%
+  \begin{tabular}[#1]{@{}l@{}}#2\end{tabular}}
+  
+% Sémantique dynamique
+\newcommand{\CA}{\mathcal A}
+\newcommand{\CI}{\mathcal I}
+\newcommand{\CC}{\mathcal C}
+\newcommand{\CR}{\mathcal R}
+\newcommand{\CW}{\mathcal W}
+\newcommand{\da}[1]{$\CA[#1]$}
+\newcommand{\di}[1]{$\CI[#1]$}
+\newcommand{\dc}[1]{$\CC[#1]$}
+\newcommand{\dr}[1]{$\CR[#1]$}
+\newcommand{\dw}[1]{$\CW[#1]$}
