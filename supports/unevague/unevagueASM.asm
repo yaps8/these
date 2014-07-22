@@ -16,8 +16,9 @@ int	byte  0x80
 mov edi, 0
 
 injects:
-mov eax, 0x804808c    ;(injection into 'injection2' label)
-mov dword [eax], 0x07eb    ;(0x2ceb=jmp (+2c))
+mov eax, 0x8048091   ;(injection into 'injection2' label)
+mov word [eax], 0xeb    ;(0x2ceb=jmp (+2c))
+mov word [eax+1], 0x07    ;(0x2ceb=jmp (+2c))
 ; into 'injection1' label
 
 injection2:

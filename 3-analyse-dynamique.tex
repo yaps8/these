@@ -1,14 +1,121 @@
-\todo[inline]{Limites analyse statique, analyse dynamique et waves}
-
-\section{Analyse dynamique en détail}
 \todo[inline]{Problème des entrées, comment gérer SM ?}
-\todo[inline]{Sémantique (ou chapitre d'avant?), implémentation}
+L'analyse dynamique consiste à se baser sur une ou des exécutions particulières d'un programme pour inférer des propriétés sur son fonctionnement.
+Elle demande donc de se munir d'une langage modélisant le fonctionnement de la machine durant l'exécution du programme, d'une sémantique concrète de l'assembleur utilisé et de lancer l'évaluation sémantique du programme sur une ou plusieurs entrées.
+Les entrées d'un programme sont par exemple les paramètres passés lors de l'appel au programme, l'état de la machine lors du démarrage, les données lues depuis la mémoire et les saisies faites par l'utilisateur au clavier ou à la souris lors de l'exécution s'il s'agit d'une application dotée d'une interface graphique.
+
+
+
+\section{Sémantique concrète pour un langage assembleur}
+% \section{Sémantique}
+\paragraph{Représentation de la mémoire et des registres.}
+On peut voir la mémoire comme un tableau contenant la pile et le tas, indexés sur les entiers. Les registres sont des variables distinctes de la mémoire et sont en nombre limité. Enfin, pour pouvoir gérer l'adressage indirect : \texttt{[eax]} fait référence à la valeur en mémoire à l'adresse contenue dans \eax, on ajoute les pointeurs vers une variable. Ces éléments sont définis formellement à la définition \ref{def:sem_conc_var}.
+
+\begin{rem}
+ Avec cette définition, une valeur en mémoire peut pointer vers un registre. De même un registre peut pointer vers un autre registre.
+ Ces deux possibilités ne sont pas réalisables avec l'assembleur \xq\ ou \xs.
+\end{rem}
+
+
+\begin{defi}
+On définit les symboles $x\in\BX$ comme constitués de variables $v\in\BV$ et de pointeurs $p\in\BP$ vers des variables. $\BV$ contient un ensemble fini de registres $a\in\BA$ et un tableau de taille finie $\BT=\textlbrackdbl 0,\ T\textrbrackdbl$. Les éléments de $\BP$ sont des pointeurs vers une variable : $\{[v],\ v\in \BV\}$.
+Les valeurs possibles pour les variables sont dans $\BN$.
+\label{def:sem_conc_var}
+\end{defi}
+
+Le langage assembleur est très simple du point de vue de la sémantique. Il peut être modélisé comme contenant des instructions disponibles à différentes adresses entières. 
+Ces instructions sont de plusieurs type explicités en définition \ref{def:sem_instructions} : le premier consiste en l'assignation.
+Il est possible d'assigner un symbole ou une combinaison de symboles (à l'aide d'une fonction sur les entiers) à un symbole. 
+Le second type d'instruction regroupe les sauts inconditionnels et conditionnels.
+On distingue également l'instruction \texttt{end} forçant l'arrêt du programme.
+
+
+\todo[inline]{exemples d'instructions/progs x86 simulés sous cette sémantique}
+
+Comme nous avons vu dans les parties précédentes, un programme est simplement composé d'un ou plusieurs blocs d'octets à charger en mémoire. Une fois ces segments chargés dans le tableau $\BT$ représentant la mémoire, le point d'entrée du programme est placé dans le registre \texttt{ep}.
+
+\begin{defi}
+Les instructions d'un programme sont de ce type, quelle que soit la fonction totale g de $\BN^m$ dans $\BN$ :\\
+$inst:=\ $\emph{$v\leftarrow g(x_1, ..., x_m)$ $|$ goto $x$ $|$ if $x$ then $goto\ x'$ $|$ end}
+\label{def:sem_instructions}
+\end{defi}
+
+% \begin{defi}
+% L'adresse 
+% \label{def:sem_programme}
+% \end{defi}
+
+% 
+%On note $\PMN$ l'ensemble des parties de $\BN$ de taille inférieure ou égale à M $\in\BN$ en excluant l'ensemble vide (représenté par $\bot$).
+
+Pour faire le lien entre la machine et les instructions exécutées, il est nécessaire de pouvoir désassembler des instructions en mémoire. C'est le rôle de l'opérateur de désassemblage (définition \ref{def:sem_desassembleur}).
+
+\begin{defi}
+On appelle $D$ l'opérateur de désassemblage qui à une adresse de la mémoire $\BT$ associe une instruction et la taille de cette instruction dans $\BN$. \\
+Pour toute adresse $t\in\BT$, on note $D(t)$ et $D_S(t)$ respectivement l'instruction à l'adresse $t$ et la taille de cette instruction.\\
+Dans le cas où il n'y a pas d'instruction valide à l'adresse $t$, $D(t)=\bot$ et $D_S(t)=0$.
+\label{def:sem_desassembleur}
+\end{defi}
+
+Une sémantique concrète cherche à définir les opérations de chaque instruction de la manière la plus précise qu'il soit afin de pouvoir simuler une exécution réelle du programme.
+Pour cela on va utiliser une store qui conserve l'état des variables lors de l'exécution du programme.
+Toute variable non initialisée a la valeur spéciale $\bot$ tandis que les variables définies ont des valeurs entières (définition \ref{sem_store_dynamique}).
+
+\begin{defi}
+ Un store dynamique associe à chaque variable une valeur : $\Theta:\BV\rightarrow\BN\cup\{\bot\}$.\\
+ Si v est une variable et n une valeur, on note $\Theta[v\leftarrow n]$ l'assignation de n à v dans $\Theta$.
+\label{sem_store_dynamique}
+\end{defi}
+
+Pour permettre l'adressage indirect on doit également définir le store sur l'ensemble des pointeurs.
+La définition \ref{sem_store_dynamique_pointeurs} étend la notion de store aux pointeurs afin que chaque symbole ait une valeur.
+
+
+\begin{defi}
+ Définissons une extension $\Theta_X$ d'un store $\Theta : \BV\rightarrow\BN\cup\{\bot\}$ à $\BX\rightarrow\BN\cup\{\bot\}$. Soit $x\in\BX$.
+ \begin{itemize}
+  \item Si $x\in\BV$ : $\Theta_X(x)=\Theta(x)$
+  \item Sinon, $x\in\BP$ : $x=\textlbrackdbl v\textrbrackdbl$ avec $v\in\BV$.
+  \begin{itemize}
+   \item Si $\Theta(v)=\bot$ alors $\Theta_X(x)=\bot$
+   \item Si $\Theta(v)\in\BN$ et $\Theta(v)>T$ alors $\Theta_X(x)=\bot$
+   \item Sinon $\Theta(v)\in\BN$ et $\Theta(v)\in\BT$, alors $\Theta_X(x)=\Theta(\Theta(v))$.
+  \end{itemize}
+
+ \end{itemize}
+\label{sem_store_dynamique_pointeurs}
+\end{defi}
+
+\paragraph{Règles de transition.}
+Les états d'exécution sont $(t, \Theta)$ où $t$ est une adresse ou l'adresse invalide (ou finale) $\bot$. À chaque instruction exécutée, il y a une transition $(t, \Theta)\rightarrow(t', \Theta')$.\\
+Si il y a une suite de transitions amenant d'un état $(t, \Theta)$ à l'état $(t', \Theta')$, on note $(t, \Theta)\rightarrow^*(t', \Theta')$.\\
+Un programme s'arrête si et seulement si, partant d'un point d'entrée \texttt{ep}, on a $(ep, \Theta)\rightarrow^*(\bot, \Theta')$. Le programme dans ce cas s'arrête à la première occurrence d'une adresse invalide $\bot$.
+On note $(t:D(t), \Theta)$ l'état $(t, \Theta)$ si l'instruction désassemblée à l'adresse $t$ est $D(t)$.
+\\
+
+L'état initial du store est : $\forall v\in\BV, \Theta(v)=\bot$ et l'on part du point d'entrée \texttt{ep}. Les règles de transition suivantes permettent d'aboutir à une adresse finale ou invalide $\bot$ si le programme termine.
+
+\begin{tabbing}
+\textlangle$t:v\leftarrow g(x_1, ..., x_m),\ \Theta$\textrangle\ \=$ \longrightarrow $ \textlangle$t+D_S(t),\ \Theta[v\leftarrow\bot]$\textrangle~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\=si $\exists i, \Theta_X(b_i)=\bot$\\
+                                                                   \>$ \longrightarrow $ \textlangle$t+D_S(t),\ \Theta[v\leftarrow g(\Theta(b_1),...,\ \Theta(b_m))]$\textrangle \> sinon\\ \\
+
+\textlangle$t:goto\ x,\ \Theta$\textrangle\>$\longrightarrow $ \textlangle$\Theta_X(x),\ \Theta$\textrangle\> \\ \\
+
+ \textlangle$t:if\ x\ then\ goto\ x',\ \Theta$\textrangle\>$ \longrightarrow $ \textlangle$\Theta_X(x'),\ \Theta$\textrangle\ \>si $\Theta_X(x)=1$\\
+									    \>$ \longrightarrow $ \textlangle$ t+D_S(t),\ \Theta$\textrangle\ \>sinon\\ \\
+
+\textlangle$t\notin\BT,\ \Theta$\textrangle\>$ \longrightarrow $ \textlangle$\bot,\ \Theta$\textrangle\\
+\textlangle$t:end,\ \Theta$\textrangle\>$ \longrightarrow $ \textlangle$\bot,\ \Theta$\textrangle
+\end{tabbing}
+
+\section{Implémentations d'une sémantique opérationnelle}
+\todo[inline]{Opérandes explicites et implicites}
+\todo[inline]{Cas du non arrêt} 
 
 \section{Modèle des vagues}
-Si on reprend l'exemple de code auto-modifiant de la figure \ref{fig:unevague_v0_cfg}, on peut construire trois représentations en mémoire des parties exécutables du programme.
+Si on reprend l'exemple de code auto-modifiant de la figure \ref{fig:unevague_v0}, on peut construire trois représentations en mémoire des parties exécutables du programme.
 La première correspond à la vision du programme lors de son chargement : la section .text est dans son état initial.
-La seconde est celle après que la première modification du programme faite à l'adresse \adr{?} et la troisième après la seconde modification faite à l'adresse \adr{?+1}.
-En fait vu qu'aucune des adresses modifiées par la première instruction auto-modifiante n'est exécutées avant que la seconde modification ne soit faite, on peut regrouper les deux instructions auto-modifiantes et considérer que le programme n'a que deux représentations en mémoire : la représentation initiale et la représentation au moment où l'instruction modifiée à l'adresse \adr{??} est exécutée.
+La seconde est celle après que la première modification du programme faite à l'adresse \adr{8048086} et la troisième après la seconde modification faite à l'adresse \adr{804808b}.
+En fait vu qu'aucune des adresses modifiées par la première instruction auto-modifiante n'est exécutées avant que la seconde modification ne soit faite, on peut regrouper les deux instructions auto-modifiantes et considérer que le programme n'a que deux représentations en mémoire : la représentation initiale et la représentation au moment où l'instruction modifiée à l'adresse \adr{8048091} est exécutée.
 
 Dans ce découpage informel on appelle vague une représentation mémoire à un instant donné. 
 L'exécution d'un programme est alors caractérisé par une suite d'exécutions sur des vagues successives comme représenté en figure \ref{fig:vagues_visuel}.
@@ -25,21 +132,24 @@ Nous détaillerons par la suite ce qu'est une trace d'exécution pour l'analyse 
 \end{figure}
 
 
-\subsection{Trace et niveaux d'exécution}
-\todo[inline]{Opérandes explicites et implicites}
-\todo[inline]{Cas du non arrêt}
+\subsection{Revue de littérature}
+La notion de vague présentée dans ce chapitre a été développée dans les thèse de Calvet \cite{Calvet2013} et Reynaud \todo{cite}.
+Elle est similaire à la notion de \emph{phase} présentée par Debray et Patel \cite{DP10} et utilisée pour automatiser la suppression de la protection d'un binaire.
+En général la suppression des protections se fait à l'aide d'une analyse dynamique et d'une image de la mémoire à un instant donné au cours de l'exécution. C'est cette image mémoire qui sera considéré comme était le programme d'origine. La difficulté réside alors dans le choix de l'instant où prendre l'image mémoire.
 
+
+\subsection{Trace, niveaux d'exécution et vagues}
 Le programme exécuté a pour sources principales de données les registres et la mémoire constituée de la pile et du tas qui sont tous les deux adressables par des entiers. Une variable d'un programme est donc soit un registre du processeur soit une adresse mémoire, comme indiqué en définition \ref{def:variable}.
 \begin{defi}
 On définit l'ensemble $\BV$ des variables comme contenant un ensemble fini de registres $a\in\BA$ et un tableau de taille finie $\mathbb{T}=\textlbrackdbl 0,\ t\textrbrackdbl$.
 \label{def:variable}
 \end{defi}
 
-En utilisant la sémantique opérationnelle précédemment définie on est capable, à partir d'un ensemble de valeurs initiales pour les registres et la mémoire, d'exécuter un programme sur cette entrée.
+En utilisant la sémantique concrète précédemment définie on est capable, à partir d'un ensemble de valeurs initiales pour les registres et la mémoire, d'exécuter un programme sur cette entrée.
 Une trace d'exécution d'un programme est simplement l'enchaînement des instructions auxquelles l'exécution du programme a fait appel. Si on note $I_i$ une instruction dynamique, la trace d'exécution est $T=I_1, I_2, ..., I_n$ où $I_n$ est la dernière instruction du programme.
 
 Nous définissons une instruction dynamique (définition \ref{def:ensembles_inst_dyn}) par son adresse, les adresses mémoires sur lesquelles elle est codée et l'instruction machine correspondant. Ces informations sont données par un désassemblage atomique d'une instruction à l'adresse mémoire spécifiée.
-Afin de pouvoir séparer la trace d'exécution selon le moment où chaque instruction a été écrite, nous définissons aussi pour chaque instruction l'ensemble des variables sur lesquelles elle provoque une écriture. Cette information sera donnée par la sémantique opérationnelle choisie \todo{sémantique}.
+Afin de pouvoir séparer la trace d'exécution selon le moment où chaque instruction a été écrite, nous définissons aussi pour chaque instruction l'ensemble des variables sur lesquelles elle provoque une écriture. Cette information sera donnée par la sémantique concrète choisie \todo{sémantique}.
 
 \begin{defi}
 On note $D$ une instruction dynamique constituée des éléments suivants.
@@ -54,13 +164,13 @@ On note $D$ une instruction dynamique constituée des éléments suivants.
 \end{defi}
 
 Nous avons donc, pour une trace d'exécution donnée, des vagues successives $1, 2, ..., n$. 
-Au cours de l'exécution du programme on définit, pour chaque adresse en mémoire $m$, un niveau d'écriture $W^M[m]$ correspondant à la dernière vague $k$ durant laquelle une instruction a modifié la valeur à l'adresse $m$.
+Au cours de l'exécution du programme on définit, pour chaque adresse en mémoire $m$, un niveau d'écriture $W^M[m]$.
+correspondant à la dernière vague $k$ durant laquelle une instruction a modifié la valeur à l'adresse $m$.
 
 
-Une instruction $D$ a un niveau d'exécution $X$, comme indiqué en définition \ref{def:write_exec_levels}, qui est déterminé par la vague durant laquelle l'instruction est exécutée.
+Une instruction $D$ a un niveau d'exécution $X$, comme indiqué en définition \ref{def:write_exec_levels}.
 Elle a également a un niveau d'écriture $W_D$ qui est le niveau d'écriture le plus élevé parmi les adresses sur lesquelles elle est codée : $W_D=max(W^M[a],\ a\in\ $\dc{D_i}$)$.
 
-En pratique une instruction $D$ écrite pendant la vague $k$ puis directement exécutée aura pour niveau d'écriture $W_D=k$ et pour niveau d'exécution $X=k+1$.
 
 \begin{defi}
 Nous définissons une trace d'exécution comme la donnée d'une suite $T=t_1, t_2, ..., t_n$ composée de triplets de la forme $t_i=(i, D_i, X_i)$ tels que
@@ -72,9 +182,22 @@ Nous définissons une trace d'exécution comme la donnée d'une suite $T=t_1, t_
 \label{def:write_exec_levels}
 \end{defi}
 
-\todo[inline]{lien entre les explications / defs et l'algo \\
-définition des niveaux d'exécution souhaités / explications pk l'algo marche \\
-exemple
+En pratique une instruction $D$ écrite par une instruction ayant pour niveau d'exécution $k$ puis directement exécutée aura pour niveau d'écriture $W_D=k$ et pour niveau d'exécution $X=k+1$.
+
+On définit alors formellement la vague $k$ selon la définition \ref{def:vagues} et l'algorithme \ref{algo:analyse_dyn_vagues} permettant d'exécuter un programme dynamiquement avec la sémantique concrète choisie tout en déterminant les niveaux d'exécution de d'écriture au fur et à mesure de l'exécution. La sortie de l'algorithme \ref{algo:analyse_dyn_vagues} est la trace d'exécution et la liste des vagues reconstruites.
+\\
+
+Reprenons l'exemple du programme auto-modifiant de la figure \ref{fig:unevague_trace}.
+La figure \ref{fig:unevague_trace} donne une trace d'exécution de ce programme en détaillant les informations sur chaque instruction dynamique ainsi que les niveaux d'écriture et d'exécution de chaque instruction.
+Au départ toute la mémoire est dans son état d'origine et a pour niveau d'exécution 0. Lorsque l'instruction $D_0$ est exécutée, il n'y a pas eu d'auto-modification donc le niveau d'écriture est 0 et le niveau d'exécution est 1.
+Les instructions $D_3$ et $D_4$ provoquent une auto-modification : les octets aux adresses \adr{0x8048091} et \adr{0x8048092} sont modifiés et leurs niveaux d'écriture deviennent donc le niveau d'exécution courant, soit 1.
+Lorsque l'exécution atteint $D_5$, qui a été modifié, le niveau d'écriture est 1 donc le niveau d'exécution devient 2.
+L'instruction suivante $D_6$ fixe la valeur de \edi\ à 2 puis les instructions suivantes provoquent l'affichage de \edi.
+
+Cette trace d'exécution est donc composée de deux vagues : la vague initiale, $v_0$ composée de l'état de la mémoire avant l'exécution de la première instruction et la vague $v_1$ contenant l'état de la mémoire juste après l'exécution de $D_4$ et avant l'exécution de la première instruction modifiée $D_5$.
+
+
+\todo[inline]{définition des niveaux d'exécution souhaités (?) / explications pk l'algo marche 
 }
 
 \begin{defi}
@@ -115,7 +238,7 @@ $W_D \leftarrow\ max(W^M[a],\ a\in\ $\dc{D}$)$\\
 $X \leftarrow\ max(X,\ W_D+1)$ \\
 \Return X
 }
-\label{algo:update_vagues}
+\label{algo:update_exec_level}
 \end{algorithm}
 
 \begin{algorithm}[H] %or another one check
@@ -132,13 +255,36 @@ $X \leftarrow\ max(X,\ W_D+1)$ \\
 }
 \Return $W^M$
 }
-\label{algo:update_vagues}
+\label{algo:update_write_level}
 \end{algorithm}
+
+\begin{figure}
+\begin{center}
+\begin{tabular}[b]{|l|l|l|l|l|l|l|}
+\hline
+i & \da{D_i} & \dc{D_i} & \di{D_i} & \dw{D_i} & $W_i$ & $X_i$ \\
+\hline
+& 8048060  &  (...)         	        & Pile -> RWX &  & 0 & 1 \\ 
+1 & 804807c  &  [804807c, 8048080]         &  mov    edi, 0x0 & edi & 0 & 1 \\
+2 & 8048081  &  [8048081, 8048086]         &  mov    eax, 0x8048091 & eax & 0 & 1 \\
+3 & 8048086  &  [8048086, 804808a]         &  mov    [eax], 0xeb & 0x8048091 & 0 & 1 \\
+4 & 804808b  &  [804808b, 8048090]         &  mov    [eax+1], 0x7 & 0x8048092 & 0 & 1 \\
+5 & 8048091  &  [8048091, 8048092]         &  jmp    80480a1 <edi3> &  & 1 & 2  \\
+6 & 804809a  &  [804809a, 804809d]         &  mov    edi,0x2 & edi & 0 & 2\\
+7 & 804809f  &  [804809f, 80480a0]         &  jmp    80480a8 <fin> &  & 0 & 2\\
+ & 80480a8  &  (...)		        &  Affiche edi &  & 0 & 2\\
+ & 80480c3  &  (...)		        &  Quitte &  & 0 & 2\\
+\hline
+\end{tabular}
+\end{center}
+\caption{Trace d'exécution du programme auto-modifiant de la figure \ref{fig:unevague_v0}}
+\label{fig:unevague_trace}
+\end{figure}
 
 \todo[inline]{définir sem\_eval dans la sémantique}
 
 \begin{algorithm}[H] %or another one check
-\caption{Analyse dynamique avec calcul des niveaux d'exécution}
+\caption{Analyse dynamique avec calcul des vagues}
 \SetAlgoLined
 \KwIn{Les registres R et une mémoire M dans laquelle un programme a été chargé à son point d'entrée \texttt{ep}}
 \KwResult{La trace des instructions dynamiques chacune associée à leur niveau d'exécution et les différentes vagues de la trace}
@@ -170,7 +316,7 @@ $(eip, R, M, D)\leftarrow sem\_eval(eip, R, M)$\\
 $W^M\leftarrow MAJEcriture(M, W^M, D, X)$\\
 $T\leftarrow T\cup\{(i, D_i, X)\}$\\
 }
-\Return T
+\Return T, vagues
 }
 \label{algo:analyse_dyn_vagues}
 \end{algorithm}
@@ -179,8 +325,3 @@ $T\leftarrow T\cup\{(i, D_i, X)\}$\\
  Étant donné la définition croissante des vagues, la même instruction $D$ peut-être exécutée non seulement plusieurs fois dans la même vague mais également être présente à des vagues différentes.
 \end{rem}
 
-
-\subsection{Séparation de l'exécution en vagues}
-
-
-\subsection{Revue de littérature}

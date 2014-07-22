@@ -357,45 +357,7 @@ On en déduit qu'à partir de l'itération K de l'algorithme, on n'ajoute plus d
 L'algorithme termine.
 
 % \end{algo}
-\section{Sémantique}
-Un programme est une suite d'instructions indexées par un label. L'état des variables du programme est conservé dans le store $\Theta:\BV\rightarrow\BN\cup\{\bot\}$, initialement $\forall v\in\BV, \Theta(v)=\bot$.\\
-\begin{defi}
- Définissons une extension $\Theta_X$ d'un store $\Theta : \BV\rightarrow\BN\cup\{\bot\}$ à $\BX\rightarrow\BN\cup\{\bot\}$. Soit $x\in\BX$.
- \begin{itemize}
-  \item Si $x\in\BV$ : $\Theta_X(x)=\Theta(x)$
-  \item Sinon, $x\in\BP$ : $x=\textlbrackdbl v\textrbrackdbl$ avec $v\in\BV$.
-  \begin{itemize}
-   \item Si $\Theta(v)=\bot$ alors $\Theta_X(x)=\bot$
-   \item Si $\Theta(v)\in\BN$ et $\Theta(v)>t$ alors $\Theta_X(x)=\bot$
-   \item Sinon $\Theta(v)\in\BN$ et $\Theta(v)\in\BT$, alors $\Theta_X(x)=\Theta(\Theta(v))$.
-  \end{itemize}
 
- \end{itemize}
-\end{defi}
-Les états d'exécution sont $(l, \Theta)$ où $l$ est un label. À chaque instruction exécutée, il y a une transition $(l, \Theta)\rightarrow(l', \Theta')$.\\
-Si il y a une suite de transitions amenant d'un état $(l, \Theta)$ à l'état $(l', \Theta')$, on note $(l, \Theta)\rightarrow^*(l', \Theta')$.\\
-Un programme s'arrête si et seulement si, partant d'un point d'entrée $l_0$, on a $(l_0, \Theta)\rightarrow^*(l' : \bot, \Theta')$. Le programme dans ce cas s'arrête à la première occurrence du label de fin $\bot$.
-
-\subsection{Règles de transition}
-\begin{tabbing}
-\textlangle$l:x\leftarrow g(x_1, ..., x_m),\ \Theta$\textrangle\ \=$ \longrightarrow $ \textlangle$l+1,\ \Theta[v\leftarrow\bot]$\textrangle~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\=si $\exists i, \Theta_X(b_i)=\bot$\\
-                                                                   \>$ \longrightarrow $ \textlangle$l+1,\ \Theta[v\leftarrow g(\Theta(b_1),...,\ \Theta(b_m))]$\textrangle \> sinon\\ \\
-% \textlangle$l:goto\ l', \Theta$\textrangle\>$ \longrightarrow $ \textlangle$l',\ \Theta$ \textrangle\\ \\
-% \textlangle$l:if\ b\ then\ goto\ l', \Theta$\textrangle\>$ \longrightarrow $ \textlangle$l',\ \Theta$\textrangle\ \>si $\Theta(b)=1$\\
-% 									    \>$ \longrightarrow $ \textlangle$ l+1,\ \Theta$\textrangle\ \>sinon\\ \\
-
-% \textlangle$l:cgoto\ v, \Theta$\textrangle\>$ \longrightarrow $ \textlangle$\bot,\ \Theta$\textrangle \>si $\Theta(v)=\bot$\\
-%                                           \>$\longrightarrow $ \textlangle$\Theta(v),\ \Theta$\textrangle\>sinon\\ \\
-\textlangle$l:goto\ x,\ \Theta$\textrangle\>$\longrightarrow $ \textlangle$\Theta_X(x),\ \Theta$\textrangle\> \\ \\% \>si $\Theta_X(x)\in\BL$ \\
-% 					  \>$\longrightarrow $ \textlangle$\bot,\ \Theta$\textrangle \>sinon \\ \\
-
-
- \textlangle$l:if\ b\ then\ goto\ x,\ \Theta$\textrangle\>$ \longrightarrow $ \textlangle$\Theta_X(x),\ \Theta$\textrangle\ \>si $\Theta_X(b)=1$\\
-									    \>$ \longrightarrow $ \textlangle$ l+1,\ \Theta$\textrangle\ \>sinon\\ \\
-
-\textlangle$l\notin\BL,\ \Theta$\textrangle\>$ \longrightarrow $ \textlangle$\bot,\ \Theta$\textrangle\\
-\textlangle$l:end,\ \Theta$\textrangle\>$ \longrightarrow $ \textlangle$\bot,\ \Theta$\textrangle
-\end{tabbing}
 \section{Correction de l'algorithme}
 Soit t une exécution du programme : $t=(t_1,\ t_2..., t_p)$ avec $t_i=(l_i, \Theta_i)$, $t_1\longrightarrow t_2\longrightarrow ...\longrightarrow t_p$ et $l_p = \bot$.\\
 On cherche à montrer que, à chaque instruction, le store calculé sémantiquement est bien un des stores trouvé par l'analyse statique, aux problèmes de surcapacité ($\top$) près, c'est à dire : $\forall n, \{\Theta_n\}\leq\Sigma_{l_n}$.

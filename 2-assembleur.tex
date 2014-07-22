@@ -400,13 +400,82 @@ Comment ? \\
 Exemple
 }
 
+% \begin{figure}
+% \begin{center}
+% \begin{tabular}{|l|l|l|}
+% \hline
+% Adresse & Octets & Instruction\\
+% \hline
+%  8048060  &  (...)         	& Pile -> RWX \\ 
+%  804807c  &  bf 00 00 00 00         &  mov    edi, 0x0 \\
+%  8048081  &  b8 91 80 04 08         &  mov    eax, 0x8048091 \\
+%  8048086  &  66 c7 00 eb 00         &  mov    [eax], 0xeb \\
+%  804808b  &  66 c7 40 01 07 00      &  mov    [eax+1], 0x7 \\
+%  8048091  &  eb 0e                  &  jmp    80480a1 <edi3> \\
+%  8048093  &  bf 01 00 00 00         &  mov    edi,0x1 \\
+%  8048098  &  eb 0e                  &  jmp    80480a8 <fin> \\
+%  804809a  &  bf 02 00 00 00         &  mov    edi,0x2 \\
+%  804809f  &  eb 07                  &  jmp    80480a8 <fin> \\
+%  80480a1  &  bf 03 00 00 00         &  mov    edi,0x3 \\
+%  80480a6  &  eb 00                  &  jmp    80480a8 <fin> \\
+%  80480a8  &  (...)		    &  Affiche edi \\
+%  80480c3  &  (...)		    & Quitte \\
+% \hline
+% \end{tabular}
+% \end{center}
+% \caption{Exemple de code auto-modifiant}
+% \label{fig:unevague_v0_code}
+% \end{figure}
+
+\begin{figure}
+\begin{center}
+\subfigure[Code assembleur]{
+\begin{tabular}[b]{|l|l|l|}
+\hline
+Adresse & Octets & Instruction\\ 
+\hline
+ 8048060  &  (...)         	& Pile -> RWX \\ 
+ 804807c  &  bf 00 00 00 00         &  mov    edi, 0x0 \\
+ 8048081  &  b8 91 80 04 08         &  mov    eax, 0x8048091 \\
+ 8048086  &  66 c7 00 eb 00         &  mov    [eax], 0xeb \\
+ 804808b  &  66 c7 40 01 07 00      &  mov    [eax+1], 0x7 \\
+ 8048091  &  eb 0e                  &  jmp    80480a1 <edi3> \\
+ 8048093  &  bf 01 00 00 00         &  mov    edi,0x1 \\
+ 8048098  &  eb 0e                  &  jmp    80480a8 <fin> \\
+ 804809a  &  bf 02 00 00 00         &  mov    edi,0x2 \\
+ 804809f  &  eb 07                  &  jmp    80480a8 <fin> \\
+ 80480a1  &  bf 03 00 00 00         &  mov    edi,0x3 \\
+ 80480a6  &  eb 00                  &  jmp    80480a8 <fin> \\
+ 80480a8  &  (...)		    &  Affiche edi \\
+ 80480c3  &  (...)		    & Quitte \\
+\hline
+\end{tabular}
+\label{fig:unevague_v0_code}
+}
+\subfigure[Graphe de flot de contrôle]{
+\includegraphics[width=0.4\textwidth]{supports/unevague/uv.pdf}
+\label{fig:unevague_v0_cfg}
+}
+\end{center}
+\caption{Code assembleur auto-modifiant}
+\label{fig:unevague_v0}
+\end{figure}
+
 Il a été expliqué dans la section \ref{section:assembleur} que, avec l'architecture de Harvard modifiée, le code n'est pas physiquement séparé est données lors de l'exécution sur une machine réelle.
 Un programme auto-modifiant est simplement un programme utilisant cette propriété pour modifier le code assembleur le définissant au cours même de son exécution.
 Ainsi on parle de comportement auto-modifiant lorsqu'une instruction du programme est codée sur au moins un octet qui a au préalable été modifié par ce programme.
 Prenons le programme de la figure \ref{fig:unevague_v0_code}. Ce programme commence par autoriser l'accès en écriture à la la section de code \emph{.text} puis écrit sur la pile, modifie la valeur du registre \edi\ et termine par l'affichage de la valeur de \edi.
 Si on ne prend pas en compte l'écriture sur la pile, il semble évident au vu du graphe de flot de contrôle (Figure \ref{fig:unevague_v0_cfg}), vu que la première instruction de saut provoque un saut vers l'instruction \texttt{mov edi,0x3} et que la seconde provoque l'affichage de \edi, que la valeur finale du registre est 3.
-Pourtant l'instruction \texttt{mov [eax],0x7eb} à l'adresse $0x8048086$ remplace saut initial par un saut vers l'adresse $0x8048095$ où la valeur de \edi\ sera fixée à 2 avant l'affichage de celle-ci.
+Pourtant les instructions \texttt{mov [eax],0xeb} et \texttt{mov [eax+1],0x07} aux l'adresse $0x8048086$ et $0x804808b$ remplacent le saut initial par un saut vers l'adresse $0x8048098$ où la valeur de \edi\ sera fixée à 2 avant l'affichage de celle-ci.
 
+
+On constate ici que le programme se modifie au cours de son exécution et donc
+\begin{itemize}
+ \item On ne peut pas se contenter de la représentation d'origine du programme pour l'analyser.
+ \item Le graphe de flot de contrôle initial peut être amené à évoluer au cours de l'exécution du programme.
+\end{itemize}
+
+\todo{sémantique opérationnelle?}
 
 
 \subsection{Obscurcissement statique}
