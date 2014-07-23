@@ -28,14 +28,38 @@ Il est possible d'assigner un symbole ou une combinaison de symboles (à l'aide 
 Le second type d'instruction regroupe les sauts inconditionnels et conditionnels.
 On distingue également l'instruction \texttt{end} forçant l'arrêt du programme.
 
+\paragraph{Exemples naïfs de la représentation d'instructions assembleur \xq.}
+La figure \ref{fig:sem_exemples_insts} donne des exemples de transcription d'instructions \xq\ dans le langage défini précédemment. 
+Elles sont naïves au sens que les instructions \xq\ sont plus complexes et un simple \sub\ provoque des effets de bord modifiant des registres. Ce point sera développé par la suite lorsque nous discuterons des implémentations possibles pour cette sémantique concrète.
+\\
 
-\todo[inline]{exemples d'instructions/progs x86 simulés sous cette sémantique}
+\begin{figure}
+ \begin{center}
+  \begin{tabular}{|l|l|}
+   \hline
+   Instruction \xq & Instruction du langage simplifié\\
+   \hline
+   mov eax, 3 & $eax\leftarrow 3$ \\
+   \hline
+   mov [eax], 4 & $[eax]\leftarrow 4$ \\
+   \hline
+   mov [eax+1], 5 & $tmp\leftarrow addition(eax, 1)$ \\
+    & $[tmp]\leftarrow 5$ \\
+   \hline
+   jmp eax & $goto\ eax$ \\
+   \hline
+  \end{tabular}
+ \end{center}
+\caption{Exemple de transcription d'instructions \xq\ dans le langage assembleur simplifié}
+\label{fig:sem_exemples_insts}
+\end{figure}
+
 
 Comme nous avons vu dans les parties précédentes, un programme est simplement composé d'un ou plusieurs blocs d'octets à charger en mémoire. Une fois ces segments chargés dans le tableau $\BT$ représentant la mémoire, le point d'entrée du programme est placé dans le registre \texttt{ep}.
 
 \begin{defi}
 Les instructions d'un programme sont de ce type, quelle que soit la fonction totale g de $\BN^m$ dans $\BN$ :\\
-$inst:=\ $\emph{$v\leftarrow g(x_1, ..., x_m)$ $|$ goto $x$ $|$ if $x$ then $goto\ x'$ $|$ end}
+$inst:=\ $\emph{$x\leftarrow g(x_1, ..., x_m)$ $|$ goto $x$ $|$ if $x$ then $goto\ x'$ $|$ end}
 \label{def:sem_instructions}
 \end{defi}
 
@@ -62,7 +86,7 @@ Toute variable non initialisée a la valeur spéciale $\bot$ tandis que les vari
 
 \begin{defi}
  Un store dynamique associe à chaque variable une valeur : $\Theta:\BV\rightarrow\BN\cup\{\bot\}$.\\
- Si v est une variable et n une valeur, on note $\Theta[v\leftarrow n]$ l'assignation de n à v dans $\Theta$.
+ Si v est une variable et n une valeur, on note $\Theta[v\leftarrow n]$ l'assignation de v à n dans $\Theta$.
 \label{sem_store_dynamique}
 \end{defi}
 
@@ -80,42 +104,64 @@ La définition \ref{sem_store_dynamique_pointeurs} étend la notion de store aux
    \item Si $\Theta(v)\in\BN$ et $\Theta(v)>T$ alors $\Theta_X(x)=\bot$
    \item Sinon $\Theta(v)\in\BN$ et $\Theta(v)\in\BT$, alors $\Theta_X(x)=\Theta(\Theta(v))$.
   \end{itemize}
-
  \end{itemize}
+  De même on étend l'opération d'assignation d'une valeur à un symbole de la manière suivante. Soit $x\in\BX$ et $n\in\BN$.
+  \begin{itemize}
+  \item Si $x\in\BV$ : $\Theta_X[x\leftarrow n]$ est équivalent à $\Theta[x\leftarrow n]$.
+  \item Sinon, $x\in\BP$ : $x=\textlbrackdbl v\textrbrackdbl$ avec $v\in\BV$.
+    \begin{itemize}
+   \item Si $\Theta(v)=\bot$ alors l'assignation n'a aucun effet
+   \item Si $\Theta(v)\in\BN$ et $\Theta(v)>T$ alors l'assignation n'a aucun effet
+   \item Sinon $\Theta(v)\in\BN$ et $\Theta(v)\in\BT$, alors $\Theta_X[x\leftarrow n]$ se résoud par $\Theta[\Theta(v)\leftarrow n]$.
+  \end{itemize}
+  \end{itemize}
 \label{sem_store_dynamique_pointeurs}
 \end{defi}
 
 \paragraph{Règles de transition.}
-Les états d'exécution sont $(t, \Theta)$ où $t$ est une adresse ou l'adresse invalide (ou finale) $\bot$. À chaque instruction exécutée, il y a une transition $(t, \Theta)\rightarrow(t', \Theta')$.\\
-Si il y a une suite de transitions amenant d'un état $(t, \Theta)$ à l'état $(t', \Theta')$, on note $(t, \Theta)\rightarrow^*(t', \Theta')$.\\
-Un programme s'arrête si et seulement si, partant d'un point d'entrée \texttt{ep}, on a $(ep, \Theta)\rightarrow^*(\bot, \Theta')$. Le programme dans ce cas s'arrête à la première occurrence d'une adresse invalide $\bot$.
-On note $(t:D(t), \Theta)$ l'état $(t, \Theta)$ si l'instruction désassemblée à l'adresse $t$ est $D(t)$.
+Les états d'exécution sont $(t, \Theta_X)$ où $t$ est une adresse ou l'adresse invalide (ou finale) $\bot$. À chaque instruction exécutée, il y a une transition $(t, \Theta_X)\rightarrow(t', \Theta_X')$.\\
+Si il y a une suite de transitions amenant d'un état $(t, \Theta_X)$ à l'état $(t', \Theta_X')$, on note $(t, \Theta)\rightarrow^*(t', \Theta_X')$.\\
+Un programme s'arrête si et seulement si, partant d'un point d'entrée \texttt{ep}, on a $(ep, \Theta_X)\rightarrow^*(\bot, \Theta_X')$. Le programme dans ce cas s'arrête à la première occurrence d'une adresse invalide $\bot$.
+On note $(t:D(t), \Theta_X)$ l'état $(t, \Theta_X)$ si l'instruction désassemblée à l'adresse $t$ est $D(t)$.
 \\
 
-L'état initial du store est : $\forall v\in\BV, \Theta(v)=\bot$ et l'on part du point d'entrée \texttt{ep}. Les règles de transition suivantes permettent d'aboutir à une adresse finale ou invalide $\bot$ si le programme termine.
-
-\todo[inline]{$\Theta$ / $\Theta_X$, sémantique des pointeurs : un pointeur est une variable?}
+L'état initial du store est : $\forall v\in\BV, \Theta_X(v)=\bot$ et l'on part du point d'entrée \texttt{ep}. Les règles de transition suivantes permettent d'aboutir à une adresse finale ou invalide $\bot$ si le programme termine.
 
 \begin{tabbing}
-\textlangle$t:v\leftarrow g(x_1, ..., x_m),\ \Theta$\textrangle\ \=$ \longrightarrow $ \textlangle$t+D_S(t),\ \Theta[v\leftarrow\bot]$\textrangle~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\=si $\exists i, \Theta_X(b_i)=\bot$\\
-                                                                   \>$ \longrightarrow $ \textlangle$t+D_S(t),\ \Theta[v\leftarrow g(\Theta(b_1),...,\ \Theta(b_m))]$\textrangle \> sinon\\ \\
+\textlangle$t:x\leftarrow g(x_1, ..., x_m),\ \Theta_X$\textrangle\ \=$ \longrightarrow $ \textlangle$t+D_S(t),\ \Theta_X[x\leftarrow\bot]$\textrangle~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\=si $\exists i, \Theta_X(b_i)=\bot$\\
+                                                                   \>$ \longrightarrow $ \textlangle$t+D_S(t),\ \Theta_X[x\leftarrow g(\Theta_X(b_1),...,\ \Theta_X(b_m))]$\textrangle \> sinon\\ \\
 
-\textlangle$t:goto\ x,\ \Theta$\textrangle\>$\longrightarrow $ \textlangle$\Theta_X(x),\ \Theta$\textrangle\> \\ \\
+\textlangle$t:goto\ x,\ \Theta_X$\textrangle\>$\longrightarrow $ \textlangle$\Theta_X(x),\ \Theta_X$\textrangle\> \\ \\
 
- \textlangle$t:if\ x\ then\ goto\ x',\ \Theta$\textrangle\>$ \longrightarrow $ \textlangle$\Theta_X(x'),\ \Theta$\textrangle\ \>si $\Theta_X(x)=1$\\
-									    \>$ \longrightarrow $ \textlangle$ t+D_S(t),\ \Theta$\textrangle\ \>sinon\\ \\
+ \textlangle$t:if\ x\ then\ goto\ x',\ \Theta_X$\textrangle\>$ \longrightarrow $ \textlangle$\Theta_X(x'),\ \Theta_X$\textrangle\ \>si $\Theta_X(x)=1$\\
+									    \>$ \longrightarrow $ \textlangle$ t+D_S(t),\ \Theta_X$\textrangle\ \>sinon\\ \\
 
-\textlangle$t\notin\BT,\ \Theta$\textrangle\>$ \longrightarrow $ \textlangle$\bot,\ \Theta$\textrangle\\
-\textlangle$t:end,\ \Theta$\textrangle\>$ \longrightarrow $ \textlangle$\bot,\ \Theta$\textrangle
+\textlangle$t\notin\BT,\ \Theta_X$\textrangle\>$ \longrightarrow $ \textlangle$\bot,\ \Theta_X$\textrangle\\
+\textlangle$t:end,\ \Theta_X$\textrangle\>$ \longrightarrow $ \textlangle$\bot,\ \Theta_X$\textrangle
 \end{tabbing}
 
 \subsection{Assembleur et langage intermédiaire}
 \todo[inline]{Opérandes explicites et implicites}
-\todo[inline]{Revue de littérature}
+
+En pratique pour analyser un programme assembleur on veut en avoir un représentation dont on connaît la sémantique concrète.
+On va pour cela réécrire le programme dans un langage intermédiaire et effectuer les analyses sur le programme en langage intermédiaire.
+
+Une des difficultés rencontrées dans la transformation d'un langage assembleur en langage intermédiaire est la richesse sémantique du langage \xq\ qui contient des centaines d'instructions et utilise de nombreux registres et flags \todo{flags?} du processeur.
+L'instruction \texttt{sub eax, b} par exemple soustrait l'opérande \texttt{b} à \eax\  en stockant le résultat de l'opérant dans \eax.
+Le mnémonique \texttt{sub} désigne une vingtaine de variantes de la soustraction selon la taille des opérandes pris en compte. Elle effectue l'opération \texttt{eax-b} et met à jour les flags CF et OF indiquant un dépassement de valeur entière, le flag de signe SF, le flag ZF (à 1 si le résultat est nul) et celui de parité PF.
 
 \subsection{Implémentations}
 \todo[inline]{Cas du non arrêt} 
 \todo[inline]{Définir sem\_eval : transformation du ASM en IR + évaluation sémantique} 
+
+\subsection{Revue de littérature}
+\todo[inline]{BAP: \\
+Jakstab: \\
+Implem en C: \\
+TraceSurfer: \\
+Pin : \\
+Xed : \\
+}
 
 \section{Modèle des vagues}
 Si on reprend l'exemple de code auto-modifiant de la figure \ref{fig:unevague_v0}, on peut construire trois représentations en mémoire des parties exécutables du programme.
@@ -139,7 +185,7 @@ Nous détaillerons par la suite ce qu'est une trace d'exécution pour l'analyse 
 
 
 \subsection{Revue de littérature}
-La notion de vague présentée dans ce chapitre a été développée dans les thèse de Calvet \cite{Calvet2013} et Reynaud \todo{cite}.
+La notion de vague présentée dans ce chapitre a été développée dans les thèse de Calvet \cite{Calvet2013} et Reynaud \cite{Reynaud2010}.
 Elle est similaire à la notion de \emph{phase} présentée par Debray et Patel \cite{DP10} et utilisée pour automatiser la suppression de la protection d'un binaire.
 En général la suppression des protections se fait à l'aide d'une analyse dynamique et d'une image de la mémoire à un instant donné au cours de l'exécution. C'est cette image mémoire qui sera considéré comme était le programme d'origine. La difficulté réside alors dans le choix de l'instant où prendre l'image mémoire.
 
