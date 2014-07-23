@@ -94,6 +94,8 @@ On note $(t:D(t), \Theta)$ l'état $(t, \Theta)$ si l'instruction désassemblée
 
 L'état initial du store est : $\forall v\in\BV, \Theta(v)=\bot$ et l'on part du point d'entrée \texttt{ep}. Les règles de transition suivantes permettent d'aboutir à une adresse finale ou invalide $\bot$ si le programme termine.
 
+\todo[inline]{$\Theta$ / $\Theta_X$, sémantique des pointeurs : un pointeur est une variable?}
+
 \begin{tabbing}
 \textlangle$t:v\leftarrow g(x_1, ..., x_m),\ \Theta$\textrangle\ \=$ \longrightarrow $ \textlangle$t+D_S(t),\ \Theta[v\leftarrow\bot]$\textrangle~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\=si $\exists i, \Theta_X(b_i)=\bot$\\
                                                                    \>$ \longrightarrow $ \textlangle$t+D_S(t),\ \Theta[v\leftarrow g(\Theta(b_1),...,\ \Theta(b_m))]$\textrangle \> sinon\\ \\
@@ -107,9 +109,13 @@ L'état initial du store est : $\forall v\in\BV, \Theta(v)=\bot$ et l'on part du
 \textlangle$t:end,\ \Theta$\textrangle\>$ \longrightarrow $ \textlangle$\bot,\ \Theta$\textrangle
 \end{tabbing}
 
-\section{Implémentations d'une sémantique opérationnelle}
+\subsection{Assembleur et langage intermédiaire}
 \todo[inline]{Opérandes explicites et implicites}
+\todo[inline]{Revue de littérature}
+
+\subsection{Implémentations}
 \todo[inline]{Cas du non arrêt} 
+\todo[inline]{Définir sem\_eval : transformation du ASM en IR + évaluation sémantique} 
 
 \section{Modèle des vagues}
 Si on reprend l'exemple de code auto-modifiant de la figure \ref{fig:unevague_v0}, on peut construire trois représentations en mémoire des parties exécutables du programme.
@@ -182,9 +188,17 @@ Nous définissons une trace d'exécution comme la donnée d'une suite $T=t_1, t_
 \label{def:write_exec_levels}
 \end{defi}
 
-En pratique une instruction $D$ écrite par une instruction ayant pour niveau d'exécution $k$ puis directement exécutée aura pour niveau d'écriture $W_D=k$ et pour niveau d'exécution $X=k+1$.
+\begin{propri}
+ Si le niveau d'exécution courant est $X$, le niveau d'exécution de l'instruction à exécuter $D_i$ est :\\
+ $X=max(X, W_D+1)$ avec $W_D=max(W^M[a],\ a\in\ $\dc{D_i}$)$.\\
+ Après l'exécution de $D_i$, les niveaux d'écriture dans la mémoire sont mis à jour de la manière suivante :\\
+ $\forall a\in$ \dw{D_i}, $W^M[a]=X$.
+\label{propri:niveau_exec}
+\end{propri}
 
-On définit alors formellement la vague $k$ selon la définition \ref{def:vagues} et l'algorithme \ref{algo:analyse_dyn_vagues} permettant d'exécuter un programme dynamiquement avec la sémantique concrète choisie tout en déterminant les niveaux d'exécution de d'écriture au fur et à mesure de l'exécution. La sortie de l'algorithme \ref{algo:analyse_dyn_vagues} est la trace d'exécution et la liste des vagues reconstruites.
+En pratique une instruction $D$ écrite par une instruction ayant pour niveau d'exécution $k$ puis directement exécutée aura pour niveau d'écriture $W_D=k$ et pour niveau d'exécution $X=k+1$. Ce comportement est formalisé par la propriété \ref{propri:niveau_exec}.
+
+On définit alors formellement la vague $k$ selon la définition \ref{def:vagues} et l'algorithme \ref{algo:analyse_dyn_vagues} permet d'exécuter un programme dynamiquement avec la sémantique concrète choisie tout en déterminant les niveaux d'exécution de d'écriture au fur et à mesure de l'exécution. La sortie de l'algorithme \ref{algo:analyse_dyn_vagues} est la trace d'exécution et la liste des vagues reconstruites.
 \\
 
 Reprenons l'exemple du programme auto-modifiant de la figure \ref{fig:unevague_trace}.
@@ -197,8 +211,7 @@ L'instruction suivante $D_6$ fixe la valeur de \edi\ à 2 puis les instructions 
 Cette trace d'exécution est donc composée de deux vagues : la vague initiale, $v_0$ composée de l'état de la mémoire avant l'exécution de la première instruction et la vague $v_1$ contenant l'état de la mémoire juste après l'exécution de $D_4$ et avant l'exécution de la première instruction modifiée $D_5$.
 
 
-\todo[inline]{définition des niveaux d'exécution souhaités (?) / explications pk l'algo marche 
-}
+
 
 \begin{defi}
  Étant donné une trace d'exécution $T=t_1, ..., t_n$ avec $t_i=(i, D_i, X_i)$ et $k\in\{X_j, 1\leq i\leq n\}$, on appelle vague $k$ l'état de la mémoire juste après l'exécution de la dernière instruction ayant pour niveau d'exécution $k$.
