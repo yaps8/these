@@ -358,7 +358,7 @@ Adresse & Octets & Instruction\\
 \label{fig:asm_eax}
 \end{figure}
 
-\subsection{Analyse statique}
+\subsection{Approche statique}
 \todo[inline]{Avantages et inconvénients des deux (couverture, précision, complétude)\\
 Exemple sur les programmes donnés}
 \paragraph{Parcours linéaire.}
@@ -387,7 +387,7 @@ Pour pallier à l'incomplétude d'un parcours récursif, un parcours spéculatif
 Il s'agit d'effectuer un parcours linéaire sur ces zones mémoires et d'utiliser des heuristiques pour déterminer s'il s'agit de code ou de données.
 Les heuristiques proposées portent sur la détection de fonctions assembleur \cite{KruegelRVV04}, repérables grâce à une suite d'instructions caractéristiques ;  sur des approches statistiques cherchant à déterminer la probabilité qu'un bloc mémoire soit de l'assembleur par calcul d'entropie. Une autre approche évalue la probabilité qu'une suite d'instructions soit effectivement du code en apprenant au préalable des suites d'instructions réelles lancées lors de l'exécution d'un programme \cite{KDF09}.
 
-\subsection{Analyse dynamique}
+\subsection{Approche dynamique}
 
 % \paragraph{Décompilation.}
 
@@ -527,20 +527,20 @@ Une autre technique courante d'obscurcissement \todo{cite} consiste à utiliser 
 Une telle condition est appelée un prédicat opaque et peut par exemple être implémentée par des relations d'arithmétique. Par exemple en appliquant le petit théorème de Fermat \cite{fermat} : quel que soit l'entier e, $e^3\ =\ e\ mod\ 3$.
 Le programmeur sait que l'égalité est toujours vérifiée mais un analyseur statique ne pourra pas le déterminer aisément.
 
-\paragraph{Chevauchement de code.}
-On a vu que la taille d'une instruction assembleur varie de un à 16 octets \todo{15 ou 16?}.
-De plus rien n'empêche que la cible d'un saut soit une adresse se trouvant être au milieu d'une autre instruction.
-Ainsi on parle de chevauchement de code lorsqu'au moins deux instructions à des adresses différentes sont codés sur des adresses communes. Si une instruction à l'adresse $a$ de taille $k\geq 2$ est atteignable, il peut y avoir une autre instruction valide et atteignable à l'adresse $a+1$ et ces deux instructions se chevauchent.
+\paragraph{Chevauchement de code.} (TODO)
+% On a vu que la taille d'une instruction assembleur varie de un à 16 octets \todo{15 ou 16?}.
+% De plus rien n'empêche que la cible d'un saut soit une adresse se trouvant être au milieu d'une autre instruction.
+% Ainsi on parle de chevauchement de code lorsqu'au moins deux instructions à des adresses différentes sont codés sur des adresses communes. Si une instruction à l'adresse $a$ de taille $k\geq 2$ est atteignable, il peut y avoir une autre instruction valide et atteignable à l'adresse $a+1$ et ces deux instructions se chevauchent.
 
-\paragraph{Exemples.}
-Les programmes packés par tELock et UPX utilisent du chevauchement de code.
+% \paragraph{Exemples.}
+% Les programmes packés par tELock et UPX utilisent du chevauchement de code.
 
-\paragraph{tELock0.99}
+% \paragraph{tELock0.99}
 
-\paragraph{UPX}
+% \paragraph{UPX}
 
-\paragraph{État de l'art.}
-\paragraph{Cacher une séquence de longueur arbitraire.}
+% \paragraph{État de l'art.}
+% \paragraph{Cacher une séquence de longueur arbitraire.}
 
 ~\\
 \todo[inline]{

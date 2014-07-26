@@ -8,4 +8,4 @@ these.bbl: these.bib
 	biber these
 
 clean: these.bib
-	rm -f these.aux these.bbl these.blg these.log these.nav these.out these.snm these.toc these.pdf
+	rm -f these.aux these.bbl these.blg these.log these.nav these.out these.snm these.toc these.pdf these.idf these.log these.maf these.mtc these.idx these.lof these.glo these.bcf
