@@ -527,20 +527,20 @@ Une autre technique courante d'obscurcissement \todo{cite} consiste à utiliser 
 Une telle condition est appelée un prédicat opaque et peut par exemple être implémentée par des relations d'arithmétique. Par exemple en appliquant le petit théorème de Fermat \cite{fermat} : quel que soit l'entier e, $e^3\ =\ e\ mod\ 3$.
 Le programmeur sait que l'égalité est toujours vérifiée mais un analyseur statique ne pourra pas le déterminer aisément.
 
-\paragraph{Chevauchement de code.} (TODO)
-% On a vu que la taille d'une instruction assembleur varie de un à 16 octets \todo{15 ou 16?}.
-% De plus rien n'empêche que la cible d'un saut soit une adresse se trouvant être au milieu d'une autre instruction.
-% Ainsi on parle de chevauchement de code lorsqu'au moins deux instructions à des adresses différentes sont codés sur des adresses communes. Si une instruction à l'adresse $a$ de taille $k\geq 2$ est atteignable, il peut y avoir une autre instruction valide et atteignable à l'adresse $a+1$ et ces deux instructions se chevauchent.
+\paragraph{Chevauchement de code.}
+On a vu que la taille d'une instruction assembleur varie de un à 16 octets \todo{15 ou 16?}.
+De plus rien n'empêche que la cible d'un saut soit une adresse se trouvant être au milieu d'une autre instruction.
+Ainsi on parle de chevauchement de code lorsqu'au moins deux instructions à des adresses différentes sont codés sur des adresses communes. Si une instruction à l'adresse $a$ de taille $k\geq 2$ est atteignable, il peut y avoir une autre instruction valide et atteignable à l'adresse $a+1$ et ces deux instructions se chevauchent.
 
-% \paragraph{Exemples.}
-% Les programmes packés par tELock et UPX utilisent du chevauchement de code.
+\paragraph{Exemples.}
+Les programmes packés par tELock et UPX utilisent du chevauchement de code.
 
-% \paragraph{tELock0.99}
+\paragraph{tELock0.99}
 
-% \paragraph{UPX}
+\paragraph{UPX}
 
-% \paragraph{État de l'art.}
-% \paragraph{Cacher une séquence de longueur arbitraire.}
+\paragraph{État de l'art.}
+\paragraph{Cacher une séquence de longueur arbitraire.}
 
 ~\\
 \todo[inline]{
