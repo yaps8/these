@@ -528,7 +528,7 @@ Une telle condition est appelée un prédicat opaque et peut par exemple être i
 Le programmeur sait que l'égalité est toujours vérifiée mais un analyseur statique ne pourra pas le déterminer aisément.
 
 \paragraph{Chevauchement de code.}
-On a vu que la taille d'une instruction assembleur varie de un à 16 octets \todo{15 ou 16?}.
+On a vu que la taille d'une instruction assembleur varie de un à 15 octets \done{15 dans intel2 chercher 15}.
 De plus rien n'empêche que la cible d'un saut soit une adresse se trouvant être au milieu d'une autre instruction.
 Ainsi on parle de chevauchement de code lorsqu'au moins deux instructions à des adresses différentes sont codés sur des adresses communes. Si une instruction à l'adresse $a$ de taille $k\geq 2$ est atteignable, il peut y avoir une autre instruction valide et atteignable à l'adresse $a+1$ et ces deux instructions se chevauchent.
 
@@ -536,8 +536,35 @@ Ainsi on parle de chevauchement de code lorsqu'au moins deux instructions à des
 Les programmes packés par tELock et UPX utilisent du chevauchement de code.
 
 \paragraph{tELock0.99}
+tELock0.99 utilise du chevauchement de code pour obscurcir le code comme suit. Sur la figure \ref{fig:telock_obf_asm} on peut voir le désassemblable  récursif à partir de l'adresse \adr{01006e7a}. Il y a une instruction \texttt{jmp +1} à l'adresse \adr{01006e7d} et codée sur les deux octets \texttt{eb ff}, qui saute vers l'adresse \adr{01006e7d+1} où est présenté l'instruction \texttt{dec ecx}, codée sur \texttt{ff c9} et qui partage donc l'octet \texttt{ff} à l'adresse \adr{01006e7d+1} avec l'instruction \jmp.
 
-\paragraph{UPX}
+
+
+\begin{figure}
+\scriptsize
+% 0x01006e73    00 0c 0b        add [ebx+ecx], cl
+% 0x01006e76    80 34 0b 67     xor byte [ebx+ecx], 0x67
+\begin{lstlisting}[language={[x86masm]Assembler}, escapechar=~]
+01006e7a    fe 04 0b        inc byte [ebx+ecx]
+01006e7d    eb ff           jmp +1
+01006e7e       ff c9        dec ecx
+01006e80    7f e6           jg 01006e68
+01006e82    8b c1           mov eax, ecx
+\end{lstlisting}
+% \end{framed}
+\caption{Désassemblage récursif de \telock}
+\label{fig:telock_obf_asm}
+\end{figure}
+
+Le graphe de flot de contrôle correct pour ce code est donné sur la figure \ref{fig:telock_cfg}. Le sommet orange est la première instruction, les arêtes noires et rouges relient les instructions séquentielles et les cibles de saut, respectivement. Les lignes en pointillés entre deux sommets marquent le chevauchement entre les instructions de ces sommets.
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=0.6\textwidth]{supports/disasm/telock/telock.pdf}
+\end{center}
+\caption{Graphe de flot de contrôle de \telock}
+\label{fig:telock_cfg}
+\end{figure}
 
 \paragraph{État de l'art.}
 \paragraph{Cacher une séquence de longueur arbitraire.}
