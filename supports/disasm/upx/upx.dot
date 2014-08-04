@@ -1,0 +1,12 @@
+digraph G {
+labeljust=r
+"0xb" [labeljust=r,label="BB [0xb -> 0xe] (0x4)\l0xb push edi\l0xc dec eax\l0xd repne scasb\l", shape=box, style="filled", fillcolor=white]
+"0x0" [label="BB [0x0 -> 0x3] (0x4)\l0x0 mov ecx, edi\l0x2 jns 0xb\l", shape=box, style="bold, filled", fillcolor="orange"]
+"0x4" [labeljust=r,label="BB [0x4 -> 0xe] (0xb)\l0x4 movzx eax, word [edi]\l0x7 inc edi\l0x8 push eax\l0x9 inc edi\l0xa mov ecx, 0xaef24857\l", shape=box, style="filled", fillcolor=white]
+"0xf" [labeljust=r,label="BB [0xf -> 0xf] (0x1)\l0xf push ebp\l", shape=box, style="filled", fillcolor=white]
+"0xb" -> "0x4" [style=dotted,arrowhead=none,color=black]
+"0xb" -> "0xf" [color=black]
+"0x0" -> "0xb" [color=red]
+"0x0" -> "0x4" [color=black]
+"0x4" -> "0xf" [color=black]
+}
