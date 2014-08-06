@@ -1,5 +1,5 @@
 digraph G{
-"1" [label="8048067: mov eax, 0"]
+"1" [label="8048067: mov eax, 0", style="filled,bold", fillcolor=orange]
 "2" [label="804806c: jmp 0x8048073"]
 "4" [label="8048073: cmp eax, 0"]
 "5" [label="8048076: je 0x804807e"]
@@ -7,11 +7,11 @@ digraph G{
 "7" [label="804807d: ret"]
 "8" [label="804807e: mov eax, 2"]
 "9" [label="8048083: ret"]
-"1" -> "2"
-"2" -> "4"
+"1" -> "2"  
+"2" -> "4" [color=red]
 "4" -> "5"
 "5" -> "6"
 "6" -> "7"
-"5" -> "8"
+"5" -> "8" [color=red]
 "8" -> "9"
 }

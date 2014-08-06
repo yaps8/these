@@ -170,15 +170,15 @@ La seconde est celle après que la première modification du programme faite à 
 En fait vu qu'aucune des adresses modifiées par la première instruction auto-modifiante n'est exécutées avant que la seconde modification ne soit faite, on peut regrouper les deux instructions auto-modifiantes et considérer que le programme n'a que deux représentations en mémoire : la représentation initiale et la représentation au moment où l'instruction modifiée à l'adresse \adr{8048091} est exécutée.
 
 Dans ce découpage informel on appelle vague une représentation mémoire à un instant donné. 
-L'exécution d'un programme est alors caractérisé par une suite d'exécutions sur des vagues successives comme représenté en figure \ref{fig:vagues_visuel}.
-On passe d'une vague $i$ à la vague suivante $i+1$ lorsqu'une adresse mémoire écrite dans la vague $i$ est exécutée.
+L'exécution d'un programme est alors caractérisé par une suite d'exécutions sur des vagues successives comme représenté en figure \ref{fig:vagues_visuel}. Les instructions qui sont présentes dans la trace sont colorées en rose tandis que le point d'entrée et la dernière instruction sont en orange et bleu clair, respectivement.
+On passe d'une vague $k$ à la vague suivante $k+1$ lorsqu'une adresse mémoire écrite dans la vague $k$ est exécutée.
 Ainsi dans une vague $k$, toutes les instructions exécutées ont été écrites au moins à la vague $k-1$. 
 En ce sens chacune des vagues, prise indépendamment des autres, ne présente pas d'auto-modification.
 
 Nous détaillerons par la suite ce qu'est une trace d'exécution pour l'analyse dynamique ainsi que la sémantique d'enchaînement des vagues.
 
 \begin{figure}
- \missingfigure{!}
+ \includegraphics[width=1.0\textwidth]{supports/automodification/phases2_final.pdf}
  \caption{Vision informelle des vagues}
  \label{fig:vagues_visuel}
 \end{figure}

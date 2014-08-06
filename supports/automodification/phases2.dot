@@ -1,0 +1,76 @@
+digraph G {
+ {rank=same n1_1_1 n2_1_1 n3_1_1 n4_1_1}
+ {rank=same n1_2_1 n2_2_1 n3_2_1 n4_2_1}
+ {rank=same n1_3_1 n2_3_1 n3_3_1 n4_3_1}
+ {rank=same n1_4_1 n2_4_1 n3_4_1 n4_4_1}
+ {rank=same n1_5_1 n2_5_1 n3_5_1 n4_5_1}
+subgraph cluster1 {
+label = "Phase 1";
+style=filled
+color=lightgrey
+n1_1_1 [style=filled, label="t01"style="filled",fillcolor=orange]
+n1_2_1 [style=filled, label="t02"style="filled",fillcolor=pink]
+n1_3_1 [style=filled, label=""style="filled",fillcolor=white]
+n1_4_1 [style=filled, label=""style="filled",fillcolor=white]
+n1_5_1 [style=filled, label="t03"style="filled",fillcolor=pink]
+}
+
+subgraph cluster2 {
+label = "Phase 2";
+style=filled
+color=lightgrey
+n2_1_1 [style=filled, label="t04"style="filled",fillcolor=pink]
+n2_2_1 [style=filled, label="t05"style="filled",fillcolor=pink]
+n2_3_1 [style=filled, label=""style="filled",fillcolor=white]
+n2_4_1 [style=filled, label=""style="filled",fillcolor=white]
+n2_5_1 [style=filled, label=""style="invisible"]
+}
+
+subgraph cluster3 {
+label = "Phase 3";
+style="dashed"
+color=lightgrey
+n3_1_1 [style=filled, label="t_k"style="filled",fillcolor=pink]
+n3_2_1 [style=filled, label="t_k+1"style="filled",fillcolor=pink]
+n3_3_1 [style=filled, label=""style="filled",fillcolor=white]
+n3_4_1 [style=filled, label=""style="filled",fillcolor=white]
+n3_5_1 [style=filled, label="t_k+2"style="filled",fillcolor=pink]
+}
+
+subgraph cluster4 {
+label = "Phase 4";
+style="dashed"
+color=lightgrey
+n4_1_1 [style=filled, label="t_n"style="filled",fillcolor=pink]
+n4_2_1 [style=filled, label=""style="filled",fillcolor=white]
+n4_3_1 [style=filled, label="t_n+1"style="filled",fillcolor=pink]
+n4_4_1 [style=filled, label=""style="filled",fillcolor=white]
+n4_5_1 [style=filled, label="t_n+2"style="filled",fillcolor=lightblue]
+}
+
+n1_1_1 -> n1_2_1
+n1_1_1 -> n1_3_1
+n1_2_1 -> n1_5_1
+n1_5_1 -> n1_4_1
+n1_5_1 -> n2_1_1
+
+n2_3_1 -> n2_1_1
+n2_1_1 -> n2_2_1
+n2_2_1 -> n2_4_1
+//n2_5_1 -> n3_1_1
+
+n3_1_1 -> n3_2_1
+n3_1_1 -> n3_3_1
+n3_3_1 -> n3_4_1
+n3_3_1 -> n3_5_1
+n3_2_1 -> n3_5_1
+
+
+n2_2_1 -> n3_1_1
+n3_5_1 -> n4_1_1
+
+n4_1_1 -> n4_3_1
+n4_3_1 -> n4_4_1
+n4_3_1 -> n4_5_1
+n4_2_1 -> n4_5_1
+}

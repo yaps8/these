@@ -1,10 +1,10 @@
 digraph G {
 labeljust=r
-"0x4" [labeljust=r,label="BB [0x4 -> 0x5] (0x2)\l0x4 dec ecx\l", shape=box, style="filled", fillcolor=white]
-"0x0" [label="BB [0x0 -> 0x2] (0x3)\l0x0 inc byte [ebx+ecx]\l", shape=box, style="bold, filled", fillcolor="orange"]
-"0x3" [labeljust=r,label="BB [0x3 -> 0x4] (0x2)\l0x3 jmp 0x4\l", shape=box, style="filled", fillcolor=white]
-"0x6" [labeljust=r,label="BB [0x6 -> 0x7] (0x2)\l0x6 jg 0xffffffee\l", shape=box, style="filled", fillcolor=white]
-"0x8" [labeljust=r,label="BB [0x8 -> 0x9] (0x2)\l0x8 mov eax, ecx\l", shape=box, style="filled", fillcolor=white]
+"0x4" [labeljust=r,label="0x01006e7e dec ecx\l"]
+"0x0" [label="0x01006e7a inc byte [ebx+ecx]\l", style="bold, filled", fillcolor="orange"]
+"0x3" [labeljust=r,label="0x01006e7d jmp +1\l"]
+"0x6" [labeljust=r,label="0x01006e80 jg 0xffffffee\l"]
+"0x8" [labeljust=r,label="0x01006e82 mov eax, ecx\l"]
 "0x4" -> "0x3" [style=dotted,arrowhead=none,color=black]
 "0x4" -> "0x6" [color=black]
 "0x0" -> "0x3" [color=black]
