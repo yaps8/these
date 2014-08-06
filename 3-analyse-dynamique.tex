@@ -1,4 +1,6 @@
 \todo[inline]{Problème des entrées, comment gérer SM ?}
+\todo[inline]{Intro: définition + citer le livre}
+
 L'analyse dynamique consiste à se baser sur une ou des exécutions particulières d'un programme pour inférer des propriétés sur son fonctionnement.
 Elle demande donc de se munir d'une langage modélisant le fonctionnement de la machine durant l'exécution du programme, d'une sémantique concrète de l'assembleur utilisé et de lancer l'évaluation sémantique du programme sur une ou plusieurs entrées.
 Les entrées d'un programme sont par exemple les paramètres passés lors de l'appel au programme, l'état de la machine lors du démarrage, les données lues depuis la mémoire et les saisies faites par l'utilisateur au clavier ou à la souris lors de l'exécution s'il s'agit d'une application dotée d'une interface graphique.
@@ -28,9 +30,16 @@ Il est possible d'assigner un symbole ou une combinaison de symboles (à l'aide 
 Le second type d'instruction regroupe les sauts inconditionnels et conditionnels.
 On distingue également l'instruction \texttt{end} forçant l'arrêt du programme.
 
-\paragraph{Exemples naïfs de la représentation d'instructions assembleur \xq.}
+\begin{defi}
+Les instructions d'un programme sont de ce type, quelle que soit la fonction totale g de $\BN^m$ dans $\BN$ :\\
+$inst:=\ $\emph{$x\leftarrow g(x_1, ..., x_m)$ $|$ goto $x$ $|$ if $x$ then $goto\ x'$ $|$ end}
+\label{def:sem_instructions}
+\end{defi}
+
+
+% \paragraph{Exemples naïfs de la représentation d'instructions assembleur \xq.}
 La figure \ref{fig:sem_exemples_insts} donne des exemples de transcription d'instructions \xq\ dans le langage défini précédemment. 
-Elles sont naïves au sens que les instructions \xq\ sont plus complexes et un simple \sub\ provoque des effets de bord modifiant des registres. Ce point sera développé par la suite lorsque nous discuterons des implémentations possibles pour cette sémantique concrète.
+Ils sont naïfs au sens que les instructions \xq\ sont plus complexes et un simple \sub\ provoque des effets de bord modifiant des registres. Ce point sera développé par la suite lorsque nous discuterons des implémentations possibles pour cette sémantique concrète.
 \\
 
 \begin{figure}
@@ -48,6 +57,8 @@ Elles sont naïves au sens que les instructions \xq\ sont plus complexes et un s
    \hline
    jmp eax & $goto\ eax$ \\
    \hline
+   sub eax, 3 & $eax\leftarrow soustraction(eax, 3)$ \\
+   \hline
   \end{tabular}
  \end{center}
 \caption{Exemple de transcription d'instructions \xq\ dans le langage assembleur simplifié}
@@ -57,11 +68,6 @@ Elles sont naïves au sens que les instructions \xq\ sont plus complexes et un s
 
 Comme nous avons vu dans les parties précédentes, un programme est simplement composé d'un ou plusieurs blocs d'octets à charger en mémoire. Une fois ces segments chargés dans le tableau $\BT$ représentant la mémoire, le point d'entrée du programme est placé dans le registre \texttt{ep}.
 
-\begin{defi}
-Les instructions d'un programme sont de ce type, quelle que soit la fonction totale g de $\BN^m$ dans $\BN$ :\\
-$inst:=\ $\emph{$x\leftarrow g(x_1, ..., x_m)$ $|$ goto $x$ $|$ if $x$ then $goto\ x'$ $|$ end}
-\label{def:sem_instructions}
-\end{defi}
 
 % \begin{defi}
 % L'adresse 
@@ -140,15 +146,17 @@ L'état initial du store est : $\forall v\in\BV, \Theta_X(v)=\bot$ et l'on part 
 \textlangle$t:end,\ \Theta_X$\textrangle\>$ \longrightarrow $ \textlangle$\bot,\ \Theta_X$\textrangle
 \end{tabbing}
 
-\subsection{Assembleur et langage intermédiaire}
-\todo[inline]{Opérandes explicites et implicites}
-
+\section{Assembleur et langage intermédiaire}
 En pratique pour analyser un programme assembleur on veut en avoir un représentation dont on connaît la sémantique concrète.
 On va pour cela réécrire le programme dans un langage intermédiaire et effectuer les analyses sur le programme en langage intermédiaire.
 
-Une des difficultés rencontrées dans la transformation d'un langage assembleur en langage intermédiaire est la richesse sémantique du langage \xq\ qui contient des centaines d'instructions et utilise de nombreux registres et flags \todo{flags?} du processeur.
+Une des difficultés rencontrées dans la transformation d'un langage assembleur en langage intermédiaire est la richesse sémantique du langage \xq\ qui contient des centaines d'instructions et utilise de nombreux registres et drapeaux du processeur.
 L'instruction \texttt{sub eax, b} par exemple soustrait l'opérande \texttt{b} à \eax\  en stockant le résultat de l'opérant dans \eax.
-Le mnémonique \texttt{sub} désigne une vingtaine de variantes de la soustraction selon la taille des opérandes pris en compte. Elle effectue l'opération \texttt{eax-b} et met à jour les flags CF et OF indiquant un dépassement de valeur entière, le flag de signe SF, le flag ZF (à 1 si le résultat est nul) et celui de parité PF.
+Le mnémonique \texttt{sub} désigne une vingtaine de variantes de la soustraction selon la taille des opérandes pris en compte. Elle effectue l'opération \texttt{eax-b} et met à jour les drapeaux CF et OF indiquant un dépassement de valeur entière, le drapeau de signe SF, le drapeau ZF (à 1 si le résultat est nul) et celui de parité PF.
+
+\todo[inline]{adresse -> liste d'instructions}
+\todo[inline]{comment exécuter un programme asm avec un langage intermédiaire}
+Une instruction assembleur va donc être traduite en plusieurs instructions dans le langage intermédiaire
 
 \subsection{Implémentations}
 \todo[inline]{Cas du non arrêt} 
@@ -163,7 +171,7 @@ Pin : \\
 Xed : \\
 }
 
-\section{Modèle des vagues}
+\section{Auto-modification et vagues}
 Si on reprend l'exemple de code auto-modifiant de la figure \ref{fig:unevague_v0}, on peut construire trois représentations en mémoire des parties exécutables du programme.
 La première correspond à la vision du programme lors de son chargement : la section .text est dans son état initial.
 La seconde est celle après que la première modification du programme faite à l'adresse \adr{8048086} et la troisième après la seconde modification faite à l'adresse \adr{804808b}.
@@ -215,7 +223,7 @@ On note $D$ une instruction dynamique constituée des éléments suivants.
 \label{def:ensembles_inst_dyn}
 \end{defi}
 
-Nous avons donc, pour une trace d'exécution donnée, des vagues successives $1, 2, ..., n$. 
+Nous avons donc, pour une trace d'exécution donnée, des vagues successives $1, 2, ..., n$.
 Au cours de l'exécution du programme on définit, pour chaque adresse en mémoire $m$, un niveau d'écriture $W^M[m]$.
 correspondant à la dernière vague $k$ durant laquelle une instruction a modifié la valeur à l'adresse $m$.
 
