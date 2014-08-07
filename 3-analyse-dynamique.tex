@@ -23,14 +23,15 @@ Les valeurs possibles pour les variables sont dans $\BN$.
 \label{def:sem_conc_var}
 \end{defi}
 
-\paragraph{Langage assembleur simplifié.} Le langage assembleur est très simple du point de vue de la sémantique. Il peut être modélisé comme contenant des instructions disponibles à différentes adresses entières. 
-Ces instructions sont de plusieurs type explicités en définition \ref{def:sem_instructions} : le premier consiste en l'assignation.
+\paragraph{Langage assembleur simplifié.} Nous allons définir un langage intermédiaire dans lequel on peut transcrire chaque instruction \xq\ en une liste d'instructions atomiques de notre langage simplifié.
+Les instructions \xq\ sont disponibles à différentes adresses entières. 
+Les instructions atomiques sont de plusieurs type explicités en définition \ref{def:sem_instructions} : le premier consiste en l'assignation.
 Il est possible d'assigner un symbole ou une combinaison de symboles (à l'aide d'une fonction sur les entiers) à un symbole. 
 Le second type d'instruction regroupe les sauts inconditionnels et conditionnels.
 On distingue également l'instruction \texttt{end} forçant l'arrêt du programme.
 
 \begin{defi}
-Les instructions d'un programme sont de ce type, quelle que soit la fonction totale g de $\BN^m$ dans $\BN$ :\\
+Les instructions atomiques d'un programme sont de ce type, quelle que soit la fonction totale g de $\BN^m$ dans $\BN$ :\\
 $inst:=\ $\emph{$x\leftarrow g(x_1, ..., x_m)$ $|$ goto $x$ $|$ if $x$ then $goto\ x'$ $|$ end}
 \label{def:sem_instructions}
 \end{defi}
@@ -45,7 +46,7 @@ Ils sont naïfs au sens que les instructions \xq\ sont plus complexes et un simp
  \begin{center}
   \begin{tabular}{|l|l|}
    \hline
-   Instruction \xq & Instruction du langage simplifié\\
+   Instruction \xq & Instructions atomiques équivalentes\\
    \hline
    mov eax, 3 & $eax\leftarrow 3$ \\
    \hline
