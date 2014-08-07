@@ -1,6 +1,8 @@
 subdirs := $(wildcard */) $(wildcard */*/) $(wildcard */*/*/)
-sources := $(wildcard $(addsuffix *.dot,$(subdirs)))
-pdf_from_dot := $(patsubst %.dot,%.pdf,$(sources))
+all_dot := $(wildcard $(addsuffix *.dot,$(subdirs)))
+#all_pdf := $(wildcard $(addsuffix *.dot,$(subdirs)))
+pdf_from_dot := $(patsubst %.dot,%.pdf,$(all_dot))
+#low_from_pdf := $(patsubst %.pdf,%_low.pdf,$(sources))
 #$(info $$var is [${subdirs}])
 #$(info $$var is [${sources}])
 #$(info $$var is [${objects}])
@@ -20,3 +22,6 @@ clean: these.bib
 
 %.pdf: %.dot
 	dot -Tpdf $< -o $@
+
+#%_low.pdf: %.pdf
+#	dot -Tpdf $< -o $@

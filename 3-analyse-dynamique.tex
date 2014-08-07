@@ -108,7 +108,7 @@ La définition \ref{sem_store_dynamique_pointeurs} étend la notion de store aux
   \item Sinon, $x\in\BP$ : $x=\textlbrackdbl v\textrbrackdbl$ avec $v\in\BV$.
   \begin{itemize}
    \item Si $\Theta(v)=\bot$ alors $\Theta_X(x)=\bot$
-   \item Si $\Theta(v)\in\BN$ et $\Theta(v)>T$ alors $\Theta_X(x)=\bot$
+   \item Si $\Theta(v)\in\BN$ et $\Theta(v)\notin\BT$ alors $\Theta_X(x)=\bot$
    \item Sinon $\Theta(v)\in\BN$ et $\Theta(v)\in\BT$, alors $\Theta_X(x)=\Theta(\Theta(v))$.
   \end{itemize}
  \end{itemize}
@@ -183,8 +183,10 @@ L'état initial du store est : $\forall v\in\BV, \Theta_X(v)=\bot$ et l'on part 
 \end{tabular}
 \end{center}
 
+Dans la suite de ce chapitre nous appelons évaluation sémantique ou \texttt{sem\_eval} la fonction qui, à une adresse $t$ et un store $\Theta_X$, associe l'état sur les instructions \xq\ suivant : si $t'$ et $\Theta_X'$ sont les premières valeurs vérifiant \textlangle$t, \Theta$\textrangle$\rightarrow^*$\textlangle$t', \Theta_X'$\textrangle\ alors \texttt{sem\_eval}$(t, \Theta_X)=(t', \Theta_X')$.
 
-\section{Assembleur et langage intermédiaire}
+
+\subsection{Assembleur et langage intermédiaire}
 En pratique pour analyser un programme assembleur on veut en avoir un représentation dont on connaît la sémantique concrète.
 On va pour cela réécrire le programme dans un langage intermédiaire et effectuer les analyses sur le programme en langage intermédiaire.
 
@@ -192,15 +194,10 @@ Une des difficultés rencontrées dans la transformation d'un langage assembleur
 L'instruction \texttt{sub eax, b} par exemple soustrait l'opérande \texttt{b} à \eax\  en stockant le résultat de l'opérant dans \eax.
 Le mnémonique \texttt{sub} désigne une vingtaine de variantes de la soustraction selon la taille des opérandes pris en compte. Elle effectue l'opération \texttt{eax-b} et met à jour les drapeaux CF et OF indiquant un dépassement de valeur entière, le drapeau de signe SF, le drapeau ZF (à 1 si le résultat est nul) et celui de parité PF.
 
-\todo[inline]{adresse -> liste d'instructions}
-\todo[inline]{comment exécuter un programme asm avec un langage intermédiaire}
-Une instruction assembleur va donc être traduite en plusieurs instructions dans le langage intermédiaire
+Une instruction assembleur va donc être traduite en une ou plusieurs instructions atomiques dans le langage intermédiaire que l'on sait équivalentes sémantiquement à l'instruction \xq\ et dont on a une sémantique concrète pour les exécuter.
+Une difficulté pratique vient de la richesse du langage \xq\ : écrire l'équivalence de chacun de ses instructions dans le langage intermédiaire choisi est une tâche longue et prône aux erreurs, notamment lors de l'analyse de la documentation. Pour cette raison nous avons rapidement choisi de nous orienter vers des langages intermédiaire pour lesquels cette étape a déjà été réalisée.
 
-\subsection{Implémentations}
-\todo[inline]{Cas du non arrêt} 
-\todo[inline]{Définir sem\_eval : transformation du ASM en IR + évaluation sémantique} 
-
-\subsection{Revue de littérature}
+\subsection{Revue de littérature et implémentations}
 \todo[inline]{BAP: \\
 Jakstab: \\
 Implem en C: \\
@@ -247,7 +244,7 @@ En utilisant la sémantique concrète précédemment définie on est capable, à
 Une trace d'exécution d'un programme est simplement l'enchaînement des instructions auxquelles l'exécution du programme a fait appel. Si on note $I_i$ une instruction dynamique, la trace d'exécution est $T=I_1, I_2, ..., I_n$ où $I_n$ est la dernière instruction du programme.
 
 Nous définissons une instruction dynamique (définition \ref{def:ensembles_inst_dyn}) par son adresse, les adresses mémoires sur lesquelles elle est codée et l'instruction machine correspondant. Ces informations sont données par un désassemblage atomique d'une instruction à l'adresse mémoire spécifiée.
-Afin de pouvoir séparer la trace d'exécution selon le moment où chaque instruction a été écrite, nous définissons aussi pour chaque instruction l'ensemble des variables sur lesquelles elle provoque une écriture. Cette information sera donnée par la sémantique concrète choisie \todo{sémantique}.
+Afin de pouvoir séparer la trace d'exécution selon le moment où chaque instruction a été écrite, nous définissons aussi pour chaque instruction l'ensemble des variables sur lesquelles elle provoque une écriture. Cette information est donnée par la sémantique concrète choisie.
 
 \begin{defi}
 On note $D$ une instruction dynamique constituée des éléments suivants.
@@ -386,8 +383,6 @@ i & \da{D_i} & \dc{D_i} & \di{D_i} & \dw{D_i} & $W_i$ & $X_i$ \\
 \label{fig:unevague_trace}
 \end{figure}
 
-\todo[inline]{définir sem\_eval dans la sémantique}
-
 \begin{algorithm}[H] %or another one check
 \caption{Analyse dynamique avec calcul des vagues}
 \SetAlgoLined
@@ -417,7 +412,7 @@ $X\leftarrow MAJExecution(M, W^M, D, X)$\\
 }
 $X_{-1} \leftarrow X$\\
 ~\\
-$(eip, R, M, D)\leftarrow sem\_eval(eip, R, M)$\\
+$(eip, R, M)\leftarrow sem\_eval(eip, R, M)$\\
 $W^M\leftarrow MAJEcriture(M, W^M, D, X)$\\
 $T\leftarrow T\cup\{(i, D_i, X)\}$\\
 }
