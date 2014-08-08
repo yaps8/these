@@ -197,7 +197,7 @@ Le mnémonique \texttt{sub} désigne une vingtaine de variantes de la soustracti
 Une instruction assembleur va donc être traduite en une ou plusieurs instructions atomiques dans le langage intermédiaire que l'on sait équivalentes sémantiquement à l'instruction \xq\ et dont on a une sémantique concrète pour les exécuter.
 Une difficulté pratique vient de la richesse du langage \xq\ : écrire l'équivalence de chacun de ses instructions dans le langage intermédiaire choisi est une tâche longue et prône aux erreurs, notamment lors de l'analyse de la documentation. Pour cette raison nous avons rapidement choisi de nous orienter vers des langages intermédiaire pour lesquels cette étape a déjà été réalisée.
 
-\subsection{Revue de littérature et implémentations}
+\subsection{Revue de littérature : langages intermédiaires}
 \todo[inline]{BAP: \\
 Jakstab: \\
 TraceSurfer: \\
@@ -247,7 +247,17 @@ En utilisant la sémantique concrète précédemment définie on est capable, à
 Une trace d'exécution d'un programme est simplement l'enchaînement des instructions auxquelles l'exécution du programme a fait appel. Si on note $I_i$ une instruction dynamique, la trace d'exécution est $T=I_1, I_2, ..., I_n$ où $I_n$ est la dernière instruction du programme.
 
 Nous définissons une instruction dynamique (définition \ref{def:ensembles_inst_dyn}) par son adresse, les adresses mémoires sur lesquelles elle est codée et l'instruction machine correspondant. Ces informations sont données par un désassemblage atomique d'une instruction à l'adresse mémoire spécifiée.
-Afin de pouvoir séparer la trace d'exécution selon le moment où chaque instruction a été écrite, nous définissons aussi pour chaque instruction l'ensemble des variables sur lesquelles elle provoque une écriture. Cette information est donnée par la sémantique concrète choisie.
+Afin de pouvoir séparer la trace d'exécution selon le moment où chaque instruction a été écrite, nous définissons aussi pour chaque instruction l'ensemble des variables sur lesquelles elle provoque une écriture. Cette information est donnée par la sémantique concrète choisie. Avec la sémantique définie à la section précédente les seules instructions qui provoquent des écritures sont celles dont la liste d'instructions atomiques donnée par le désassemblage contiennent des assignation de la forme $x\leftarrow g(x_1, ..., x_m)$ : \dw{D}=\dw{d_1..d_n}=\dw{d_1}$\ \cup\ ...\ \cup\ $\dw{d_n} avec
+\\
+\dw{d_i}$=
+\left\{
+  \begin{array}{ll}
+	  x &$ si $d_i=x\leftarrow g(x_1, ..., x_m)\ et\ x\in\BV
+	\\v &$ si $d_i=x\leftarrow g(x_1, ..., x_m)\ et\ x\notin\BV$: $x=[v]$ est un pointeur vers v$
+	\\ \emptyset &$ sinon.$
+  \end{array}
+\right.
+$
 
 \begin{defi}
 On note $D$ une instruction dynamique constituée des éléments suivants.
@@ -428,3 +438,18 @@ $T\leftarrow T\cup\{(i, D_i, X)\}$\\
  Étant donné la définition croissante des vagues, la même instruction $D$ peut-être exécutée non seulement plusieurs fois dans la même vague mais également être présente à des vagues différentes.
 \end{rem}
 
+\section{Implémentations}
+\todo[inline]{émulation VS instrumentation VS déboguage}
+\todo[inline]{BAP: \\
+Jakstab: \\
+TraceSurfer: \\
+Renovo : \\
+LLVM : \\
+Implem en C: \\
+TraceSurfer: \\
+Pin : \\
+Xed : \\
+}
+\subsection{Revue de littérature}
+\subsection{Émulation avec BAP}
+\subsection{Instrumentation avec Pin}
