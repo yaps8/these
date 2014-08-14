@@ -188,13 +188,13 @@ Dans la suite de ce chapitre nous appelons évaluation sémantique ou \texttt{se
 
 \subsection{Assembleur et langage intermédiaire}
 En pratique pour analyser un programme assembleur on veut en avoir un représentation dont on connaît la sémantique concrète.
-On va pour cela réécrire le programme dans un langage intermédiaire et effectuer les analyses sur le programme en langage intermédiaire.
+On va pour cela réécrire le programme dans un langage intermédiaire et effectuer les analyses sur le programme en langage intermédiaire. Le langage défini dans la section en cours est un langage intermédiaire possible.
 
 Une des difficultés rencontrées dans la transformation d'un langage assembleur en langage intermédiaire est la richesse sémantique du langage \xq\ qui contient des centaines d'instructions et utilise de nombreux registres et drapeaux du processeur.
 L'instruction \texttt{sub eax, b} par exemple soustrait l'opérande \texttt{b} à \eax\  en stockant le résultat de l'opérant dans \eax.
 Le mnémonique \texttt{sub} désigne une vingtaine de variantes de la soustraction selon la taille des opérandes pris en compte. Elle effectue l'opération \texttt{eax-b} et met à jour les drapeaux CF et OF indiquant un dépassement de valeur entière, le drapeau de signe SF, le drapeau ZF (à 1 si le résultat est nul) et celui de parité PF.
 
-Une instruction assembleur va donc être traduite en une ou plusieurs instructions atomiques dans le langage intermédiaire que l'on sait équivalentes sémantiquement à l'instruction \xq\ et dont on a une sémantique concrète pour les exécuter.
+Une instruction assembleur va donc être traduite en une ou plusieurs instructions atomiques dans le langage intermédiaire, que l'on sait équivalentes sémantiquement à l'instruction \xq\ et dont on a une sémantique concrète pour les exécuter.
 Une difficulté pratique vient de la richesse du langage \xq\ : écrire l'équivalence de chacun de ses instructions dans le langage intermédiaire choisi est une tâche longue et prône aux erreurs, notamment lors de l'analyse de la documentation. Pour cette raison nous avons rapidement choisi de nous orienter vers des langages intermédiaire pour lesquels cette étape a déjà été réalisée.
 
 \subsection{Revue de littérature : langages intermédiaires}
@@ -237,9 +237,9 @@ En général la suppression des protections se fait à l'aide d'une analyse dyna
 
 
 \subsection{Trace, niveaux d'exécution et vagues}
-Le programme exécuté a pour sources principales de données les registres et la mémoire constituée de la pile et du tas qui sont tous les deux adressables par des entiers. Une variable d'un programme est donc soit un registre du processeur soit une adresse mémoire, comme indiqué en définition \ref{def:variable}.
+Le programme exécuté a pour sources principales de données les registres et la mémoire constituée de la pile et du tas qui sont tous les deux adressables par des entiers. Une variable d'un programme est donc soit un registre du processeur soit une adresse mémoire, comme indiqué en définition \ref{def:variable}. Il s'agit du même ensemble $\BV$ que celui défini dans le langage intermédiaire, à la définition \ref{def:sem_conc_var}.
 \begin{defi}
-On définit l'ensemble $\BV$ des variables comme contenant un ensemble fini de registres $a\in\BA$ et un tableau de taille finie $\mathbb{T}=\textlbrackdbl 0,\ t\textrbrackdbl$.
+On définit l'ensemble $\BV$ des variables comme contenant un ensemble fini de registres $a\in\BA$ et un tableau de taille finie $\mathbb{T}=\textlbrackdbl 0,\ T\textrbrackdbl$.
 \label{def:variable}
 \end{defi}
 
