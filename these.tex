@@ -19,7 +19,8 @@
 % Si l'on veut produire une version PDF avec des hyperliens :
 % \usepackage[pageanchor=false]{TUL/tulhypref}
 \usepackage[hidelinks, pdftex]{TUL/tulhypref}
-
+% \usepackage[sc]{mathpazo}
+\linespread{1.0}
 % Si on veut le style de bibliographie named :
 %\usepackage{named}
 
@@ -49,9 +50,11 @@
 \addbibresource{these.bib}
 \input{abbreviations}
 
-\DefineBibliographyStrings{french}{%
-        in = {}%
-%         in = {\emph{Dans}}%
+\DefineBibliographyStrings{french}{
+        in = {},%
+%       in = {\emph{Dans}}%
+        backrefpage = {cité page},
+        backrefpages = {cité pages}
 }
 
 \titleformat{\chapter}[display]
@@ -166,10 +169,10 @@
 
 % Exemple de création d'une nouvelle catégorie dans le jury:
 
-\NewJuryCategory{family}{\it Membre de la famille :}
-                        {\it Membres de la famille :}
-
-\family={Mon frère\\Ma sœur}
+% \NewJuryCategory{family}{\it Membre de la famille :}
+%                         {\it Membres de la famille :}
+% 
+% \family={Mon frère\\Ma sœur}
 
 \def\blanc{\hspace*{1cm}}
 
