@@ -1,0 +1,202 @@
+% \section{Sémantique concrète pour un langage assembleur}
+
+\paragraph{Représentation de la mémoire et des registres.}
+On peut voir la mémoire comme un tableau contenant la pile et le tas, indexés sur les entiers. Les registres sont des variables distinctes de la mémoire et sont en nombre limité. Enfin, pour pouvoir gérer l'adressage indirect : \texttt{[eax]} fait référence à la valeur en mémoire à l'adresse contenue dans \eax, on ajoute les pointeurs vers une variable. Ces éléments sont définis formellement à la définition \ref{def:sem_conc_var}.
+
+\begin{rem}
+ Avec cette définition, une valeur en mémoire peut pointer vers un registre. De même un registre peut pointer vers un autre registre.
+ Ces deux possibilités ne sont pas réalisables avec l'assembleur \xq\ ou \xs.
+\end{rem}
+
+
+\begin{defi}
+On définit les symboles $x\in\BX$ comme constitués de variables $v\in\BV$ et de pointeurs $p\in\BP$ vers des variables. $\BV$ contient un ensemble fini de registres $a\in\BA$ et un tableau de taille finie $\BT=\textlbrackdbl 0,\ T\textrbrackdbl$. Les éléments de $\BP$ sont des pointeurs vers une variable : $\{[v],\ v\in \BV\}$.
+Les valeurs possibles pour les variables sont dans $\BN$.
+\label{def:sem_conc_var}
+\end{defi}
+
+\paragraph{Langage assembleur simplifié.} Nous allons définir un langage intermédiaire dans lequel on peut transcrire chaque instruction \xq\ en une liste d'instructions atomiques de notre langage simplifié.
+Les instructions \xq\ sont disponibles à différentes adresses entières. 
+Les instructions atomiques sont de plusieurs type explicités en définition \ref{def:sem_instructions} : le premier consiste en l'assignation.
+Il est possible d'assigner un symbole ou une combinaison de symboles (à l'aide d'une fonction sur les entiers) à un symbole. 
+Le second type d'instruction regroupe les sauts inconditionnels et conditionnels.
+On distingue également l'instruction \texttt{end} forçant l'arrêt du programme.
+
+\begin{defi}
+Les instructions atomiques d'un programme sont de ce type, quelle que soit la fonction totale g de $\BN^m$ dans $\BN$ :\\
+$inst:=\ $\emph{$x\leftarrow g(x_1, ..., x_m)$ $|$ goto $x$ $|$ if $x$ then $goto\ x'$ $|$ end}
+\label{def:sem_instructions}
+\end{defi}
+
+
+% \paragraph{Exemples naïfs de la représentation d'instructions assembleur \xq.}
+La figure \ref{fig:sem_exemples_insts} donne des exemples de transcription d'instructions \xq\ dans le langage défini précédemment. 
+Ils sont naïfs au sens que les instructions \xq\ sont plus complexes et un simple \sub\ provoque des effets de bord modifiant des registres. Ce point sera développé par la suite lorsque nous discuterons des implémentations possibles pour cette sémantique concrète.
+\\
+
+\begin{figure}
+ \begin{center}
+  \begin{tabular}{|l|l|}
+   \hline
+   Instruction \xq & Instructions atomiques équivalentes\\
+   \hline
+   mov eax, 3 & $eax\leftarrow 3$ \\
+   \hline
+   mov [eax], 4 & $[eax]\leftarrow 4$ \\
+   \hline
+   mov [eax+1], 5 & $tmp\leftarrow addition(eax, 1)$ \\
+    & $[tmp]\leftarrow 5$ \\
+   \hline
+   jmp eax & $goto\ eax$ \\
+   \hline
+   sub eax, 3 & $eax\leftarrow soustraction(eax, 3)$ \\
+   \hline
+  \end{tabular}
+ \end{center}
+\caption{Exemple de transcription d'instructions \xq\ dans le langage assembleur simplifié}
+\label{fig:sem_exemples_insts}
+\end{figure}
+
+
+Comme nous avons vu dans les parties précédentes, un programme est simplement composé d'un ou plusieurs blocs d'octets à charger en mémoire. Une fois ces segments chargés dans le tableau $\BT$ représentant la mémoire, le point d'entrée du programme est placé dans le registre \texttt{ep}.
+
+
+% \begin{defi}
+% L'adresse 
+% \label{def:sem_programme}
+% \end{defi}
+
+% 
+%On note $\PMN$ l'ensemble des parties de $\BN$ de taille inférieure ou égale à M $\in\BN$ en excluant l'ensemble vide (représenté par $\bot$).
+
+Pour faire le lien entre la machine et les instructions exécutées, il est nécessaire de pouvoir désassembler des instructions en mémoire. C'est le rôle de l'opérateur de désassemblage (définition \ref{def:sem_desassembleur}).
+
+\begin{defi}
+% On appelle $D$ l'opérateur de désassemblage qui à une adresse de la mémoire $\BT$ associe une instruction et la taille de cette instruction dans $\BN$. \\
+On appelle $D$ l'opérateur de désassemblage qui à une adresse de la mémoire $\BT$ associe une liste d'instructions atomiques et la taille de cette instruction dans $\BN$. \\
+Pour toute adresse $t\in\BT$, on note $D(t)=d_1..d_n$ et $D_S(t)$ respectivement la suite d'instructions atomiques à l'adresse $t$ et la taille de cette instruction.\\
+Dans le cas où il n'y a pas d'instruction valide à l'adresse $t$, $D(t)=\bot$ et $D_S(t)=0$.
+\label{def:sem_desassembleur}
+\end{defi}
+
+Une sémantique concrète cherche à définir les opérations de chaque instruction de la manière la plus précise qu'il soit afin de pouvoir simuler une exécution réelle du programme.
+Pour cela on va utiliser une store qui conserve l'état des variables lors de l'exécution du programme.
+Toute variable non initialisée a la valeur spéciale $\bot$ tandis que les variables définies ont des valeurs entières (définition \ref{sem_store_dynamique}).
+
+\begin{defi}
+ Un store dynamique associe à chaque variable une valeur : $\Theta:\BV\rightarrow\BN\cup\{\bot\}$.\\
+ Si v est une variable et n une valeur, on note $\Theta[v\leftarrow n]$ l'assignation de v à n dans $\Theta$.
+\label{sem_store_dynamique}
+\end{defi}
+
+Pour permettre l'adressage indirect on doit également définir le store sur l'ensemble des pointeurs.
+La définition \ref{sem_store_dynamique_pointeurs} étend la notion de store aux pointeurs afin que chaque symbole ait une valeur.
+
+
+\begin{defi}
+ Définissons une extension $\Theta_X$ d'un store $\Theta : \BV\rightarrow\BN\cup\{\bot\}$ à $\BX\rightarrow\BN\cup\{\bot\}$. Soit $x\in\BX$.
+ \begin{itemize}
+  \item Si $x\in\BV$ : $\Theta_X(x)=\Theta(x)$
+  \item Sinon, $x\in\BP$ : $x=\textlbrackdbl v\textrbrackdbl$ avec $v\in\BV$.
+  \begin{itemize}
+   \item Si $\Theta(v)=\bot$ alors $\Theta_X(x)=\bot$
+   \item Si $\Theta(v)\in\BN$ et $\Theta(v)\notin\BT$ alors $\Theta_X(x)=\bot$
+   \item Sinon $\Theta(v)\in\BN$ et $\Theta(v)\in\BT$, alors $\Theta_X(x)=\Theta(\Theta(v))$.
+  \end{itemize}
+ \end{itemize}
+  De même on étend l'opération d'assignation d'une valeur à un symbole de la manière suivante. Soit $x\in\BX$ et $n\in\BN$.
+  \begin{itemize}
+  \item Si $x\in\BV$ : $\Theta_X[x\leftarrow n]$ est équivalent à $\Theta[x\leftarrow n]$.
+  \item Sinon, $x\in\BP$ : $x=\textlbrackdbl v\textrbrackdbl$ avec $v\in\BV$.
+    \begin{itemize}
+   \item Si $\Theta(v)=\bot$ alors l'assignation n'a aucun effet
+   \item Si $\Theta(v)\in\BN$ et $\Theta(v)>T$ alors l'assignation n'a aucun effet
+   \item Sinon $\Theta(v)\in\BN$ et $\Theta(v)\in\BT$, alors $\Theta_X[x\leftarrow n]$ se résoud par $\Theta[\Theta(v)\leftarrow n]$.
+  \end{itemize}
+  \end{itemize}
+\label{sem_store_dynamique_pointeurs}
+\end{defi}
+
+\paragraph{Règles de transition.}
+Les états d'exécution sont de la forme \textlangle$t, \Theta_X$\textrangle\ où $t$ est une adresse ou l'adresse invalide (ou finale) $\bot$. À chaque instruction exécutée, il y a une transition \textlangle$t, \Theta_X$\textrangle$\rightarrow$\textlangle$t', \Theta_X'$\textrangle.\\
+Si il y a une suite de transitions amenant d'un état \textlangle$t, \Theta_X$\textrangle\ à l'état \textlangle$t', \Theta_X'$\textrangle, on note \textlangle$t, \Theta$\textrangle$\rightarrow^*$\textlangle$t', \Theta_X'$\textrangle.\\
+Un programme s'arrête en partant de l'état initial \textlangle$ep, \Theta_X$\textrangle\ où \texttt{ep} est son point d'entrée si et seulement si \textlangle$ep, \Theta_X$\textrangle$\rightarrow^*$\textlangle$\bot, \Theta_X'$\textrangle. Le programme dans ce cas s'arrête à la première occurrence d'une adresse invalide $\bot$.
+
+On définit par la suite la sémantique des instructions atomiques et on étend donc les états d'exécution à celles-ci : on note \textlangle$t:d_1..d_n, \Theta_X$\textrangle\ l'état \textlangle$t, \Theta_X$\textrangle\ sur lequel il y a les instructions atomiques $d_1..d_n$ à évaluer.
+À partir d'un état \textlangle$t, \Theta_X$\textrangle, on commence par déterminer les instructions atomiques à évaluer à l'aide de l'opérateur de désassemblage : on arrive à un état \textlangle$t:D(t), \Theta_X$\textrangle=\textlangle$t:d_1..d_n, \Theta_X$\textrangle\ dans lequel on va pouvoir évaluer les instructions atomiques l'une après l'autre. Une fois que toutes ces instructions ont été évaluées et si aucune d'elle n'a provoqué de saut vers une adresse différente, on passe à l'instruction qui suit séquentiellement à l'adresse $t+D_S(t$\textrangle.
+
+L'état initial du store est : $\forall v\in\BV, \Theta_X(v)=\bot$ et l'on part du point d'entrée \texttt{ep}. Les règles de transition suivantes permettent d'aboutir à une adresse finale ou invalide $\bot$ si le programme termine.
+
+% \begin{tabbing}
+% \textlangle$t:x\leftarrow g(x_1, ..., x_m),\ \Theta_X$\textrangle\ \=$ \longrightarrow $ \textlangle$t+D_S(t),\ \Theta_X[x\leftarrow\bot]$\textrangle~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\=si $\exists i, \Theta_X(b_i)=\bot$\\
+%                                                                    \>$ \longrightarrow $ \textlangle$t+D_S(t),\ \Theta_X[x\leftarrow g(\Theta_X(b_1),...,\ \Theta_X(b_m))]$\textrangle \> sinon\\ \\
+% 
+% \textlangle$t:goto\ x,\ \Theta_X$\textrangle\>$\longrightarrow $ \textlangle$\Theta_X(x),\ \Theta_X$\textrangle\> \\ \\
+% 
+%  \textlangle$t:if\ x\ then\ goto\ x',\ \Theta_X$\textrangle\>$ \longrightarrow $ \textlangle$\Theta_X(x'),\ \Theta_X$\textrangle\ \>si $\Theta_X(x)=1$\\
+% 									    \>$ \longrightarrow $ \textlangle$ t+D_S(t),\ \Theta_X$\textrangle\ \>sinon\\ \\
+% 
+% \textlangle$t\notin\BT,\ \Theta_X$\textrangle\>$ \longrightarrow $ \textlangle$\bot,\ \Theta_X$\textrangle\\
+% \textlangle$t:end,\ \Theta_X$\textrangle\>$ \longrightarrow $ \textlangle$\bot,\ \Theta_X$\textrangle
+% \end{tabbing}
+
+
+\begin{center}
+\begin{tabular}{lcl}
+% \hline
+\textlangle$t\in\BT;\ \Theta_X$\textrangle & $\longrightarrow$ & \textlangle$t:D(t);\ \Theta_X$\textrangle  \\
+& & \\
+% \hline
+\textlangle$t:x\leftarrow g(x_1, ..., x_m), d_2..d_n;\ \Theta_X$\textrangle & $\longrightarrow$  & \textlangle$t:d_2..d_n;\ \Theta_X[x\leftarrow\bot]$\textrangle\  \\
+ &   & ~~~si $\exists i, \Theta_X(b_i)=\bot$  \\
+ & $\longrightarrow$  & \textlangle$t:d_2..d_n;\ \Theta_X[x\leftarrow g(\Theta_X(b_1),...,\ \Theta_X(b_m))]$\textrangle\    \\
+  &   & ~~~sinon  \\
+% \hline
+& & \\
+\textlangle$t:goto\ x, d_2..d_n;\ \Theta_X$\textrangle & $\longrightarrow$ & \textlangle$\Theta_X(x);\ \Theta_X$\textrangle  \\
+% \hline
+& & \\
+\textlangle$t:if\ x\ then\ goto\ x',\ \Theta_X$\textrangle\ & $\longrightarrow$ & \textlangle$\Theta_X(x'),\ \Theta_X$\textrangle\\\
+  &   & ~~~si $\Theta_X(x)=1$  \\
+ & $\longrightarrow$ & \textlangle$ t+D_S(t),\ \Theta_X$\textrangle\\
+   &   & ~~~sinon  \\
+% \hline
+& & \\
+\textlangle$t:end, d_2..d_n;\ \Theta_X$\textrangle\ & $\longrightarrow$ & \textlangle$\bot;\ \Theta_X$\textrangle  \\
+% \hline
+& & \\
+\textlangle$t:\bot;\ \Theta_X$\textrangle\ & $\longrightarrow$ & \textlangle$\bot;\ \Theta_X$\textrangle  \\
+% \hline
+& & \\
+\textlangle$t\in\BT:\emptyset;\ \Theta_X$\textrangle & $\longrightarrow$ & \textlangle$t+D_S(t);\ \Theta_X$\textrangle  \\
+& & \\
+\textlangle$t\notin\BT;\ \Theta_X$\textrangle\ & $\longrightarrow$ & \textlangle$\bot;\ \Theta_X$\textrangle  \\
+% \hline
+\end{tabular}
+\end{center}
+
+Dans la suite de ce chapitre nous appelons évaluation sémantique ou \texttt{sem\_eval} la fonction qui, à une adresse $t$ et un store $\Theta_X$, associe l'état sur les instructions \xq\ suivant : si $t'$ et $\Theta_X'$ sont les premières valeurs vérifiant \textlangle$t, \Theta$\textrangle$\rightarrow^*$\textlangle$t', \Theta_X'$\textrangle\ alors \texttt{sem\_eval}$(t, \Theta_X)=(t', \Theta_X')$.
+
+
+\subsection{Assembleur et langage intermédiaire}
+En pratique pour analyser un programme assembleur on veut en avoir un représentation dont on connaît la sémantique concrète.
+On va pour cela réécrire le programme dans un langage intermédiaire et effectuer les analyses sur le programme en langage intermédiaire. Le langage défini dans la section en cours est un langage intermédiaire possible.
+
+Une des difficultés rencontrées dans la transformation d'un langage assembleur en langage intermédiaire est la richesse sémantique du langage \xq\ qui contient des centaines d'instructions et utilise de nombreux registres et drapeaux du processeur.
+L'instruction \texttt{sub eax, b} par exemple soustrait l'opérande \texttt{b} à \eax\  en stockant le résultat de l'opérant dans \eax.
+Le mnémonique \texttt{sub} désigne une vingtaine de variantes de la soustraction selon la taille des opérandes pris en compte. Elle effectue l'opération \texttt{eax-b} et met à jour les drapeaux CF et OF indiquant un dépassement de valeur entière, le drapeau de signe SF, le drapeau ZF (à 1 si le résultat est nul) et celui de parité PF.
+
+Une instruction assembleur va donc être traduite en une ou plusieurs instructions atomiques dans le langage intermédiaire, que l'on sait équivalentes sémantiquement à l'instruction \xq\ et dont on a une sémantique concrète pour les exécuter.
+Une difficulté pratique vient de la richesse du langage \xq\ : écrire l'équivalence de chacun de ses instructions dans le langage intermédiaire choisi est une tâche longue et prône aux erreurs, notamment lors de l'analyse de la documentation. Pour cette raison nous avons rapidement choisi de nous orienter vers des langages intermédiaire pour lesquels cette étape a déjà été réalisée.
+
+\subsection{Revue de littérature : langages intermédiaires}
+\todo[inline]{BAP: \\
+Jakstab: \\
+TraceSurfer: \\
+Renovo : \\
+LLVM : \\
+Implem en C: \\
+TraceSurfer: \\
+Pin : \\
+Xed : \\
+}

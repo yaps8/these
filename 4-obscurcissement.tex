@@ -1,0 +1,176 @@
+De nombreuses techniques de protection sont applicables à un programme binaire pour rendre son analyse plus compliquée. Certaines rendent le code plus difficile à comprendre en ajoutant par exemple du code inutile. Une autre technique consiste à modifier le programme au cours de son exécution afin que le code réellement utile du binaire ne soit pas lisible à première vue : on parle alors d'auto-modification.
+
+Un auteur de programmes malveillants peut produire dans un premier temps son programme sans protection puis utiliser un logiciel de protection ou \emph{packer} qui produit un binaire sémantiquement équivalent mais qui est rendu plus difficile à analyser. En pratique l'exécutable final, protégé, combine plusieurs techniques d'obscurcissement dont des techniques d'auto-modification.
+
+Nous décrivons maintenant plusieurs techniques d'obscurcissement statiques ainsi que l'auto-modification.
+
+\section{Auto-modification}
+
+% \begin{figure}
+% \begin{center}
+% \begin{tabular}{|l|l|l|}
+% \hline
+% Adresse & Octets & Instruction\\
+% \hline
+%  8048060  &  (...)         	& Pile -> RWX \\ 
+%  804807c  &  bf 00 00 00 00         &  mov    edi, 0x0 \\
+%  8048081  &  b8 91 80 04 08         &  mov    eax, 0x8048091 \\
+%  8048086  &  66 c7 00 eb 00         &  mov    [eax], 0xeb \\
+%  804808b  &  66 c7 40 01 07 00      &  mov    [eax+1], 0x7 \\
+%  8048091  &  eb 0e                  &  jmp    80480a1 <edi3> \\
+%  8048093  &  bf 01 00 00 00         &  mov    edi,0x1 \\
+%  8048098  &  eb 0e                  &  jmp    80480a8 <fin> \\
+%  804809a  &  bf 02 00 00 00         &  mov    edi,0x2 \\
+%  804809f  &  eb 07                  &  jmp    80480a8 <fin> \\
+%  80480a1  &  bf 03 00 00 00         &  mov    edi,0x3 \\
+%  80480a6  &  eb 00                  &  jmp    80480a8 <fin> \\
+%  80480a8  &  (...)		    &  Affiche edi \\
+%  80480c3  &  (...)		    & Quitte \\
+% \hline
+% \end{tabular}
+% \end{center}
+% \caption{Exemple de code auto-modifiant}
+% \label{fig:unevague_v0_code}
+% \end{figure}
+
+\begin{figure}
+\begin{center}
+\subfigure[Code assembleur]{
+\begin{tabular}[b]{|l|l|l|}
+\hline
+Adresse & Octets & Instruction\\ 
+\hline
+ 8048060  &  (...)         	& Pile -> RWX \\ 
+ 804807c  &  bf 00 00 00 00         &  mov    edi, 0x0 \\
+ 8048081  &  b8 91 80 04 08         &  mov    eax, 0x8048091 \\
+ 8048086  &  66 c7 00 eb 00         &  mov    [eax], 0xeb \\
+ 804808b  &  66 c7 40 01 07 00      &  mov    [eax+1], 0x7 \\
+ 8048091  &  eb 0e                  &  jmp    80480a1 <edi3> \\
+ 8048093  &  bf 01 00 00 00         &  mov    edi,0x1 \\
+ 8048098  &  eb 0e                  &  jmp    80480a8 <fin> \\
+ 804809a  &  bf 02 00 00 00         &  mov    edi,0x2 \\
+ 804809f  &  eb 07                  &  jmp    80480a8 <fin> \\
+ 80480a1  &  bf 03 00 00 00         &  mov    edi,0x3 \\
+ 80480a6  &  eb 00                  &  jmp    80480a8 <fin> \\
+ 80480a8  &  (...)		    &  Affiche edi \\
+ 80480c3  &  (...)		    & Quitte \\
+\hline
+\end{tabular}
+\label{fig:unevague_v0_code}
+}
+\subfigure[Graphe de flot de contrôle]{
+\includegraphics[width=1.0\textwidth]{supports/unevague/uv.pdf}
+\label{fig:unevague_v0_cfg}
+}
+\end{center}
+\ijym{détailler les ... (en annexe?)}
+\ijym{fonction f, adresses f, f+1, f+3, ...}
+\caption{Code assembleur auto-modifiant}
+\label{fig:unevague_v0}
+\end{figure}
+
+Il a été expliqué dans la section \ref{section:assembleur} que, avec l'architecture de Harvard modifiée, le code n'est pas physiquement séparé des données lors de l'exécution sur une machine réelle.
+Un programme auto-modifiant est simplement un programme utilisant cette propriété pour modifier le code assembleur le définissant au cours même de son exécution.
+Ainsi on parle de comportement auto-modifiant lorsqu'une instruction du programme est codée sur au moins un octet qui a au préalable été modifié par ce programme.
+
+En pratique les processeurs récents implémentent une protection, appelée bit NX ou W\textasciicircum X (prononcé ``W xor X''), permettant d'empêcher qu'une page mémoire puisse être à la fois écrite et exécutée lors de l'exécution du programme.
+Cette protection a été ajoutée pour éviter des attaques résultant en l'exécution de code dans des données écrites par l'utilisateur du programme et non pour interdire l'auto-modification qui a des cas d'utilisation légitimes.
+De ce fait l'activation ou non de la protection est spécifiée lors de la compilation et si un programme n'est pas protégé il lui suffit d'utiliser un appel système (\texttt{mprotect} sous linux) pour autoriser l'exécution de code sur la pile.
+
+Prenons le programme de la figure \ref{fig:unevague_v0_code}. Ce programme commence par autoriser l'accès en écriture à la la section de code \ptext\ puis écrit sur la pile, modifie la valeur du registre \edi\ et termine par l'affichage de la valeur de \edi.
+Si on ne prend pas en compte l'écriture sur la pile, il semble évident au vu du graphe de flot de contrôle (Figure \ref{fig:unevague_v0_cfg}), vu que la première instruction de saut provoque un saut vers l'instruction \texttt{mov edi,0x3} et que la seconde provoque l'affichage de \edi, que la valeur finale du registre est 3.
+Pourtant les instructions \texttt{mov [eax],0xeb} et \texttt{mov [eax+1],0x07} aux l'adresse $0x8048086$ et $0x804808b$ remplacent le saut initial par un saut vers l'adresse $0x8048098$ où la valeur de \edi\ sera fixée à 2 avant l'affichage de celle-ci.
+
+
+On constate ici que le programme se modifie au cours de son exécution et donc
+\begin{itemize}
+ \item On ne peut pas se contenter de la représentation d'origine du programme pour l'analyser.
+ \item Le graphe de flot de contrôle initial peut être amené à évoluer au cours de l'exécution du programme.
+\end{itemize}
+
+\section{Obscurcissement statique}
+De nombreuses autres techniques d'obscurcissement sont utilisées en pratique, nous en donnons quelques exemples ici.
+
+\paragraph{Insertion de code mort.}
+Insérer du non atteignable (ou code mort) peut forcer un désassembleur par parcours linéaire à se désaligner avec le code réellement exécuté et à favoriser le code mort au détriment du code légitime.
+L'exemple donné en figure \ref{fig:junk_right} montre de l'assembleur avec deux octets de données placés à la suite d'un instruction \jmp. Ces deux octets aux adresses $0x08048062$ et $0x08048063$ ne sont pas atteignables. Pourtant un désassembleur linéaire (Figure \ref{fig:junk_fooled}) chercherait à les désassembler et serait alors incapable de voir une partie des instructions réellement exécutées.
+
+
+\begin{figure}
+\begin{lstlisting}[language={[x86masm]Assembler}, escapechar=~]
+08048060    eb 02               jmp 0x8048064
+08048062    0a 05		~(code non atteignable)~
+08048064    83 f9 02            cmp ecx, 0x2
+08048067    74 00               je 0x8048069
+08048069    bb 02 00 00 00      mov ebx, 0x2 ;  0x00000002
+\end{lstlisting}
+\caption{Insertion de code mort dans du code légitime}
+\label{fig:junk_right}
+\end{figure}
+
+\begin{figure}
+\begin{lstlisting}[language={[x86masm]Assembler}, escapechar=~]
+08048060    eb 02               jmp 0x8048064
+08048062    0a 05 83 f9 02 74   or al, [0x7402f983]
+08048068    00 bb 02 00 00 00   add [ebx+0x2], bh
+\end{lstlisting}
+\caption{L'insertion de code mort dupe facilement un désassemblage par parcours linéaire}
+\label{fig:junk_fooled}
+\end{figure}
+
+
+\paragraph{Appels de fonctions sans retour.}
+L'utilisation d'un contrôle de flot non standard peut forcer un désassembleur par parcours récursif à explorer du code non atteignable. 
+Le comportement par défaut de l'instruction \call\ à une adresse $a$ et de taille $n$ est d'empiler l'adresse de retour $a+n$.
+L'instruction \ret\ placée à la fin de la fonction appelée dépile la première valeur de la pile et provoque est saut vers celle-ci.
+Normalement cette valeur est $a+n$ afin que le flot d'exécution revienne à la fonction appelant.
+Ainsi un désassembleur récursif désassemble à partir de la cible du \call\ ainsi que de l'adresse de retour.
+
+Une technique classique d'obscurcissement \cite{LD03} consiste à combiner l'empilement d'une adresse (\push\ $a$) et l'instruction \ret. Ces deux instructions provoquent un saut vers l'adresse $a$ sans possibilité de revenir à l'instruction suivant le \call.
+
+\paragraph{Prédicats opaques.}
+% À l'instar de son comportement avec une instruction \call, 
+Lorsqu'un désassembleur récursif rencontre une instruction de saut conditionnel comme \je, qui provoque un saut si les deux valeurs comparées sont égales, il cherche à désassembler à la fois la cible potentielle du saut comme l'instruction suivante, qui sera exécutée si la condition n'est pas remplie.
+Une autre technique courante d'obscurcissement consiste à utiliser comme condition du saut une relation que le programmeur sait toujours vraie ou fausse \cite{MKK07}. De cette manière il prédit qu'une seule des deux branches est atteignable alors qu'un désassembleur va parcourir également la branche inutile.
+Une telle condition est appelée un prédicat opaque et peut par exemple être implémentée par des relations d'arithmétique. Par exemple en appliquant le petit théorème de Fermat \cite{fermat} : quel que soit l'entier e, $e^3\ =\ e\ mod\ 3$.
+Le programmeur sait que l'égalité est toujours vérifiée mais un analyseur statique ne pourra pas le déterminer aisément.
+
+\paragraph{Chevauchement de code.}
+On a vu que la taille d'une instruction assembleur varie de un à 15 octets \done{15 dans intel2 chercher 15}.
+De plus rien n'empêche que la cible d'un saut soit une adresse se trouvant être au milieu d'une autre instruction.
+Ainsi on parle de chevauchement de code lorsque deux instructions (ou plus) à des adresses différentes sont codées sur des adresses communes. Si une instruction à l'adresse $a$ de taille $k\geq 2$ est atteignable, il peut y avoir une autre instruction valide et atteignable à l'adresse $a+1$ et ces deux instructions se chevauchent.
+
+Le code de la figure \ref{fig:telock_obf_asm} est extrait d'un programme protégé par le packer \telock\ désassemblé à l'aide d'un parcours récursif à partir de l'adresse \adr{01006e7a}. Il y a une instruction \texttt{jmp +1} à l'adresse \adr{01006e7d} et codée sur les deux octets \texttt{eb ff}, qui saute vers l'adresse \adr{01006e7d+1} où est présenté l'instruction \texttt{dec ecx}, codée sur \texttt{ff c9} et qui partage donc l'octet \texttt{ff} à l'adresse \adr{01006e7d+1} avec l'instruction \jmp.
+
+
+
+\begin{figure}
+% \scriptsize
+% 0x01006e73    00 0c 0b        add [ebx+ecx], cl
+% 0x01006e76    80 34 0b 67     xor byte [ebx+ecx], 0x67
+\begin{lstlisting}[language={[x86masm]Assembler}, escapechar=~]
+01006e7a    fe 04 0b        inc byte [ebx+ecx]
+01006e7d    eb ff           jmp +1
+01006e7e       ff c9        dec ecx
+01006e80    7f e6           jg 01006e68
+01006e82    8b c1           mov eax, ecx
+\end{lstlisting}
+% \end{framed}
+\caption{Désassemblage récursif de \telock}
+\label{fig:telock_obf_asm}
+\end{figure}
+
+Le graphe de flot de contrôle correct pour ce code est donné sur la figure \ref{fig:telock_cfg}. Le sommet orange est la première instruction et les lignes en pointillés reliant deux sommets marquent un chevauchement entre les instructions de ces sommets.
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{supports/disasm/telock/telock.pdf}
+\end{center}
+\caption{Graphe de flot de contrôle de \telock}
+\label{fig:telock_cfg}
+\end{figure}
+
+\section{Conclusion}
+Cette thèse s'intéresse particulièrement à l'analyse des programmes écrits en assembleur \xq\ et \xs. Ces programmes ont en général été compilés à partir d'un langage de haut niveau puis ont été modifiés à l'aide d'un logiciel de protection. Les binaires que l'on étudie sont donc protégés avec des techniques statiques comme auto-modifiantes. Notre travail consiste alors à chercher à désassembler correctement ces programmes dans le but de faciliter leur analyse.
+
+Les chapitres suivants détailleront plusieurs techniques d'analyse que nous avons appliquées. Nous nous intéresserons d'abord à l'aspect auto-modifiant des programmes et verrons comment l'analyse dynamique peut être utilisée pour reconstruire un modèle pour le programme auto-modifiant. Dans un second temps nous introduiront des techniques d'analyse statiques pour chercher à recomposer le maximum de code assembleur du programme et contourner d'autres méthodes de protection comme le chevauchement de code.
