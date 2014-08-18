@@ -1,0 +1,18 @@
+\section{Parcours spéculatif}
+Pour pallier à l'incomplétude d'un parcours récursif, un parcours spéculatif a été proposé pour les parties de mémoire non désassemblées par l'approche récursive. 
+Il s'agit d'effectuer un parcours linéaire sur ces zones mémoires et d'utiliser des heuristiques pour déterminer s'il s'agit de code ou de données.
+Les heuristiques proposées portent par exemple sur la détection de fonctions assembleur \cite{KruegelRVV04}, repérables grâce à une suite d'instructions caractéristiques. Une autre approche évalue la probabilité qu'une suite d'instructions soit effectivement du code en apprenant au préalable des suites d'instructions réelles lancées lors de l'exécution de programmes \cite{KDF09}.
+\ijym{+ de biblio}
+
+% \subsection{Approche dynamique}
+
+% \paragraph{Décompilation.}
+
+
+% \todo[inline]{Avantages et inconvénients des deux (couverture, précision, complétude)\\
+\section{Analyse statique et dynamique}
+Dans le domaine de l'analyse de code, on parle d'analyse dynamique lorsque le fichier binaire à analyser est exécuté au moins partiellement et que l'analyse consiste à observer une ou des exécutions du programme. Au contraire lors d'une analyse statique on cherche à inférer des propriétés sur le programme sans l'exécuter.
+
+Les deux techniques permettent de récupérer du code assembleur à partir du programme et donc de réaliser un désassemblage et de reconstruire un graphe de flot de contrôle.
+L'avantage de l'analyseur dynamique est que, puisqu'il travaille sur une exécution spécifique du programme, il est précis : les instructions qui sont exécutées doivent être inclues dans le désassemblage.
+Par contre il n'est pas complet vu qu'il ne suivra pas des branches du programme qui pourraient être utilisées si leurs conditions étaient vérifiées. À l'inverse un analyseur statique n'est pas précis et ne peut en général pas être complet à cause de l'impossibilité de prédire certaines cibles de sauts dynamiques.
