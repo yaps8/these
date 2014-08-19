@@ -1,8 +1,121 @@
+L'analyse d'un logiciel malveillant a pour but de comprendre ses mécanismes internes : selon les logiciels il peut, entre autres, s'agir des techniques d'attaque, de communication avec le concepteur ou d'autres programmes malveillants, de clés de chiffrement utilisées. Le programmeur a donc intérêt à protéger son logiciel contre l'analyse. Son but est de la rendre plus compliquée pour nécessiter plus de ressources en temps ou en argent de la part de l'analyste.
+
 De nombreuses techniques de protection sont applicables à un programme binaire pour rendre son analyse plus compliquée. Certaines rendent le code plus difficile à comprendre en ajoutant par exemple du code inutile. Une autre technique consiste à modifier le programme au cours de son exécution afin que le code réellement utile du binaire ne soit pas lisible à première vue : on parle alors d'auto-modification.
 
 Un auteur de programmes malveillants peut produire dans un premier temps son programme sans protection puis utiliser un logiciel de protection ou \emph{packer} qui produit un binaire sémantiquement équivalent mais qui est rendu plus difficile à analyser. En pratique l'exécutable final, protégé, combine plusieurs techniques d'obscurcissement dont des techniques d'auto-modification.
 
-Nous décrivons maintenant plusieurs techniques d'obscurcissement statiques ainsi que l'auto-modification.
+Dans ce chapitre nous chercherons rapidement a comprendre les difficultés rencontrées pour quiconque cherche à protéger son programme contre l'analyse. Dans un second temps nous nous intéresserons aux protections rencontrées lors de l'analyse de logiciels malveillants et en particulier aux problèmes liés au chevauchement de code assembleur et à l'auto-modification.
+
+% Nous décrivons maintenant plusieurs techniques d'obscurcissement statiques ainsi que l'auto-modification.
+
+% $\mathcal{T}$
+
+\section{Théorie de l'obscurcissement}
+\itodo{Chaîner les protections}
+
+Collberg et Nagra \cite{nagra2009surreptitious} définissent plusieurs propriétés souhaitables pour une protection logicielle, nous reprenons ici quelque uns de leurs arguments. La première propriété est que le programme protégé soit équivalent en terme de sorties que le programme d'origine.
+Une protection, ou obscurcissement, d'un programme P est une transformation $\mathcal{T}$ telle que le programme $\mathcal{T}(P)$ a le même comportement que P : quelle que soit l'entrée I de P, $\mathcal{T}(P)(I)=P(I)$.
+On souhaite également ne pas affecter de manière importante les performances du programme, que ce soit en termes de temps d'exécution ou de taille des binaires.
+
+Afin d'évaluer l'efficacité des protections il est nécessaire de définir les actifs que l'on cherche à protéger. 
+Il peut s'agir de quelques algorithmes centraux au programme, de clé de chiffrement, du nom des fonctions et des variables utilisées, etc.
+Il est également utile de masquer l'utilisation de techniques de protection qui pourraient attirer l'attention lors d'une analyse antivirale. De même si l'analyste se doute que le binaire emploi des protections, il n'est pas souhaitable qu'il lui soit aisé d'identifier quelles méthodes sont employées. Ainsi dans les modifications apportées au programme il est préférable que le programme final ressemble à un programme qui aurait pu être compilé, par exemple en évitant d'utiliser des instructions exotiques rarement utilisées en pratique.
+
+
+En pratique un auteur de logiciel malveillant masque les symboles utiles à l'analyse tels le nom des fonctions à la compilation. Il est utile que le vecteur de propagation réussisse à masquer qu'il est protégé, s'il l'est, pour éviter une détection prématurée par un antivirus. La charge finale et les éventuels mécanismes de communication sont eux protégés contre l'analyse.\todo{cite}
+
+\section{Exemples d'obscurcissement statique}
+De nombreuses techniques d'obscurcissement sont utilisées en pratique, nous en donnons quelques exemples ici.
+
+\paragraph{Insertion de code mort.}
+Insérer du non atteignable (ou code mort) peut forcer un désassembleur par parcours linéaire à se désaligner avec le code réellement exécuté et à favoriser le code mort au détriment du code légitime.
+L'exemple donné en figure \ref{fig:junk_right} montre de l'assembleur avec deux octets de données placés à la suite d'un instruction \jmp. Ces deux octets aux adresses $0x08048062$ et $0x08048063$ ne sont pas atteignables. Pourtant un désassembleur linéaire (Figure \ref{fig:junk_fooled}) chercherait à les désassembler et serait alors incapable de voir une partie des instructions réellement exécutées.
+
+
+\begin{figure}
+\begin{lstlisting}[language={[x86masm]Assembler}, escapechar=~]
+08048060    eb 02               jmp 0x8048064
+08048062    0a 05		~(code non atteignable)~
+08048064    83 f9 02            cmp ecx, 0x2
+08048067    74 00               je 0x8048069
+08048069    bb 02 00 00 00      mov ebx, 0x2 ;  0x00000002
+\end{lstlisting}
+\caption{Insertion de code mort dans du code légitime}
+\label{fig:junk_right}
+\end{figure}
+
+\begin{figure}
+\begin{lstlisting}[language={[x86masm]Assembler}, escapechar=~]
+08048060    eb 02               jmp 0x8048064
+08048062    0a 05 83 f9 02 74   or al, [0x7402f983]
+08048068    00 bb 02 00 00 00   add [ebx+0x2], bh
+\end{lstlisting}
+\caption{L'insertion de code mort dupe facilement un désassemblage par parcours linéaire}
+\label{fig:junk_fooled}
+\end{figure}
+
+\FloatBarrier
+
+\paragraph{Appels de fonctions sans retour.}
+L'utilisation d'un contrôle de flot non standard peut forcer un désassembleur par parcours récursif à explorer du code non atteignable. 
+Le comportement par défaut de l'instruction \call\ à une adresse $a$ et de taille $n$ est d'empiler l'adresse de retour $a+n$ puis de sauter vers la première adresse de la fonction appelée.
+L'instruction \ret\ placée à la fin de la fonction appelée dépile la première valeur de la pile et provoque un saut vers celle-ci.
+
+Normalement la valeur dépilée lors du \ret\ est $a+n$ afin que le flot d'exécution revienne à la fonction appelant.
+Ainsi un désassembleur récursif désassemble à partir de la cible du \call\ ainsi que de l'adresse de retour.
+
+Une technique classique d'obscurcissement \cite{LD03}\cite{PMA} consiste à combiner l'empilement d'une adresse (\push\ $a$) et l'instruction \ret. Ces deux instructions provoquent un saut vers l'adresse $a$ sans possibilité de revenir à l'instruction suivant le \call. La transformation consiste alors à remplacer des instructions \jmp\ par la séquence \push\ puis \ret\ puisque les deux suites d'instructions suivantes sont équivalentes.
+\begin{center}
+\begin{tabular}{c|c}
+\push\ \adr{a} & \jmp\ \adr{a}\\
+\ret &
+\end{tabular}
+\end{center}
+
+\paragraph{Prédicats opaques.}
+% À l'instar de son comportement avec une instruction \call, 
+Lorsqu'un désassembleur récursif rencontre une instruction de saut conditionnel comme \je, qui provoque un saut si les deux valeurs comparées sont égales, il cherche à désassembler à la fois la cible potentielle du saut comme l'instruction suivante, qui sera exécutée si la condition n'est pas remplie.
+Une autre technique courante d'obscurcissement consiste à utiliser comme condition du saut une relation que le programmeur sait toujours vraie ou fausse \cite{MKK07}. De cette manière il prédit qu'une seule des deux branches est atteignable alors qu'un désassembleur va parcourir également la branche inutile.
+Une telle condition est appelée un prédicat opaque et peut par exemple être implémentée par des relations d'arithmétique. Par exemple en appliquant le petit théorème de Fermat \cite{fermat} : quel que soit l'entier e, $e^3\ =\ e\ mod\ 3$.
+Le programmeur sait que l'égalité est toujours vérifiée mais un analyseur statique ne pourra pas le déterminer aisément.
+
+\paragraph{Applatissement de graphe de flot de contrôle.}
+
+\section{Chevauchement de code}
+\itodo{citer PMA}
+On a vu que la taille d'une instruction assembleur varie de un à 15 octets \done{15 dans intel2 chercher 15}.
+De plus rien n'empêche que la cible d'un saut soit une adresse se trouvant être au milieu d'une autre instruction.
+Ainsi on parle de chevauchement de code lorsque deux instructions (ou plus) à des adresses différentes sont codées sur des adresses communes. Si une instruction à l'adresse $a$ de taille $k\geq 2$ est atteignable, il peut y avoir une autre instruction valide et atteignable à l'adresse $a+1$ et ces deux instructions se chevauchent.
+
+Le code de la figure \ref{fig:telock_obf_asm} est extrait d'un programme protégé par le packer \telock\ désassemblé à l'aide d'un parcours récursif à partir de l'adresse \adr{01006e7a}. Il y a une instruction \texttt{jmp +1} à l'adresse \adr{01006e7d} et codée sur les deux octets \texttt{eb ff}, qui saute vers l'adresse \adr{01006e7d+1} où est présenté l'instruction \texttt{dec ecx}, codée sur \texttt{ff c9} et qui partage donc l'octet \texttt{ff} à l'adresse \adr{01006e7d+1} avec l'instruction \jmp.
+
+
+
+\begin{figure}
+% \scriptsize
+% 0x01006e73    00 0c 0b        add [ebx+ecx], cl
+% 0x01006e76    80 34 0b 67     xor byte [ebx+ecx], 0x67
+\begin{lstlisting}[language={[x86masm]Assembler}, escapechar=~]
+01006e7a    fe 04 0b        inc byte [ebx+ecx]
+01006e7d    eb ff           jmp +1
+01006e7e       ff c9        dec ecx
+01006e80    7f e6           jg 01006e68
+01006e82    8b c1           mov eax, ecx
+\end{lstlisting}
+% \end{framed}
+\caption{Désassemblage récursif de \telock}
+\label{fig:telock_obf_asm}
+\end{figure}
+
+Le graphe de flot de contrôle correct pour ce code est donné sur la figure \ref{fig:telock_cfg}. Le sommet orange est la première instruction et les lignes en pointillés reliant deux sommets marquent un chevauchement entre les instructions de ces sommets.
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=0.8\textwidth]{supports/disasm/telock/telock.pdf}
+\end{center}
+\caption{Graphe de flot de contrôle de \telock}
+\label{fig:telock_cfg}
+\end{figure}
 
 \section{Auto-modification}
 
@@ -88,87 +201,9 @@ On constate ici que le programme se modifie au cours de son exécution et donc
  \item Le graphe de flot de contrôle initial peut être amené à évoluer au cours de l'exécution du programme.
 \end{itemize}
 
-\section{Obscurcissement statique}
-De nombreuses autres techniques d'obscurcissement sont utilisées en pratique, nous en donnons quelques exemples ici.
-
-\paragraph{Insertion de code mort.}
-Insérer du non atteignable (ou code mort) peut forcer un désassembleur par parcours linéaire à se désaligner avec le code réellement exécuté et à favoriser le code mort au détriment du code légitime.
-L'exemple donné en figure \ref{fig:junk_right} montre de l'assembleur avec deux octets de données placés à la suite d'un instruction \jmp. Ces deux octets aux adresses $0x08048062$ et $0x08048063$ ne sont pas atteignables. Pourtant un désassembleur linéaire (Figure \ref{fig:junk_fooled}) chercherait à les désassembler et serait alors incapable de voir une partie des instructions réellement exécutées.
-
-
-\begin{figure}
-\begin{lstlisting}[language={[x86masm]Assembler}, escapechar=~]
-08048060    eb 02               jmp 0x8048064
-08048062    0a 05		~(code non atteignable)~
-08048064    83 f9 02            cmp ecx, 0x2
-08048067    74 00               je 0x8048069
-08048069    bb 02 00 00 00      mov ebx, 0x2 ;  0x00000002
-\end{lstlisting}
-\caption{Insertion de code mort dans du code légitime}
-\label{fig:junk_right}
-\end{figure}
-
-\begin{figure}
-\begin{lstlisting}[language={[x86masm]Assembler}, escapechar=~]
-08048060    eb 02               jmp 0x8048064
-08048062    0a 05 83 f9 02 74   or al, [0x7402f983]
-08048068    00 bb 02 00 00 00   add [ebx+0x2], bh
-\end{lstlisting}
-\caption{L'insertion de code mort dupe facilement un désassemblage par parcours linéaire}
-\label{fig:junk_fooled}
-\end{figure}
-
-
-\paragraph{Appels de fonctions sans retour.}
-L'utilisation d'un contrôle de flot non standard peut forcer un désassembleur par parcours récursif à explorer du code non atteignable. 
-Le comportement par défaut de l'instruction \call\ à une adresse $a$ et de taille $n$ est d'empiler l'adresse de retour $a+n$.
-L'instruction \ret\ placée à la fin de la fonction appelée dépile la première valeur de la pile et provoque est saut vers celle-ci.
-Normalement cette valeur est $a+n$ afin que le flot d'exécution revienne à la fonction appelant.
-Ainsi un désassembleur récursif désassemble à partir de la cible du \call\ ainsi que de l'adresse de retour.
-
-Une technique classique d'obscurcissement \cite{LD03} consiste à combiner l'empilement d'une adresse (\push\ $a$) et l'instruction \ret. Ces deux instructions provoquent un saut vers l'adresse $a$ sans possibilité de revenir à l'instruction suivant le \call.
-
-\paragraph{Prédicats opaques.}
-% À l'instar de son comportement avec une instruction \call, 
-Lorsqu'un désassembleur récursif rencontre une instruction de saut conditionnel comme \je, qui provoque un saut si les deux valeurs comparées sont égales, il cherche à désassembler à la fois la cible potentielle du saut comme l'instruction suivante, qui sera exécutée si la condition n'est pas remplie.
-Une autre technique courante d'obscurcissement consiste à utiliser comme condition du saut une relation que le programmeur sait toujours vraie ou fausse \cite{MKK07}. De cette manière il prédit qu'une seule des deux branches est atteignable alors qu'un désassembleur va parcourir également la branche inutile.
-Une telle condition est appelée un prédicat opaque et peut par exemple être implémentée par des relations d'arithmétique. Par exemple en appliquant le petit théorème de Fermat \cite{fermat} : quel que soit l'entier e, $e^3\ =\ e\ mod\ 3$.
-Le programmeur sait que l'égalité est toujours vérifiée mais un analyseur statique ne pourra pas le déterminer aisément.
-
-\paragraph{Chevauchement de code.}
-On a vu que la taille d'une instruction assembleur varie de un à 15 octets \done{15 dans intel2 chercher 15}.
-De plus rien n'empêche que la cible d'un saut soit une adresse se trouvant être au milieu d'une autre instruction.
-Ainsi on parle de chevauchement de code lorsque deux instructions (ou plus) à des adresses différentes sont codées sur des adresses communes. Si une instruction à l'adresse $a$ de taille $k\geq 2$ est atteignable, il peut y avoir une autre instruction valide et atteignable à l'adresse $a+1$ et ces deux instructions se chevauchent.
-
-Le code de la figure \ref{fig:telock_obf_asm} est extrait d'un programme protégé par le packer \telock\ désassemblé à l'aide d'un parcours récursif à partir de l'adresse \adr{01006e7a}. Il y a une instruction \texttt{jmp +1} à l'adresse \adr{01006e7d} et codée sur les deux octets \texttt{eb ff}, qui saute vers l'adresse \adr{01006e7d+1} où est présenté l'instruction \texttt{dec ecx}, codée sur \texttt{ff c9} et qui partage donc l'octet \texttt{ff} à l'adresse \adr{01006e7d+1} avec l'instruction \jmp.
-
-
-
-\begin{figure}
-% \scriptsize
-% 0x01006e73    00 0c 0b        add [ebx+ecx], cl
-% 0x01006e76    80 34 0b 67     xor byte [ebx+ecx], 0x67
-\begin{lstlisting}[language={[x86masm]Assembler}, escapechar=~]
-01006e7a    fe 04 0b        inc byte [ebx+ecx]
-01006e7d    eb ff           jmp +1
-01006e7e       ff c9        dec ecx
-01006e80    7f e6           jg 01006e68
-01006e82    8b c1           mov eax, ecx
-\end{lstlisting}
-% \end{framed}
-\caption{Désassemblage récursif de \telock}
-\label{fig:telock_obf_asm}
-\end{figure}
-
-Le graphe de flot de contrôle correct pour ce code est donné sur la figure \ref{fig:telock_cfg}. Le sommet orange est la première instruction et les lignes en pointillés reliant deux sommets marquent un chevauchement entre les instructions de ces sommets.
-
-\begin{figure}
-\begin{center}
-\includegraphics[width=0.8\textwidth]{supports/disasm/telock/telock.pdf}
-\end{center}
-\caption{Graphe de flot de contrôle de \telock}
-\label{fig:telock_cfg}
-\end{figure}
+\section{Logiciels malveillants et obscurcissement}
+\itodo{packers, comment chaîner les obfuscations}
+\itodo{utiliser des petites variations d'un packer pour éviter la détection, parler de la détection}
 
 \section{Conclusion}
 Cette thèse s'intéresse particulièrement à l'analyse des programmes écrits en assembleur \xq\ et \xs. Ces programmes ont en général été compilés à partir d'un langage de haut niveau puis ont été modifiés à l'aide d'un logiciel de protection. Les binaires que l'on étudie sont donc protégés avec des techniques statiques comme auto-modifiantes. Notre travail consiste alors à chercher à désassembler correctement ces programmes dans le but de faciliter leur analyse.
