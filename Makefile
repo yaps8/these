@@ -10,7 +10,7 @@ pdf_from_dot := $(patsubst %.dot,%.pdf,$(all_dot))
 
 default: $(pdf_from_dot) these.bbl these.pdf
 
-these.pdf: *.tex these.bbl
+these.pdf: *.tex these.bbl $(pdf_from_dot)
 	pdflatex these.tex
 
 these.bbl: these.bib

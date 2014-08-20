@@ -181,8 +181,7 @@ Layer 2 @0xfb & \multicolumn{5}{c|}{\cellcolor[gray]{0.0}} & push edi & dec eax 
 \end{figure}
 
 \paragraph{Dans UPX.}
-~\\\itodo{CFG : mettre les adresses, BB ok}
-UPX utilise le chevauchement pour optimiser la taille du binaire protégé (figure \ref{fig:upx_obf_disas}).
+UPX \cite{UPX} cherche à optimiser la taille du binaire protégé.
 La procédure d'exécution du binaire protégé utilise un saut conditionnel pour séparer le contrôle de flot en deux blocs se chevauchants et finissant sur un bloc où ils se réalignent.
 \todo{expliquer les deux branches, rapidement en quoi elles sont utiles}
 \begin{figure}
