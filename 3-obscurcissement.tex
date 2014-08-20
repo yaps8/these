@@ -24,7 +24,7 @@ Il est également utile de masquer l'utilisation de techniques de protection qui
 
 En pratique un auteur de logiciel malveillant masque les symboles utiles à l'analyse tels le nom des fonctions à la compilation. Il est utile que le vecteur de propagation réussisse à masquer qu'il est protégé, s'il l'est, pour éviter une détection prématurée par un antivirus. La charge finale et les éventuels mécanismes de communication sont eux protégés contre l'analyse.\todo{cite}
 
-\section{Exemples d'obscurcissement statique}
+\section{Exemples d'obscurcissement}
 De nombreuses techniques d'obscurcissement sont utilisées en pratique, nous en donnons quelques exemples ici.
 
 \paragraph{Insertion de code mort.}
@@ -83,13 +83,18 @@ Le programmeur sait que l'égalité est toujours vérifiée mais un analyseur st
 
 \section{Chevauchement de code}
 \itodo{citer PMA}
+\itodo{biblio + complète}
+\itodo{figure telock : les octets, jolis}
 On a vu que la taille d'une instruction assembleur varie de un à 15 octets \done{15 dans intel2 chercher 15}.
 De plus rien n'empêche que la cible d'un saut soit une adresse se trouvant être au milieu d'une autre instruction.
-Ainsi on parle de chevauchement de code lorsque deux instructions (ou plus) à des adresses différentes sont codées sur des adresses communes. Si une instruction à l'adresse $a$ de taille $k\geq 2$ est atteignable, il peut y avoir une autre instruction valide et atteignable à l'adresse $a+1$ et ces deux instructions se chevauchent.
+Ainsi on parle de chevauchement de code lorsque deux instructions (ou plus) à des adresses différentes sont codées sur des adresses communes. Si une instruction à l'adresse \adr{a} de taille $k\geq 2$ est atteignable, il peut y avoir une autre instruction valide et atteignable à l'adresse \adr{a+1} et ces deux instructions se chevauchent.
 
-Le code de la figure \ref{fig:telock_obf_asm} est extrait d'un programme protégé par le packer \telock\ désassemblé à l'aide d'un parcours récursif à partir de l'adresse \adr{01006e7a}. Il y a une instruction \texttt{jmp +1} à l'adresse \adr{01006e7d} et codée sur les deux octets \texttt{eb ff}, qui saute vers l'adresse \adr{01006e7d+1} où est présenté l'instruction \texttt{dec ecx}, codée sur \texttt{ff c9} et qui partage donc l'octet \texttt{ff} à l'adresse \adr{01006e7d+1} avec l'instruction \jmp.
+Il est à noter que, comme indiqué par Sikorski et Honig \cite{PMA}, il n'y a dans ce cas aucun désassemblage sous forme de liste d'instructions assembleur qui soit correct puisqu'une telle liste devra choisir entre l'instruction à l'adresse \adr{a} et celle à l'adresse \adr{a+1} alors qu'elles sont toutes les deux valides et atteignables. Une solution pour écrire un tel code assembleur est de mettre la première instruction en temps qu'instruction classique tandis que la deuxième sera présente sous forme d'octets codés en dur dans le fichier assembleur.
 
+\paragraph{Exemple dans \telock.}
+Le code de la figure \ref{fig:telock_obf_disas} est extrait d'un programme protégé par \telock\ désassemblé à l'aide d'un parcours récursif à partir de l'adresse \adr{01006e7a}. Il y a une instruction \texttt{jmp +1} à l'adresse \adr{01006e7d} et codée sur les deux octets \texttt{eb ff}, qui saute vers l'adresse \adr{01006e7d+1} où est présenté l'instruction \texttt{dec ecx}, codée sur \texttt{ff c9} et qui partage donc l'octet \texttt{ff} à l'adresse \adr{01006e7d+1} avec l'instruction \jmp.
 
+Le code assembleur permettant d'être assemblé en ces octets est donné figure \ref{fig:telock_obf_asm} : la première instruction \jmp\ peut être présente dans le code tandis que l'instruction \dec\ la chevauchant est codée en dur grâce à l'octet \texttt{c9}.
 
 \begin{figure}
 % \scriptsize
@@ -104,8 +109,25 @@ Le code de la figure \ref{fig:telock_obf_asm} est extrait d'un programme protég
 \end{lstlisting}
 % \end{framed}
 \caption{Désassemblage récursif de \telock}
+\label{fig:telock_obf_disas}
+\end{figure}
+
+\begin{figure}
+% \scriptsize
+% 0x01006e73    00 0c 0b        add [ebx+ecx], cl
+% 0x01006e76    80 34 0b 67     xor byte [ebx+ecx], 0x67
+\begin{lstlisting}[language={[x86masm]Assembler}, escapechar=~]
+inc byte [ebx+ecx]
+jmp +1
+db c9 			; ajout de l'octet c9
+jg 01006e68
+mov eax, ecx
+\end{lstlisting}
+% \end{framed}
+\caption{Code assembleur du chevauchement de \telock}
 \label{fig:telock_obf_asm}
 \end{figure}
+
 
 Le graphe de flot de contrôle correct pour ce code est donné sur la figure \ref{fig:telock_cfg}. Le sommet orange est la première instruction et les lignes en pointillés reliant deux sommets marquent un chevauchement entre les instructions de ces sommets.
 
@@ -116,6 +138,8 @@ Le graphe de flot de contrôle correct pour ce code est donné sur la figure \re
 \caption{Graphe de flot de contrôle de \telock}
 \label{fig:telock_cfg}
 \end{figure}
+
+\paragraph{Exemple dans UPX.}
 
 \section{Auto-modification}
 
