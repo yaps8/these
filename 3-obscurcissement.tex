@@ -139,6 +139,44 @@ Le graphe de flot de contrôle correct pour ce code est donné sur la figure \re
 \label{fig:telock_cfg}
 \end{figure}
 
+\begin{figure}
+\begin{center}
+\begin{tabular}{|l|c|c|c|c|c|}
+\hline
+Addresses & 0x01006e7d & 0x01006e7e & 0x01006e7f & 0x01006e80 & 0x01006e81\\
+\hline
+Bytes & eb & ff & c9 & 7f & e6\\
+\hline
+Layer 1 @0x01006e7d & \multicolumn{2}{c|}{jmp +1} & \cellcolor[gray]{0.0} & \multicolumn{2}{c|}{jg 0x1006e68}\\
+\hline
+Layer 2 @0x01006e7e & \cellcolor[gray]{0.0} & \multicolumn{2}{c|}{dec ecx} & \multicolumn{2}{c|}{\cellcolor[gray]{0.0}} \\
+ \hline
+% \\
+\end{tabular}
+\end{center}
+\caption{Layers of a subset of the TELock code segment}
+\label{fig:telock-layers-recursive}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+\begin{tabular}{|l|c|c|c|c|c|c|c|c|c|c|}
+\hline
+Addresses & 0xf2 & 0xf3 & ... & 0xf9 & 0xfa & 0xfb & 0xfc & 0xfd & 0xfe & 0xff\\
+\hline
+Bytes & 79 & 07 & ... & 47 & b9 & 57 & 48 & f2 & ae & 55\\
+\hline
+Layer 1 @0xf2 & \multicolumn{2}{c|}{jns +9 (0xfb)} & ... & inc edi & \multicolumn{5}{c|}{mov ecx, aef24857} & push ebp\\
+\hline
+Layer 2 @0xfb & \multicolumn{5}{c|}{\cellcolor[gray]{0.0}} & push edi & dec eax & \multicolumn{2}{c|}{repne scasb} & \cellcolor[gray]{0.0}\\
+\hline
+% \\
+\end{tabular}
+\end{center}
+\caption{Layers of a subset of the UPX code segment}
+\label{fig:upx-layers-recursive}
+\end{figure}
+
 \paragraph{Exemple dans UPX.}
 
 \section{Auto-modification}
