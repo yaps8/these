@@ -82,16 +82,16 @@ Le programmeur sait que l'égalité est toujours vérifiée mais un analyseur st
 \paragraph{Applatissement de graphe de flot de contrôle.}
 
 \section{Chevauchement de code}
-\itodo{citer PMA}
 \itodo{biblio + complète}
-\itodo{figure telock : les octets, jolis}
 On a vu que la taille d'une instruction assembleur varie de un à 15 octets \done{15 dans intel2 chercher 15}.
 De plus rien n'empêche que la cible d'un saut soit une adresse se trouvant être au milieu d'une autre instruction.
 Ainsi on parle de chevauchement de code lorsque deux instructions (ou plus) à des adresses différentes sont codées sur des adresses communes. Si une instruction à l'adresse \adr{a} de taille $k\geq 2$ est atteignable, il peut y avoir une autre instruction valide et atteignable à l'adresse \adr{a+1} et ces deux instructions se chevauchent.
 
 Il est à noter que, comme indiqué par Sikorski et Honig \cite{PMA}, il n'y a dans ce cas aucun désassemblage sous forme de liste d'instructions assembleur qui soit correct puisqu'une telle liste devra choisir entre l'instruction à l'adresse \adr{a} et celle à l'adresse \adr{a+1} alors qu'elles sont toutes les deux valides et atteignables. Une solution pour écrire un tel code assembleur est de mettre la première instruction en temps qu'instruction classique tandis que la deuxième sera présente sous forme d'octets codés en dur dans le fichier assembleur.
 
-\paragraph{Exemple dans \telock.}
+\subsection{Exemples de chevauchement}
+
+\paragraph{Dans \telock.}
 Le code de la figure \ref{fig:telock_obf_disas} est extrait d'un programme protégé par \telock\ désassemblé à l'aide d'un parcours récursif à partir de l'adresse \adr{01006e7a}. Il y a une instruction \texttt{jmp +1} à l'adresse \adr{01006e7d} et codée sur les deux octets \texttt{eb ff}, qui saute vers l'adresse \adr{01006e7d+1} où est présenté l'instruction \texttt{dec ecx}, codée sur \texttt{ff c9} et qui partage donc l'octet \texttt{ff} à l'adresse \adr{01006e7d+1} avec l'instruction \jmp.
 
 Le code assembleur permettant d'être assemblé en ces octets est donné figure \ref{fig:telock_obf_asm} : la première instruction \jmp\ peut être présente dans le code tandis que l'instruction \dec\ la chevauchant est codée en dur grâce à l'octet \texttt{c9}.
@@ -100,6 +100,9 @@ Le code assembleur permettant d'être assemblé en ces octets est donné figure 
 % \scriptsize
 % 0x01006e73    00 0c 0b        add [ebx+ecx], cl
 % 0x01006e76    80 34 0b 67     xor byte [ebx+ecx], 0x67
+Octets à désassembler : \texttt{fe 04 0b eb ff c9 7f e6 8b c1}
+
+
 \begin{lstlisting}[language={[x86masm]Assembler}, escapechar=~]
 01006e7a    fe 04 0b        inc byte [ebx+ecx]
 01006e7d    eb ff           jmp +1
@@ -177,12 +180,14 @@ Layer 2 @0xfb & \multicolumn{5}{c|}{\cellcolor[gray]{0.0}} & push edi & dec eax 
 \label{fig:upx-layers-recursive}
 \end{figure}
 
-\paragraph{Exemple dans UPX.}
-UPX utilise le chevauchement pour optimiser la taille du binaire packé (figure \ref{fig:upx_obf_asm}).
-La procédure de dé-package utilise un saut conditionnel pour séparer le contrôle de flot en deux blocs se chevauchants et finissant sur un bloc où ils se réalignent.
+\paragraph{Dans UPX.}
+~\\\itodo{CFG : mettre les adresses, BB ok}
+UPX utilise le chevauchement pour optimiser la taille du binaire protégé (figure \ref{fig:upx_obf_disas}).
+La procédure d'exécution du binaire protégé utilise un saut conditionnel pour séparer le contrôle de flot en deux blocs se chevauchants et finissant sur un bloc où ils se réalignent.
 \todo{expliquer les deux branches, rapidement en quoi elles sont utiles}
 \begin{figure}
-\scriptsize
+% \scriptsize
+Octets à désassembler : \texttt{89 f9 79 07 0f b7 07 47 50 47 b9 57 48 f2 ae 55}
 \begin{lstlisting}[language={[x86masm]Assembler}, escapechar=~]
     010059f0    89 f9            mov ecx, edi
 ,=< 010059f2    79 07            jns +9
@@ -197,7 +202,7 @@ La procédure de dé-package utilise un saut conditionnel pour séparer le contr
     010059ff    55               push ebp
 \end{lstlisting}
 % \end{framed}
-\caption{Overlapping assembly in UPX.\label{fig:upx_obf_asm}}
+\caption{Chevauchement de code dans UPX\label{fig:upx_obf_disas}}
 \end{figure}
 Le graphe de flot de contrôle pour ce chevauchement est donné en figure \ref{fig:upx_cfg}.
 
@@ -205,9 +210,44 @@ Le graphe de flot de contrôle pour ce chevauchement est donné en figure \ref{f
 \begin{center}
 \includegraphics[width=0.4\textwidth]{supports/disasm/upx/upx.pdf}
 \end{center}
-\caption{Control flow graph for the UPX sample}
+\caption{Graphe de flot de contrôle de l'échantillon d'UPX}
 \label{fig:upx_cfg}
 \end{figure}
+
+\FloatBarrier
+
+\paragraph{Cacher une séquence de code de taille arbitraire.}
+Jämthagen, Lantz et Hell \cite{JLH13} ont proposé un moyen d'inclure une longue séquence de code caché au sein d'une séquence d'assembleur valide qui s'exécute sans provoquer d'erreur.
+
+Une des possibilités est d'utiliser une instruction \nop\ avec préfixe qui se code sur neuf octets. La partie fixe (préfixe et opérande) est codée sur quatre octets (\texttt{66 0f 1f 84}) tandis que les cinq autres octets peuvent être choisis arbitrairement.
+Ainsi chaque instruction \nop\ peut véhiculer 5 octets de code caché. Afin d'encoder une séquence de code dans une séquence de \nop\ il faut pouvoir utiliser les 4 octets fixes de l'instruction \nop\ suivante de manière utile ou non perturbante pour la séquence de code caché.
+Une possibilité, si le registre \edx\ n'est pas utilisé dans la séquence à cacher, est de prendre \texttt{ba} pour dernier octet de chaque instruction \nop\ afin de former l'instruction \texttt{mov edx, 0x841f0f66} codée sur \texttt{ba 66 0f 1f 84}. On peut alors encoder n'importe quelles instructions de taille inférieure ou égale à quatre octets dans cette séquence de \nop.
+Prenons la séquence suivante d'octets :
+\begin{center}
+\texttt{66 0f 1f 84} $\mathtt{x_1\ x_2\ x_3\ x_4}$ \texttt{ba 66 0f 1f 84} $\mathtt{y_1\ y_2\ y_3\ y_4}$ \texttt{ba 66 0f 1f 84} $\mathtt{z_1\ z_2\ z_3\ z_4}$.
+\end{center}
+Si on la désassemble linéairement à partir du premier octet il s'agit d'une séquence de trois \nop\ tandis que si on la désassemble à partir de $\mathtt{x_1}$, les instructions encodées dans les octets $\mathtt{x_i}$, $\mathtt{y_i}$ et $\mathtt{z_i}$ rentrent en considération :
+\\
+
+\begin{center}
+\begin{tabular}{ll|ll}
+\hline
+ \multicolumn{2}{c|}{À partir du début} & \multicolumn{2}{c}{À partir de $x_1$} \\
+\hline
+ \texttt{66 0f 1f 84} $\mathtt{x_1\ x_2\ x_3\ x_4}$ \texttt{ba} & \nop & $\mathtt{x_1\ x_2\ x_3\ x_4}$ & ?\\
+ \texttt{66 0f 1f 84} $\mathtt{y_1\ y_2\ y_3\ y_4}$ \texttt{ba} & \nop & \texttt{ba 66 0f 1f 84} & \texttt{mov edx, 0x841f0f66}\\
+ \texttt{66 0f 1f 84} $\mathtt{z_1\ z_2\ z_3\ z_4}$ \texttt{ba} & \nop & $\mathtt{y_1\ y_2\ y_3\ y_4}$ & ?\\
+  & & \texttt{ba 66 0f 1f 84} & \texttt{mov edx, 0x841f0f66}\\
+    & & $\mathtt{z_1\ z_2\ z_3\ z_4}$ & ?\\
+\end{tabular}
+\end{center}
+
+Les octets forment en fait deux chemin. L'un est exclusivement composé d'instructions \nop\ et est inoffensif : il s'agit du chemin d'exécution principal. Le second, le chemin d'exécution caché, débute à $\mathtt{x_1}$ et exécute le code que l'on souhaite dissimulé. En pratique le premier octet du chemin principal sera une cible valide et évidente du flot de contrôle tandis qu'il sera possible de sauter indirectement sur $\mathtt{x_1}$, par exemple avec un \texttt{jmp eax}. De cette manière le désassembleur est poussé à considérer le chemin principal sans examiner le chemin caché.
+
+La limitation est que les instructions cachées ne peuvent excéder une taille de 4 octets. Les auteurs expliquent cependant que beaucoup d'instructions \xq\ peuvent être séparées en plusieurs instructions plus petites, en utilisant par exemple des registres restreints comme \texttt{ax} ou \texttt{al} à la place d'\eax.
+
+
+\subsection{État de l'art des contre-mesures}
 \section{Auto-modification}
 
 % \begin{figure}
