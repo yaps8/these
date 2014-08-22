@@ -8,6 +8,41 @@ Les heuristiques proposées portent par exemple sur la détection de fonctions a
 
 % \paragraph{Décompilation.}
 
+\section{Difficulté théorique du désassemblage.}
+~\\\ijym{reprendre la preuve}
+\itodo{Pb de l'arrêt: il existe HALT / HALT(P) = 1 ssi quelle que soit l'entrée I, P(I) termine ?}
+\itodo{Pb du désassemblage : borne min : intersection de CODE(P,I), borne max : union}
+\itodo{borne min ~ arrêt ?}
+On a vu que le problème du désassemblage tient dans la difficulté de séparer les parties de code potentiel des parties de données.
+Plus précisément le but du désassemblage d'un programme P est alors de déterminer l'ensemble des adresses $a$ du programme pour lesquelles il existe une entrée I telle que l'exécution de P(I) atteint $a$.
+Nous citons ici un argument tiré de la thèse de Joan Calvet \cite{Calvet2013} montrant le caractère indécidable de ce problème en réduisant le problème de l'arrêt à celui-ci.
+
+Supposons que le problème soit décidable et notons $CODE$ le programme tel que, pour tout programme P, $CODE(P)$ est l'ensemble des adresses des instructions de P atteignables lors de l'exécution de P. Pour tout programme P et toute entrée I à P, on peut définir le programme P' suivant qui ne prend pas d'entrée :
+
+\begin{center}
+\begin{tabular}{|l|l|}
+\hline
+Adresse & Commande \\
+\hline
+0 & P(I)\\
+% $\alpha$ & halt \\
+\hline
+\end{tabular}
+\end{center}
+
+On remarque que $CODE(P')$ contient exactement les adresses des instructions de P 
+Deux cas sont alors possibles.
+\begin{itemize}
+ \item Soit il existe $\alpha\in CODE(P')$ tel que l'instruction à l'adresse $\alpha$ est l'instruction d'arrêt \texttt{halt} et dans ce cas l'exécution atteint l'adresse $\alpha$ donc le programme P termine sur l'entrée I.
+ \item Dans le cas contraire aucune instruction d'arrêt n'est atteignable et donc le programme P ne termine pas sur l'entrée I.
+\end{itemize}
+\begin{itemize}
+ \item Soit $\alpha\in\ CODE(P')$ et dans ce cas l'exécution atteint l'adresse $\alpha$ donc le programme P termine sur l'entrée I.
+ \item Soit $\alpha\notin\ CODE(P')$ donc le programme P ne termine pas sur l'entrée I.
+\end{itemize}
+~\\
+On en déduit donc que le désassemblage permet de résoudre le problème de l'arrêt qui est pourtant connu pour être indécidable ; c'est absurde.
+Ainsi le problème du désassemblage est indécidable.
 
 % \todo[inline]{Avantages et inconvénients des deux (couverture, précision, complétude)\\
 \section{Analyse statique et dynamique}
