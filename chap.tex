@@ -1,0 +1,25 @@
+\input{include}
+% \usepackage{biblatex}
+% \addbibresource{these.bib}
+
+\begin{document}
+\OddHead={{\leftmark\rightmark}{\hfil\slshape\rightmark}}
+\EvenHead={{\leftmark}{{\slshape\leftmark}\hfil}}
+\OddFoot={\hfil\thepage}
+\EvenFoot={\thepage\hfil}
+\pagestyle{ThesisHeadingsII}
+
+\chapter{Désassemblage}
+\input{4-desassembleur}
+
+
+% \onecolumn
+% La bibliographie (comme d'habitude)
+% \nocite{*}
+% \bibliographystyle{unsrt}
+% \bibliographystyle{named}
+% \bibliography{these}
+\printbibliography
+\end{document}
+
+
