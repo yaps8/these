@@ -1,101 +1,5 @@
-%             Exemple d'utilisation de la classe thesul
-%             ------------------------------------------
-%
-%
-% (de manière generale, les commandes de thesul sont celles
-% qui ne sont pas complètement en minuscules)
-%
-% Voir la documentation complète pour plus de détails.
-%   
-%
-% D. Roegel, 30 mars 2013
-%
-\documentclass[12pt, oneside]{TUL/thesul}
-% \documentclass[12pt]{TUL/thesul}
-%----------------------------------------------------------------------
-%                     Chargement de quelques packages
-%----------------------------------------------------------------------
+\input{include}
 
-% Si l'on veut produire une version PDF avec des hyperliens :
-% \usepackage[pageanchor=false]{TUL/tulhypref}
-\usepackage[hidelinks, pdftex]{TUL/tulhypref}
-% \usepackage[sc]{mathpazo}
-\linespread{1.0}
-% Si on veut le style de bibliographie named :
-%\usepackage{named}
-
-% Pour les figures :
-\usepackage{graphicx}
-
-% Si on veut des mini-tables des matières (utiliser minitoc-hyper 
-% en conjonction avec tulhypref) :
-\usepackage[french]{minitoc}
-
-% \usepackage[backgroundcolor=blue!20!white, linecolor=black]{todonotes}
-\usepackage[disable]{todonotes}
-\usepackage{titlesec}
-\usepackage{url}
-\usepackage{listings}
-\usepackage{pstricks}
-\usepackage{subfigure}
-\usepackage{amsmath}
-\usepackage{amsthm}
-\usepackage{amssymb}
-\usepackage{tabularx}
-\usepackage{textcomp}
-\usepackage{multirow}
-\usepackage[algoruled,french,onelanguage]{algorithm2e}
-\usepackage[section]{placeins}
-\usepackage{xcolor}
-\usepackage{colortbl}
-% \usepackage[math]{iwona} 
-% \usepackage{iwona} 
-% \SetMathAlphabet{\mathtt}{iwona}{OT1}{\ttdefault}{m}{n}
-
-\usepackage[backend=biber, language=french, maxnames=5, citestyle=alphabetic,bibstyle=alphabetic,backref,abbreviate=false,dateabbrev=false,isbn=false,url=false,doi=true]{biblatex}
-\addbibresource{these.bib}
-\input{abbreviations}
-
-\DefineBibliographyStrings{french}{
-        in = {},%
-%       in = {\emph{Dans}}%
-        backrefpage = {cité page},
-        backrefpages = {cité pages}
-}
-
-\titleformat{\chapter}[display]
-  {\bfseries\huge}
-  {\filleft\Large\chaptertitlename~\thechapter}
-  {1ex}
-  {\titlerule\vspace{1.5ex}\filright}
-  [\vspace{1ex}\titlerule]
-
-%-------------------------------------------------------------------
-%                             Marges
-%-------------------------------------------------------------------
-
-% pour positionner les vraies marges:
-%\SetRealMargins{1mm}{1mm}
-
-%-------------------------------------------------------------------
-%                             En-têtes
-%-------------------------------------------------------------------
-
-% Les en-têtes: quelques exemples
-%\UppercaseHeadings 
-%\UnderlineHeadings
-%\newcommand\bfheadings[1]{{\bf #1}}
-%\FormatHeadingsWith{\bfheadings}
-%\FormatHeadingsWith{\uppercase}
-%\FormatHeadingsWith{\underline}
-\newcommand\upun[1]{\uppercase{\underline{\underline{#1}}}}
-\FormatHeadingsWith\upun
-
-\newcommand\itheadings[1]{\textit{#1}}
-\FormatHeadingsWith{\itheadings}
-
-% pour avoir un trait sous l'en-tete:
-\setlength{\HeadRuleWidth}{0.4pt}
 
 %-------------------------------------------------------------------
 %                         Les références
@@ -118,12 +22,8 @@
 \makeglossary
 \makeindex
 
+
 \begin{document}
-
-
-
-
-
 \OddHead={{\leftmark\rightmark}{\hfil\slshape\rightmark}}
 \EvenHead={{\leftmark}{{\slshape\leftmark}\hfil}}
 \OddFoot={\hfil\thepage}
