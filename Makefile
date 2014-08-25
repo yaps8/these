@@ -8,7 +8,7 @@ pdf_from_dot := $(patsubst %.dot,%.pdf,$(all_dot))
 #$(info $$var is [${objects}])
 
 
-default: $(pdf_from_dot) these.bbl these.pdf chap.pdf
+default: $(pdf_from_dot) these.bbl these.pdf
 
 chap.pdf: chap.bbl *.tex these.bbl $(pdf_from_dot)
 	pdflatex chap.tex
