@@ -4,7 +4,7 @@ De nombreuses techniques de protection sont applicables à un programme binaire 
 
 Un auteur de programmes malveillants peut produire dans un premier temps son programme sans protection puis utiliser un logiciel de protection qui produit un binaire sémantiquement équivalent mais qui est rendu plus difficile à analyser. En pratique l'exécutable final, protégé, combine plusieurs techniques d'obscurcissement dont des techniques d'auto-modification.
 
-Dans ce chapitre nous chercherons rapidement a comprendre les difficultés rencontrées pour quiconque cherche à protéger son programme contre l'analyse. Dans un second temps nous nous intéresserons aux protections rencontrées lors de l'analyse de logiciels malveillants et en particulier aux problèmes liés au chevauchement de code assembleur et à l'auto-modification.
+Dans ce chapitre nous chercherons rapidement à comprendre les difficultés rencontrées pour quiconque cherche à protéger son programme contre l'analyse. Dans un second temps nous nous intéresserons aux protections rencontrées lors de l'analyse de logiciels malveillants et en particulier aux problèmes liés au chevauchement de code assembleur et à l'auto-modification.
 
 % Nous décrivons maintenant plusieurs techniques d'obscurcissement statiques ainsi que l'auto-modification.
 
@@ -50,7 +50,7 @@ mov ebx, 0x2 ;  0x00000002
 08048062    0a 05 83 f9 02 74   or al, [0x7402f983]
 08048068    00 bb 02 00 00 00   add [ebx+0x2], bh
 \end{lstlisting}
-\caption{L'insertion de code mort dupe facilement un désassemblage par parcours linéaire}
+\caption{Sortie de \texttt{objdump} : L'insertion de code mort dupe facilement un désassemblage par parcours linéaire}
 \label{fig:junk_fooled}
 \end{figure}
 
@@ -64,10 +64,10 @@ L'instruction \ret\ placée à la fin de la fonction appelée dépile la premiè
 Normalement la valeur dépilée lors du \ret\ est $a+n$ afin que le flot d'exécution revienne à la fonction appelant.
 Ainsi un désassembleur récursif désassemble à partir de la cible du \call\ ainsi que de l'adresse de retour.
 
-Une technique classique d'obscurcissement \cite{LD03}\cite{PMA} consiste à combiner l'empilement d'une adresse (\push\ $a$) et l'instruction \ret. Ces deux instructions provoquent un saut vers l'adresse $a$ sans possibilité de revenir à l'instruction suivant le \call. La transformation consiste alors à remplacer des instructions \jmp\ par la séquence \push\ puis \ret\ puisque les deux suites d'instructions suivantes sont équivalentes.
+Une technique classique d'obscurcissement \cite{LD03}\cite{PMA} consiste à combiner l'empilement d'une adresse (\push\ $b$) et l'instruction \ret. Ces deux instructions provoquent un saut vers l'adresse $b$ sans possibilité de revenir à l'instruction suivant le \call. La transformation consiste alors à remplacer des instructions \jmp\ par la séquence \push\ puis \ret\ puisque les deux suites d'instructions suivantes sont équivalentes.
 \begin{center}
 \begin{tabular}{c|c}
-\push\ \adr{a} & \jmp\ \adr{a}\\
+\push\ \adr{b} & \jmp\ \adr{b}\\
 \ret &
 \end{tabular}
 \end{center}
@@ -80,6 +80,7 @@ Une telle condition est appelée un prédicat opaque et peut être implémentée
 Le programmeur sait que l'égalité est toujours vérifiée mais un analyseur statique ne pourra pas le déterminer aisément.
 
 \itodo{Applatissement de graphe de flot de contrôle.}
+\ijym{idem}
 
 \section{Chevauchement de code}
 On a vu que la taille d'une instruction assembleur varie de un à 15 octets \done{15 dans intel2 chercher 15}.
@@ -87,6 +88,7 @@ De plus rien n'empêche que la cible d'un saut soit une adresse se trouvant êtr
 Ainsi on parle de chevauchement de code lorsque deux instructions (ou plus) à des adresses différentes sont codées sur des adresses communes. Si une instruction à l'adresse \adr{a} de taille $k\geq 2$ est atteignable, il peut y avoir une autre instruction valide et atteignable à l'adresse \adr{a+1} et ces deux instructions se chevauchent.
 
 Il est à noter que, comme indiqué par Sikorski et Honig \cite{PMA}, il n'y a dans ce cas aucun désassemblage sous forme de liste d'instructions assembleur qui soit correct puisqu'une telle liste devra choisir entre l'instruction à l'adresse \adr{a} et celle à l'adresse \adr{a+1} alors qu'elles sont toutes les deux valides et atteignables. Une solution pour écrire un tel code assembleur est de mettre la première instruction en temps qu'instruction classique tandis que la deuxième sera présente sous forme d'octets codés en dur dans le fichier assembleur.
+\ijym{Ce n'est pas très clair : préciser qu'on parle juste de comment assembler}
 
 \subsection{Exemples de chevauchement}
 
@@ -244,6 +246,7 @@ La limite est que les instructions cachées ne peuvent excéder une taille de 4 
 
 
 \subsection{État de l'art des contre-mesures}
+\ijym{à mettre dans désassemblage?}
 \paragraph{Dans la littérature.}
 Bien que le problème du chevauchement de code ne soit pas une technique d'obscurcissement récente et soit bien documentée \cite{PMA}, la littérature portant sur le désassemblage fait souvent l'hypothèse qu'un octet à une adresse spécifique ne peut être présent que dans une seule instruction \cite{KruegelRVV04}. Cette contrainte empêche de détecter tout chevauchement mais permet un désassemblage plus précis dans un binaire qui n'utilise pas cette technique de protection.
 Nous verrons qu'en pratique l'utilisation du chevauchement de code est rare même dans un binaire protégé et proposerons une technique de désassemblage capable de détecter les cas de chevauchement.
