@@ -1,0 +1,1 @@
+gcc -O0 -m32 test.c && objdump -d a.out -M intel | less
