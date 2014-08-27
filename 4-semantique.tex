@@ -1,5 +1,6 @@
 % \section{Sémantique concrète pour un langage assembleur}
 
+\section{Une sémantique pour l'assembleur}
 \paragraph{Représentation de la mémoire et des registres.}
 On peut voir la mémoire comme un tableau contenant la pile et le tas, indexés sur les entiers. Les registres sont des variables distinctes de la mémoire et sont en nombre limité. Enfin, pour pouvoir gérer l'adressage indirect : \texttt{[eax]} fait référence à la valeur en mémoire à l'adresse contenue dans \eax, on ajoute les pointeurs vers une variable. Ces éléments sont définis formellement à la définition \ref{def:sem_conc_var}.
 
@@ -110,7 +111,7 @@ La définition \ref{sem_store_dynamique_pointeurs} étend la notion de store aux
   \item Sinon, $x\in\BP$ : $x=\textlbrackdbl v\textrbrackdbl$ avec $v\in\BV$.
     \begin{itemize}
    \item Si $\Theta(v)=\bot$ alors l'assignation n'a aucun effet
-   \item Si $\Theta(v)\in\BN$ et $\Theta(v)>T$ alors l'assignation n'a aucun effet
+   \item Si $\Theta(v)\in\BN$ et $\Theta(v)\notin\BT$ alors l'assignation n'a aucun effet
    \item Sinon $\Theta(v)\in\BN$ et $\Theta(v)\in\BT$, alors $\Theta_X[x\leftarrow n]$ se résoud par $\Theta[\Theta(v)\leftarrow n]$.
   \end{itemize}
   \end{itemize}
@@ -120,7 +121,7 @@ La définition \ref{sem_store_dynamique_pointeurs} étend la notion de store aux
 \paragraph{Règles de transition.}
 Les états d'exécution sont de la forme \textlangle$t, \Theta_X$\textrangle\ où $t$ est une adresse ou l'adresse invalide (ou finale) $\bot$. À chaque instruction exécutée, il y a une transition \textlangle$t, \Theta_X$\textrangle$\rightarrow$\textlangle$t', \Theta_X'$\textrangle.\\
 Si il y a une suite de transitions amenant d'un état \textlangle$t, \Theta_X$\textrangle\ à l'état \textlangle$t', \Theta_X'$\textrangle, on note \textlangle$t, \Theta$\textrangle$\rightarrow^*$\textlangle$t', \Theta_X'$\textrangle.\\
-Un programme s'arrête en partant de l'état initial \textlangle$ep, \Theta_X$\textrangle\ où \texttt{ep} est son point d'entrée si et seulement si \textlangle$ep, \Theta_X$\textrangle$\rightarrow^*$\textlangle$\bot, \Theta_X'$\textrangle. Le programme dans ce cas s'arrête à la première occurrence d'une adresse invalide $\bot$.
+Un programme s'arrête en partant de l'état initial \textlangle$ep, \Theta_X$\textrangle\ où \texttt{ep} est son point d'entrée si et seulement si \textlangle$ep, \Theta_X$\textrangle$\rightarrow^*$\textlangle$\bot, \Theta_X'$\textrangle. Le programme dans ce cas s'arrête à la première occurrence d'une adresse finale ou invalide $\bot$.
 
 On définit par la suite la sémantique des instructions atomiques et on étend donc les états d'exécution à celles-ci : on note \textlangle$t:d_1..d_n, \Theta_X$\textrangle\ l'état \textlangle$t, \Theta_X$\textrangle\ sur lequel il y a les instructions atomiques $d_1..d_n$ à évaluer.
 À partir d'un état \textlangle$t, \Theta_X$\textrangle, on commence par déterminer les instructions atomiques à évaluer à l'aide de l'opérateur de désassemblage : on arrive à un état \textlangle$t:D(t), \Theta_X$\textrangle=\textlangle$t:d_1..d_n, \Theta_X$\textrangle\ dans lequel on va pouvoir évaluer les instructions atomiques l'une après l'autre. Une fois que toutes ces instructions ont été évaluées et si aucune d'elle n'a provoqué de saut vers une adresse différente, on passe à l'instruction qui suit séquentiellement à l'adresse $t+D_S(t$\textrangle.
@@ -175,10 +176,10 @@ L'état initial du store est : $\forall v\in\BV, \Theta_X(v)=\bot$ et l'on part 
 \end{tabular}
 \end{center}
 
-Dans la suite de ce chapitre nous appelons évaluation sémantique ou \texttt{sem\_eval} la fonction qui, à une adresse $t$ et un store $\Theta_X$, associe l'état sur les instructions \xq\ suivant : si $t'$ et $\Theta_X'$ sont les premières valeurs vérifiant \textlangle$t, \Theta$\textrangle$\rightarrow^*$\textlangle$t', \Theta_X'$\textrangle\ alors \texttt{sem\_eval}$(t, \Theta_X)=(t', \Theta_X')$.
+Dans la suite nous appellerons évaluation sémantique ou \texttt{sem\_eval} la fonction qui, à une adresse $t$ et un store $\Theta_X$, associe l'état sur les instructions \xq\ suivant : si $t'$ et $\Theta_X'$ sont les premières valeurs vérifiant \textlangle$t, \Theta$\textrangle$\rightarrow^*$\textlangle$t', \Theta_X'$\textrangle\ avec $t\ne t'$ alors \texttt{sem\_eval}$(t, \Theta_X)=(t', \Theta_X')$.
 
 
-\subsection{Assembleur et langage intermédiaire}
+\section{Assembleur et langage intermédiaire}
 En pratique pour analyser un programme assembleur on veut en avoir un représentation dont on connaît la sémantique concrète.
 On va pour cela réécrire le programme dans un langage intermédiaire et effectuer les analyses sur le programme en langage intermédiaire. Le langage défini dans la section en cours est un langage intermédiaire possible.
 
@@ -189,7 +190,7 @@ Le mnémonique \texttt{sub} désigne une vingtaine de variantes de la soustracti
 Une instruction assembleur va donc être traduite en une ou plusieurs instructions atomiques dans le langage intermédiaire, que l'on sait équivalentes sémantiquement à l'instruction \xq\ et dont on a une sémantique concrète pour les exécuter.
 Une difficulté pratique vient de la richesse du langage \xq\ : écrire l'équivalence de chacun de ses instructions dans le langage intermédiaire choisi est une tâche longue et prône aux erreurs, notamment lors de l'analyse de la documentation. Pour cette raison nous avons rapidement choisi de nous orienter vers des langages intermédiaire pour lesquels cette étape a déjà été réalisée.
 
-\subsection{Revue de littérature : langages intermédiaires}
+\section{Revue de littérature des langages intermédiaires}
 \todo[inline]{BAP: \\
 Jakstab: \\
 TraceSurfer: \\
