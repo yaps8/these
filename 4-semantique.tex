@@ -2,17 +2,26 @@
 
 \section{Une sémantique pour l'assembleur}
 \paragraph{Représentation de la mémoire et des registres.}
-On peut voir la mémoire comme un tableau contenant la pile et le tas, indexés sur les entiers. Les registres sont des variables distinctes de la mémoire et sont en nombre limité. Enfin, pour pouvoir gérer l'adressage indirect : \texttt{[eax]} fait référence à la valeur en mémoire à l'adresse contenue dans \eax, on ajoute les pointeurs vers une variable. Ces éléments sont définis formellement à la définition \ref{def:sem_conc_var}.
+On peut voir la mémoire comme un tableau contenant la pile et le tas, indexés sur les entiers. Les registres sont des variables distinctes de la mémoire et sont en nombre limité.
+L'assembleur distingue plusieurs modes d'adressage dont les deux principaux sont l'adressage direct et indirect : à l'exécution \eax\ prend la valeur du registre \eax\ (adressage direct) tandis que \texttt{[eax]} fait référence à la valeur en mémoire à l'adresse contenue dans \eax\ (adressage indirect).
+Ces éléments sont définis formellement à la définition \ref{def:sem_conc_var}.
 
-\begin{rem}
- Avec cette définition, une valeur en mémoire peut pointer vers un registre. De même un registre peut pointer vers un autre registre.
- Ces deux possibilités ne sont pas réalisables avec l'assembleur \xq\ ou \xs.
-\end{rem}
+% \begin{rem}
+%  Avec cette définition, une valeur en mémoire peut pointer vers un registre. De même un registre peut pointer vers un autre registre.
+%  Ces deux possibilités ne sont pas réalisables avec l'assembleur \xq\ ou \xs.
+% \end{rem}
 
+
+% \begin{defi}
+% On définit les symboles $x\in\BX$ comme constitués de variables $v\in\BV$ et de pointeurs $p\in\BP$ vers des variables. $\BV$ contient un ensemble fini de registres $a\in\BA$ et un tableau de taille finie $\BT=\textlbrackdbl 0,\ T\textrbrackdbl$. Les éléments de $\BP$ sont des pointeurs vers une variable : $\{[v],\ v\in \BV\}$.
+% Les valeurs possibles pour les variables sont dans $\BN$.
+% \label{def:sem_conc_var}
+% \end{defi}
 
 \begin{defi}
-On définit les symboles $x\in\BX$ comme constitués de variables $v\in\BV$ et de pointeurs $p\in\BP$ vers des variables. $\BV$ contient un ensemble fini de registres $a\in\BA$ et un tableau de taille finie $\BT=\textlbrackdbl 0,\ T\textrbrackdbl$. Les éléments de $\BP$ sont des pointeurs vers une variable : $\{[v],\ v\in \BV\}$.
-Les valeurs possibles pour les variables sont dans $\BN$.
+On définit les variables $v\in\BV$ : $\BV$ contient un ensemble fini de registres $a\in\BA$ et un tableau de taille finie $\BT=\textlbrackdbl 0,\ T\textrbrackdbl$.
+On définit un symbole $x\in\BX$ à partir d'une variable $v\in\BV$ comme étant soit une variable sous un mode d'adressage direct, représentée $v$, soit une variable sous un mode d'adressage indirect, notée $[v]$. On note $\BP$ l'ensemble des variables sous un adressage indirect : $\BX=\BV\cup\BP$.
+% Les valeurs possibles pour les variables sont dans $\BN$.
 \label{def:sem_conc_var}
 \end{defi}
 
@@ -90,8 +99,8 @@ Toute variable non initialisée a la valeur spéciale $\bot$ tandis que les vari
 \label{sem_store_dynamique}
 \end{defi}
 
-Pour permettre l'adressage indirect on doit également définir le store sur l'ensemble des pointeurs.
-La définition \ref{sem_store_dynamique_pointeurs} étend la notion de store aux pointeurs afin que chaque symbole ait une valeur.
+Pour permettre l'adressage indirect on doit également définir le store sur l'ensemble des symboles de la forme $[v]$.
+La définition \ref{sem_store_dynamique_pointeurs} étend la notion de store à l'adressage indirect afin que chaque symbole ait une valeur.
 
 
 \begin{defi}
