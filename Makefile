@@ -12,12 +12,14 @@ TEXCOMP = latexmk -pdf
 #default: $(pdf_from_dot) these.bbl these.pdf
 default: $(pdf_from_dot) these.pdf
 
+all: default chap.pdf
+
 #chap.pdf: chap.bbl *.tex these.bbl $(pdf_from_dot)
-chap.pdf: *.tex these.pdf $(pdf_from_dot)
+chap.pdf: *.tex chap.bib $(pdf_from_dot)
 	$(TEXCOMP) chap.tex
 
 #these.pdf: *.tex these.bbl $(pdf_from_dot)
-these.pdf: *.tex $(pdf_from_dot)
+these.pdf: *.tex these.bib $(pdf_from_dot)
 	$(TEXCOMP) these.tex
 
 #these.bbl: these.bib
