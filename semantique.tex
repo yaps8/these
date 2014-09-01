@@ -1,5 +1,5 @@
 % \section{Sémantique concrète pour un langage assembleur}
-
+\itodo{Relire et checker la cohérence de la notation en expressions}
 \section{Une sémantique pour l'assembleur}
 \paragraph{Représentation de la mémoire et des registres.}
 On peut voir la mémoire comme un tableau contenant la pile et le tas, indexés sur les entiers. Les registres sont des variables distinctes de la mémoire et sont en nombre limité.
@@ -19,11 +19,20 @@ Ces éléments sont définis formellement à la définition \ref{def:sem_conc_va
 % \end{defi}
 
 \begin{defi}
-On définit les variables $v\in\BV$ : $\BV$ contient un ensemble fini de registres $a\in\BA$ et un tableau de taille finie $\BT=\textlbrackdbl 0,\ T\textrbrackdbl$.
-On définit un symbole $x\in\BX$ à partir d'une variable $v\in\BV$ comme étant soit une variable sous un mode d'adressage direct, représentée $v$, soit une variable sous un mode d'adressage indirect, notée $[v]$. On note $\BP$ l'ensemble des variables sous un adressage indirect : $\BX=\BV\cup\BP$.
+On définit un ensemble fini de registres $a\in\BA$ et un tableau de taille finie $\BT=\{T_n,\ n\in\textlbrackdbl 0,\ N\textrbrackdbl\}$. Les variables sont soit un registre soit dans le tableau : $\BV=\BA\cup\BT$.
+% On définit un symbole $x\in\BX$ à partir d'une variable $v\in\BV$ comme étant soit une variable sous un mode d'adressage direct, représentée $v$, soit une variable sous un mode d'adressage indirect, notée $[v]$. On note $\BP$ l'ensemble des variables sous un adressage indirect : $\BX=\BV\cup\BP$.
+Les expressions $\BE$ sont de l'un des types suivants :\\
+% $empl:=$ $a\in\BA$ $|$ $T_n$ avec $n\in\BT$ $|$ $[v]$ avec $v\in\BA\cup\BT$ \\
+$expr:=$ $\bot$ $|$ $n\in\BN$ $|$ $a\in\BA$ $|$ $T_n$ avec $n\in\BN$ $|$ $[a]$ avec $a\in\BA$ $|$ $[T_n]$ avec $n\in\BN$
 % Les valeurs possibles pour les variables sont dans $\BN$.
 \label{def:sem_conc_var}
 \end{defi}
+
+% \begin{defi}
+% On définit deux opérateurs. Le premier, $T$, permet d'accéder à la mémoire et s'applique à $T: \BT=\textlbrackdbl 0,\ N\textrbrackdbl$.\\
+% $expr:= v\in\BV$ $|$ $[v]$ avec $v\in\BV$ $|$ $T(n)$ avec $n\in\BT=\textlbrackdbl 0,\ N\textrbrackdbl$
+% \label{def:operateurs_expressions}
+% \end{defi}
 
 \paragraph{Langage assembleur simplifié.} Nous allons définir un langage intermédiaire dans lequel on peut transcrire chaque instruction \xq\ en une liste d'instructions atomiques de notre langage simplifié.
 Les instructions \xq\ sont disponibles à différentes adresses entières. 
@@ -33,7 +42,7 @@ Le second type d'instruction regroupe les sauts inconditionnels et conditionnels
 On distingue également l'instruction \texttt{end} forçant l'arrêt du programme.
 
 \begin{defi}
-Les instructions atomiques d'un programme sont de ce type, quelle que soit la fonction totale g de $\BN^m$ dans $\BN$ :\\
+Les instructions atomiques d'un programme sont de ce type, quelle que soit la fonction totale g de $\BN^m$ dans $\BN$ avec $x$, $x'$ et $x_i$ étant des expressions.\\
 $inst:=\ $\emph{$x\leftarrow g(x_1, ..., x_m)$ $|$ goto $x$ $|$ if $x$ then $goto\ x'$ $|$ end}
 \label{def:sem_instructions}
 \end{defi}
@@ -90,12 +99,12 @@ Dans le cas où il n'y a pas d'instruction valide à l'adresse $t$, $D(t)=\bot$ 
 \end{defi}
 
 Une sémantique concrète cherche à définir les opérations de chaque instruction de la manière la plus précise qu'il soit afin de pouvoir simuler une exécution réelle du programme.
-Pour cela on va utiliser une store qui conserve l'état des variables lors de l'exécution du programme.
+Pour cela on va utiliser un store qui conserve l'état des variables lors de l'exécution du programme.
 Toute variable non initialisée a la valeur spéciale $\bot$ tandis que les variables définies ont des valeurs entières (définition \ref{sem_store_dynamique}).
 
 \begin{defi}
- Un store dynamique associe à chaque variable une valeur : $\Theta:\BV\rightarrow\BN\cup\{\bot\}$.\\
- Si v est une variable et n une valeur, on note $\Theta[v\leftarrow n]$ l'assignation de v à n dans $\Theta$.
+ Un store dynamique $\Theta$ associe à chaque variable une valeur, $\Theta:\BV\rightarrow\BN\cup\{\bot\}$.\\
+ Si v est une variable et n une valeur dans $\BN\cup\{\bot\}$, on note $\Theta[v\leftarrow n]$ l'assignation de v à n dans $\Theta$.
 \label{sem_store_dynamique}
 \end{defi}
 
@@ -104,24 +113,28 @@ La définition \ref{sem_store_dynamique_pointeurs} étend la notion de store à 
 
 
 \begin{defi}
- Définissons une extension $\Theta_X$ d'un store $\Theta : \BV\rightarrow\BN\cup\{\bot\}$ à $\BX\rightarrow\BN\cup\{\bot\}$. Soit $x\in\BX$.
+ Définissons une extension $\Theta_X$ d'un store $\Theta : \BV\rightarrow\BN\cup\{\bot\}$ à $\BE\rightarrow\BN\cup\{\bot\}$. Soit $x\in\BX$.
  \begin{itemize}
+  \item Si $x=\bot$, $\Theta_X(x)=\bot$
+  \item Si $x\in\BN$, $\Theta_X(x)=n$
   \item Si $x\in\BV$ : $\Theta_X(x)=\Theta(x)$
-  \item Sinon, $x\in\BP$ : $x=\textlbrackdbl v\textrbrackdbl$ avec $v\in\BV$.
+  \item Sinon, $x=\textlbrackdbl v\textrbrackdbl$ avec $v\in\BV$.
   \begin{itemize}
    \item Si $\Theta(v)=\bot$ alors $\Theta_X(x)=\bot$
-   \item Si $\Theta(v)\in\BN$ et $\Theta(v)\notin\BT$ alors $\Theta_X(x)=\bot$
-   \item Sinon $\Theta(v)\in\BN$ et $\Theta(v)\in\BT$, alors $\Theta_X(x)=\Theta(\Theta(v))$.
+   \item Si $\Theta(v)\in\BN$ et $\Theta(v)\notin\textlbrackdbl 0,\ N\textrbrackdbl$ alors $\Theta_X(x)=\bot$
+   \item Sinon $\Theta(v)\in\BN$ et $\Theta(v)\in\textlbrackdbl 0,\ N\textrbrackdbl$, alors $\Theta_X(x)=\Theta(\Theta(v))$.
   \end{itemize}
  \end{itemize}
-  De même on étend l'opération d'assignation d'une valeur à un symbole de la manière suivante. Soit $x\in\BX$ et $n\in\BN$.
+  De même on étend l'opération d'assignation d'une valeur à une expression de la manière suivante. Soit $x\in\BE$ et $n\in\BN\cup\{\bot\}$.
   \begin{itemize}
+  \item Si $x=\bot$, $\Theta_X[x\leftarrow n]$ n'a aucun effet
+  \item Si $x\in\BN$, $\Theta_X[x\leftarrow n]$ n'a aucun effet
   \item Si $x\in\BV$ : $\Theta_X[x\leftarrow n]$ est équivalent à $\Theta[x\leftarrow n]$.
-  \item Sinon, $x\in\BP$ : $x=\textlbrackdbl v\textrbrackdbl$ avec $v\in\BV$.
+  \item Sinon, $x=\textlbrackdbl v\textrbrackdbl$ avec $v\in\BV$.
     \begin{itemize}
    \item Si $\Theta(v)=\bot$ alors l'assignation n'a aucun effet
-   \item Si $\Theta(v)\in\BN$ et $\Theta(v)\notin\BT$ alors l'assignation n'a aucun effet
-   \item Sinon $\Theta(v)\in\BN$ et $\Theta(v)\in\BT$, alors $\Theta_X[x\leftarrow n]$ se résoud par $\Theta[\Theta(v)\leftarrow n]$.
+   \item Si $\Theta(v)\in\BN$ et $\Theta(v)\notin\textlbrackdbl 0,\ N\textrbrackdbl$ alors l'assignation n'a aucun effet
+   \item Sinon $\Theta(v)\in\BN$ et $\Theta(v)\in\textlbrackdbl 0,\ N\textrbrackdbl$, alors $\Theta_X[x\leftarrow n]$ se résoud par $\Theta[T_{\Theta(v)}\leftarrow n]$.
   \end{itemize}
   \end{itemize}
 \label{sem_store_dynamique_pointeurs}
