@@ -141,12 +141,15 @@ La définition \ref{sem_store_dynamique_pointeurs} étend la notion de store à 
 \end{defi}
 
 \paragraph{Règles de transition.}
-Les états d'exécution sont de la forme \textlangle$t, \Theta_X$\textrangle\ où $t$ est une adresse ou l'adresse invalide (ou finale) $\bot$. À chaque instruction exécutée, il y a une transition \textlangle$t, \Theta_X$\textrangle$\rightarrow$\textlangle$t', \Theta_X'$\textrangle.\\
+Les états d'exécution sont de la forme \textlangle$t, \Theta_X$\textrangle\ où $t$ est une adresse ou l'adresse invalide (ou finale) $\bot$. 
+À chaque instruction exécutée, il y a une transition \textlangle$t, \Theta_X$\textrangle$\rightarrow$\textlangle$t', \Theta_X'$\textrangle.\\
 Si il y a une suite de transitions amenant d'un état \textlangle$t, \Theta_X$\textrangle\ à l'état \textlangle$t', \Theta_X'$\textrangle, on note \textlangle$t, \Theta$\textrangle$\rightarrow^*$\textlangle$t', \Theta_X'$\textrangle.\\
-Un programme s'arrête en partant de l'état initial \textlangle$ep, \Theta_X$\textrangle\ où \texttt{ep} est son point d'entrée si et seulement si \textlangle$ep, \Theta_X$\textrangle$\rightarrow^*$\textlangle$\bot, \Theta_X'$\textrangle. Le programme dans ce cas s'arrête à la première occurrence d'une adresse finale ou invalide $\bot$.
+Un programme s'arrête en partant de l'état initial \textlangle$ep, \Theta_X$\textrangle\ où \texttt{ep} est son point d'entrée si et seulement si \textlangle$ep, \Theta_X$\textrangle$\rightarrow^*$\textlangle$\bot, \Theta_X'$\textrangle. 
+Le programme dans ce cas s'arrête à la première occurrence d'une adresse finale ou invalide $\bot$.
 
 On définit par la suite la sémantique des instructions atomiques et on étend donc les états d'exécution à celles-ci : on note \textlangle$t:d_1..d_n, \Theta_X$\textrangle\ l'état \textlangle$t, \Theta_X$\textrangle\ sur lequel il y a les instructions atomiques $d_1..d_n$ à évaluer.
-À partir d'un état \textlangle$t, \Theta_X$\textrangle, on commence par déterminer les instructions atomiques à évaluer à l'aide de l'opérateur de désassemblage : on arrive à un état \textlangle$t:D(t), \Theta_X$\textrangle=\textlangle$t:d_1..d_n, \Theta_X$\textrangle\ dans lequel on va pouvoir évaluer les instructions atomiques l'une après l'autre. Une fois que toutes ces instructions ont été évaluées et si aucune d'elle n'a provoqué de saut vers une adresse différente, on passe à l'instruction qui suit séquentiellement à l'adresse $t+D_S(t$\textrangle.
+À partir d'un état \textlangle$t, \Theta_X$\textrangle, on commence par déterminer les instructions atomiques à évaluer à l'aide de l'opérateur de désassemblage : on arrive à un état \textlangle$t:D(t), \Theta_X$\textrangle=\textlangle$t:d_1..d_n, \Theta_X$\textrangle\ dans lequel on va pouvoir évaluer les instructions atomiques l'une après l'autre. 
+Une fois que toutes ces instructions ont été évaluées et si aucune d'elle n'a provoqué de saut vers une adresse différente, on passe à l'instruction qui suit séquentiellement à l'adresse $t+D_S(t$\textrangle.
 
 L'état initial du store est : $\forall v\in\BV, \Theta_X(v)=\bot$ et l'on part du point d'entrée \texttt{ep}. Les règles de transition suivantes permettent d'aboutir à une adresse finale ou invalide $\bot$ si le programme termine.
 
@@ -210,7 +213,8 @@ L'instruction \texttt{sub eax, b} par exemple soustrait l'opérande \texttt{b} �
 Le mnémonique \texttt{sub} désigne une vingtaine de variantes de la soustraction selon la taille des opérandes pris en compte. Elle effectue l'opération \texttt{eax-b} et met à jour les drapeaux CF et OF indiquant un dépassement de valeur entière, le drapeau de signe SF, le drapeau ZF (à 1 si le résultat est nul) et celui de parité PF.
 
 Une instruction assembleur va donc être traduite en une ou plusieurs instructions atomiques dans le langage intermédiaire, que l'on sait équivalentes sémantiquement à l'instruction \xq\ et dont on a une sémantique concrète pour les exécuter.
-Une difficulté pratique vient de la richesse du langage \xq\ : écrire l'équivalence de chacun de ses instructions dans le langage intermédiaire choisi est une tâche longue et prône aux erreurs, notamment lors de l'analyse de la documentation. Pour cette raison nous avons rapidement choisi de nous orienter vers des langages intermédiaire pour lesquels cette étape a déjà été réalisée.
+Une difficulté pratique vient de la richesse du langage \xq\ : écrire l'équivalence de chacun de ses instructions dans le langage intermédiaire choisi est une tâche longue et prône aux erreurs, notamment lors de l'analyse de la documentation. 
+Pour cette raison nous avons rapidement choisi de nous orienter vers des langages intermédiaire pour lesquels cette étape a déjà été réalisée.
 
 \section{Revue de littérature des langages intermédiaires}
 \todo[inline]{Jakstab: \\
@@ -224,7 +228,13 @@ Xed : \\
 }
 
 
-Parmis les projets de langages intermédiaires existants et fournissant d'une part une transcription depuis l'assembleur et d'autre part une sémantique concrète du langage considéré, nous nous sommes intéressés à BAP \cite{BAP11}. BAP est le successeur du projet BitBlaze qui a défini et développé une plateforme d'analyse statique basée sur le langage intermédiaire Vine IL \cite{bitblaze08}. Sémantiquement le langage intermédiaire défini par BAP ne diffère pas fondamentalement de celui défini dans ce chapitre. Ils définissent également un opérateur permettant de gérer l'adressage indirect : \texttt{load($e_1$, $e_2$, $e_3$, $\tau_{reg}$)} place la valeur de l'expression $e_1$ à l'adresse $e_2$, ainsi \texttt{load($x$, $eax$, $e_3$, $\tau_{reg}$)} effectue l'opération \texttt{$[eax]\leftarrow x$}. Le paramètre $e_3$ a une valeur booléenne indiquant si la machine fonctionne en petit ou grand boutiste et $\tau_{reg}$ indique le nombre d'octets qui doivent être copiés. L'avantage de BAP par rapport au langage présenté précédemment est qu'il est est bien plus proche du langage assembleur : les valeurs des variables ne sont pas dans $\BN$ mais dans $\textlbrackdbl 0,\ 2^{32}-1\textrbrackdbl$, $\textlbrackdbl -2^{31},\ 2^{31}-1\textrbrackdbl$, $\textlbrackdbl 0,\ 2^{64}-1\textrbrackdbl$ ou $\textlbrackdbl -2^{63},\ 2^{63}-1\textrbrackdbl$ selon la machine que l'on cherche à modéliser et le type des variables (signé ou non). De même les fonctions entières sont explicitées et contiennent, entre autres, des opérations binaires comme l'addition, le ``ou'' logique, la comparaison de deux valeurs.
+Parmis les projets de langages intermédiaires existants et fournissant d'une part une transcription depuis l'assembleur et d'autre part une sémantique concrète du langage considéré, nous nous sommes intéressés à BAP \cite{BAP11}. 
+BAP est le successeur du projet BitBlaze qui a défini et développé une plateforme d'analyse statique basée sur le langage intermédiaire Vine IL \cite{bitblaze08}. 
+Sémantiquement le langage intermédiaire défini par BAP ne diffère pas fondamentalement de celui défini dans ce chapitre. 
+Ils définissent également un opérateur permettant de gérer l'adressage indirect : \texttt{load($e_1$, $e_2$, $e_3$, $\tau_{reg}$)} place la valeur de l'expression $e_1$ à l'adresse $e_2$, ainsi \texttt{load($x$, $eax$, $e_3$, $\tau_{reg}$)} effectue l'opération \texttt{$[eax]\leftarrow x$}. 
+Le paramètre $e_3$ a une valeur booléenne indiquant si la machine fonctionne en petit ou grand boutiste et $\tau_{reg}$ indique le nombre d'octets qui doivent être copiés. 
+L'avantage de BAP par rapport au langage présenté précédemment est qu'il est est bien plus proche du langage assembleur : les valeurs des variables ne sont pas dans $\BN$ mais dans $\textlbrackdbl 0,\ 2^{32}-1\textrbrackdbl$, $\textlbrackdbl -2^{31},\ 2^{31}-1\textrbrackdbl$, $\textlbrackdbl 0,\ 2^{64}-1\textrbrackdbl$ ou $\textlbrackdbl -2^{63},\ 2^{63}-1\textrbrackdbl$ selon la machine que l'on cherche à modéliser et le type des variables (signé ou non). 
+De même les fonctions entières sont explicitées et contiennent, entre autres, des opérations binaires comme l'addition, le ``ou'' logique, la comparaison de deux valeurs.
 
 
 \section{Langage intermédiaire et analyse de binaires}
@@ -236,7 +246,8 @@ Le souci est qu'elle induit des potentielles pertes d'informations : la représe
 \itodo{un graphique, mais après avoir fait celui de l'approche atomique}
 ~\\
 
-Pourtant on ne peut pas séparer les instructions de leur représentation en mémoire : si une instruction est codée à l'adresse \adr{a} sur deux octets et que l'octet à l'adresse \adr{a+1} est modifié, cette modification peut être transcrite dans le langage intermédiaire mais il est toujours nécessaire de connaître l'octet à l'adresse \adr{a} pour pouvoir décoder la nouvelle instruction. C'est pourquoi, dans le cas de l'auto-modification, il est nécessaire d'avoir accès à une représentation en mémoire du binaire exécuté lors de son exécution sous forme intermédiaire.
+Pourtant on ne peut pas séparer les instructions de leur représentation en mémoire : si une instruction est codée à l'adresse \adr{a} sur deux octets et que l'octet à l'adresse \adr{a+1} est modifié, cette modification peut être transcrite dans le langage intermédiaire mais il est toujours nécessaire de connaître l'octet à l'adresse \adr{a} pour pouvoir décoder la nouvelle instruction. 
+C'est pourquoi, dans le cas de l'auto-modification, il est nécessaire d'avoir accès à une représentation en mémoire du binaire exécuté lors de son exécution sous forme intermédiaire.
 
 \paragraph{Approche atomique.}
 ~\\

@@ -1,6 +1,6 @@
 \input{include}
 \usepackage[backgroundcolor=blue!20!white, linecolor=black]{todonotes}
-
+% \usepackage[disable]{todonotes}
 %-------------------------------------------------------------------
 %                         Les références
 %-------------------------------------------------------------------
@@ -131,6 +131,8 @@ Merci.
 %-------------------------------------------------------------------
 
 % \tableofcontents 
+\SetTocSpacing{1.1}
+\setcounter{tocdepth}{2}
 \tableofcontents
 
 %-------------------------------------------------------------------
@@ -168,6 +170,7 @@ Merci.
 \chapter{Assembleur}
 \input{assembleur}
 
+% \addtocontents{toc}{\protect\newpage} % aller a la ligne dans toc
 \DontFrameThisInToc
 \chapter{Techniques d'obscurcissement de code}
 \input{obscurcissement}
@@ -195,7 +198,7 @@ Merci.
 
 \DontFrameThisInToc
 \chapter{Algorithmes de détection de sous-graphes}
-% \input{algos}
+\input{algos}
 
 \DontFrameThisInToc
 \chapter{Application à la comparaison de librairies}
@@ -222,10 +225,11 @@ Merci.
 
 % La bibliographie (comme d'habitude)
 
-\nocite{*}
+% \nocite{*}
 % \bibliographystyle{unsrt}
 % \bibliographystyle{named}
 % \bibliography{these}
+\DontFrameThisInToc
 \printbibliography
 
 \NumberAbstractPages
