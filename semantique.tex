@@ -1,20 +1,38 @@
 % \section{Sémantique concrète pour un langage assembleur}
-
+\itodo{Relire et checker la cohérence de la notation en expressions}
 \section{Une sémantique pour l'assembleur}
 \paragraph{Représentation de la mémoire et des registres.}
-On peut voir la mémoire comme un tableau contenant la pile et le tas, indexés sur les entiers. Les registres sont des variables distinctes de la mémoire et sont en nombre limité. Enfin, pour pouvoir gérer l'adressage indirect : \texttt{[eax]} fait référence à la valeur en mémoire à l'adresse contenue dans \eax, on ajoute les pointeurs vers une variable. Ces éléments sont définis formellement à la définition \ref{def:sem_conc_var}.
+On peut voir la mémoire comme un tableau contenant la pile et le tas, indexés sur les entiers. Les registres sont des variables distinctes de la mémoire et sont en nombre limité.
+L'assembleur distingue plusieurs modes d'adressage dont les deux principaux sont l'adressage direct et indirect : à l'exécution \eax\ prend la valeur du registre \eax\ (adressage direct) tandis que \texttt{[eax]} fait référence à la valeur en mémoire à l'adresse contenue dans \eax\ (adressage indirect).
+Ces éléments sont définis formellement à la définition \ref{def:sem_conc_var}.
 
-\begin{rem}
- Avec cette définition, une valeur en mémoire peut pointer vers un registre. De même un registre peut pointer vers un autre registre.
- Ces deux possibilités ne sont pas réalisables avec l'assembleur \xq\ ou \xs.
-\end{rem}
+% \begin{rem}
+%  Avec cette définition, une valeur en mémoire peut pointer vers un registre. De même un registre peut pointer vers un autre registre.
+%  Ces deux possibilités ne sont pas réalisables avec l'assembleur \xq\ ou \xs.
+% \end{rem}
 
+
+% \begin{defi}
+% On définit les symboles $x\in\BX$ comme constitués de variables $v\in\BV$ et de pointeurs $p\in\BP$ vers des variables. $\BV$ contient un ensemble fini de registres $a\in\BA$ et un tableau de taille finie $\BT=\textlbrackdbl 0,\ T\textrbrackdbl$. Les éléments de $\BP$ sont des pointeurs vers une variable : $\{[v],\ v\in \BV\}$.
+% Les valeurs possibles pour les variables sont dans $\BN$.
+% \label{def:sem_conc_var}
+% \end{defi}
 
 \begin{defi}
-On définit les symboles $x\in\BX$ comme constitués de variables $v\in\BV$ et de pointeurs $p\in\BP$ vers des variables. $\BV$ contient un ensemble fini de registres $a\in\BA$ et un tableau de taille finie $\BT=\textlbrackdbl 0,\ T\textrbrackdbl$. Les éléments de $\BP$ sont des pointeurs vers une variable : $\{[v],\ v\in \BV\}$.
-Les valeurs possibles pour les variables sont dans $\BN$.
+On définit un ensemble fini de registres $a\in\BA$ et un tableau de taille finie $\BT=\{T_n,\ n\in\textlbrackdbl 0,\ N\textrbrackdbl\}$. Les variables sont soit un registre soit dans le tableau : $\BV=\BA\cup\BT$.
+% On définit un symbole $x\in\BX$ à partir d'une variable $v\in\BV$ comme étant soit une variable sous un mode d'adressage direct, représentée $v$, soit une variable sous un mode d'adressage indirect, notée $[v]$. On note $\BP$ l'ensemble des variables sous un adressage indirect : $\BX=\BV\cup\BP$.
+Les expressions $\BE$ sont de l'un des types suivants :\\
+% $empl:=$ $a\in\BA$ $|$ $T_n$ avec $n\in\BT$ $|$ $[v]$ avec $v\in\BA\cup\BT$ \\
+$expr:=$ $\bot$ $|$ $n\in\BN$ $|$ $a\in\BA$ $|$ $T_n$ avec $n\in\BN$ $|$ $[a]$ avec $a\in\BA$ $|$ $[T_n]$ avec $n\in\BN$
+% Les valeurs possibles pour les variables sont dans $\BN$.
 \label{def:sem_conc_var}
 \end{defi}
+
+% \begin{defi}
+% On définit deux opérateurs. Le premier, $T$, permet d'accéder à la mémoire et s'applique à $T: \BT=\textlbrackdbl 0,\ N\textrbrackdbl$.\\
+% $expr:= v\in\BV$ $|$ $[v]$ avec $v\in\BV$ $|$ $T(n)$ avec $n\in\BT=\textlbrackdbl 0,\ N\textrbrackdbl$
+% \label{def:operateurs_expressions}
+% \end{defi}
 
 \paragraph{Langage assembleur simplifié.} Nous allons définir un langage intermédiaire dans lequel on peut transcrire chaque instruction \xq\ en une liste d'instructions atomiques de notre langage simplifié.
 Les instructions \xq\ sont disponibles à différentes adresses entières. 
@@ -24,7 +42,7 @@ Le second type d'instruction regroupe les sauts inconditionnels et conditionnels
 On distingue également l'instruction \texttt{end} forçant l'arrêt du programme.
 
 \begin{defi}
-Les instructions atomiques d'un programme sont de ce type, quelle que soit la fonction totale g de $\BN^m$ dans $\BN$ :\\
+Les instructions atomiques d'un programme sont de ce type, quelle que soit la fonction totale g de $\BN^m$ dans $\BN$ avec $x$, $x'$ et $x_i$ étant des expressions.\\
 $inst:=\ $\emph{$x\leftarrow g(x_1, ..., x_m)$ $|$ goto $x$ $|$ if $x$ then $goto\ x'$ $|$ end}
 \label{def:sem_instructions}
 \end{defi}
@@ -81,50 +99,57 @@ Dans le cas où il n'y a pas d'instruction valide à l'adresse $t$, $D(t)=\bot$ 
 \end{defi}
 
 Une sémantique concrète cherche à définir les opérations de chaque instruction de la manière la plus précise qu'il soit afin de pouvoir simuler une exécution réelle du programme.
-Pour cela on va utiliser une store qui conserve l'état des variables lors de l'exécution du programme.
+Pour cela on va utiliser un store qui conserve l'état des variables lors de l'exécution du programme.
 Toute variable non initialisée a la valeur spéciale $\bot$ tandis que les variables définies ont des valeurs entières (définition \ref{sem_store_dynamique}).
 
 \begin{defi}
- Un store dynamique associe à chaque variable une valeur : $\Theta:\BV\rightarrow\BN\cup\{\bot\}$.\\
- Si v est une variable et n une valeur, on note $\Theta[v\leftarrow n]$ l'assignation de v à n dans $\Theta$.
+ Un store dynamique $\Theta$ associe à chaque variable une valeur, $\Theta:\BV\rightarrow\BN\cup\{\bot\}$.\\
+ Si v est une variable et n une valeur dans $\BN\cup\{\bot\}$, on note $\Theta[v\leftarrow n]$ l'assignation de v à n dans $\Theta$.
 \label{sem_store_dynamique}
 \end{defi}
 
-Pour permettre l'adressage indirect on doit également définir le store sur l'ensemble des pointeurs.
-La définition \ref{sem_store_dynamique_pointeurs} étend la notion de store aux pointeurs afin que chaque symbole ait une valeur.
+Pour permettre l'adressage indirect on doit également définir le store sur l'ensemble des symboles de la forme $[v]$.
+La définition \ref{sem_store_dynamique_pointeurs} étend la notion de store à l'adressage indirect afin que chaque symbole ait une valeur.
 
 
 \begin{defi}
- Définissons une extension $\Theta_X$ d'un store $\Theta : \BV\rightarrow\BN\cup\{\bot\}$ à $\BX\rightarrow\BN\cup\{\bot\}$. Soit $x\in\BX$.
+ Définissons une extension $\Theta_X$ d'un store $\Theta : \BV\rightarrow\BN\cup\{\bot\}$ à $\BE\rightarrow\BN\cup\{\bot\}$. Soit $x\in\BX$.
  \begin{itemize}
+  \item Si $x=\bot$, $\Theta_X(x)=\bot$
+  \item Si $x\in\BN$, $\Theta_X(x)=n$
   \item Si $x\in\BV$ : $\Theta_X(x)=\Theta(x)$
-  \item Sinon, $x\in\BP$ : $x=\textlbrackdbl v\textrbrackdbl$ avec $v\in\BV$.
+  \item Sinon, $x=\textlbrackdbl v\textrbrackdbl$ avec $v\in\BV$.
   \begin{itemize}
    \item Si $\Theta(v)=\bot$ alors $\Theta_X(x)=\bot$
-   \item Si $\Theta(v)\in\BN$ et $\Theta(v)\notin\BT$ alors $\Theta_X(x)=\bot$
-   \item Sinon $\Theta(v)\in\BN$ et $\Theta(v)\in\BT$, alors $\Theta_X(x)=\Theta(\Theta(v))$.
+   \item Si $\Theta(v)\in\BN$ et $\Theta(v)\notin\textlbrackdbl 0,\ N\textrbrackdbl$ alors $\Theta_X(x)=\bot$
+   \item Sinon $\Theta(v)\in\BN$ et $\Theta(v)\in\textlbrackdbl 0,\ N\textrbrackdbl$, alors $\Theta_X(x)=\Theta(\Theta(v))$.
   \end{itemize}
  \end{itemize}
-  De même on étend l'opération d'assignation d'une valeur à un symbole de la manière suivante. Soit $x\in\BX$ et $n\in\BN$.
+  De même on étend l'opération d'assignation d'une valeur à une expression de la manière suivante. Soit $x\in\BE$ et $n\in\BN\cup\{\bot\}$.
   \begin{itemize}
+  \item Si $x=\bot$, $\Theta_X[x\leftarrow n]$ n'a aucun effet
+  \item Si $x\in\BN$, $\Theta_X[x\leftarrow n]$ n'a aucun effet
   \item Si $x\in\BV$ : $\Theta_X[x\leftarrow n]$ est équivalent à $\Theta[x\leftarrow n]$.
-  \item Sinon, $x\in\BP$ : $x=\textlbrackdbl v\textrbrackdbl$ avec $v\in\BV$.
+  \item Sinon, $x=\textlbrackdbl v\textrbrackdbl$ avec $v\in\BV$.
     \begin{itemize}
    \item Si $\Theta(v)=\bot$ alors l'assignation n'a aucun effet
-   \item Si $\Theta(v)\in\BN$ et $\Theta(v)\notin\BT$ alors l'assignation n'a aucun effet
-   \item Sinon $\Theta(v)\in\BN$ et $\Theta(v)\in\BT$, alors $\Theta_X[x\leftarrow n]$ se résoud par $\Theta[\Theta(v)\leftarrow n]$.
+   \item Si $\Theta(v)\in\BN$ et $\Theta(v)\notin\textlbrackdbl 0,\ N\textrbrackdbl$ alors l'assignation n'a aucun effet
+   \item Sinon $\Theta(v)\in\BN$ et $\Theta(v)\in\textlbrackdbl 0,\ N\textrbrackdbl$, alors $\Theta_X[x\leftarrow n]$ se résoud par $\Theta[T_{\Theta(v)}\leftarrow n]$.
   \end{itemize}
   \end{itemize}
 \label{sem_store_dynamique_pointeurs}
 \end{defi}
 
 \paragraph{Règles de transition.}
-Les états d'exécution sont de la forme \textlangle$t, \Theta_X$\textrangle\ où $t$ est une adresse ou l'adresse invalide (ou finale) $\bot$. À chaque instruction exécutée, il y a une transition \textlangle$t, \Theta_X$\textrangle$\rightarrow$\textlangle$t', \Theta_X'$\textrangle.\\
+Les états d'exécution sont de la forme \textlangle$t, \Theta_X$\textrangle\ où $t$ est une adresse ou l'adresse invalide (ou finale) $\bot$. 
+À chaque instruction exécutée, il y a une transition \textlangle$t, \Theta_X$\textrangle$\rightarrow$\textlangle$t', \Theta_X'$\textrangle.\\
 Si il y a une suite de transitions amenant d'un état \textlangle$t, \Theta_X$\textrangle\ à l'état \textlangle$t', \Theta_X'$\textrangle, on note \textlangle$t, \Theta$\textrangle$\rightarrow^*$\textlangle$t', \Theta_X'$\textrangle.\\
-Un programme s'arrête en partant de l'état initial \textlangle$ep, \Theta_X$\textrangle\ où \texttt{ep} est son point d'entrée si et seulement si \textlangle$ep, \Theta_X$\textrangle$\rightarrow^*$\textlangle$\bot, \Theta_X'$\textrangle. Le programme dans ce cas s'arrête à la première occurrence d'une adresse finale ou invalide $\bot$.
+Un programme s'arrête en partant de l'état initial \textlangle$ep, \Theta_X$\textrangle\ où \texttt{ep} est son point d'entrée si et seulement si \textlangle$ep, \Theta_X$\textrangle$\rightarrow^*$\textlangle$\bot, \Theta_X'$\textrangle. 
+Le programme dans ce cas s'arrête à la première occurrence d'une adresse finale ou invalide $\bot$.
 
 On définit par la suite la sémantique des instructions atomiques et on étend donc les états d'exécution à celles-ci : on note \textlangle$t:d_1..d_n, \Theta_X$\textrangle\ l'état \textlangle$t, \Theta_X$\textrangle\ sur lequel il y a les instructions atomiques $d_1..d_n$ à évaluer.
-À partir d'un état \textlangle$t, \Theta_X$\textrangle, on commence par déterminer les instructions atomiques à évaluer à l'aide de l'opérateur de désassemblage : on arrive à un état \textlangle$t:D(t), \Theta_X$\textrangle=\textlangle$t:d_1..d_n, \Theta_X$\textrangle\ dans lequel on va pouvoir évaluer les instructions atomiques l'une après l'autre. Une fois que toutes ces instructions ont été évaluées et si aucune d'elle n'a provoqué de saut vers une adresse différente, on passe à l'instruction qui suit séquentiellement à l'adresse $t+D_S(t$\textrangle.
+À partir d'un état \textlangle$t, \Theta_X$\textrangle, on commence par déterminer les instructions atomiques à évaluer à l'aide de l'opérateur de désassemblage : on arrive à un état \textlangle$t:D(t), \Theta_X$\textrangle=\textlangle$t:d_1..d_n, \Theta_X$\textrangle\ dans lequel on va pouvoir évaluer les instructions atomiques l'une après l'autre. 
+Une fois que toutes ces instructions ont été évaluées et si aucune d'elle n'a provoqué de saut vers une adresse différente, on passe à l'instruction qui suit séquentiellement à l'adresse $t+D_S(t$\textrangle.
 
 L'état initial du store est : $\forall v\in\BV, \Theta_X(v)=\bot$ et l'on part du point d'entrée \texttt{ep}. Les règles de transition suivantes permettent d'aboutir à une adresse finale ou invalide $\bot$ si le programme termine.
 
@@ -188,11 +213,11 @@ L'instruction \texttt{sub eax, b} par exemple soustrait l'opérande \texttt{b} �
 Le mnémonique \texttt{sub} désigne une vingtaine de variantes de la soustraction selon la taille des opérandes pris en compte. Elle effectue l'opération \texttt{eax-b} et met à jour les drapeaux CF et OF indiquant un dépassement de valeur entière, le drapeau de signe SF, le drapeau ZF (à 1 si le résultat est nul) et celui de parité PF.
 
 Une instruction assembleur va donc être traduite en une ou plusieurs instructions atomiques dans le langage intermédiaire, que l'on sait équivalentes sémantiquement à l'instruction \xq\ et dont on a une sémantique concrète pour les exécuter.
-Une difficulté pratique vient de la richesse du langage \xq\ : écrire l'équivalence de chacun de ses instructions dans le langage intermédiaire choisi est une tâche longue et prône aux erreurs, notamment lors de l'analyse de la documentation. Pour cette raison nous avons rapidement choisi de nous orienter vers des langages intermédiaire pour lesquels cette étape a déjà été réalisée.
+Une difficulté pratique vient de la richesse du langage \xq\ : écrire l'équivalence de chacun de ses instructions dans le langage intermédiaire choisi est une tâche longue et prône aux erreurs, notamment lors de l'analyse de la documentation. 
+Pour cette raison nous avons rapidement choisi de nous orienter vers des langages intermédiaire pour lesquels cette étape a déjà été réalisée.
 
 \section{Revue de littérature des langages intermédiaires}
-\todo[inline]{BAP: \\
-Jakstab: \\
+\todo[inline]{Jakstab: \\
 TraceSurfer: \\
 Renovo : \\
 LLVM : \\
@@ -201,3 +226,39 @@ TraceSurfer: \\
 Pin : \\
 Xed : \\
 }
+
+
+Parmis les projets de langages intermédiaires existants et fournissant d'une part une transcription depuis l'assembleur et d'autre part une sémantique concrète du langage considéré, nous nous sommes intéressés à BAP \cite{BAP11}. 
+BAP est le successeur du projet BitBlaze qui a défini et développé une plateforme d'analyse statique basée sur le langage intermédiaire Vine IL \cite{bitblaze08}. 
+Sémantiquement le langage intermédiaire défini par BAP ne diffère pas fondamentalement de celui défini dans ce chapitre. 
+Ils définissent également un opérateur permettant de gérer l'adressage indirect : \texttt{load($e_1$, $e_2$, $e_3$, $\tau_{reg}$)} place la valeur de l'expression $e_1$ à l'adresse $e_2$, ainsi \texttt{load($x$, $eax$, $e_3$, $\tau_{reg}$)} effectue l'opération \texttt{$[eax]\leftarrow x$}. 
+Le paramètre $e_3$ a une valeur booléenne indiquant si la machine fonctionne en petit ou grand boutiste et $\tau_{reg}$ indique le nombre d'octets qui doivent être copiés. 
+L'avantage de BAP par rapport au langage présenté précédemment est qu'il est est bien plus proche du langage assembleur : les valeurs des variables ne sont pas dans $\BN$ mais dans $\textlbrackdbl 0,\ 2^{32}-1\textrbrackdbl$, $\textlbrackdbl -2^{31},\ 2^{31}-1\textrbrackdbl$, $\textlbrackdbl 0,\ 2^{64}-1\textrbrackdbl$ ou $\textlbrackdbl -2^{63},\ 2^{63}-1\textrbrackdbl$ selon la machine que l'on cherche à modéliser et le type des variables (signé ou non). 
+De même les fonctions entières sont explicitées et contiennent, entre autres, des opérations binaires comme l'addition, le ``ou'' logique, la comparaison de deux valeurs.
+
+
+\section{Langage intermédiaire et analyse de binaires}
+Un programme sous forme d'instructions dans un langage intermédiaire est plus facile à exploiter qu'un programme assembleur puisqu'on a une sémantique concrète clairement définie et assez compacte.
+C'est donc, comme nous le verrons par la suite\todo{todo}, en général à partir d'une représentation intermédiaire que l'on construit des méthodes d'analyse ou de désassemblage d'un binaire.
+
+\paragraph{Approche globale.} L'approche standard \todo{cite} consiste, à l'instar de la compilation, à transformer l'intégralité du programme assembleur en un programme en langage intermédiaire et à effectuer les analyses sur cette représentation intermédiaire.
+Le souci est qu'elle induit des potentielles pertes d'informations : la représentation d'origine du binaire sous forme d'octets n'est plus accessible dans la représentation intermédiaire.
+\itodo{un graphique, mais après avoir fait celui de l'approche atomique}
+~\\
+
+Pourtant on ne peut pas séparer les instructions de leur représentation en mémoire : si une instruction est codée à l'adresse \adr{a} sur deux octets et que l'octet à l'adresse \adr{a+1} est modifié, cette modification peut être transcrite dans le langage intermédiaire mais il est toujours nécessaire de connaître l'octet à l'adresse \adr{a} pour pouvoir décoder la nouvelle instruction. 
+C'est pourquoi, dans le cas de l'auto-modification, il est nécessaire d'avoir accès à une représentation en mémoire du binaire exécuté lors de son exécution sous forme intermédiaire.
+
+\paragraph{Approche atomique.}
+~\\
+\itodo{binaire <-> IR en permanence}
+\itodo{avoir une représentation du binaire dans la mémoire, donc dans le store !}
+\itodo{un petit graphique ?}
+
+\subsection{Implémentation}
+\paragraph{En C.}
+Nous avons réalisé une implémentation en C de la sémantique concrète de notre langage.
+% Le c\oe ur de l'implémentation 
+
+
+\paragraph{Avec BAP.}

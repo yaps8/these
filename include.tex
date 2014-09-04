@@ -18,7 +18,8 @@
 
 % Si l'on veut produire une version PDF avec des hyperliens :
 % \usepackage[pageanchor=false]{TUL/tulhypref}
-\usepackage[hidelinks, pdftex]{TUL/tulhypref}
+% \usepackage[hidelinks, pdftex]{TUL/tulhypref}
+\usepackage[hidelinks]{TUL/tulhypref}
 % \usepackage[sc]{mathpazo}
 \linespread{1.0}
 % Si on veut le style de bibliographie named :
@@ -46,12 +47,24 @@
 \usepackage[section]{placeins}
 \usepackage{xcolor}
 \usepackage{colortbl}
+
+\usepackage{epstopdf}
+\usepackage{graphicx} % pour insérer des images
+\usepackage{stmaryrd}
+\usepackage{amsfonts}
+% \usepackage{tikz}
+% \usepackage{tikz-qtree}
+% les figure imbriquées
+\usepackage{epsfig}
+
 % \usepackage[math]{iwona} 
 % \usepackage{iwona} 
 % \SetMathAlphabet{\mathtt}{iwona}{OT1}{\ttdefault}{m}{n}
 
 \usepackage[backend=biber, language=french, maxnames=5, citestyle=alphabetic,bibstyle=alphabetic,backref,abbreviate=false,dateabbrev=false,isbn=false,url=false,doi=true]{biblatex}
+% \usepackage[backend=biber, language=french, maxnames=5,backref,abbreviate=false,dateabbrev=false,isbn=false,url=false,doi=true]{biblatex}
 \addbibresource{these.bib}
+
 \input{abbreviations}
 
 \DefineBibliographyStrings{french}{

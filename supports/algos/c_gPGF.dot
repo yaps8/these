@@ -1,0 +1,8 @@
+digraph G{
+"a"
+"b"
+"c"
+"b"->"a" [label="1"]
+"b"->"c" [label="2"]
+"c"->"a" [label="1"]
+}
