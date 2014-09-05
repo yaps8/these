@@ -47,7 +47,7 @@ La principale difficulté lors de l'analyse d'un logiciel malveillant est qu'il 
  Définir une sémantique et une technique d'analyse compatible avec l'auto-modification.
 \end{pb}
 
-En ce sens nous avons repris les sémantiques définies par Reynaud et Calvet \todo{cite} séparant l'exécution d'un programme auto-modifiant en vagues. Chacune des vagues représente une étape d'exécution dans laquelle le programme n'est pas modifié. Cette représentation permet d'analyser chaque vague indépendamment des autres et d'articuler l'analyse d'un programme autour d'une trace d'exécution particulière.
+En ce sens nous avons repris les sémantiques définies par Reynaud \cite{Reynaud2010} et Calvet \cite{Calvet2013} séparant l'exécution d'un programme auto-modifiant en vagues. Chacune des vagues représente une étape d'exécution dans laquelle le programme n'est pas modifié. Cette représentation permet d'analyser chaque vague indépendamment des autres et d'articuler l'analyse d'un programme autour d'une trace d'exécution particulière.
 La contribution de cette thèse réside dans une sémantique et un algorithme permettant une analyse bornée de toutes les traces d'exécution possibles d'un programme. Un émulateur de code \xq\ auto-modifiant a été implémenté : il est capable de reconstruire les vagues de la trace émulée.
 
 Nous avons ensuite cherché à désassembler un programme obscurci. Le but est de déterminer l'ensemble du code atteignable en étant à la fois correct (on doit couvrir tout le code potentiel) et précis (le code désassemblé doit pouvoir être exécuté). 
