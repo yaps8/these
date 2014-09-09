@@ -427,9 +427,8 @@ L'exemple précédent pour \telock\ donne un exemple de découpage cohérent d'u
 
 Nous définirons par la suite plusieurs découpages cohérents en \layers\ et discuterons de leur pertinence et de leurs implémentations.
 
-\subsection{Couches linéaires}
-\itodo{alignement et réalignement}
 
+\subsection{Couches linéaires}
 Une approche naturelle des \layers\ consiste à construire une première \layer\ par parcours linéaire à partir du début de la section de code du binaire.
 Cette première \layer\ contient exactement les instructions qu'un désassembleur par parcours linéaire aurait détecté.
 Les \layers\ suivantes seront construites également par parcours linéaire, à partir de chaque adresse du binaire.
@@ -445,14 +444,28 @@ Nous souhaitons obtenir un découpage cohérent des \layers\ sous forme d'ensemb
 Il suffit alors d'enlever des \layers\ les instructions existant déjà dans les \layers\ inférieures (colorées en gris sur la figure \ref{fig:telock-layers-linear}) et de ne garder que les \layers\ contenant des instructions valides.
 Au final il reste les deux \layers\ donnés précédemment à la figure \ref{fig:telock-layers-simple}, obtenus linéairement.
 
-\itodo{cas de plusieurs segments}
+\paragraph{Binaire composé de plusieurs segments.}
+On peut étendre la définition précédente applicable à un segment d'octets à un binaire composé de plusieurs segments de code disjoints.
+L'extension consiste à simplement à réaliser un découpage cohérent pour chaque segment puis à les réunir au sein d'un seul découpage par une union des \layers\ qui les composent, lui aussi cohérent puisque les segments sont deux à deux disjoints.
 
 \paragraph{Couches linéaires et désassemblage.}
 % Les \layers\ linéaires sont en fait une extension du désassemblage linéaire. Un programme non obscurcis peut être désassemblé avec un minimum d'erreurs par un parcours linéaire représenté.
 Le découpage en \layers\ linéaires n'est pas un algorithme de désassemblage.
 On peut voir ce découpage comme une caractéristique du binaire qui contient l'ensemble des instructions potentiellement exécutées (hors auto-modification) et qui dépend de leur agencement en mémoire.
 
-\itodo{il reste à désassembler}
+
+\paragraph{Caractérisations des binaires obscurcis.}
+Considérons un programme et son graphe de flot de contrôle parfait \todo{def}.
+Si chaque instruction du graphe de flot de contrôle, présente dans le segment $s$, fait partie de la première \layer\ du découpage linéaire du programme, il est clair qu'il n'y a pas de chevauchement de code possible.
+En pratique c'est le cas la plupart du temps avec des binaires non obscurcis\todo{vrai?}.
+L'inverse n'est par contre pas vrai puisque deux instructions peuvent ne pas être alignées à cause d'un ajout de code mort (voir chapitre \ref{chap:obscurcissement}) sans qu'il n'y ait de chevauchement de code dans le graphe de flot.
+
+Lors du désassemblage d'un binaire plusieurs métriques peuvent être observées.
+On peut d'une part observer combien de \layers\ différents sont utilisées : chaque \layer, en dehors de la première de chaque segment, atteste du départ d'un chemin désaligné avec le chemin principal.
+D'autre part on peut compter le nombre de sauts d'une instruction d'une \layer\ vers une instruction désalignée d'une autre \layer. Dans le cas de \telock, le saut depuis l'instruction \texttt{dec ecx} à l'adresse \adr{0x01006e7e} vers l'instruction \texttt{jg 0x1006e68} à l'adresse \adr{0x01006e80}
+
+\paragraph{Métriques pour le chevauchement de code.}
+
 \itodo{métrique / paramêtres intéressants ?}
 
 \begin{figure}
