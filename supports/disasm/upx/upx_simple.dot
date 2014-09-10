@@ -1,0 +1,12 @@
+digraph G {
+labeljust=r
+"0xb" [labeljust=r,label="3", shape=box, style="filled", fillcolor=white]
+"0x0" [label="1", shape=box, style="bold, filled", fillcolor="orange"]
+"0x4" [labeljust=r,label="2", shape=box, style="filled", fillcolor=white]
+"0xf" [labeljust=r,label="4", shape=box, style="filled", fillcolor=lightblue]
+"0xb" -> "0x4" [style=dotted,arrowhead=none,color=black]
+"0xb" -> "0xf" [color=black]
+"0x0" -> "0xb" [color=red]
+"0x0" -> "0x4" [color=black]
+"0x4" -> "0xf" [color=black]
+}

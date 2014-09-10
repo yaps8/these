@@ -428,7 +428,7 @@ L'exemple précédent pour \telock\ donne un exemple de découpage cohérent d'u
 Nous définirons par la suite plusieurs découpages cohérents en \layers\ et discuterons de leur pertinence et de leurs implémentations.
 
 
-\subsection{Couches linéaires}
+\subsection{\Layers\ linéaires}
 Une approche naturelle des \layers\ consiste à construire une première \layer\ par parcours linéaire à partir du début de la section de code du binaire.
 Cette première \layer\ contient exactement les instructions qu'un désassembleur par parcours linéaire aurait détecté.
 Les \layers\ suivantes seront construites également par parcours linéaire, à partir de chaque adresse du binaire.
@@ -442,31 +442,29 @@ Cette propriété n'est évidemment pas vérifiée si les instructions ont été
 
 Nous souhaitons obtenir un découpage cohérent des \layers\ sous forme d'ensemble deux à deux disjoints.
 Il suffit alors d'enlever des \layers\ les instructions existant déjà dans les \layers\ inférieures (colorées en gris sur la figure \ref{fig:telock-layers-linear}) et de ne garder que les \layers\ contenant des instructions valides.
-Au final il reste les deux \layers\ donnés précédemment à la figure \ref{fig:telock-layers-simple}, obtenus linéairement.
+Au final il reste les deux \layers\ données précédemment à la figure \ref{fig:telock-layers-simple}, obtenus linéairement.
 
 \paragraph{Binaire composé de plusieurs segments.}
 On peut étendre la définition précédente applicable à un segment d'octets à un binaire composé de plusieurs segments de code disjoints.
 L'extension consiste à simplement à réaliser un découpage cohérent pour chaque segment puis à les réunir au sein d'un seul découpage par une union des \layers\ qui les composent, lui aussi cohérent puisque les segments sont deux à deux disjoints.
 
-\paragraph{Couches linéaires et désassemblage.}
+\paragraph{\Layers\ linéaires et désassemblage.}
 % Les \layers\ linéaires sont en fait une extension du désassemblage linéaire. Un programme non obscurcis peut être désassemblé avec un minimum d'erreurs par un parcours linéaire représenté.
 Le découpage en \layers\ linéaires n'est pas un algorithme de désassemblage.
 On peut voir ce découpage comme une caractéristique du binaire qui contient l'ensemble des instructions potentiellement exécutées (hors auto-modification) et qui dépend de leur agencement en mémoire.
 
 
 \paragraph{Caractérisations des binaires obscurcis.}
-Considérons un programme et son graphe de flot de contrôle parfait \todo{def}.
+Considérons un programme désassemblé en son graphe de flot de contrôle parfait \todo{def}.
 Si chaque instruction du graphe de flot de contrôle, présente dans le segment $s$, fait partie de la première \layer\ du découpage linéaire du programme, il est clair qu'il n'y a pas de chevauchement de code possible.
 En pratique c'est le cas la plupart du temps avec des binaires non obscurcis\todo{vrai?}.
 L'inverse n'est par contre pas vrai puisque deux instructions peuvent ne pas être alignées à cause d'un ajout de code mort (voir chapitre \ref{chap:obscurcissement}) sans qu'il n'y ait de chevauchement de code dans le graphe de flot.
 
 Lors du désassemblage d'un binaire plusieurs métriques peuvent être observées.
 On peut d'une part observer combien de \layers\ différents sont utilisées : chaque \layer, en dehors de la première de chaque segment, atteste du départ d'un chemin désaligné avec le chemin principal.
-D'autre part on peut compter le nombre de sauts d'une instruction d'une \layer\ vers une instruction désalignée d'une autre \layer. Dans le cas de \telock, le saut depuis l'instruction \texttt{dec ecx} à l'adresse \adr{0x01006e7e} vers l'instruction \texttt{jg 0x1006e68} à l'adresse \adr{0x01006e80}
+D'autre part on peut compter le nombre de sauts d'une instruction d'une \layer\ vers une instruction désalignée d'une autre \layer. Dans le cas de \telock, le saut depuis l'instruction \texttt{dec ecx} à l'adresse \adr{0x01006e7e} vers l'instruction \texttt{jg 0x1006e68} à l'adresse \adr{0x01006e80}, bien qu'il provoque un changement de \layer, n'est pas désaligné. Le nombre de ces sauts de désalignement atteste de la prévalence des chemins représentés par chaque \layer.
 
-\paragraph{Métriques pour le chevauchement de code.}
-
-\itodo{métrique / paramêtres intéressants ?}
+\itodo{rapport à un désassemblage linéaire}
 
 \begin{figure}
 \begin{center}
@@ -508,10 +506,85 @@ Octets & eb & ff & c9 & 7f & e6\\
 % % \\
 % \end{tabular}
 % \end{center}
-% \caption{Layers of a subset of the UPX code segment}
+% \caption{Layers of a subset of the UPX code segchevment}
 % \label{fig:upx-layers-recursive}
 % \end{figure}
 
-\subsection{Couches récursives}
+\subsection{\Layers\ désassemblées}
+Une autre approche consiste à construire des \layers\ de code au fur et à mesure du désassemblage du binaire.
+Un désassemblage parfait de l'extrait de \telock\ précédent (figure \ref{fig:telock-layers-simple}) à partir du point d'entrée \adr{0x1006e7d} contient exactement les trois instructions \texttt{jmp +1}, \texttt{dec ecx}, \texttt{jg 0x1006e68}. La première instruction va provoquer la création d'une première \layer, la second étant en chevauchement avec la première, elle ne peut être placée que dans une nouvelle \layer. La dernière instruction peut être placée dans n'importe laquelle des deux \layers\ existantes, on la placera, arbitrairement, dans la première \layer. Un tel découpage est donné en figure \ref{fig:telock-layers-rec}.
+
+\begin{figure}
+\begin{center}
+\begin{tabular}{|l|c|c|c|c|c|}
+\hline
+Adresses & 0x01006e7d & 0x01006e7e & 0x01006e7f & 0x01006e80 & 0x01006e81\\
+\hline
+Octets & eb & ff & c9 & 7f & e6\\
+\hline
+\Layer\ 1 & \multicolumn{2}{c|}{jmp +1} & \cnoir & \multicolumn{2}{c|}{jg 0x1006e68}\\
+\hline
+\Layer\ 2 & \cnoir & \multicolumn{2}{c|}{dec ecx} & \multicolumn{2}{c|}{\cnoir} \\
+ \hline
+% \\
+\end{tabular}
+\end{center}
+\caption{Découpage cohérent et récursif en \layers\ de l'extrait de \telock}
+\label{fig:telock-layers-rec}
+\end{figure}
+
+% Nous allons définir un algorithme de découpage cohérent en \layers\ lors d'un désassemblage récursif qui sera repris dans notre proposition de désassembleur. Nous tenterons \todo{ahah} de prouver quelques propriétés sur le découpage qui en résulte.
+
+L'algorithme \ref{algo:ajout_inst_layers} explicite le choix fait lors de l'insertion d'une instruction dans un découpage cohérent existant : on choisit simplement la première \layer\ dont les instructions ne chevauchent pas l'instruction à ajouter. La création d'une nouvelle \layer\ peut être nécessaire.
+
+\begin{algorithm}[H] %or another one check
+\caption{Ajout d'une instruction à un découpage cohérent en \layers}
+\SetAlgoLined
+\KwIn{Un découpage cohérent $C$ en $n$ \layers\ $L_i$, une instruction $D$}
+\KwResult{Un découpage cohérent contenant l'instruction $D$}
+\SetKwProg{Fn}{}{}{}
+\SetKwFunction{FRecurs}{ajoutInstruction}
+\Fn(
+% \tcc*[h]{C : matrice des associations possibles, i : numéro du prochain sommet de P à associer, F : liste des couples d'associations déjà faites}
+){\FRecurs{C, D}}{
+\eIf {l'instruction D n'est pas comprise dans C} {
+  \For {$i$ de $1$ à $n$}{
+    \If {$\forall$ instruction $D'\in L_i$, D et D' ne se chevauchent pas}{
+      $L_i\leftarrow L_i\cup \{D\}$\\
+      \Return $C$
+    }
+  }
+  $L_{n+1}\leftarrow\ \{D\}$ \\
+  $C\leftarrow C\cup\{L_{n+1}\}$ \\
+  \Return $C$
+}
+{
+  \Return $C$
+}
+}
+\label{algo:ajout_inst_layers}
+\end{algorithm}
+
+\paragraph{Unicité du découpage pour un parcours récursif.}
+La technique de désassemblage que nous proposons est basée sur un parcours récursif. Il est à noter qu'avec ce type de parcours les \layers\ obtenus en applicant l'algorithme précédent dépendent de l'ordre dans lequel les fils de chaque sommet sont explorés. La figure illustre ce problème.
+
+Reprenons un graphe de flot simplifié de l'échantillon d'UPX donné au chapitre \ref{chap:obscurcissements}, donné en figure \ref{fig:upx_cfg_simple}. Le sommet 1 est le point d'entrée, le sommet 4 le point d'arrêt et les instructions aux sommets 2 et 3 se chevauchent. Le sommet 1 a deux fils : le sommet 2 qui est accessible séquentiellement (les instructions se suivent) et le sommet 3 qui est la cible d'un saut.
+
+Le découpage sera composé de deux \layers\ dans tous les cas mais si l'on parcourt d'abord le sommet 2 alors les deux \layers\ sont $L_1=\{1, 2, 4\}$ et $L_2=\{3\}$. Au contraire si l'on choisit de d'abord parcourir le sommet 3, les \layers\ sont $L_1=\{1, 3, 4\}$ et $L_2=\{2\}$.
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=0.2\textwidth]{supports/disasm/upx/upx_simple.pdf}
+\end{center}
+\caption{Graphe de flot de contrôle de l'échantillon d'UPX}
+\label{fig:upx_cfg_simple}
+\end{figure}
+
+\paragraph{Borne du nombre de \layers.}
+
+
+
+
+
 
 \section{Codisasm}
