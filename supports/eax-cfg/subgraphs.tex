@@ -1,0 +1,152 @@
+\documentclass{article}
+\usepackage[x11names, rgb]{xcolor}
+\usepackage[utf8]{inputenc}
+\usepackage{tikz}
+\usetikzlibrary{snakes,arrows,shapes}
+\usepackage{amsmath}
+%
+%
+
+%
+
+\usetikzlibrary{patterns}%
+
+\begin{document}
+\pagestyle{empty}
+%
+%
+%
+
+\enlargethispage{100cm}
+% Start of code
+% \begin{tikzpicture}[anchor=mid,>=latex',line join=bevel,]
+\begin{tikzpicture}[>=latex',line join=bevel,]
+  \pgfsetlinewidth{1bp}
+%%
+\begin{scope}
+  \pgfsetstrokecolor{black}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw [pattern color=red,pattern=bricks,rounded corners] (8bp,96bp) -- (8bp,252bp) -- (145bp,252bp) -- (145bp,96bp) -- cycle;
+\end{scope}
+\begin{scope}
+  \pgfsetstrokecolor{black}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw [snake=snake,fill=green!20] (196bp,8bp) -- (196bp,164bp) -- (333bp,164bp) -- (333bp,8bp) -- cycle;
+\end{scope}
+\begin{scope}
+  \pgfsetstrokecolor{black}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw [rounded corners,shade] (341bp,8bp) -- (341bp,164bp) -- (478bp,164bp) -- (478bp,8bp) -- cycle;
+\end{scope}
+  \pgfsetcolor{black}
+  % Edge: x_2 -> y_2
+  \draw [->] (375bp,103.66bp) .. controls (375bp,95.772bp) and (375bp,86.921bp)  .. (375bp,68.454bp);
+  % Edge: a -> x_0
+  \draw [->] (250.79bp,288.89bp) .. controls (226.53bp,276.76bp) and (176.53bp,251.77bp)  .. (134.1bp,230.55bp);
+  % Edge: b -> c
+  \draw [->] (251.09bp,209.22bp) .. controls (235.38bp,199.94bp) and (209.71bp,183.25bp)  .. (192bp,164bp) .. controls (189.17bp,160.93bp) and (186.54bp,157.39bp)  .. (178.86bp,145.01bp);
+  % Edge: x_2 -> z_2
+  \draw [->] (391.24bp,109.05bp) .. controls (400.64bp,97.494bp) and (412.62bp,82.778bp)  .. (429.33bp,62.247bp);
+  % Edge: x_0 -> y_0
+  \draw [->] (94.997bp,197.05bp) .. controls (85.852bp,185.66bp) and (74.247bp,171.19bp)  .. (57.917bp,150.84bp);
+  % Edge: c -> z_1
+  \draw [->] (179.79bp,115.71bp) .. controls (183.41bp,109.64bp) and (187.83bp,102.4bp)  .. (192bp,96bp) .. controls (197.26bp,87.92bp) and (203.16bp,79.293bp)  .. (214.46bp,63.176bp);
+  % Edge: a -> z_2
+  \draw [->] (278.47bp,287.55bp) .. controls (307.12bp,268.89bp) and (374.37bp,221.22bp)  .. (410bp,164bp) .. controls (426.56bp,137.41bp) and (435.55bp,102.68bp)  .. (441.96bp,67.324bp);
+  % Edge: b -> x_2
+  \draw [->] (277.98bp,207.92bp) .. controls (292.58bp,197.6bp) and (316.88bp,180.1bp)  .. (337bp,164bp) .. controls (340.63bp,161.1bp) and (344.39bp,157.98bp)  .. (355.92bp,148.09bp);
+  % Edge: x_1 -> y_1
+  \draw [->,->>] (274.29bp,105.5bp) .. controls (277.89bp,96.399bp) and (282.07bp,85.819bp)  .. (289.72bp,66.471bp);
+  % Edge: x_1 -> z_1
+  \draw [->,->>] (255.16bp,105.5bp) .. controls (251.25bp,96.154bp) and (246.68bp,85.247bp)  .. (238.58bp,65.877bp);
+  % Edge: a -> b
+  \draw [->] (265bp,280.42bp) .. controls (265bp,270.12bp) and (265bp,256.39bp)  .. (265bp,234.3bp);
+  % Edge: b -> x_1
+  \draw [->] (265bp,201.62bp) .. controls (265bp,191.81bp) and (265bp,178.67bp)  .. (265bp,156.36bp);
+  % Edge: x_0 -> z_0
+  \draw [->] (111.29bp,191.66bp) .. controls (111.39bp,183.56bp) and (111.49bp,174.45bp)  .. (111.71bp,155.57bp);
+  % Node: z_0
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (112bp,130bp) node {$z_0$};
+\end{scope}
+  % Node: z_1
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (229bp,42bp) node {$z_1$};
+\end{scope}
+  % Node: z_2
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (445bp,42bp) node {$z_2$};
+\end{scope}
+  % Node: b
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (265bp,218bp) node {$b$};
+\end{scope}
+  % Node: c
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (172bp,130bp) node {$c$};
+\end{scope}
+  % Node: y_2
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (375bp,42bp) node {$y_2$};
+\end{scope}
+  % Node: y_1
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (299bp,42bp) node {$y_1$};
+\end{scope}
+  % Node: y_0
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (42bp,130bp) node {$y_0$};
+\end{scope}
+  % Node: x_2
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (375bp,130bp) node {$x_2$};
+\end{scope}
+  % Node: a
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (265bp,297bp) node {$a$};
+\end{scope}
+  % Node: x_0
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (111bp,218bp) node {$x_0$};
+\end{scope}
+  % Node: x_1
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \draw (265bp,130bp) node {$x_1$};
+\end{scope}
+%
+\end{tikzpicture}
+% End of code
+
+%
+\end{document}
+%
+
+
+

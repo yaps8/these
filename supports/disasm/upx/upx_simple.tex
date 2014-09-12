@@ -1,0 +1,56 @@
+
+\begin{tikzpicture}[>=latex,line join=bevel,]
+  \pgfsetlinewidth{1bp}
+%%
+\pgfsetcolor{black}
+  % Edge: 0xb -> 0xf
+  \draw [->] (78.623bp,143.87bp) .. controls (73.829bp,119.56bp) and (65.007bp,74.819bp)  .. (57.389bp,36.189bp);
+  % Edge: 0x0 -> 0xb
+  \pgfsetcolor{red}
+  \draw [->] (60.921bp,215.7bp) .. controls (64.075bp,207.81bp) and (67.878bp,198.3bp)  .. (75.158bp,180.1bp);
+  % Edge: 0x0 -> 0x4
+  \pgfsetcolor{black}
+  \draw [->] (50.743bp,215.87bp) .. controls (46.142bp,191.67bp) and (37.688bp,147.21bp)  .. (30.268bp,108.19bp);
+  % Edge: 0x4 -> 0xf
+  \draw [->] (33.674bp,71.697bp) .. controls (36.715bp,63.813bp) and (40.383bp,54.304bp)  .. (47.403bp,36.104bp);
+  % Edge: 0xb -> 0x4
+  \draw [dotted] (68.404bp,143.7bp) .. controls (59.879bp,132.85bp) and (48.935bp,118.92bp)  .. (40.439bp,108.1bp);
+  % Node: 0xb
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \definecolor{fillcol}{rgb}{1.0,1.0,1.0};
+  \pgfsetfillcolor{fillcol}
+  \filldraw (109.0bp,180.0bp) -- (55.0bp,180.0bp) -- (55.0bp,144.0bp) -- (109.0bp,144.0bp) -- cycle;
+  \draw (82.0bp,162.0bp) node {3};
+\end{scope}
+  % Node: 0x0
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \definecolor{fillcol}{rgb}{1.0,0.65,0.0};
+  \pgfsetfillcolor{fillcol}
+  \filldraw [very thick] (81.0bp,252.0bp) -- (27.0bp,252.0bp) -- (27.0bp,216.0bp) -- (81.0bp,216.0bp) -- cycle;
+  \draw (54.0bp,234.0bp) node {1};
+\end{scope}
+  % Node: 0xf
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \definecolor{fillcol}{rgb}{0.68,0.85,0.9};
+  \pgfsetfillcolor{fillcol}
+  \filldraw (81.0bp,36.0bp) -- (27.0bp,36.0bp) -- (27.0bp,0.0bp) -- (81.0bp,0.0bp) -- cycle;
+  \draw (54.0bp,18.0bp) node {4};
+\end{scope}
+  % Node: 0x4
+\begin{scope}
+  \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
+  \pgfsetstrokecolor{strokecol}
+  \definecolor{fillcol}{rgb}{1.0,1.0,1.0};
+  \pgfsetfillcolor{fillcol}
+  \filldraw (54.0bp,108.0bp) -- (0.0bp,108.0bp) -- (0.0bp,72.0bp) -- (54.0bp,72.0bp) -- cycle;
+  \draw (27.0bp,90.0bp) node {2};
+\end{scope}
+%
+\end{tikzpicture}
+
