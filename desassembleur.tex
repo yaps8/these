@@ -365,15 +365,40 @@ TraceSurfer: (outil de daniel)\\
 Renovo : \\
 LLVM : (pk ne pas l'utiliser??) \\
 Implem en C: \\
-Pin : \\
 Xed : \\
 }
 
-Plusieurs choix s'offrent à qui cherche à implémenter un système d'analyse dynamique de binaire.
+Plusieurs choix s'offrent à qui cherche à implémenter un système d'analyse dynamique de binaire tels l'émulation, l'instrumentation et le déboguage
+
+L'émulation consiste à lancer l'exécution dans un environnement d'exécution simulé, qui peut être un système d'exploitation complet comme c'est le cas avec TEMU\todo{cite}, le module d'analyse dynamique du projet BAP\todo{?}/BitBlaze, basé sur l'émulateur QEMU\todo{cite}.
+
+Instrumenter un binaire consiste \todo{synomyme?} à l'exécuter en y insérant, généralement au cours de son exécution, du code assembleur servant à son analyse. Intel développe PinTools \cite{pintools} pour l'analyse des programmes tournant sur un de leurs processeurs.
+
+Enfin le déboguage suit pas à pas l'exécution d'un programme en utilisant le drapeau Trap \todo{?} permettant de reprendre la main après chaque instruction du programme débogué afin d'examiner son environnement d'exécution.
+\\
+
+Le déboguage comme l'instrumentation n'utilisent pas de langage intermédiaire tandis qu'un émulateur tel que BAP transcrit d'abord les instructions dans son langage intermédiaire pour les exécuter avec la sémantique concrète du langage intermédiaire.
+L'émulation est donc intéressante parce qu'à aucun moment le programme analysé n'a un accès libre au système sur lequel il s'exécute.
+La limitation est donc que les interactions du programme émulé avec le système d'exploitation visé sont restreintes.
+En particulier les appels systèmes, qui ne sont pas transcrits par BAP, ne peuvent pas être émulés directement, rendant l'analyse très partielle.
+Les approches nécessitant une exécution non restreinte sur le système sont alors réalisées au sein d'une machine virtuelle.
+
+Une caractéristique cruciale d'un analyseur dynamique est qu'il doit être transparent : le programme analysé ne doit pas être capable de différencier son exécution dans l'analyseur de son exécution sur un système réel.
+Cette transparence est en général partielle, que ce soit avec un émulateur, un débogueur ou une technique d'instrumentation.
+
+L'instrumentation, par rapport au déboguage, offre des performances temporelles d'exécution bien supérieures.
+Pour ces raisons, nous nous sommes intéressés à l'émulation comme à l'instrumentation.
+\\
+
+L'émulation permet une analyse plus abstraite et nous avons développé un analyseur partiel de programmes auto-modifiants basé sur BAP.
+L'instrumentation permet d'exécuter plus fidèlement le programme à analyser, nous avons donc principalement favorisé cette approche pour l'analyse de programmes malveillants. Nous avons choisi Pin qui, sans fournir de sémantique concrète pour l'assembleur, permet d'obtenir d'une instruction dynamique l'ensemble des adresses sur lesquelles elle écrit, comme souhaité à la définition \ref{def:ensembles_inst_dyn}.
+
 
 
 % \subsection{Revue de littérature}
 \subsection{Émulation avec BAP}
+
+
 \subsection{Instrumentation avec Pin}
 
 

@@ -2,6 +2,7 @@ subdirs := $(wildcard */) $(wildcard */*/) $(wildcard */*/*/)
 all_dot := $(wildcard $(addsuffix *.dot,$(subdirs)))
 #all_pdf := $(wildcard $(addsuffix *.dot,$(subdirs)))
 pdf_from_dot := $(patsubst %.dot,%.pdf,$(all_dot))
+tex_from_dot := $(patsubst %.dot,%.tex,$(all_dot))
 #low_from_pdf := $(patsubst %.pdf,%_low.pdf,$(sources))
 #$(info $$var is [${subdirs}])
 #$(info $$var is [${sources}])
@@ -10,7 +11,7 @@ TEXCOMP = latexmk -pdf
 
 
 #default: $(pdf_from_dot) these.bbl these.pdf
-default: $(pdf_from_dot) these.pdf
+default: $(pdf_from_dot) $(tex_from_dot) these.pdf
 
 all: default chap.pdf
 
@@ -35,6 +36,9 @@ clean:
 
 %.pdf: %.dot
 	dot -Tpdf $< -o $@
+
+%.tex: %.dot
+	dot2tex -e utf8 --figonly --usepdflatex --autosize $< > $@
 
 #%_low.pdf: %.pdf
 #	dot -Tpdf $< -o $@
