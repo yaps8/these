@@ -241,20 +241,56 @@ De même les fonctions entières sont explicitées et contiennent, entre autres,
 Un programme sous forme d'instructions dans un langage intermédiaire est plus facile à exploiter qu'un programme assembleur puisqu'on a une sémantique concrète clairement définie et assez compacte.
 C'est donc, comme nous le verrons par la suite\todo{todo}, en général à partir d'une représentation intermédiaire que l'on construit des méthodes d'analyse ou de désassemblage d'un binaire.
 
-\paragraph{Approche globale.} L'approche standard \todo{cite} consiste, à l'instar de la compilation, à transformer l'intégralité du programme assembleur en un programme en langage intermédiaire et à effectuer les analyses sur cette représentation intermédiaire.
-Le souci est qu'elle induit des potentielles pertes d'informations : la représentation d'origine du binaire sous forme d'octets n'est plus accessible dans la représentation intermédiaire.
+\paragraph{Approche globale.}
+L'approche standard \todo{cite} consiste, à l'instar de la compilation, à transformer l'intégralité du programme assembleur en un programme en langage intermédiaire et à effectuer les analyses sur cette représentation intermédiaire.
 Cette approche est illustrée par le graphique suivant. La partie d'analyse consiste en l'exécution ou l'émulation du programme dans son langage intermédiaire en partant du point d'entrée. Une première instruction est décodée, analysée et ajoutée dans le graphe de flot de contrôle du programme. Puis cette instruction est évaluée selon la méthode d'évaluation sémantique précédemment définie. Cette évaluation a des conséquence sur l'état interne du processeur et de la mémoire de la machine réelle ou virtuelle (selon si l'analyse est réalisée par exécution\todo{exécution ? alors qu'on ne parle que d'émulation/store ?} ou émulation). L'instruction qui doit être exécutée ensuite est cette présente à l'adresse donnée par le registre d'exécution (\eip\ en assembleur \xq). On récupère alors cette instruction pour l'analyser à son tour.
-
-\itodo{un graphique, mais après avoir fait celui de l'approche atomique}
+\missingfigure{schéma bloc}
 ~\\
 
-Pourtant on ne peut pas séparer les instructions de leur représentation en mémoire : si une instruction est codée à l'adresse \adr{a} sur deux octets et que l'octet à l'adresse \adr{a+1} est modifié, cette modification peut être transcrite dans le langage intermédiaire mais il est toujours nécessaire de connaître l'octet à l'adresse \adr{a} pour pouvoir décoder la nouvelle instruction. 
-C'est pourquoi, dans le cas de l'auto-modification, il est nécessaire d'avoir accès à une représentation en mémoire du binaire exécuté lors de son exécution sous forme intermédiaire.
+Le souci de cette approche est qu'elle induit des potentielles pertes d'informations : la représentation d'origine du binaire sous forme d'octets n'est plus accessible dans la représentation intermédiaire.
+Pourtant on ne peut pas séparer les instructions de leur représentation en mémoire : si une instruction est codée à l'adresse \adr{a} sur deux octets et que l'octet à l'adresse \adr{a+1} est modifié, cette modification peut être transcrite dans le langage intermédiaire mais il est toujours nécessaire de connaître l'octet à l'adresse \adr{a} pour pouvoir décoder la nouvelle instruction.
+
+La figure \ref{fig:prg_asm_li} donne un exemple de ce cas. Le segment de code donné est constitué de trois instructions dont l'une modifie la valeur du registre \edi. Supposons que le but de l'analyse est de connaître la valeur de \edi\ à l'issue de l'exécution. Les deux premières instructions servent à modifier le second octet de l'instruction modifiant \edi\ de \texttt{01} à \texttt{02} transformant cette instruction en \texttt{mov edi, 2}. L'approche globale de la transcription du programme dans le langage intermédiaire, bien que chaque instruction assembleur soit sémantiquement équivalente aux instructions transcrites, résulte en un programme qui n'est pas auto-modifiant. Il est composé des quatre instructions de la dernière colonne du tableau. Les trois premières écrivent la valeur 2 en mémoire à l'adresse \adr{0x804806c} et la dernière, indépendante, attribue la valeur 1 au registre \edi. Ainsi l'analyse conclurait, à tort, que l'exécution du segment de code assembleur d'origine attribue 1 à \edi, au lieu de 2.
+
+Ainsi, pour pouvoir utiliser ce langage intermédiaire dans le cas d'un programme auto-modifiant, il est nécessaire d'avoir accès à une représentation en mémoire du binaire exécuté lors de son exécution sous forme intermédiaire.
+
+\begin{figure}
+\begin{center}
+\begin{tabular}[b]{|l|l|l|l|}
+\hline
+Adresse & Octets & Instruction ASM & Transcription en LI\\ 
+\hline
+ 8048060  &  b8 6b 80 04 08         &  mov    eax,0x804806b & eax $\leftarrow$ 0x804806b\\
+ 8048065  &  66 c7 40 01 02 00      &  mov    [eax+1], 2 & tmp $\leftarrow$ addition(eax, 1)\\
+          &                         &                                & [tmp] $\leftarrow$ 2 \\
+ 804806b  &  bf 01 00 00 00         &  mov    edi, 1 & edi $\leftarrow$ 1 \\
+\hline
+\end{tabular}
+\end{center}
+\caption{Programme assembleur et sa transcription dans le langage intermédiaire}
+\label{fig:prg_asm_li}
+\end{figure}
+
+% \begin{figure}
+% \begin{tabular}[b]{|l|l|l|}
+% \hline
+% Adresse & Octets & Instruction\\ 
+% \hline
+%  8048060  &  b8 6b 80 04 08         &  mov    eax,0x804806b \\
+%  8048065  &  66 c7 40 01 02 00      &  mov    WORD PTR [eax+0x1],0x2 \\
+%  804806b  &  bf 01 00 00 00         &  mov    edi,0x1 \\
+%  8048070  &  c3                     &  ret     \\
+% \hline
+% \end{tabular}
+% \caption{Programme transcrit dans le langage intermédiaire}
+% \label{fig:prg_li}
+% \end{figure}
+
+
 
 \paragraph{Approche atomique.}
-~\\
 En pratique nous souhaitons donc avoir accès à la représentation sous forme binaire du programme intial. Nous allons donc commencer par le charger en mémoire comme une partie intégrante de l'état interne de la machine. C'est le comportement attendu d'une machine de Harvard modifiée \todo{von neumann?} et le comportement du programme peut donc être auto-modifiant. Le décodage, le désassemblage puis la transformation en langage intermédiaire et l'évaluation sémantique des instructions du programme se feront donc au fur et à mesure de l'analyse, une instruction à la fois, depuis l'état de la mémoire. Ce modèle est illustré par le diagramme suivant.
-
+\missingfigure{schéma bloc}
 
 Au c\oe ur de cette architecture se trouvent deux opérateurs. Le premier est l'opérateur de désassemblage capable de transformer des octets présents à une certaines adresse mémoire en une liste d'instructions dans le langage intermédiaire, équivalentes sémantiquement à l'instruction assembleur codée sur ces octets.
 Le second est l'opérateur d'évaluation sémantique qui modifie l'état interne de la machine selon l'instruction dans le langage intermédiaire donnée en entrée.

@@ -5,8 +5,8 @@ Dans ce chapitre et dans un premier temps, nous proposons une preuve du caractè
 \paragraph{Difficulté théorique du désassemblage.}
 ~\\
 \idone{Pb de l'arrêt: il existe HALT / pour tout P,I : HALT(P,I) = 1 ssi P(I) termine}
-\itodo{Pb du désassemblage : borne min : intersection de CODE(P,I), borne max : union}
-\itodo{borne min ~ arrêt ?}
+\imore{Pb du désassemblage : borne min : intersection de CODE(P,I), borne max : union}
+\imore{borne min ~ arrêt ?}
 % On a vu que le problème du désassemblage tient dans la difficulté de séparer les parties de code potentiel des parties de données.
 Si on cherche à séparer le code des données alors le but du désassemblage d'un programme P est de résoudre le problème suivant. On se limite dans un premier temps à un programme P de taille finie et non auto-modifiant.
 \begin{pb}
@@ -358,7 +358,7 @@ $T\leftarrow T\cup\{(i, D_i, X)\}$\\
 \end{rem}
 
 \subsection{Implémentations}
-\todo[inline]{émulation VS instrumentation VS déboguage}
+\todo[inline]{émulation VS instrumentation VS débogage}
 \todo[inline]{BAP: \\
 Jakstab: \\
 TraceSurfer: (outil de daniel)\\
@@ -368,16 +368,16 @@ Implem en C: \\
 Xed : \\
 }
 
-Plusieurs choix s'offrent à qui cherche à implémenter un système d'analyse dynamique de binaire tels l'émulation, l'instrumentation et le déboguage
+Plusieurs choix s'offrent à qui cherche à implémenter un système d'analyse dynamique de binaire tels l'émulation, l'instrumentation et le débogage
 
-L'émulation consiste à lancer l'exécution dans un environnement d'exécution simulé, qui peut être un système d'exploitation complet comme c'est le cas avec TEMU\todo{cite}, le module d'analyse dynamique du projet BAP\todo{?}/BitBlaze, basé sur l'émulateur QEMU\todo{cite}.
+L'émulation consiste à lancer l'exécution dans un environnement d'exécution simulé, qui peut être un système d'exploitation complet comme c'est le cas avec TEMU, le module d'analyse dynamique du projet BitBlaze BAP \cite{bitblaze08}, basé sur l'émulateur QEMU \cite{QEMU05}.
 
-Instrumenter un binaire consiste \todo{synomyme?} à l'exécuter en y insérant, généralement au cours de son exécution, du code assembleur servant à son analyse. Intel développe PinTools \cite{pintools} pour l'analyse des programmes tournant sur un de leurs processeurs.
+On instrumente un binaire exécuté en y insérant, généralement au cours de son exécution, du code assembleur servant à son analyse. Intel développe PinTools \cite{pintools} pour l'analyse de programmes tournant sur leurs processeurs.
 
-Enfin le déboguage suit pas à pas l'exécution d'un programme en utilisant le drapeau Trap \todo{?} permettant de reprendre la main après chaque instruction du programme débogué afin d'examiner son environnement d'exécution.
+Enfin le débogage suit pas à pas l'exécution d'un programme en utilisant le drapeau de trappe (\emph{Trap Flag}), permettant de reprendre la main après chaque instruction du programme débogué afin d'examiner son environnement d'exécution.
 \\
 
-Le déboguage comme l'instrumentation n'utilisent pas de langage intermédiaire tandis qu'un émulateur tel que BAP transcrit d'abord les instructions dans son langage intermédiaire pour les exécuter avec la sémantique concrète du langage intermédiaire.
+Le débogage comme l'instrumentation n'utilisent pas de langage intermédiaire tandis qu'un émulateur tel que BAP transcrit d'abord les instructions dans son langage intermédiaire pour les exécuter avec la sémantique concrète du langage intermédiaire.
 L'émulation est donc intéressante parce qu'à aucun moment le programme analysé n'a un accès libre au système sur lequel il s'exécute.
 La limitation est donc que les interactions du programme émulé avec le système d'exploitation visé sont restreintes.
 En particulier les appels systèmes, qui ne sont pas transcrits par BAP, ne peuvent pas être émulés directement, rendant l'analyse très partielle.
@@ -386,7 +386,7 @@ Les approches nécessitant une exécution non restreinte sur le système sont al
 Une caractéristique cruciale d'un analyseur dynamique est qu'il doit être transparent : le programme analysé ne doit pas être capable de différencier son exécution dans l'analyseur de son exécution sur un système réel.
 Cette transparence est en général partielle, que ce soit avec un émulateur, un débogueur ou une technique d'instrumentation.
 
-L'instrumentation, par rapport au déboguage, offre des performances temporelles d'exécution bien supérieures.
+L'instrumentation, par rapport au débogage, offre des performances temporelles d'exécution bien supérieures.
 Pour ces raisons, nous nous sommes intéressés à l'émulation comme à l'instrumentation.
 \\
 
@@ -627,8 +627,9 @@ On utilisera le nombre de \layers\ pour observer la complexité des chevauchemen
 \section{Approche hybride et Codisasm}
 Nous avons vu comment séparer une trace d'exécution en plusieurs sous-traces définissant des vagues d'exécution.
 Chaque sous trace, au sein d'une vague, ne présente pas d'auto-modification.
-Nous décidons alors d'effectuer, pour chaque vague, un désassemblage par analyse statique en séparant le code en plusieurs \layers. Cette analyse est pertinente si les vagues ne présentent pas d'auto-modification. Nous discuterons ce point \todo{todo}.
+Nous décidons alors d'effectuer, pour chaque vague, un désassemblage par analyse statique en séparant le code en plusieurs \layers. Cette analyse est pertinente si les vagues ne présentent pas d'auto-modification. Nous discuterons ce point\todo{todo}.
 
 \subsection{Architecture générale}
+\itodo{diagramme}
 \subsection{Obtention des traces et des vagues}
 \subsection{Analyse statique de chaque vague}
