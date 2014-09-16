@@ -624,6 +624,11 @@ On utilisera le nombre de \layers\ pour observer la complexité des chevauchemen
 \itodo{Découpage cohérent minimal.}
 \itodo{discussion : pourquoi on préfère celui là ?}
 
-\section{Codisasm}
+\section{Approche hybride et Codisasm}
+Nous avons vu comment séparer une trace d'exécution en plusieurs sous-traces définissant des vagues d'exécution.
+Chaque sous trace, au sein d'une vague, ne présente pas d'auto-modification.
+Nous décidons alors d'effectuer, pour chaque vague, un désassemblage par analyse statique en séparant le code en plusieurs \layers. Cette analyse est pertinente si les vagues ne présentent pas d'auto-modification. Nous discuterons ce point \todo{todo}.
+
+\subsection{Architecture générale}
 \subsection{Obtention des traces et des vagues}
 \subsection{Analyse statique de chaque vague}
