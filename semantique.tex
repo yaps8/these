@@ -250,6 +250,7 @@ L'instruction qui doit être exécutée ensuite est cette présente à l'adresse
 
 \begin{figure}
 \begin{center}
+\scalebox{1}{
 \begin{tikzpicture}[->,scale=1,>=stealth',thick]
 \node[state] (BIN){Binaire};
 \node[state, right=1.4cm  of BIN] (ASM){ASM};
@@ -268,6 +269,7 @@ L'instruction qui doit être exécutée ensuite est cette présente à l'adresse
 
 \node [fit={($ (LEC.west) + (0.20,0) $) ($(ETAT_MEM.south) + (0, +0)$) (INST) ($(CFG.north) + (0, 0.0)$) ($ (EVAL) + (0,0) $)}, draw, label=\large Analyse] {};
 \end{tikzpicture}
+}
 \end{center}
 \caption{Approche globale de l'analyse de binaires à l'aide d'un langage intermédiaire}
 \label{fig:diag_approche_globale}

@@ -182,16 +182,52 @@ Les variables locales sont en général enregistrées sur la pile et, lors d'un 
 La dernière structure est le tas qui est géré par l'appel de fonctions d'allocations dynamiques (telles \texttt{malloc} en C) et est généralement utilisé pour entreposer les structures mémoire plus encombrantes telles que des tableaux ou des structures complexes.
 En pratique la mémoire d'un processus contient d'abord les sections de code, puis les sections de données, puis le tas qui est susceptible de s'étendre ainsi que la pile qui peut également s'étendre, dans le sens inverse (Figure \ref{fig:mem_process}).
 
+% \begin{figure}
+% \begin{center}
+% \includegraphics[width=0.3\textwidth]{supports/architecture/pile.pdf}
+% \todo[inline]{inverser?}
+% % \input{supports/architecture/pile2.tex}
+% % \missingfigure{!}
+% \caption{Organisation de la mémoire d'un processus}
+% \label{fig:mem_process}
+% \end{center}
+% \end{figure}
+
 \begin{figure}
 \begin{center}
-\includegraphics[width=0.3\textwidth]{supports/architecture/pile.pdf}
-\todo[inline]{inverser?}
-% \input{supports/architecture/pile2.tex}
-% \missingfigure{!}
+\scalebox{1}{
+\begin{tikzpicture}[->,scale=1,>=stealth',thick]
+% \node[state] (CODE){Code};
+% \node[state, below=2cm of CODE] (DATA){Donnée};
+% \node[state, below  of DATA] (MEM){MEM};
+% \node[state, right=1.4cm of ASM] (IR){LI};
+% \node[state, right=6cm of IR] (INST){Instruction};    
+% \node[state, above=2cm of INST] (CFG){CFG};
+\node[state, rectangle split, rectangle split parts=3, draw, label=, text width=5cm] (MEM){Code \nodepart{second} Données \nodepart{third} Tas \\ ~\\ ~\\ ~\\ ~\\ ~\\ ~\\ Pile};
+
+\node[state, draw=none, right=1cm of MEM.north east] (ADR1){\small Adresses mémoire basses};
+\node[state, draw=none, right=1cm of MEM.south east] (ADR2){\small Adresses mémoire hautes};
+% 
+% \draw (BIN) --  node[above=0.5cm]{\small Désassemblage} (ASM);-1
+% \draw (ASM) -- node[above=0.5cm]{\small Transcodage} (IR);
+% \draw (IR) -- node[above]{Décodage} (INST);
+% \draw (INST) -- node[right=.2cm]{Ajout} (CFG);
+\draw (ADR1.south) -> node[right=.2cm]{} (ADR2.north);
+\draw ($(MEM.north) + (0, -1.9) $) -> node[right=.2cm]{} ($(MEM.north) + (0, -2.9) $);
+\draw ($(MEM.south) + (0, +0.7) $) -> node[right=.2cm]{} ($(MEM.south) + (0, +1.7) $);
+% \draw ($(ETAT_MEM.north west) + (0, -.4) $)  -| node[above right=.0cm and 0.4cm, text width=4cm](LEC){Lecture de la \\prochaine instruction} (IR);
+% \draw (INST) |- node[above right=0.3cm and .0cm, text width=4cm](EVAL){Évaluation \\sémantique} ($ (ETAT_MEM.north east) + (0,-.4) $);
+% \draw (INST) |- ($ (ETAT_MEM.south east) + (0,.35) $);
+% 
+% \node [fit={($ (LEC.west) + (0.20,0) $) ($(ETAT_MEM.south) + (0, +0)$) (INST) ($(CFG.north) + (0, 0.0)$) ($ (EVAL) + (0,0) $)}, draw, label=\large Analyse] {};
+\end{tikzpicture}
+}
+\end{center}
 \caption{Organisation de la mémoire d'un processus}
 \label{fig:mem_process}
-\end{center}
 \end{figure}
+
+
 
 \paragraph{Jeu d'instructions.}
 Les processeurs Intel \xq\ utilisent un jeu d'instruction complexe (CISC). La représentation d'une instruction en une suite d'octets inclut principalement un code d'opération et ses arguments. Des informations supplémentaire peuvent être codées dans l'instruction, comme des préfixes. Le format des instructions détaillé est donné figure \ref{fig:format_insts_x86}.
@@ -360,6 +396,54 @@ Or la première instruction de la fonction donne à \eax\ la valeur 0. Dans tous
 D'autre part si des sauts dynamiques sont utilisés comme avec l'instruction \texttt{jmp eax}, le parcours récursif s'arrête alors qu'il est clair que d'autres instructions seront exécutées.
 \jym{déterminer eax peut être indécidable // le pb vient des embranchements et des prédicats opaques ?}
 
+
+\section{Désassemblage}
+\itodo{désassemblage parfait}
+\ijym{pb de l'atteignabilité + important (jmp eax)}
+\itodo{séparation code/données = déterminer l'ensemble du code atteignable}
+Nous avons vu que le problème du désassemblage tient dans la difficulté de séparer les parties de codes des parties de données d'un programme binaire.
+Dans ce chapitre et dans un premier temps, nous proposons une preuve du caractère indécidable du désassemblage puis expliquerons les différentes techniques de désassemblage. Dans un second temps nous détaillerons notre approche du désassemblage qui permet de traiter le cas des programmes auto-modifiants ainsi que le chevauchement de code.
+
+
+\paragraph{Difficulté théorique du désassemblage.}
+~\\
+\idone{Pb de l'arrêt: il existe HALT / pour tout P,I : HALT(P,I) = 1 ssi P(I) termine}
+\imore{Pb du désassemblage : borne min : intersection de CODE(P,I), borne max : union}
+\imore{borne min ~ arrêt ?}
+% On a vu que le problème du désassemblage tient dans la difficulté de séparer les parties de code potentiel des parties de données.
+Si on cherche à séparer le code des données alors le but du désassemblage d'un programme P est de résoudre le problème suivant. On se limite dans un premier temps à un programme P de taille finie et non auto-modifiant.
+\begin{pb}
+Soit \adr{a} une adresse, existe-t-il une entrée I de P telle que P(I) atteint \adr{a} ?
+\end{pb}
+
+Nous citons ici un argument tiré de la thèse de Joan Calvet \cite{Calvet2013} montrant le caractère indécidable de ce problème en réduisant le problème de l'arrêt à celui-ci.
+
+% Supposons que le problème soit décidable. 
+Notons CODE le programme vérifiant, pour tout programme P et adresse \adr{a}, CODE(P, \adr{a}) = 1 si et seulement si il existe une entrée I de P telle que P(I) atteint \adr{a}. Dans le cas contraire CODE (P, \adr{a}) = 0.
+
+Soit P un programme ne prenant pas d'entrée et ayant un unique point d'arrêt indiqué par l'instruction \halt\ à l'adresse $\alpha$.
+CODE(P, $\alpha$) = 1 si et seulement si P atteint l'adresse $\alpha$, c'est à dire si et seulement si P termine.
+% . Prenons P' le programme suivant qui ne prend pas d'entrée : P' = P(I).
+
+% Deux cas sont alors possibles.
+% \begin{itemize}
+%  \item Soit il existe une adresse $\alpha$ tel que l'instruction à l'adresse $\alpha$ est l'instruction d'arrêt \texttt{halt} et telle que CODE(P, $\alpha$) = 1 : il existe une entrée I' à P' telle que P'(I') atteint $\alpha$. Dans ce cas, puisque P'(I')=P'=P(I), P(I) atteint $\alpha$ et le programme P termine sur l'entrée I.
+%  \item Dans le cas contraire il n'y a soit aucune instruction d'arrêt soit aucune de ces instructions n'est atteignable et donc P'(I')=P'=P(I) ne termine pas.
+% \end{itemize}
+% ~\\
+Le désassemblage d'un programme auto-modifiant est plus difficile que le cas traité ci-dessus et donc le résoudre permettrait également de traiter le problème de l'arrêt.
+On en déduit donc que le désassemblage permet de résoudre le problème de l'arrêt qui est pourtant connu pour être indécidable ; c'est absurde.
+Ainsi le problème du désassemblage est indécidable.
+
+
+\paragraph{Analyse statique et dynamique.}
+Dans le domaine de l'analyse de code, on parle d'analyse dynamique lorsque le fichier binaire à analyser est exécuté au moins partiellement et que l'analyse consiste à observer une ou des exécutions du programme. Au contraire lors d'une analyse statique on cherche à inférer des propriétés sur le programme sans l'exécuter.
+
+Les deux techniques permettent de récupérer du code assembleur à partir du programme et donc de réaliser un désassemblage et de reconstruire un graphe de flot de contrôle.
+L'avantage de l'analyseur dynamique est que, puisqu'il travaille sur une exécution spécifique du programme, il est précis : les instructions qui sont exécutées doivent être inclues dans le désassemblage.
+Par contre il n'est pas complet vu qu'il ne suivra pas des branches du programme qui pourraient être utilisées si leurs conditions étaient vérifiées. À l'inverse un analyseur statique n'est pas précis et ne peut en général pas être complet à cause de l'impossibilité de prédire certaines cibles de sauts dynamiques.
+
+En pratique le désassemblage est classiquement du domaine de l'analyse statique. Nous expliquerons comment l'analyse dynamique peut aider à reconstruire les graphes de flot et le code des programmes obscurcis.
 
 
 

@@ -64,7 +64,7 @@ L'instruction \ret\ placée à la fin de la fonction appelée dépile la premiè
 Normalement la valeur dépilée lors du \ret\ est $a+n$ afin que le flot d'exécution revienne à la fonction appelant.
 Ainsi un désassembleur récursif désassemble à partir de la cible du \call\ ainsi que de l'adresse de retour.
 
-Une technique classique d'obscurcissement \cite{LD03}\cite{PMA} consiste à combiner l'empilement d'une adresse (\push\ $b$) et l'instruction \ret. Ces deux instructions provoquent un saut vers l'adresse $b$ sans possibilité de revenir à l'instruction suivant le \call. La transformation consiste alors à remplacer des instructions \jmp\ par la séquence \push\ puis \ret\ puisque les deux suites d'instructions suivantes sont équivalentes.
+Une technique classique d'obscurcissement \cite{LD03}\cite{PMA} consiste à combiner l'empilement d'une adresse (\push\ $b$) et l'instruction \ret. Ces deux instructions provoquent un saut vers l'adresse $b$ sans que le \ret\ ne marque la fin de la fonction et le retour à l'instruction suivant le \call\ : cette instruction, à l'adresse \adr{a+n}, ne sera pas forcément atteinte. La transformation consiste alors à remplacer des instructions \jmp\ par la séquence \push\ puis \ret\ puisque les deux suites d'instructions suivantes sont équivalentes.
 \begin{center}
 \begin{tabular}{c|c}
 \push\ \adr{b} & \jmp\ \adr{b}\\
