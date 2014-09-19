@@ -182,44 +182,16 @@ Les variables locales sont en général enregistrées sur la pile et, lors d'un 
 La dernière structure est le tas qui est géré par l'appel de fonctions d'allocations dynamiques (telles \texttt{malloc} en C) et est généralement utilisé pour entreposer les structures mémoire plus encombrantes telles que des tableaux ou des structures complexes.
 En pratique la mémoire d'un processus contient d'abord les sections de code, puis les sections de données, puis le tas qui est susceptible de s'étendre ainsi que la pile qui peut également s'étendre, dans le sens inverse (Figure \ref{fig:mem_process}).
 
-% \begin{figure}
-% \begin{center}
-% \includegraphics[width=0.3\textwidth]{supports/architecture/pile.pdf}
-% \todo[inline]{inverser?}
-% % \input{supports/architecture/pile2.tex}
-% % \missingfigure{!}
-% \caption{Organisation de la mémoire d'un processus}
-% \label{fig:mem_process}
-% \end{center}
-% \end{figure}
-
 \begin{figure}
 \begin{center}
 \scalebox{1}{
 \begin{tikzpicture}[->,scale=1,>=stealth',thick]
-% \node[state] (CODE){Code};
-% \node[state, below=2cm of CODE] (DATA){Donnée};
-% \node[state, below  of DATA] (MEM){MEM};
-% \node[state, right=1.4cm of ASM] (IR){LI};
-% \node[state, right=6cm of IR] (INST){Instruction};    
-% \node[state, above=2cm of INST] (CFG){CFG};
-\node[state, rectangle split, rectangle split parts=3, draw, label=, text width=5cm] (MEM){Code \nodepart{second} Données \nodepart{third} Tas \\ ~\\ ~\\ ~\\ ~\\ ~\\ ~\\ Pile};
-
-\node[state, draw=none, right=1cm of MEM.north east] (ADR1){\small Adresses mémoire basses};
-\node[state, draw=none, right=1cm of MEM.south east] (ADR2){\small Adresses mémoire hautes};
-% 
-% \draw (BIN) --  node[above=0.5cm]{\small Désassemblage} (ASM);-1
-% \draw (ASM) -- node[above=0.5cm]{\small Transcodage} (IR);
-% \draw (IR) -- node[above]{Décodage} (INST);
-% \draw (INST) -- node[right=.2cm]{Ajout} (CFG);
+\node[state, draw=none] (ADR1){\small Adresses mémoire basses};
+\node[state, draw=none, below=6cm of ADR1.south] (ADR2){\small Adresses mémoire hautes};
+\node[state, rectangle split, rectangle split parts=3, below right=0.7cm and -1cm of ADR1.east, draw, label=, text width=5cm] (MEM){Code \nodepart{second} Données \nodepart{third} Tas \\ ~\\ ~\\ ~\\ ~\\ ~\\ ~\\ Pile};
 \draw (ADR1.south) -> node[right=.2cm]{} (ADR2.north);
 \draw ($(MEM.north) + (0, -1.9) $) -> node[right=.2cm]{} ($(MEM.north) + (0, -2.9) $);
 \draw ($(MEM.south) + (0, +0.7) $) -> node[right=.2cm]{} ($(MEM.south) + (0, +1.7) $);
-% \draw ($(ETAT_MEM.north west) + (0, -.4) $)  -| node[above right=.0cm and 0.4cm, text width=4cm](LEC){Lecture de la \\prochaine instruction} (IR);
-% \draw (INST) |- node[above right=0.3cm and .0cm, text width=4cm](EVAL){Évaluation \\sémantique} ($ (ETAT_MEM.north east) + (0,-.4) $);
-% \draw (INST) |- ($ (ETAT_MEM.south east) + (0,.35) $);
-% 
-% \node [fit={($ (LEC.west) + (0.20,0) $) ($(ETAT_MEM.south) + (0, +0)$) (INST) ($(CFG.north) + (0, 0.0)$) ($ (EVAL) + (0,0) $)}, draw, label=\large Analyse] {};
 \end{tikzpicture}
 }
 \end{center}

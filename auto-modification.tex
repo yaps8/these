@@ -41,7 +41,7 @@ En utilisant la sémantique concrète précédemment définie on est capable, à
 Une trace d'exécution d'un programme est simplement l'enchaînement des instructions auxquelles l'exécution du programme a fait appel. Si on note $I_i$ une instruction dynamique, la trace d'exécution est $T=I_1, I_2, ..., I_n$ où $I_n$ est la dernière instruction du programme.
 
 Nous définissons une instruction dynamique (définition \ref{def:ensembles_inst_dyn}) par son adresse, les adresses mémoires sur lesquelles elle est codée et l'instruction machine correspondant. Ces informations sont données par un désassemblage atomique d'une instruction à l'adresse mémoire spécifiée.
-Afin de pouvoir séparer la trace d'exécution selon le moment où chaque instruction a été écrite, nous définissons aussi pour chaque instruction l'ensemble des variables sur lesquelles elle provoque une écriture. Cette information est donnée par la sémantique concrète choisie. Avec la sémantique définie à la section précédente les seules instructions qui provoquent des écritures sont celles dont la liste d'instructions atomiques donnée par le désassemblage contiennent des assignation de la forme $x\leftarrow g(x_1, ..., x_m)$ : \dw{D}=\dw{d_1..d_n}=\dw{d_1}$\ \cup\ ...\ \cup\ $\dw{d_n} avec
+Afin de pouvoir séparer la trace d'exécution selon le moment où chaque instruction a été écrite, nous définissons aussi pour chaque instruction l'ensemble des variables sur lesquelles elle provoque une écriture (définition \ref{def:ensembles_inst_dyn_write}). Cette information est donnée par la sémantique concrète choisie. Avec la sémantique définie à la section précédente les seules instructions qui provoquent des écritures sont celles dont la liste d'instructions atomiques donnée par le désassemblage contiennent des assignation de la forme $x\leftarrow g(x_1, ..., x_m)$ : \dw{D}=\dw{d_1..d_n}=\dw{d_1}$\ \cup\ ...\ \cup\ $\dw{d_n} avec
 \\
 \dw{d_i}$=
 \left\{
@@ -60,11 +60,42 @@ On note $D$ une instruction dynamique constituée des éléments suivants.
  \item \dc{D} le segment des adresses mémoire sur lequel \di{D} est codée
  \item \di{D} l'instruction machine à l'adresse \da{D}
 %  \item \dr{D_i} l'ensemble des variables sur lesquelles l'exécution de \di{D_i} provoque une lecture
- \item \dw{D} l'ensemble des variables sur lesquelles l'exécution de \di{D} provoque une écriture
+%  \item \dw{D} l'ensemble des variables sur lesquelles l'exécution de \di{D} provoque une écriture
 \end{itemize}
 \label{def:ensembles_inst_dyn}
 \end{defi}
 
+\begin{defi}
+Soit $D$ une instruction dynamique et $\Theta$ un store représentant l'état des variables (mémoire et registres). On note \dww{\Theta}{D} l'ensemble des adresses mémoire sur lesquelles l'exécution de $D$ provoque une écriture.
+\label{def:ensembles_inst_dyn_write}
+\end{defi}
+
+% \begin{defi}
+% Nous définissons le niveau d'écriture d'une adresse mémoire comme un entier naturel et le store $W^M: \BT\rightarrow\BN$ associant à une adresse mémoire son niveau d'écriture.
+% \label{def:store_mem}
+% \end{defi}
+
+\begin{defi}
+Un contexte d'exécution est la donnée d'un triplet $E=(X, \Theta, W^M)$ où
+\begin{itemize}
+ \item $X\in\BN$ est le niveau d'exécution du contexte
+ \item $\Theta$ est le store des valeurs du contexte, associant une valeur à chaque registre et chaque adresse mémoire
+ \item $W^M$ est le store des niveaux d'écriture du contexte, associant à chaque adresse mémoire un niveau d'écriture dans $\BN$
+\end{itemize}
+Une exécution d'un programme dont le point d'entrée est $ep$ est la donnée d'un enchaînement de contextes d'exécution $E_0, E_1, ..., E_n$ tel que :
+\begin{itemize}
+ \item $X_0=1$, $\Theta_0[eip]=ep$ et $\forall m\in \BT, W_0^M[m\leftarrow 0]$
+ \item En notant $D=decode(\Theta_i[eip], \Theta_i)$ l'instruction dynamique exécutée lors de la transition entre le contexte $E_i$ et $E_{i+1}$, on a :
+    \begin{itemize}
+     \item Le niveau d'écriture de $D$ est le niveau d'écriture maximum des octets qui la composent : $W_D=max(\{W^M[m],\ m\in\ $\dc{D_i}$\})$
+     \item $X_{i+1}=max(X_i, W_D+1)$
+     \item $\Theta_{i+1}$ est $\Theta_i$ mis à jour par l'évaluation sémantique de \di{D}
+     \item $W_{i+1}^M=W_{i}^M$ sauf pour les adresses mémoire écrites par $D$: $\forall m\in\ $\dw{D}$,\ W_{i+1}^M[m\leftarrow X_i]$
+    \end{itemize}
+\end{itemize}
+\label{def:contexte_exec}
+\end{defi}
+\itodo{définir decode}
 Nous avons donc, pour une trace d'exécution donnée, des vagues successives $1, 2, ..., n$.
 Au cours de l'exécution du programme on définit, pour chaque adresse en mémoire $m$, un niveau d'écriture $W^M[m]$.
 correspondant à la dernière vague $k$ durant laquelle une instruction a modifié la valeur à l'adresse $m$.
@@ -84,13 +115,13 @@ Nous définissons une trace d'exécution comme la donnée d'une suite $T=t_1, t_
 \label{def:write_exec_levels}
 \end{defi}
 
-\begin{propri}
- Si le niveau d'exécution courant est $X$, le niveau d'exécution de l'instruction à exécuter $D_i$ est :\\
- $X=max(X, W_D+1)$ avec $W_D=max(W^M[a],\ a\in\ $\dc{D_i}$)$.\\
- Après l'exécution de $D_i$, les niveaux d'écriture dans la mémoire sont mis à jour de la manière suivante :\\
- $\forall a\in$ \dw{D_i}, $W^M[a]=X$.
-\label{propri:niveau_exec}
-\end{propri}
+% \begin{propri}
+%  Si le niveau d'exécution courant est $X$, le niveau d'exécution de l'instruction à exécuter $D_i$ est :\\
+%  $X=max(X, W_D+1)$ avec $W_D=max(W^M[a],\ a\in\ $\dc{D_i}$)$.\\
+%  Après l'exécution de $D_i$, les niveaux d'écriture dans la mémoire sont mis à jour de la manière suivante :\\
+%  $\forall a\in$ \dw{D_i}, $W^M[a]=X$.
+% \label{propri:niveau_exec}
+% \end{propri}
 
 En pratique une instruction $D$ écrite par une instruction ayant pour niveau d'exécution $k$ puis directement exécutée aura pour niveau d'écriture $W_D=k$ et pour niveau d'exécution $X=k+1$. Ce comportement est formalisé par la propriété \ref{propri:niveau_exec}.
 
