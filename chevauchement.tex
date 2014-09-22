@@ -50,7 +50,7 @@ De même ni Radare ni IDA ne détectent le second chemin d'exécution dans l'ext
 
 \paragraph{Parcours spéculatif.}
 Le parcours récursif étant moins sensible à des obscurcissements très simples comme l'injection de code mort, il est souvent pris comme point de départ dans les recherches sur le désassemblage statique.
-Une fois une première recherche de code avec un parcours récursif effectuée, les octets restants peuvent subis un parcours linéaire qui cherchera à déterminer s'ils sont du code ou des données à l'aide d'heuristiques.
+Une fois une première recherche de code avec un parcours récursif effectuée, les octets restants peuvent subir un parcours linéaire qui cherchera à déterminer s'ils sont du code ou des données à l'aide d'heuristiques.
 Une de ces approche évalue la probabilité qu'une suite d'octets soit effectivement du code en apprenant au préalable des suites d'octets codant réellement des instructions lancées lors de l'exécution de programmes \cite{KDF09}.
 On appelle cet enchaînement des deux parcours un parcours spéculatif.
 

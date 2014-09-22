@@ -1,111 +1,83 @@
-\documentclass{article}
-\usepackage[x11names, svgnames, rgb]{xcolor}
-\usepackage[utf8]{inputenc}
-\usepackage{tikz}
-\usetikzlibrary{snakes,arrows,shapes}
-\usepackage{amsmath}
-%
-%
 
-%
-
-%
-
-\begin{document}
-\pagestyle{empty}
-%
-%
-%
-
-\enlargethispage{100cm}
-% Start of code
-% \begin{tikzpicture}[anchor=mid,>=latex',line join=bevel,]
-\begin{tikzpicture}[>=latex',line join=bevel,]
+\begin{tikzpicture}[>=latex,line join=bevel,]
   \pgfsetlinewidth{1bp}
 %%
 \pgfsetcolor{black}
   % Edge: 5 -> 6
-  \draw [->] (158.49bp,144.41bp) .. controls (145.95bp,135.17bp) and (130.16bp,123.54bp)  .. (108.35bp,107.47bp);
+  \draw [->] (105.6bp,144.41bp) .. controls (97.42bp,135.61bp) and (87.226bp,124.63bp)  .. (71.294bp,107.47bp);
   % Edge: 5 -> 8
   \pgfsetcolor{red}
-  \draw [->] (203.51bp,144.41bp) .. controls (216.05bp,135.17bp) and (231.84bp,123.54bp)  .. (253.65bp,107.47bp);
+  \draw [->] (136.4bp,144.41bp) .. controls (144.58bp,135.61bp) and (154.77bp,124.63bp)  .. (170.71bp,107.47bp);
   % Edge: 6 -> 7
   \pgfsetcolor{black}
-  \draw [->] (86.0bp,71.697bp) .. controls (86.0bp,63.983bp) and (86.0bp,54.712bp)  .. (86.0bp,36.104bp);
+  \draw [->] (56.0bp,71.697bp) .. controls (56.0bp,63.983bp) and (56.0bp,54.712bp)  .. (56.0bp,36.104bp);
   % Edge: 4 -> 5
-  \draw [->] (181.0bp,215.7bp) .. controls (181.0bp,207.98bp) and (181.0bp,198.71bp)  .. (181.0bp,180.1bp);
+  \draw [->] (121.0bp,215.7bp) .. controls (121.0bp,207.98bp) and (121.0bp,198.71bp)  .. (121.0bp,180.1bp);
   % Edge: 1 -> 2
-  \draw [->] (181.0bp,359.7bp) .. controls (181.0bp,351.98bp) and (181.0bp,342.71bp)  .. (181.0bp,324.1bp);
+  \draw [->] (121.0bp,359.7bp) .. controls (121.0bp,351.98bp) and (121.0bp,342.71bp)  .. (121.0bp,324.1bp);
   % Edge: 8 -> 9
-  \draw [->] (276.0bp,71.697bp) .. controls (276.0bp,63.983bp) and (276.0bp,54.712bp)  .. (276.0bp,36.104bp);
+  \draw [->] (186.0bp,71.697bp) .. controls (186.0bp,63.983bp) and (186.0bp,54.712bp)  .. (186.0bp,36.104bp);
   % Edge: 2 -> 4
   \pgfsetcolor{red}
-  \draw [->] (181.0bp,287.7bp) .. controls (181.0bp,279.98bp) and (181.0bp,270.71bp)  .. (181.0bp,252.1bp);
+  \draw [->] (121.0bp,287.7bp) .. controls (121.0bp,279.98bp) and (121.0bp,270.71bp)  .. (121.0bp,252.1bp);
   % Node: 1
 \begin{scope}
   \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
   \pgfsetstrokecolor{strokecol}
   \definecolor{fillcol}{rgb}{1.0,0.65,0.0};
   \pgfsetfillcolor{fillcol}
-  \filldraw [opacity=1] [very thick] (181.0bp,378.0bp) ellipse (86.16bp and 18.0bp);
-  \draw (181.0bp,378.0bp) node {8048067: mov eax, 0};
+  \filldraw [opacity=1] [very thick] (121.0bp,378.0bp) ellipse (55.5bp and 18.0bp);
+  \draw (121.0bp,378.0bp) node {8048067: mov eax, 0};
 \end{scope}
   % Node: 2
 \begin{scope}
   \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
   \pgfsetstrokecolor{strokecol}
-  \draw (181.0bp,306.0bp) ellipse (102.06bp and 18.0bp);
-  \draw (181.0bp,306.0bp) node {804806c: jmp 0x8048073};
+  \draw (121.0bp,306.0bp) ellipse (64.25bp and 18.0bp);
+  \draw (121.0bp,306.0bp) node {804806c: jmp 0x8048073};
 \end{scope}
   % Node: 5
 \begin{scope}
   \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
   \pgfsetstrokecolor{strokecol}
-  \draw (181.0bp,162.0bp) ellipse (94.36bp and 18.0bp);
-  \draw (181.0bp,162.0bp) node {8048076: je 0x804807e};
+  \draw (121.0bp,162.0bp) ellipse (59.5bp and 18.0bp);
+  \draw (121.0bp,162.0bp) node {8048076: je 0x804807e};
 \end{scope}
   % Node: 4
 \begin{scope}
   \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
   \pgfsetstrokecolor{strokecol}
-  \draw (181.0bp,234.0bp) ellipse (85.19bp and 18.0bp);
-  \draw (181.0bp,234.0bp) node {8048073: cmp eax, 0};
+  \draw (121.0bp,234.0bp) ellipse (55.5bp and 18.0bp);
+  \draw (121.0bp,234.0bp) node {8048073: cmp eax, 0};
 \end{scope}
   % Node: 7
 \begin{scope}
   \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
   \pgfsetstrokecolor{strokecol}
-  \draw (86.0bp,18.0bp) ellipse (55.34bp and 18.0bp);
-  \draw (86.0bp,18.0bp) node {804807d: ret};
+  \draw (56.0bp,18.0bp) ellipse (38.25bp and 18.0bp);
+  \draw (56.0bp,18.0bp) node {804807d: ret};
 \end{scope}
   % Node: 6
 \begin{scope}
   \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
   \pgfsetstrokecolor{strokecol}
-  \draw (86.0bp,90.0bp) ellipse (86.16bp and 18.0bp);
-  \draw (86.0bp,90.0bp) node {8048078: mov eax, 1};
+  \draw (56.0bp,90.0bp) ellipse (55.5bp and 18.0bp);
+  \draw (56.0bp,90.0bp) node {8048078: mov eax, 1};
 \end{scope}
   % Node: 9
 \begin{scope}
   \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
   \pgfsetstrokecolor{strokecol}
-  \draw (276.0bp,18.0bp) ellipse (27.0bp and 18.0bp);
-  \draw (276.0bp,18.0bp) node {iiaa};
+  \draw (186.0bp,18.0bp) ellipse (27.0bp and 18.0bp);
+  \draw (186.0bp,18.0bp) node {iiaa};
 \end{scope}
   % Node: 8
 \begin{scope}
   \definecolor{strokecol}{rgb}{0.0,0.0,0.0};
   \pgfsetstrokecolor{strokecol}
-  \draw (276.0bp,90.0bp) ellipse (85.19bp and 18.0bp);
-  \draw (276.0bp,90.0bp) node {804807e: mov eax, 2};
+  \draw (186.0bp,90.0bp) ellipse (55.25bp and 18.0bp);
+  \draw (186.0bp,90.0bp) node {804807e: mov eax, 2};
 \end{scope}
 %
 \end{tikzpicture}
-% End of code
-
-%
-\end{document}
-%
-
-
 

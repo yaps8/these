@@ -256,7 +256,7 @@ L'instruction qui doit être exécutée ensuite est cette présente à l'adresse
 \node[state, right=1.4cm  of BIN] (ASM){ASM};
 \node[state, right=1.4cm of ASM] (IR){LI};
 \node[state, right=6cm of IR] (INST){Instruction};    
-\node[state, above=2cm of INST] (CFG){CFG};
+\node[state, above=1cm of INST.north] (CFG){CFG};
 \node[state, rectangle split, rectangle split parts=2, draw, below left=1.5cm and -0.5cm of INST, label=État interne, text width=2cm] (ETAT_MEM){Registres \nodepart{second} Mémoire};
 
 \draw (BIN) --  node[above=0.5cm]{\small Désassemblage} (ASM);-1
@@ -326,9 +326,43 @@ En pratique nous souhaitons donc avoir accès à la représentation sous forme b
 Nous allons donc commencer par le charger en mémoire comme une partie intégrante de l'état interne de la machine.
 C'est le comportement attendu d'une machine de Harvard modifiée \todo{von neumann?} et le comportement du programme peut donc être auto-modifiant. Le décodage, le désassemblage puis la transformation en langage intermédiaire et l'évaluation sémantique des instructions du programme se feront donc au fur et à mesure de l'analyse, une instruction à la fois, depuis l'état de la mémoire.
 Ce modèle est illustré par le diagramme suivant.
-\missingfigure{schéma bloc}
+\begin{figure}
+\begin{center}
+\scalebox{1}{
+\begin{tikzpicture}[->,scale=1,>=stealth',thick]
+\node[state] (BIN){Binaire};
+% \node[state, right=1.4cm  of BIN] (ASM){ASM};
+% \node[state, right=1.4cm of ASM] (IR){LI};
+\node[state, rectangle split, rectangle split parts=2, draw, below left=-0.8cm and -5.6cm of BIN.north east, label=État interne, text width=2cm] (ETAT_MEM){Registres \nodepart{second} Mémoire};
+\node[state, above right=1cm and 2cm of ETAT_MEM.east, text width=3.5cm] (INST){Liste\\ d'instructions LI};    
+\node[state, above=1cm of INST.north] (CFG){CFG};
 
-Au c\oe ur de cette architecture se trouvent deux opérateurs. Le premier est l'opérateur de désassemblage capable de transformer des octets présents à une certaines adresse mémoire en une liste d'instructions dans le langage intermédiaire, équivalentes sémantiquement à l'instruction assembleur codée sur ces octets.
+% \coordinate [below right=-0.35 and 0.5cm of ETAT_MEM.south east] (C_DESA);
+\coordinate [left=4.7cm of INST.west] (C_SEM);
+% \draw (BIN) --  node[above=0.5cm]{\small Désassemblage} (ASM);-1
+% \draw (ASM) -- node[above=0.5cm]{\small Transcodage} (IR);
+\draw ($(BIN.east)$) -- node[below right=0.0cm and -1.55cm, text width=4cm]{Chargement\\ en mémoire} ($ (ETAT_MEM.south west) + (0,.10) $);
+\draw (INST) -- node[right=.2cm]{Ajout} (CFG);
+\draw ($ (ETAT_MEM.north east) + (0,-.4cm) $) -| (INST.south);
+\draw ($ (ETAT_MEM.south east) + (0,.35cm) $) -| node[below left=0cm and -0.8cm, text width=4cm]{Désassemblage de la\\ prochaine instruction} (INST.south);
+\draw [-] (INST.west) -- node[above]{Évaluation sémantique} (C_SEM);
+\draw (C_SEM) |- ($(ETAT_MEM.north west) + (0, -.4) $);
+\draw (C_SEM) |- ($(ETAT_MEM.south west) + (0, .5) $);
+% \draw[->] (C_DESA) |- ($ (INST.south west) + (0,.15cm) $);
+% \draw ($(ETAT_MEM.south west) + (0, -.4) $)  -| node[above right=.0cm and 0.4cm, text width=4cm](LEC){Lecture de la \\prochaine instruction} (INST);
+% \draw (INST) |- node[above right=0.3cm and .0cm, text width=4cm](EVAL){Évaluation \\sémantique} ($ (ETAT_MEM.north east) + (0,-.4) $);
+% \draw (INST) |- ($ (ETAT_MEM.south east) + (0,.35) $);
+
+
+\node [fit={($(C_SEM) - (0.1, 0)$) ($(ETAT_MEM.south) + (0, -0.8)$) (INST) ($(CFG.north) + (0, 0.0)$)}, draw, label=\large Analyse] {};
+\end{tikzpicture}
+}
+\end{center}
+\caption{Approche atomique de l'analyse de binaires à l'aide d'un langage intermédiaire}
+\label{fig:diag_approche_atomique}
+\end{figure}
+
+Au c\oe ur de cette architecture se trouvent deux opérateurs. Le premier est l'opérateur de désassemblage capable de transformer des octets présents à une certaines adresse mémoire en une liste d'instructions dans le langage intermédiaire, équivalentes sémantiquement à l'instruction assembleur codée sur ces octets. 
 Le second est l'opérateur d'évaluation sémantique qui modifie l'état interne de la machine selon l'instruction dans le langage intermédiaire donnée en entrée.
 
 \subsection{Implémentation}

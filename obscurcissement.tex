@@ -220,7 +220,7 @@ Jämthagen, Lantz et Hell \cite{JLH13} ont proposé un moyen d'inclure une longu
 Une des possibilités est d'utiliser une instruction \nop\ avec préfixe qui se code sur neuf octets. La partie fixe (préfixe et opérande) est codée sur quatre octets (\texttt{66 0f 1f 84}) tandis que les cinq autres octets peuvent être choisis arbitrairement.
 Ainsi chaque instruction \nop\ peut véhiculer 5 octets de code caché. Afin d'encoder une séquence de code dans une séquence de \nop\ il faut pouvoir utiliser les 4 octets fixes de l'instruction \nop\ suivante de manière utile ou non perturbante pour la séquence de code caché.
 Une possibilité, si le registre \edx\ n'est pas utilisé dans la séquence à cacher, est de prendre \texttt{ba} pour dernier octet de chaque instruction \nop\ afin de former l'instruction \texttt{mov edx, 0x841f0f66} codée sur \texttt{ba 66 0f 1f 84}. On peut alors encoder n'importe quelles instructions de taille inférieure ou égale à quatre octets dans cette séquence de \nop.
-Prenons la séquence suivante d'octets :
+Prenons la séquence d'octets suivante.
 \begin{center}
 \texttt{66 0f 1f 84} $\mathtt{x_1\ x_2\ x_3\ x_4}$ \texttt{ba 66 0f 1f 84} $\mathtt{y_1\ y_2\ y_3\ y_4}$ \texttt{ba 66 0f 1f 84} $\mathtt{z_1\ z_2\ z_3\ z_4}$.
 \end{center}
