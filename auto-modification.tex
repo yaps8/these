@@ -27,10 +27,10 @@ Nous détaillerons par la suite ce qu'est une trace d'exécution pour l'analyse 
 
 \section{Revue de littérature}
 La notion de vague présentée dans ce chapitre a été développée dans les thèse de Reynaud \cite{Reynaud2010} et Calvet \cite{Calvet2013}.
-Elle est similaire à la notion de \emph{phase} présentée par Debray et Patel \cite{DP10} et utilisée pour automatiser la suppression de la protection d'un binaire. Le découpage d'une trace en phases est, chez eux, identique au découpage en vagues que l'on présent dans ce chapitre.
+Elle est similaire à la notion de \emph{phase} présentée par Debray et Patel \cite{DP10} et utilisée pour automatiser la suppression de la protection d'un binaire. Le découpage d'une trace en phases est, chez eux, identique au découpage en vagues que l'on présente dans ce chapitre.
 En général la suppression des protections se fait à l'aide d'une analyse dynamique et d'une image de la mémoire à un instant donné au cours de l'exécution. C'est cette image mémoire qui sera considérée comme étant le programme d'origine. La difficulté réside alors dans le choix de l'instant où prendre l'image mémoire.
 
-Preda, Giacobazzi, Debray, Coogan et Townsend \cite{PGDCT10} utilisent la même notion de phases mais chaque lecture d'une instruction écrite lors d'une vague précédente (pas uniquement lors de la phase en cours) provoque la création d'une nouvelle phase.
+Preda, Giacobazzi, Debray, Coogan et Townsend \cite{PGDCT10} effectuent un découpage en phases mais chaque lecture d'une instruction écrite lors d'une vague précédente (pas uniquement lors de la phase en cours) provoque la création d'une nouvelle phase.
 
 \itodo{donner un exemple avec les différentes interprêtations}
 \ijym{idem}
@@ -325,6 +325,8 @@ Pour ces raisons, nous nous sommes intéressés à l'émulation comme à l'instr
 L'émulation permet une analyse plus abstraite et nous avons développé un analyseur partiel de programmes auto-modifiants basé sur BAP.
 L'instrumentation permet d'exécuter plus fidèlement le programme à analyser, nous avons donc principalement favorisé cette approche pour l'analyse de programmes malveillants. Nous avons choisi Pin qui, sans fournir de sémantique concrète pour l'assembleur, permet d'obtenir d'une instruction dynamique l'ensemble des adresses sur lesquelles elle écrit, comme souhaité à la définition \ref{def:ensembles_inst_dyn}.
 
+
+\section{Désassemblage d'un programme \sm}
 
 
 \section{Émulation avec BAP}
