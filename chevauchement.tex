@@ -10,7 +10,10 @@ Bien que le problème du chevauchement de code ne soit pas une technique d'obscu
 
 
 
-Les auteurs de la technique de chevauchement détaillée au chapitre \ref{chap:obscurcissement}, permettant d'encoder une séquence de code cachée dans une séquence \cite{JLH13}, proposent de détecter la protection qu'ils exposent. L'idée est qu'il est improbable qu'une longue séquence d'octets représente une séquence valide de code. Si une telle séquence existe, c'est sûrement du code caché. Cette approche fonctionne pour la protection qu'ils exposent mais n'est pas applicable aux cas de \telock\ ou UPX par exemple car les séquences d'octets sur lesquels des instructions se chevauchent sont très courtes\jym{pas compris}.
+Les auteurs de la technique de chevauchement détaillée au chapitre \ref{chap:obscurcissement}, permettant d'encoder une séquence de code cachée dans une séquence \cite{JLH13}, proposent de détecter la protection qu'ils exposent. 
+L'idée est qu'il est improbable qu'une longue séquence d'octets représente une séquence valide de code. 
+Si une telle séquence existe, c'est sûrement du code. Ainsi si deux longues séquences valides de code se chevauchent, il s'agit d'un obscurcissement délibéré et une des deux séquences contient du code caché. 
+Cette approche fonctionne pour la protection qu'ils exposent mais n'est pas applicable aux cas d'UPX par exemple car les séquences d'octets sur lesquels des instructions se chevauchent sont très courtes et il est plausible que le chevauchement soit accidentel et que le code en chevauchement ne soit pas atteignable.
 
 \paragraph{Désassembleurs disponibles.}
 Les désassembleurs existants, qu'ils utilisent un parcours linéaire ou récursif, font l'hypothèse que le code ne peut pas se chevaucher et ne parviennent pas à afficher un désassemblage cohérent dans le cas contraire.
@@ -169,7 +172,7 @@ On peut voir ce découpage comme une caractéristique du binaire qui contient l'
 
 
 \paragraph{Caractérisations des binaires obscurcis.}
-Considérons un programme désassemblé en son graphe de flot de contrôle parfait \todo{def}.
+Considérons un programme désassemblé en son graphe de flot de contrôle parfait.
 Si chaque instruction du graphe de flot de contrôle, présente dans le segment $s$, fait partie de la première \layer\ du découpage linéaire de $s$, il est clair qu'il n'y a pas de chevauchement de code possible.
 En pratique c'est le cas la plupart du temps avec des binaires non obscurcis\todo{vrai?}.
 L'inverse n'est par contre pas vrai puisque deux instructions peuvent ne pas être alignées à cause d'un ajout de code mort (voir chapitre \ref{chap:obscurcissement}) sans qu'il n'y ait de chevauchement de code dans le graphe de flot.

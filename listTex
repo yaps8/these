@@ -1,0 +1,3 @@
+#!/bin/bash
+
+cat these.tex | grep input | grep -v -e "^%" | sed 's/\\input{\([-a-z]*\)}.*/\1.tex/'

@@ -305,7 +305,7 @@ En pratique un programme est constitué d'un grand nombre d'instructions de saut
 Ce type d'instructions posent un souci lors de l'analyse : sans connaître précisément la ou les valeurs potentielles d'\eax, impossible de prédire la cible du saut et donc de savoir le code potentiellement exécuté à la suite de cette instruction.
 Dans l'exemple du \helloworld, si une telle instruction est présente dans la section \ptext, il devient difficile d'exclure l'exécution possible de code dans la section \pdata.
 
-\subsection{Reconstruction du graphe de flot de contrôle (GFC).}
+\subsection{Reconstruction du graphe de flot de contrôle}
 Nous avons vu jusqu'ici une réprésentation des programmes assembleur et binaires sous forme de code linéaire mais il est plus aisé de visualiser les programmes à l'aide d'un graphe de flot de contrôle (GFC).
 Ce graphe représente les instructions sous forme de sommets et les sauts du flot de contrôle d'une instruction à une autre sous forme d'arcs.
 Prenons le programme assembleur donné en figure \ref{fig:asm_eax_code}. Il ne fait que modifier le registre \eax, effectue des sauts selon la valeur d'\eax\ et se termine avec une valeur pour \eax\ à 1 ou 2. L'instruction \texttt{mov eax, 3} n'est pas atteignable puisqu'elle suit un saut inconditionnel et qu'aucune autre instruction ne provoque un saut vers elle.
@@ -370,15 +370,75 @@ D'autre part si des sauts dynamiques sont utilisés comme avec l'instruction \te
 
 
 \section{Désassemblage}
-\itodo{désassemblage parfait}
-\ijym{pb de l'atteignabilité + important (jmp eax)}
-\itodo{séparation code/données = déterminer l'ensemble du code atteignable}
 Nous avons vu que le problème du désassemblage tient dans la difficulté de séparer les parties de codes des parties de données d'un programme binaire.
-Dans ce chapitre et dans un premier temps, nous proposons une preuve du caractère indécidable du désassemblage puis expliquerons les différentes techniques de désassemblage. Dans un second temps nous détaillerons notre approche du désassemblage qui permet de traiter le cas des programmes auto-modifiants ainsi que le chevauchement de code.
+Une des principales difficultés réside dans l'utilisation de sauts dynamiques de type \texttt{jmp eax} dont la cible ne peut être déterminée qu'en ayant une connaissance fine de la ou des valeurs possibles pour \eax.
+
+Dans cette partie nous proposons une formalisation du problème du désassemblage et une preuve de son caractère indécidable puis nous décrirons brièvement les deux approches du problème que sont l'analyse statique et l'analyse dynamique.
+
+\subsection{Désassemblage parfait et graphe de flot de contrôle parfait}
+Il est aisé de définir ce que l'on appelle code lors d'un désassemblage : il s'agit de toute partie du programme sur laquelle est écrite une instruction atteignable lors d'une exécution du programme.
+Les données sont les parties du programme qui peuvent être lues lors d'une exécution du programme. Les deux ne sont donc pas contradictoires. Une adresse d'un binaire chargé en mémoire peut donc être soit inutilisée, soit atteignable lors de l'exécution, soit potentiellement lue, soit potentiellement lue et exécutée.
+
+\begin{center}
+\begin{tikzpicture}
+% Definition of circles
+\def\firstcircle{(0,0) circle (1cm)}
+\def\secondcircle{(0,-1.5cm) circle (1cm)}
+\def\thirdcircle{(0,-0.75cm) circle (2cm)}
+
+\colorlet{circle edge}{black!100}
+\colorlet{circle area}{black!20}
+
+\tikzset{filled/.style={fill=circle area, draw=circle edge, thick},
+    outline/.style={draw=circle edge, thick}}
+% \setlength{\parskip}{5mm}
+    \begin{scope}
+        \clip \firstcircle;
+        \fill[filled] \secondcircle;
+    \end{scope}
+    \draw[outline] \firstcircle node {Code};
+    \draw[outline] \secondcircle node {Données};
+    \draw[outline] \thirdcircle node {};
+    \node[anchor=south] at (current bounding box.north) {Programme};
+\end{tikzpicture}
+\end{center}
+
+Une définition formelle du désassemblage parfait d'un programme P (définition \ref{def:desassemblage_parfait}) est alors la détermination de l'ensemble des adresses atteignables de P.
+
+\begin{defi}
+ Étant donné un programme P prenant une entrée I, le désassemblage parfait de P est la donnée de l'ensemble des adresses $a$ de P pouvant être atteintes, soit $\bigcup_{I} \{a,\ P(I)\ atteint\ a\}$.
+\label{def:desassemblage_parfait}
+\end{defi}
+
+L'analyste est par contre intéressé par plus d'informations que simplement la liste des adresses atteignables. 
+% Il est utile de connaître les enchaînements d'instructions possibles, représentés dans le graphe de flot de contrôle.
+La meilleure source pour l'analyse d'un programme serait la connaissance de tous les chemins d'exécution possibles, quelle que soit l'entrée donnée au programme (définition \ref{def:exec_possibles}).
+
+\begin{defi}
+ Étant donné un programme P prenant une entrée I, l'ensemble des chemins d'exécution possibles de P est l'union sur les entrées I des chemins d'exécution pris par P(I).
+\label{def:exec_possibles}
+\end{defi}
+
+À partir de cette donnée il est possible de parcourir l'ensemble des comportements possibles du programme, que ce soit la valeur des différents registres au cours de l'exécution, les interactions entre le programme et le système d'exploitation ou les enchaînements possibles entre différentes instructions.
+Nous nous intéressons en particulier au graphe de flot de contrôle parfait (définition \ref{def:cfg_parfait_nsm}) dans lequel les sommets seraient exactement les adresses de toutes les instructions atteignables et un arc relierait deux instructions si et seulement si il existe un chemin d'exécution dans lequel les deux instructions se suivent immédiatement.
+Cette définition d'un graphe de flot de contrôle parfait représente une instruction par son adresse en mémoire : il s'agit d'une simplification cohérente dans le cas d'un programme \nsm\ et nous verrons par la suite comment étendre la notion de graphe de flot de contrôle parfait à un programme qui se modifie lui-même.
+
+\begin{defi}
+ Étant donné un programme \nsm\ P prenant une entrée I, le graphe de flot de contrôle parfait de P est le graphe orienté $T=(V, E)$ tel que :
+ \begin{itemize}
+  \item V est l'ensemble des sommets de T et est inclus dans l'ensemble des adresses de P
+  \item $E\subset V\times V$ est l'ensemble des arcs de T
+  \item $(a, b)\in E$ si et seulement si il existe un chemin d'exécution de P au sein duquel l'adresse $b$ suit immédiatement l'adresse $a$ dans l'ordre d'exécution.
+ \end{itemize}
+\label{def:cfg_parfait_nsm}
+\end{defi}
+
+En pratique nous ne disposons pas de la liste exhaustive de tous les chemins d'exécution possibles du programme à analyser. Notre objectif est alors d'obtenir une approximation cohérente du graphe de flot de contrôle parfait. 
+% C'est à cette fin que nous décrivons et développons différentes techniques d'analyses dans les prochains chapitres.
 
 
-\paragraph{Difficulté théorique du désassemblage.}
-~\\
+
+\subsection{Difficulté théorique du désassemblage}
 \idone{Pb de l'arrêt: il existe HALT / pour tout P,I : HALT(P,I) = 1 ssi P(I) termine}
 \imore{Pb du désassemblage : borne min : intersection de CODE(P,I), borne max : union}
 \imore{borne min ~ arrêt ?}
@@ -408,7 +468,7 @@ On en déduit donc que le désassemblage permet de résoudre le problème de l'a
 Ainsi le problème du désassemblage est indécidable.
 
 
-\paragraph{Analyse statique et dynamique.}
+\subsection{Analyse statique et dynamique}
 Dans le domaine de l'analyse de code, on parle d'analyse dynamique lorsque le fichier binaire à analyser est exécuté au moins partiellement et que l'analyse consiste à observer une ou des exécutions du programme. Au contraire lors d'une analyse statique on cherche à inférer des propriétés sur le programme sans l'exécuter.
 
 Les deux techniques permettent de récupérer du code assembleur à partir du programme et donc de réaliser un désassemblage et de reconstruire un graphe de flot de contrôle.
@@ -416,6 +476,7 @@ L'avantage de l'analyseur dynamique est que, puisqu'il travaille sur une exécut
 Par contre il n'est pas complet vu qu'il ne suivra pas des branches du programme qui pourraient être utilisées si leurs conditions étaient vérifiées. À l'inverse un analyseur statique n'est pas précis et ne peut en général pas être complet à cause de l'impossibilité de prédire certaines cibles de sauts dynamiques.
 
 En pratique le désassemblage est classiquement du domaine de l'analyse statique. Nous expliquerons comment l'analyse dynamique peut aider à reconstruire les graphes de flot et le code des programmes obscurcis.
+
 
 
 
