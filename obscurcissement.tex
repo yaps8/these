@@ -335,7 +335,17 @@ Ces logiciels de protection s'appliquent à l'ensemble du programme malveillant 
 
 \begin{figure}
 \begin{center}
-\includegraphics[width=1.0\textwidth]{supports/packers/packers.pdf}
+\scalebox{1}{
+\begin{tikzpicture}[->,scale=1,>=stealth',thick]
+\node[state, text width=3cm, minimum size=3cm] (BIN){Binaire d'origine};
+\node[state, below right = -0.5cm and 4cm of BIN.east, text width=3cm, minimum size=3cm] (BINO){Données :\\Binaire d'origine caché};
+\node[state, below = -2cm of BINO.north, text width=3cm, minimum size=2cm] (UNPACK){Code :\\Routine de dépaquetage};
+% \draw ($(BIN.north west) + (-0.8, -0.1) $) -- node[left=0.3cm]{Point d'entrée} ($(BIN.north west) + (0, -0.1) $);
+% \draw ($(UNPACK.north east) + (0.8, -0.1) $) -- node[right=0.3cm]{Point d'entrée} ($(UNPACK.north east) + (0, -0.1) $);
+\draw ($(BIN.east) + (0.5, 0) $) -- node[below]{\large Enpaquetage} ($(BIN.east) + (3cm, 0) $);
+\node [fit={($(UNPACK.north west) + (-0.1, 0.1)$) ($(BINO.south east) + (0.1, -0.1)$)}, draw, label=Binaire empaqueté] {};
+\end{tikzpicture}
+}
 \end{center}
 \caption{Empaquetage d'un binaire}
 \label{fig:packer}
@@ -348,3 +358,4 @@ L'empaqueteur libre UPX \cite{UPX} est un cas typique du schéma précédent. Il
 Cette thèse s'intéresse particulièrement à l'analyse des programmes écrits en assembleur \xq\ et \xs. Ces programmes ont en général été compilés à partir d'un langage de haut niveau puis ont été modifiés à l'aide d'un logiciel de protection. Les binaires que l'on étudie sont donc protégés avec des techniques statiques comme auto-modifiantes. Notre travail consiste alors à chercher à désassembler correctement ces programmes dans le but de faciliter leur analyse.
 
 Les chapitres suivants détailleront plusieurs techniques d'analyse que nous avons appliquées. Nous nous intéresserons d'abord à l'aspect auto-modifiant des programmes et verrons comment l'analyse dynamique peut être utilisée pour reconstruire un modèle pour le programme auto-modifiant. Dans un second temps nous introduirons des techniques d'analyse statiques pour chercher à recomposer le maximum de code assembleur du programme et contourner d'autres méthodes de protection comme le chevauchement de code.
+\itodo{non, ce n'est pas ça le plan}

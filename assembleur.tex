@@ -379,6 +379,7 @@ Dans cette partie nous proposons une formalisation du problème du désassemblag
 Il est aisé de définir ce que l'on appelle code lors d'un désassemblage : il s'agit de toute partie du programme sur laquelle est écrite une instruction atteignable lors d'une exécution du programme.
 Les données sont les parties du programme qui peuvent être lues lors d'une exécution du programme. Les deux ne sont donc pas contradictoires. Une adresse d'un binaire chargé en mémoire peut donc être soit inutilisée, soit atteignable lors de l'exécution, soit potentiellement lue, soit potentiellement lue et exécutée.
 
+% \setlength{\parskip}{5mm}
 \begin{center}
 \begin{tikzpicture}
 % Definition of circles
@@ -391,7 +392,6 @@ Les données sont les parties du programme qui peuvent être lues lors d'une ex�
 
 \tikzset{filled/.style={fill=circle area, draw=circle edge, thick},
     outline/.style={draw=circle edge, thick}}
-% \setlength{\parskip}{5mm}
     \begin{scope}
         \clip \firstcircle;
         \fill[filled] \secondcircle;

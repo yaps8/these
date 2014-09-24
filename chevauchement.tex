@@ -1,24 +1,39 @@
-Nous cherchons à parcourir le plus de code atteignable et donc avoir une couverture optimale du code lors du désassemblage par rapport à un désassemblage parfait.
+Nous cherchons à parcourir le plus de code atteignable dans le but d'approximer le graphe de flot de contrôle parfait.
 Il faut alors pallier à l'incomplétude d'un parcours récursif et au manque de précision d'un parcours linéaire.
 Une des difficulté vient de l'obscurcissement par chevauchement de code. 
-Nous cherchons donc des approches du désassemblage qui prennent en compte cette méthode de protection.
+Dans ce chapitre nous commençons par dresser un état de l'art de quelques techniques d'analyse statique et de leur approche du chevauchement de code, puis nous proposerons une caractérisation des binaires utilisant cette technique.
+% Nous cherchons donc des approches du désassemblage qui prennent en compte cette méthode de protection.
 
 
 \section{Revue de littérature}
 % \subsection{Couverture de code}
-Bien que le problème du chevauchement de code ne soit pas une technique d'obscurcissement récente et soit bien documenté \cite{PMA}, la littérature portant sur le désassemblage fait souvent l'hypothèse qu'un octet à une adresse spécifique ne peut être présent que dans une seule instruction \cite{KruegelRVV04}. Cette contrainte empêche de détecter tout chevauchement mais permet un désassemblage plus précis sur un binaire qui n'utilise pas cette technique de protection.
+Bien que le problème du chevauchement de code ne soit pas une technique d'obscurcissement récente et soit bien documenté \cite{PMA}, la littérature portant sur le désassemblage fait souvent l'hypothèse qu'un octet à une adresse spécifique ne peut être présent que dans une seule instruction \cite{KruegelRVV04}. 
+Cette contrainte empêche de détecter tout chevauchement mais permet un désassemblage plus précis sur un binaire qui n'utilise pas cette technique de protection.
 
 
+\paragraph{Parcours spéculatif.}
+Le parcours récursif étant moins sensible à des obscurcissements très simples comme l'injection de code mort, il est souvent pris comme point de départ dans les recherches sur le désassemblage statique.
+Une fois une première recherche de code avec un parcours récursif effectuée, les octets restants peuvent subir un parcours linéaire qui cherchera à déterminer s'ils sont du code ou des données à l'aide d'heuristiques.
+Une de ces approche évalue la probabilité qu'une suite d'octets soit effectivement du code en apprenant au préalable des suites d'octets codant réellement des instructions lancées lors de l'exécution de programmes \cite{KDF09}.
+On appelle cet enchaînement des deux parcours un parcours spéculatif.
 
-Les auteurs de la technique de chevauchement détaillée au chapitre \ref{chap:obscurcissement}, permettant d'encoder une séquence de code cachée dans une séquence \cite{JLH13}, proposent de détecter la protection qu'ils exposent. 
-L'idée est qu'il est improbable qu'une longue séquence d'octets représente une séquence valide de code. 
-Si une telle séquence existe, c'est sûrement du code. Ainsi si deux longues séquences valides de code se chevauchent, il s'agit d'un obscurcissement délibéré et une des deux séquences contient du code caché. 
-Cette approche fonctionne pour la protection qu'ils exposent mais n'est pas applicable aux cas d'UPX par exemple car les séquences d'octets sur lesquels des instructions se chevauchent sont très courtes et il est plausible que le chevauchement soit accidentel et que le code en chevauchement ne soit pas atteignable.
+Prasaf et Chiueh \cite{PC03}, après un premier désassemblage récursif, tentent d'identifier les adresses de début de fonctions assembleur à l'aide de la suite d'instruction \push\ puis \mov, caractéristique de fonctions compilées : elles commencent par empiler le pointeur de pile de base avec \texttt{push ebp} pour le remplacer par le pointeur de pile avec \texttt{mov ebp, esp}. Ils identifient également toutes les adresses où sont codées une instruction valide. À partir de ces adresses ils effectuent à nouveau un parcours récursif jusqu'à une instruction de saut inconditionnel (\ret\ out \jmp), estimant que la séquence de code identifiée s'arrête sur ce saut. Le risque est grand que des chemins parcourus ainsi ne soient pas valides, ils éliminent alors les chemins qui aboutissent sur du code invalide ou des adresses connues pour être des données.
+
+Krügel, Roberston, Valeur et Vigna \cite{KruegelRVV04} proposent aussi de séparer le code en fonctions assembleur. Ils effectuent une première analyse récursive pour détecter le maximum d'instructions atteignables et, lorsque que deux ou plusieurs instructions atteignables se chevauchent, ils considèrent qu'il s'agit d'un conflit qui se résoudra par le choix d'une des instructions.
+Leurs hypothèses sont : (i) les instructions ne peuvent pas se chevaucher, (ii) les sauts conditionnels peuvent être suivis ou non, (iii) le binaire peut contenir du code mort, et (iv) le code suivant une instruction \call\ n'est pas nécessairement accessible. Pour résoudre les conflits de chevauchement ils favorisent les instructions atteignables depuis le point d'entrée (que l'on sait accessible), puis ils considèrent qu'une instruction permettant d'atteindre directement deux instructions qui se chevauchent n'est pas valide et enfin ils favorisent les instructions les plus connectées au graphe de flot de contrôle.
+Leur approche est un point de départ pour le désassemble de binaires obscurcis. Ils prennent par exemple en compte l'ajout de code mort et certaines modifications du flot de contrôle.
+
+Schwarz, Debray et Andrews \cite{SDA02} introduisent un parcours linéaire capable de détecter certaines injections de données dans le code, comme les tables de saut (souvent présent dans du code compilé en C ou C++). Ils proposent de combiner les parcours récursifs et linéaires pour détecter les anomalies dans le désassemblage. Si, au sein d'une fonction, une instruction provenant du désassemblage récursif chevauche une instruction provenant du désassemblage linéaire, le désassemblage de la fonction est considéré comme contenant une erreur.
+% \\
+
+Partant du principe qu'un désassemblage correct ne contient pas de chevauchement de code, ces approches ne sont pas satisfaisantes pour désassembler des binaires utilisant du chevauchement de code, tels les programmes protégés avec \telock.
+% \\
+
 
 \paragraph{Désassembleurs disponibles.}
 Les désassembleurs existants, qu'ils utilisent un parcours linéaire ou récursif, font l'hypothèse que le code ne peut pas se chevaucher et ne parviennent pas à afficher un désassemblage cohérent dans le cas contraire.
 
-Le désassemblage récursif de l'exemple de \telock\ avec IDA Pro (version 6.3) \cite{IDA} est le suivant :
+Le désassemblage récursif de l'exemple de \telock\ (figure \ref{fig:telock_obf_disas}) avec IDA Pro (version 6.3) \cite{IDA} est le suivant :
 \begin{lstlisting}[language={[x86masm]Assembler}, escapechar=~]
 01006E7A     inc     byte ptr [ebx+ecx]
 01006E7D     jmp     short near ptr loc_1006E7D+1
@@ -39,7 +54,7 @@ Radare \cite{radare} effectue le désassemblage linéaire suivant :
 \end{lstlisting}
 Ni l'un ni l'autre n'est capable de suivre le saut de l'instruction \jmp\ : la cible du saut a déjà été prise en compte comme faisant partie d'une autre instruction.
 
-De même ni Radare ni IDA ne détectent le second chemin d'exécution dans l'extrait d'UPX et désassemblent cet extrait comme suit.
+De même ni Radare ni IDA ne détectent le second chemin d'exécution dans l'extrait d'UPX (figure \ref{fig:upx_obf_disas}) et désassemblent cet extrait comme suit.
 \begin{lstlisting}[language={[x86masm]Assembler}, escapechar=~]
 010059f0    89 f9            mov ecx, edi
 010059f2    79 07            jns 0x10059fb
@@ -51,46 +66,26 @@ De même ni Radare ni IDA ne détectent le second chemin d'exécution dans l'ext
 010059ff    55               push ebp
 \end{lstlisting}
 
-\paragraph{Parcours spéculatif.}
-Le parcours récursif étant moins sensible à des obscurcissements très simples comme l'injection de code mort, il est souvent pris comme point de départ dans les recherches sur le désassemblage statique.
-Une fois une première recherche de code avec un parcours récursif effectuée, les octets restants peuvent subir un parcours linéaire qui cherchera à déterminer s'ils sont du code ou des données à l'aide d'heuristiques.
-Une de ces approche évalue la probabilité qu'une suite d'octets soit effectivement du code en apprenant au préalable des suites d'octets codant réellement des instructions lancées lors de l'exécution de programmes \cite{KDF09}.
-On appelle cet enchaînement des deux parcours un parcours spéculatif.
+\paragraph{Approches prenant en compte le chevauchement.}
+Les auteurs de la technique de chevauchement détaillée au chapitre \ref{chap:obscurcissement}, permettant d'encoder une séquence de code cachée dans une séquence \cite{JLH13}, proposent de détecter la protection qu'ils exposent. 
+L'idée est qu'il est improbable qu'une longue séquence d'octets représente une séquence valide de code. 
+Si une telle séquence existe, c'est sûrement du code. Ainsi si deux longues séquences valides de code se chevauchent, il s'agit d'un obscurcissement délibéré et une des deux séquences contient du code caché. 
+Cette approche fonctionne pour la protection qu'ils exposent mais n'est pas applicable aux cas d'UPX par exemple car les séquences d'octets sur lesquels des instructions se chevauchent sont très courtes et il est plausible que le chevauchement soit accidentel et que le code en chevauchement ne soit pas atteignable.
 
-Prasaf et Chiueh \cite{PC03}, après un premier désassemblage récursif, tentent d'identifier les adresses de début de fonctions assembleur à l'aide de la suite d'instruction \push\ puis \mov, caractéristique de fonctions compilées : elles commencent par empiler le pointeur de pile de base avec \texttt{push ebp} pour le remplacer par le pointeur de pile avec \texttt{mov ebp, esp}. Ils identifient également toutes les adresses où sont codées une instruction valide. À partir de ces adresses ils effectuent à nouveau un parcours récursif jusqu'à une instruction de saut inconditionnel (\ret\ out \jmp), estimant que la séquence de code identifiée s'arrête sur ce saut. Le risque est grand que des chemins parcourus ainsi ne soient pas valides, ils éliminent alors les chemins qui aboutissent sur du code invalide ou des adresses connues pour être des données.
+Dans sa thèse, Kinder \cite{Kinder10} indique que si la technique de désassemblage autorise que différentes instructions dans le graphe de flot de contrôle se chevauchent et réalise des désassemblages atomiques d'une seule instruction à la fois à partir de chaque adresse, alors on peut voir deux instructions qui se chevauchent comme indépendantes.
 
-% \paragraph{Dans la littérature.}
-
-% \\
-
-
-
-% \paragraph{Chevauchement de code.}
-Krügel, Roberston, Valeur et Vigna \cite{KruegelRVV04} proposent aussi de séparer le code en fonctions assembleur. Ils effectuent une première analyse récursive pour détecter le maximum d'instructions atteignables et, lorsque que deux ou plusieurs instructions atteignables se chevauchent, ils considèrent qu'il s'agit d'un conflit qui se résoudra par le choix d'une des instructions.
-Leurs hypothèses sont : (i) les instructions ne peuvent pas se chevaucher, (ii) les sauts conditionnels peuvent être suivis ou non, (iii) le binaire peut contenir du code mort, et (iv) le code suivant une instruction \call\ n'est pas nécessairement accessible. Pour résoudre les conflits de chevauchement ils favorisent les instructions atteignables depuis le point d'entrée (que l'on sait accessible), puis ils considèrent qu'une instruction permettant d'atteindre directement deux instructions qui se chevauchent n'est pas valide et enfin ils favorisent les instructions les plus connectées au graphe de flot de contrôle.
-Leur approche est un point de départ pour le désassemble de binaires obscurcis. Ils prennent par exemple en compte l'ajout de code mort et certaines modifications du flot de contrôle.
-
-Schwarz, Debray et Andrews \cite{SDA02} introduisent un parcours linéaire capable de détecter certaines injections de données dans le code, comme les tables de saut (souvent présent dans du code compilé en C ou C++). Ils proposent de combiner les parcours récursifs et linéaires pour détecter les anomalies dans le désassemblage. Si, au sein d'une fonction, une instruction provenant du désassemblage récursif chevauche une instruction provenant du désassemblage linéaire, le désassemblage de la fonction est considéré comme contenant une erreur.
-\\
-
-Partant du principe qu'un désassemblage correct ne contient pas de chevauchement de code, ces approches ne sont pas satisfaisantes pour désassembler des binaires utilisant du chevauchement de code, tels les programmes protégés avec \telock.
-\\
-
-Dans sa thèse, Kinder \cite{Kinder10} indique que si la technique de désassemblage autorise que différentes instructions désassemblées se chevauchent et réalise des désassemblages atomiques d'une seule instruction à la fois à partir de chaque adresse, alors on peut voir deux instructions qui se chevauchent comme indépendantes. 
 Effectivement les travaux présentés dans cet état de l'art ainsi que les désassembleurs existants prennent pour hypothèse que le code ne doit pas se chevaucher alors que nous avons représenté les chevauchements de \telock\ et UPX très simplement. 
 L'hypothèse d'alignement permet en général de simplifier les critères de désassemblage et est justifiée par la non occurrence de ce phénomène dans des programmes légitimes.
 Nous verrons qu'en pratique l'utilisation du chevauchement de code est rare même dans un binaire protégé et nous proposerons une technique de désassemblage capable de détecter les cas de chevauchement.
 
-
-
-\section{Analyse statique et chevauchement de code}
+\section{Analyse statique du chevauchement de code}
 Nous proposons une formalisation du problème du chevauchement de code.
 Du point de vue du désassemblage, un programme qui présente une unique instruction qui en chevauche une autre peut se voir comme composé d'un chemin principal de désassemblage et d'un chemin secondaire dans lequel l'instruction en chevauchement se place.
 Reprenons l'exemple de \telock : le segment d'octets \texttt{eb ff c9 7f e6} peut se voir comme composé des deux \layers\ de code données à la figure \ref{fig:telock-layers-simple} : il y a deux \layers, la première contient les instructions \texttt{jmp +1}, \texttt{leave} et \texttt{jg 0x1006e68} et la seconde contient l'instruction \texttt{dec ecx}, chevauchant \texttt{jmp +1}.
 En fait le segment d'octets \texttt{eb ff c9 7f e6} contient exactement les quatre instructions précédentes : il y a au maximum une instruction valide à chaque adresse et la dernière instruction potentielle, codée sur \texttt{e6}, n'est pas valide.
 
 
-\begin{figure}
+\begin{figure}[h]
 \begin{center}
 \begin{tabular}{|l|c|c|c|c|c|}
 \hline
