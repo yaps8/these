@@ -367,14 +367,76 @@ Au c\oe ur de cette architecture se trouvent deux opérateurs. Le premier est l'
 Le second est l'opérateur d'évaluation sémantique qui modifie l'état interne de la machine selon l'instruction dans le langage intermédiaire donnée en entrée.
 
 \subsection{Implémentation}
-L'objectif principal de l'implémentation est d'obtenir un couple d'opérateurs de désassemblage et d'évaluation sémantique suffisamment permettant l'analyse de programmes auto-modifiants.
+L'objectif principal de l'implémentation est d'obtenir un couple d'opérateurs de désassemblage et d'évaluation sémantique permettant l'analyse de programmes auto-modifiants.
 Le langage intermédiaire utilisé n'a pas d'importance vu qu'il n'est jamais utilisé en dehors de ces deux opérateurs et que seule la sortie de l'évaluation sémantique est observée.
-\paragraph{Preuve de concept en C.}
+
+\subsubsection{Preuve de concept en C}
 Nous avons réalisé une implémentation en C de la sémantique concrète de notre langage.
-% Le c\oe ur de l'implémentation 
+Le langage intermédiaire est calqué sur celui défini dans ce chapitre : une instruction atomique est d'un des types suivants.
+\begin{itemize}
+ \item ASSIGN : Assignation
+ \item GOTO : Saut inconditionnel
+%  \item CGOTO : Saut inconditionnel dynamique
+ \item IFTHENGOTO : Saut conditionnel
+%  \item IFTHENCGOTO : Saut conditionnel dynamique
+ \item NOP : cette instruction n'a pas d'effet
+ \item END : indique la fin du programme
+ \item UNKNOWN : l'instruction n'a pas été reconnue
+\end{itemize}
+~\\
+Une variable est d'un des types suivants :
+\begin{itemize}
+  \item CONST : une constante entière
+  \item MEM : une adresse de la mémoire
+  \item REG : un registre
+  \item FLAG : un drapeau du processeur
+\end{itemize}
+
+~\\
+Un store associe à une variable une valeur qui est soit un entier (de type \emph{int}, à valeurs dans $\textlbrackdbl -2^{31},\   2^{31}-1\textrbrackdbl$), soit $\bot$ si la variable n'a pas été initialisée.
+
+Pour les instructions d'assignation de la forme $x\leftarrow g(x_1, ..., x_m)$, nous avons implémenté quelques fonctions totales comme la somme de deux variables, l'opposé d'une variable, la fonction renvoyant $1$ si la variable est positive ou nulle, $1$ sinon.
+Cette dernière fonction, avec celles permettant de déterminer si une variable est nulle ou si une variable est paire, est cruciale pour transcoder l'instruction assembleur \cmp\ permettant de comparer deux variables avant d'effectuer un saut selon le résultat de la comparaison.
+
+\paragraph{Désassemblage.}
+~\\\itodo{niveaux de sémantique?}
+Nous avons utilisé la librairie XED d'Intel \cite{xed} qui permet d'encoder et de décoder des instructions assembleur sur demande.
+À partir d'une séquence d'octets elle fournit une structure contenant, entre autres, les informations suivantes :
+\begin{itemize}
+ \item Une chaîne de caractère décrivant l'instruction
+ \item Le type de l'instruction (\texttt{CMP}, \texttt{MOV}, \texttt{JMP} par exemple)
+ \item Les arguments et leurs types (adresse mémoire, registre ou drapeau)
+\end{itemize}
+Ces informations ne suffisent pas en l'état pour construire une suite d'instructions dans le langage intermédiaire équivalentes sémantiquement à l'instruction assembleur décodée. 
+Les informations fournies permettent par contre de classer les instructions en différentes catégories, selon la documentation officielle, et d'écrire des règles de transcription adaptées à chacune afin d'en déduire un désassemblage.
+Cette étape de transcription des instructions assembleur est la plus pénible à implémenter puisqu'elle consiste principalement à lire la documentation des processeurs ciblés (ici les processeurs Intel \cite{intel_vol2}).
+
+Par exemple les instructions de type \texttt{CMP} prenant comme arguments deux variables à modifier, par exemple \texttt{cmp eax, ebx}.
+Cette instruction met à jour les drapeaux du processeur selon des caractéristiques de $eax-ebx$.
+Elle est sémantiquement équivalente à la suite d'instructions suivantes.
+% \\
+\begin{center}
+\begin{tabular}[b]{l}
+tmp $\leftarrow$ opposé(ebx)\\
+tmp $\leftarrow$ somme(tmp, eax)\\
+PF $\leftarrow$ parité(tmp) \\
+ZF $\leftarrow$ nul(tmp) \\
+SF $\leftarrow$ signe(tmp) \\
+OF $\leftarrow$ débordement(tmp) \\
+CF $\leftarrow$ retenue(tmp)
+\end{tabular}
+\end{center}
+
+\paragraph{Évaluation sémantique.}
+La seule instruction atomique provoquant la modification de la valeur d'une variable, hors compteur ordinal, est l'assignation, de la forme $x\leftarrow g(x_1, ..., x_m)$, et l'évaluation sémantique d'une assignation est donnée dans la sémantique du langage intermédiaire et consiste simplement à évaluer les arguments, puis à calculer la valeur de $g(x_1, ..., x_m)$ et à l'assigner à la variable $x$.
+
+Le second aspect de l'évaluation sémantique est la détermination de l'adresse de la prochaine instruction à évaluer, c'est à dire de la valeur de \eip. Cette valeur est également donnée par la sémantique du langage intermédiaire.
+
+\paragraph{Limites de l'approche.}
+Nous avons implémenté la transcription de quelques instructions assembleur en langage intermédiaire mais le temps requis pour implémenter toutes les variantes de chaque instruction est suffisamment long pour qu'on se tourne vers des plateformes d'analyse de binaires où cette étape a déjà été réalisée.
 
 
-\paragraph{Avec BAP.}
+\subsubsection{Avec BAP}
 BAP permet de transcrire un programme en assembleur en un programme écrit dans le langage intermédiaire utilisé par BAP.
 Il fournit également un émulateur permettant d'exécuter un programme en langage intermédiaire.
 Seul l'assembleur \xq\ est supporté par la version 0.7 de BAP que nous avons utilisée et l'émulateur ne permet pas l'auto-modification.
