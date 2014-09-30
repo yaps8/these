@@ -1,6 +1,45 @@
 % \section{Sémantique concrète pour un langage assembleur}
 \itodo{Relire et checker la cohérence de la notation en expressions}
-\section{Une sémantique pour l'assembleur}
+
+Dans ce chapitre nous proposons un modèle simplifié pour le langage assembleur et une sémantique concrète pour ce langage.
+
+Lors de l'analyse d'un binaire, il est crucial de pouvoir analyser chaque instruction.
+La question centrale est la suivante : quelle est l'opération réalisée par cette instruction ?
+En particulier quels sont ses opérandes en entrées, en sortie, et comment sont-ils lus et modifiés ?
+Prenons l'instruction \texttt{push ecx}. 
+Il est clair que le registre \ecx\ est un opérande mais cette information est insuffisante : cette instruction consiste à empiler la valeur de \ecx\ sur la pile, elle modifie donc le pointeur de pile \esp\ et écrit à une adresse mémoire.
+
+Nous reprenons la classification informelle en trois niveaux d'information proposée par Calvet \cite{Calvet2013} à la figure \ref{fig:niveaux_sem}, par exemple pour l'instruction \texttt{push ecx} :
+\begin{itemize}
+ \item Niveau 1 - Opérandes explicites : \ecx
+ \item Niveau 2 - Opérandes implicites précis : \ecx\ et \esp\ sont des entrées, l'adresse mémoire à l'adresse $esp-4$ est une sortie
+ \item Niveau 3 - Opération : l'instruction décrémente \esp\ de 4 puis écrit à l'adresse mémoire pointée par \esp\ la valeur qui est dans \ecx
+\end{itemize}
+
+\begin{figure}
+\begin{center}
+\begin{tikzpicture}[text centered]
+% Definition of circles
+\colorlet{circle edge}{black!100}
+\colorlet{circle area}{black!20}
+
+\tikzset{filled/.style={fill=circle area, draw=circle edge, thick},
+    outline/.style={draw=circle edge, thick}}
+    \draw (0, -1) arc (-90:270:2.7cm) node[above=4.25cm, text width=4cm]{3\\Opération};
+    \draw (0, -1) arc (-90:270:2.1cm) node[above=2.4cm, text width=4cm]{2\\Opérandes\\implicites};
+    \draw (0, -1) arc (-90:270:1.2cm) node[above=0.4cm, text width=4cm]{1\\Opérandes\\explicites};
+%     \node[anchor=south] at (current bounding box.north) {Progwramme};
+\end{tikzpicture}
+\end{center}
+\caption{Niveau des précision des informations sur une instruction}
+\label{fig:niveaux_sem}
+\end{figure}
+
+Une sémantique concrète se place au niveau 3 : elle donne une information exhaustive sur l'opération réalisée par chaque instruction.
+Ce chapitre sera donc consacré à la définition d'une sémantique concrète pour un langage assembleur simplifié.
+Nous verrons par la suite que pour certaines analyses une sémantique de niveau 2 peut-être suffisante.
+
+\section{Sémantique concrète pour un langage assembleur}
 \paragraph{Représentation de la mémoire et des registres.}
 On peut voir la mémoire comme un tableau contenant la pile et le tas, indexés sur les entiers. Les registres sont des variables distinctes de la mémoire et sont en nombre limité.
 L'assembleur distingue plusieurs modes d'adressage dont les deux principaux sont l'adressage direct et indirect : à l'exécution \eax\ prend la valeur du registre \eax\ (adressage direct) tandis que \texttt{[eax]} fait référence à la valeur en mémoire à l'adresse contenue dans \eax\ (adressage indirect).
@@ -205,8 +244,9 @@ Dans la suite nous appellerons évaluation sémantique ou \texttt{sem\_eval} la 
 
 
 \section{Assembleur et langage intermédiaire}
-En pratique pour analyser un programme assembleur on veut en avoir un représentation dont on connaît la sémantique concrète.
-On va pour cela réécrire le programme dans un langage intermédiaire et effectuer les analyses sur le programme en langage intermédiaire. Le langage défini dans la section en cours est un langage intermédiaire possible.
+En pratique pour analyser un programme assembleur on veut en avoir une représentation dont on connaît la sémantique concrète.
+On va pour cela réécrire le programme dans un langage intermédiaire et effectuer les analyses sur le programme en langage intermédiaire.
+Le langage défini dans ce chapitre est un langage intermédiaire possible.
 
 Une des difficultés rencontrées dans la transformation d'un langage assembleur en langage intermédiaire est la richesse sémantique du langage \xq\ qui contient des centaines d'instructions et utilise de nombreux registres et drapeaux du processeur.
 L'instruction \texttt{sub eax, b} par exemple soustrait l'opérande \texttt{b} à \eax\  en stockant le résultat de l'opérant dans \eax.
@@ -403,7 +443,7 @@ Cette dernière fonction, avec celles permettant de déterminer si une variable 
 Nous avons utilisé la librairie XED d'Intel \cite{xed} qui permet d'encoder et de décoder des instructions assembleur sur demande.
 À partir d'une séquence d'octets elle fournit une structure contenant, entre autres, les informations suivantes :
 \begin{itemize}
- \item Une chaîne de caractère décrivant l'instruction
+ \item Une chaîne de caractères décrivant l'instruction
  \item Le type de l'instruction (\texttt{CMP}, \texttt{MOV}, \texttt{JMP} par exemple)
  \item Les arguments et leurs types (adresse mémoire, registre ou drapeau)
 \end{itemize}
