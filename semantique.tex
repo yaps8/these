@@ -240,6 +240,8 @@ L'état initial du store est : $\forall v\in\BV, \Theta_X(v)=\bot$ et l'on part 
 \end{tabular}
 \end{center}
 
+\itodo{est-il possible de mettre $\bot$ dans une variable ? -> c'est une erreur plutôt non ?}
+
 Dans la suite nous appellerons évaluation sémantique ou \texttt{sem\_eval} la fonction qui, à une adresse $t$ et un store $\Theta_X$, associe l'état sur les instructions \xq\ suivant : si $t'$ et $\Theta_X'$ sont les premières valeurs vérifiant \textlangle$t, \Theta$\textrangle$\rightarrow^*$\textlangle$t', \Theta_X'$\textrangle\ avec $t\ne t'$ alors \texttt{sem\_eval}$(t, \Theta_X)=(t', \Theta_X')$.
 
 
@@ -282,7 +284,7 @@ Un programme sous forme d'instructions dans un langage intermédiaire est plus f
 Il est donc, comme nous le verrons par la suite, fréquent de construire des méthodes de désassemblage et d'analyse de binaires autour d'une représentation intermédiaire.
 
 \paragraph{Approche globale.}
-L'approche standard \todo{cite} consiste, à l'instar de la compilation, à transformer l'intégralité du programme assembleur en un programme en langage intermédiaire et à effectuer les analyses sur cette représentation intermédiaire.
+Une première approche consiste, à l'instar de la compilation, à transformer l'intégralité du programme assembleur en un programme en langage intermédiaire et à effectuer les analyses sur cette représentation intermédiaire.
 Cette approche est illustrée par le graphique donné à la figure \ref{fig:diag_approche_globale}. La partie d'analyse consiste en l'exécution ou l'émulation du programme dans son langage intermédiaire en partant du point d'entrée.
 Une première instruction est décodée, analysée et ajoutée dans le graphe de flot de contrôle du programme. Puis cette instruction est évaluée selon la méthode d'évaluation sémantique précédemment définie.
 Cette évaluation a des conséquence sur l'état interne du processeur et de la mémoire de la machine réelle ou virtuelle (selon si l'analyse est réalisée par exécution\todo{exécution ? alors qu'on ne parle que d'émulation/store ?} ou émulation).
