@@ -5,12 +5,37 @@ Dans ce chapitre nous détaillons une approche d'analyse dynamique adaptée aux 
 Cette approche est donnée par la littérature existante, en particulier par les travaux de thèse de Reynaud \cite{Reynaud2010} et Calvet \cite{Calvet2013}.
 
 \section{Auto-modification et vagues}
-Si on reprend l'exemple de code auto-modifiant du chapitre précédent (figure \ref{fig:unevague_v0}), on peut construire trois représentations en mémoire des parties exécutables du programme.
-La première correspond à la vision du programme lors de son chargement : la section .text est dans son état initial.
-La seconde est celle après que la première modification du programme faite à l'adresse \adr{8048086} et la troisième après la seconde modification faite à l'adresse \adr{804808b}.
-En fait vu qu'aucune des adresses modifiées par la première instruction auto-modifiante n'est exécutées avant que la seconde modification ne soit faite, on peut regrouper les deux instructions auto-modifiantes et considérer que le programme n'a que deux représentations en mémoire : la représentation initiale et la représentation au moment où l'instruction modifiée à l'adresse \adr{8048091} est exécutée.
+Prenons le programme auto-modifiant donné à la figure \ref{fig:prg_asm_sm} et analysons une exécution de ses instructions de 1 à 5.
+Deux instructions provoquent une auto-modification.
+L'instruction 2 à l'adresse \adr{8048065} va provoquer une écriture à l'adresse pointée par la valeur de \eax\ incrémentée de 1, soit à l'adresse \adr{804806c}. Cette écriture modifie l'instruction 4 en \texttt{mov edi, 2}, codée sur les octets \texttt{bf 02 00 00 00}. De même l'instruction 3 modifie l'instruction 5 en \texttt{mov ebx, 2}, codée sur \texttt{bb 02 00 00 00}.
+ 
+\begin{figure}
+\begin{center}
+\begin{tabular}[b]{|l|l|l|l|}
+\hline
+i & Adresse & Octets & Instruction\\ 
+\hline
+1 & 8048060  &  b8 6b 80 04 08         &  mov    eax, 0x8048076\\
+2 & 8048065  &  66 c7 40 01 02 00      &  mov    [eax+1], 2 \\
+3 & 804806b  &  66 c7 40 06 02 00      &  mov    [eax+6], 2 \\
+4 & 8048076  &  bf 01 00 00 00         &  mov    edi, 1 \\
+5 & 804807b  &  bb 01 00 00 00         &  mov    ebx, 1 \\
+\hline
+\end{tabular}
+\end{center}
+\caption{Programme auto-modifiant}
+\label{fig:prg_asm_sm}
+\end{figure}
 
-Dans ce découpage informel on appelle vague une représentation mémoire à un instant donné. 
+
+Au vu de l'enchaînement des instructions, on peut construire trois représentations en mémoire des parties exécutables du programme.
+La première correspond à la vision du programme lors de son chargement : la section .text est dans son état initial, donné en figure \ref{fig:prg_asm_sm}.
+La seconde est celle après que la première modification du programme faite par l'instruction 2 et la troisième après la seconde modification effectuée par l'instruction 3.
+En fait vu qu'aucune des adresses modifiées par la première instruction auto-modifiante n'est exécutée avant que la seconde modification ne soit faite, on peut regrouper les deux instructions auto-modifiantes et considérer que le programme n'a que deux représentations en mémoire : la représentation initiale et la représentation après que l'instruction 3 ait été exécutée. 
+Beaucoup de logiciels protégés restaurent de grandes parties de code au démarrage : un grand nombre d'instructions sont modifiées sans que les instructions modifiées ne soient exécutées. 
+Il nous paraît plus cohérent que toutes ces modifications soient réunies puisqu'elles correspondent à une étape lors de l'exécution du programme, l'étape suivante étant l'exécution d'une de ces instructions modifiées.
+
+Dans ce découpage informel on appelle vague une représentation de la mémoire à un instant donné. 
 L'exécution d'un programme est alors caractérisée par une suite d'exécutions sur des vagues successives comme représenté en figure \ref{fig:vagues_visuel}. Les instructions qui sont présentes dans la trace sont colorées en rose tandis que le point d'entrée et la dernière instruction sont en orange et bleu clair, respectivement.
 On passe d'une vague $k$ à la vague suivante $k+1$ lorsqu'une adresse mémoire écrite dans la vague $k$ est exécutée.
 Ainsi dans une vague $k$, toutes les instructions exécutées ont été écrites au moins à la vague $k-1$. 
@@ -28,12 +53,11 @@ Nous détaillerons par la suite ce qu'est une trace d'exécution pour l'analyse 
 \section{Revue de littérature}
 La notion de vague présentée dans ce chapitre a été développée dans les thèse de Reynaud \cite{Reynaud2010} et Calvet \cite{Calvet2013}.
 Elle est similaire à la notion de \emph{phase} présentée par Debray et Patel \cite{DP10} et utilisée pour automatiser la suppression de la protection d'un binaire. Le découpage d'une trace en phases est, chez eux, identique au découpage en vagues que l'on présente dans ce chapitre.
-En général la suppression des protections se fait à l'aide d'une analyse dynamique et d'une image de la mémoire à un instant donné au cours de l'exécution. C'est cette image mémoire qui sera considérée comme étant le programme d'origine. La difficulté réside alors dans le choix de l'instant où prendre l'image mémoire.
+En particulier le programme auto-modifiant précédent (figure \ref{fig:prg_asm_sm}), exécuté, forme deux vagues : la vague initiale est le programme initial et la seconde, modifiée, est identique à l'exception des instructions 4 et 5 qui ont été modifiées en \texttt{mov edi, 2} et \texttt{mov ebx, 2} respectivement.
+En général la suppression des protections se fait à l'aide d'une analyse dynamique et d'une image de la mémoire à un instant donné au cours de l'exécution. C'est cette image mémoire qui sera considérée comme étant le programme d'origine. La difficulté réside alors dans le choix de l'instant où prendre l'image mémoire : il s'agit souvent la dernière phase.
 
 Preda, Giacobazzi, Debray, Coogan et Townsend \cite{PGDCT10} effectuent un découpage en phases mais chaque lecture d'une instruction écrite lors d'une vague précédente (pas uniquement lors de la phase en cours) provoque la création d'une nouvelle phase.
-
-\itodo{donner un exemple avec les différentes interprêtations}
-\ijym{idem}
+Avec l'exemple précédent, leur approche crée trois phases : la phase initiale, celle où uniquement l'instruction 4 a été modifiée, puis celle où les instructions 4 et 5 ont été modifiées.
 
 \section{Trace, niveaux d'exécution et vagues}
 Le programme exécuté a pour sources principales de données les registres et la mémoire constituée de la pile et du tas qui sont tous les deux adressables par des entiers. Une variable d'un programme est donc soit un registre du processeur soit une adresse mémoire, de même que défini dans la sémantique du langage intermédiaire défini au chapitre précédent (définition \ref{def:sem_conc_var}).
@@ -178,15 +202,38 @@ L'algorithme \ref{algo:analyse_dyn_vagues} permet d'exécuter un programme dynam
  \label{def:vagues}
 \end{defi}
 
-Reprenons l'exemple précédent d'un programme auto-modifiant (figure \ref{fig:unevague_v0} du chapitre \ref{chap:obscurcissement}).
-La figure \ref{fig:unevague_trace} donne une trace d'exécution de ce programme en détaillant les informations sur chaque instruction dynamique ainsi que les niveaux d'écriture et d'exécution de chaque instruction.
+Reprenons l'exemple du programme \sm\ précédent.
+La figure \ref{fig:prg_asm_sm_trace} donne une trace d'exécution de ce programme en détaillant les informations sur chaque instruction dynamique ainsi que les niveaux d'écriture et d'exécution de chaque instruction.
 Au départ toute la mémoire est dans son état d'origine et a pour niveau d'exécution 0. Lorsque l'instruction $D_1$ est exécutée, il n'y a pas eu d'auto-modification donc le niveau d'écriture est 0 et le niveau d'exécution est 1.
-Les instructions $D_3$ et $D_4$ provoquent une auto-modification : les octets aux adresses \adr{0x8048091} et \adr{0x8048092} sont modifiés et leurs niveaux d'écriture deviennent donc le niveau d'exécution courant, soit 1.
-Lorsque l'exécution atteint $D_5$, qui a été modifié, le niveau d'écriture est 1 donc le niveau d'exécution devient 2.
-L'instruction suivante $D_6$ fixe la valeur de \edi\ à 2 puis les instructions suivantes provoquent l'affichage de \edi.
+Les instructions $D_2$ et $D_3$ provoquent une auto-modification : les octets aux adresses \adr{0x8048077} et \adr{0x804807c} sont modifiés et leurs niveaux d'écriture deviennent donc le niveau d'exécution courant, soit 1.
+Lorsque l'exécution atteint $D_4$, qui a été modifié, le niveau d'écriture est 1 donc le niveau d'exécution devient 2.
+L'instruction suivante $D_5$ a également un niveau d'écriture de 1 donc le niveau d'exécution est inchangé.
 
-Cette exécution est donc séparée en deux vagues : la vague initiale, $v_0$ dont l'instantané est l'état de la mémoire avant l'exécution de la première instruction et la vague $v_1$ contenant l'état de la mémoire juste après l'exécution de $D_4$ et avant l'exécution de la première instruction modifiée $D_5$.
+Cette exécution est donc séparée en deux vagues : la vague initiale, $v_0$ dont l'instantané est l'état de la mémoire avant l'exécution de la première instruction et la vague $v_1$ contenant l'état de la mémoire juste après l'exécution de $D_3$ et avant l'exécution de la première instruction modifiée $D_4$.
 
+
+% \begin{figure}
+% \begin{center}
+% \begin{tabular}[b]{|l|l|l|l|l|l|l|}
+% \hline
+% i & \da{D_i} & \dc{D_i} & \di{D_i} & \dw{D_i} & $W_i$ & $X_i$ \\
+% \hline
+% & 8048060  &  (...)         	        & Pile -> RWX &  & 0 & 1 \\ 
+% 1 & 804807c  &  [804807c, 8048080]         &  mov    edi, 0x0 & edi & 0 & 1 \\
+% 2 & 8048081  &  [8048081, 8048086]         &  mov    eax, 0x8048091 & eax & 0 & 1 \\
+% 3 & 8048086  &  [8048086, 804808a]         &  mov    [eax], 0xeb & 0x8048091 & 0 & 1 \\
+% 4 & 804808b  &  [804808b, 8048090]         &  mov    [eax+1], 0x7 & 0x8048092 & 0 & 1 \\
+% 5 & 8048091  &  [8048091, 8048092]         &  jmp    80480a1 <edi3> &  & 1 & 2  \\
+% 6 & 804809a  &  [804809a, 804809d]         &  mov    edi,0x2 & edi & 0 & 2\\
+% 7 & 804809f  &  [804809f, 80480a0]         &  jmp    80480a8 <fin> &  & 0 & 2\\
+%  & 80480a8  &  (...)		        &  Affiche edi &  & 0 & 2\\
+%  & 80480c3  &  (...)		        &  Quitte &  & 0 & 2\\
+% \hline
+% \end{tabular}
+% \end{center}
+% \caption{Trace d'exécution du programme auto-modifiant de la figure \ref{fig:unevague_v0}}
+% \label{fig:unevague_trace}
+% \end{figure}
 
 \begin{figure}
 \begin{center}
@@ -194,21 +241,16 @@ Cette exécution est donc séparée en deux vagues : la vague initiale, $v_0$ do
 \hline
 i & \da{D_i} & \dc{D_i} & \di{D_i} & \dw{D_i} & $W_i$ & $X_i$ \\
 \hline
-& 8048060  &  (...)         	        & Pile -> RWX &  & 0 & 1 \\ 
-1 & 804807c  &  [804807c, 8048080]         &  mov    edi, 0x0 & edi & 0 & 1 \\
-2 & 8048081  &  [8048081, 8048086]         &  mov    eax, 0x8048091 & eax & 0 & 1 \\
-3 & 8048086  &  [8048086, 804808a]         &  mov    [eax], 0xeb & 0x8048091 & 0 & 1 \\
-4 & 804808b  &  [804808b, 8048090]         &  mov    [eax+1], 0x7 & 0x8048092 & 0 & 1 \\
-5 & 8048091  &  [8048091, 8048092]         &  jmp    80480a1 <edi3> &  & 1 & 2  \\
-6 & 804809a  &  [804809a, 804809d]         &  mov    edi,0x2 & edi & 0 & 2\\
-7 & 804809f  &  [804809f, 80480a0]         &  jmp    80480a8 <fin> &  & 0 & 2\\
- & 80480a8  &  (...)		        &  Affiche edi &  & 0 & 2\\
- & 80480c3  &  (...)		        &  Quitte &  & 0 & 2\\
+1 & 8048060  & [8048060, 8048064] & mov    eax, 0x8048076  &           & 0 & 1 \\
+2 & 8048065  & [8048065, 804806a] & mov    [eax+1], 2      & 0x8048077 & 0 & 1 \\
+3 & 804806b  & [804806b, 8048075] & mov    [eax+6], 2      & 0x804807c & 0 & 1 \\
+4 & 8048076  & [8048076, 804807a] & mov    edi, 1          &           & 1 & 2 \\
+5 & 804807b  & [804807b, 804807f] & mov    ebx, 1          &           & 1 & 2 \\
 \hline
 \end{tabular}
 \end{center}
-\caption{Trace d'exécution du programme auto-modifiant de la figure \ref{fig:unevague_v0}}
-\label{fig:unevague_trace}
+\caption{Trace d'exécution du programme auto-modifiant de la figure \ref{fig:prg_asm_sm}}
+\label{fig:prg_asm_sm_trace}
 \end{figure}
 
 \begin{algorithm}[h] %or another one check
