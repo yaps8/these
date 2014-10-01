@@ -284,7 +284,7 @@ Un programme sous forme d'instructions dans un langage intermédiaire est plus f
 Il est donc, comme nous le verrons par la suite, fréquent de construire des méthodes de désassemblage et d'analyse de binaires autour d'une représentation intermédiaire.
 
 \paragraph{Approche globale.}
-Une première approche consiste, à l'instar de la compilation, à transformer l'intégralité du programme assembleur en un programme en langage intermédiaire et à effectuer les analyses sur cette représentation intermédiaire.
+Une première approche, suivie par exemple par BAP, consiste, à l'instar de la compilation, à transformer l'intégralité du programme assembleur en un programme en langage intermédiaire et à effectuer les analyses sur cette représentation intermédiaire.
 Cette approche est illustrée par le graphique donné à la figure \ref{fig:diag_approche_globale}. La partie d'analyse consiste en l'exécution ou l'émulation du programme dans son langage intermédiaire en partant du point d'entrée.
 Une première instruction est décodée, analysée et ajoutée dans le graphe de flot de contrôle du programme. Puis cette instruction est évaluée selon la méthode d'évaluation sémantique précédemment définie.
 Cette évaluation a des conséquence sur l'état interne du processeur et de la mémoire de la machine réelle ou virtuelle (selon si l'analyse est réalisée par exécution\todo{exécution ? alors qu'on ne parle que d'émulation/store ?} ou émulation).
@@ -408,7 +408,7 @@ Ce modèle est illustré par le diagramme suivant.
 Au c\oe ur de cette architecture se trouvent deux opérateurs. Le premier est l'opérateur de désassemblage capable de transformer des octets présents à une certaines adresse mémoire en une liste d'instructions dans le langage intermédiaire, équivalentes sémantiquement à l'instruction assembleur codée sur ces octets. 
 Le second est l'opérateur d'évaluation sémantique qui modifie l'état interne de la machine selon l'instruction dans le langage intermédiaire donnée en entrée.
 
-\subsection{Implémentation}
+\subsection{Implémentations}
 L'objectif principal de l'implémentation est d'obtenir un couple d'opérateurs de désassemblage et d'évaluation sémantique permettant l'analyse de programmes auto-modifiants.
 Le langage intermédiaire utilisé n'a pas d'importance vu qu'il n'est jamais utilisé en dehors de ces deux opérateurs et que seule la sortie de l'évaluation sémantique est observée.
 
@@ -441,9 +441,8 @@ Pour les instructions d'assignation de la forme $x\leftarrow g(x_1, ..., x_m)$, 
 Cette dernière fonction, avec celles permettant de déterminer si une variable est nulle ou si une variable est paire, est cruciale pour transcoder l'instruction assembleur \cmp\ permettant de comparer deux variables avant d'effectuer un saut selon le résultat de la comparaison.
 
 \paragraph{Désassemblage.}
-~\\\itodo{niveaux de sémantique?}
 Nous avons utilisé la librairie XED d'Intel \cite{xed} qui permet d'encoder et de décoder des instructions assembleur sur demande.
-À partir d'une séquence d'octets elle fournit une structure contenant, entre autres, les informations suivantes :
+À partir d'une séquence d'octets elle fournit une structure contenant, entre autres, les informations correspondant au niveau 2 de sémantique précédemment défini :
 \begin{itemize}
  \item Une chaîne de caractères décrivant l'instruction
  \item Le type de l'instruction (\texttt{CMP}, \texttt{MOV}, \texttt{JMP} par exemple)
@@ -478,9 +477,17 @@ Le second aspect de l'évaluation sémantique est la détermination de l'adresse
 Nous avons implémenté la transcription de quelques instructions assembleur en langage intermédiaire mais le temps requis pour implémenter toutes les variantes de chaque instruction est suffisamment long pour qu'on se tourne vers des plateformes d'analyse de binaires où cette étape a déjà été réalisée.
 
 
-\subsubsection{Avec BAP}
-BAP permet de transcrire un programme en assembleur en un programme écrit dans le langage intermédiaire utilisé par BAP.
+\subsubsection{En utilisant BAP}
+BAP permet de transcrire un programme en assembleur en un programme écrit dans le langage intermédiaire utilisé par BAP, en utilisant le modèle global décrit précédemment.
 Il fournit également un émulateur permettant d'exécuter un programme en langage intermédiaire.
 Seul l'assembleur \xq\ est supporté par la version 0.7 de BAP que nous avons utilisée et l'émulateur ne permet pas l'auto-modification.
 
-Nous souhaitions utiliser BAP pour qu'il nous fournisse l'opérateur d'évaluation sémantique \texttt{sem\_eval} défini précédemment.
+Nous souhaitions utiliser BAP pour qu'il nous fournisse l'opérateur de désassemblage et d'évaluation sémantique et ainsi permettre l'analyse de code auto-modifiant.
+Ces deux opérateurs sont déjà implémentés dans BAP mais ne sont pas normalement accessibles depuis l'interface de programmation, nous avons donc légèrement modifié le code de BAP, codé en OCaml, pour les rendre accessibles et permettre le décodage d'une instruction puis son exécution dans un contexte donné.
+
+\paragraph{Limites de l'approche.}
+~\\\itodo{parler des appels systèmes plus tôt}
+Nous sommes capables d'émuler l'exécution de programmes \sms\ simples mais les appels systèmes ne sont pas gérés par BAP.
+La sémantique d'un appel système dépendant largement du système d'exploitation sur lequel le programme est exécution, il s'agit d'une limite naturelle de toute méthode basée sur l'émulation.
+Notre implémentation n'est donc pas fonctionnelle pour des programmes réels qui utilisent de nombreux appels système.
+

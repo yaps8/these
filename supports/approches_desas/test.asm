@@ -15,9 +15,8 @@ _start:
 
 mov dword eax, adr
 mov word [eax+1], 2
-mov word [eax+5], 2
+mov word [eax+6], 2
 
 adr:
 mov edi, 1
 mov ebx, 1
-ret

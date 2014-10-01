@@ -331,6 +331,8 @@ $i\leftarrow i+1$\\
  Étant donné la définition croissante des vagues, une instruction dynamique peut-être exécutée non seulement plusieurs fois dans la même vague mais également être présente à des vagues différentes.
 \end{rem}
 
+\section{Désassemblage d'un programme \sm}
+\itodo{exemple + complet ?}
 \section{Implémentations}
 \todo[inline]{émulation VS instrumentation VS débogage}
 \todo[inline]{BAP: \\
@@ -342,9 +344,9 @@ Implem en C: \\
 Xed : \\
 }
 
-Plusieurs choix s'offrent à qui cherche à implémenter un système d'analyse dynamique de binaire tels l'émulation, l'instrumentation et le débogage
+Plusieurs choix s'offrent à qui cherche à implémenter un système d'analyse dynamique de binaire tels l'émulation, l'instrumentation et le débogage.
 
-L'émulation consiste à lancer l'exécution dans un environnement d'exécution simulé, qui peut être un système d'exploitation complet comme c'est le cas avec TEMU, le module d'analyse dynamique du projet BitBlaze BAP \cite{bitblaze08}, basé sur l'émulateur QEMU \cite{QEMU05}.
+L'émulation consiste à lancer l'exécution dans un environnement d'exécution simulé, qui peut être un système d'exploitation complet comme c'est le cas avec BAP ou TEMU, le module d'analyse dynamique du projet BitBlaze \cite{bitblaze08}, basé sur l'émulateur QEMU \cite{QEMU05}.
 
 On instrumente un binaire exécuté en y insérant, généralement au cours de son exécution, du code assembleur servant à son analyse. Intel développe PinTools \cite{pintools} pour l'analyse de programmes tournant sur leurs processeurs.
 
@@ -365,15 +367,30 @@ Pour ces raisons, nous nous sommes intéressés à l'émulation comme à l'instr
 \\
 
 L'émulation permet une analyse plus abstraite et nous avons développé un analyseur partiel de programmes auto-modifiants basé sur BAP.
-L'instrumentation permet d'exécuter plus fidèlement le programme à analyser, nous avons donc principalement favorisé cette approche pour l'analyse de programmes malveillants. Nous avons choisi Pin qui, sans fournir de sémantique concrète pour l'assembleur, permet d'obtenir d'une instruction dynamique l'ensemble des adresses sur lesquelles elle écrit, comme souhaité à la définition \ref{def:ensembles_inst_dyn}.
+L'instrumentation permet d'exécuter plus fidèlement le programme à analyser, nous avons donc principalement favorisé cette approche pour l'analyse de programmes malveillants. Nous avons choisi Pin qui, sans fournir de sémantique concrète pour l'assembleur, permet d'obtenir d'une instruction dynamique l'ensemble des adresses sur lesquelles elle écrit, comme souhaité à la définition \ref{def:ensembles_inst_dyn_write}.
+
+\subsection{Émulation avec BAP}
+Nous avons repris l'implémentation d'un émulateur pour programmes \sms\ basée sur BAP présentée au chapitre \ref{chap:semantique} et avons ajouté la séparation de la trace en plusieurs vagues d'exécution, selon l'algorithme \ref{algo:analyse_dyn_vagues}.
+
+Cette implémentation donne le résultat attendu avec des programmes simples et qui n'utilisent pas d'appels système.
+Sur l'exemple de programme \sm\ donné en début de chapitre, la sortie est la suivante.
+L'exécution, de la première (\emph{pc: 1}) à la dernière instruction, est correctement découpée en vagues et les instructions correspondent à celles modifiées lors de l'exécution.
+
+\begin{center}
+\begin{verbatim}
+Vague 1, pc: 1: addr 0x8048060 @asm "mov    eax, 0x8048071"
+Vague 1, pc: 2: addr 0x8048065 @asm "movw   [eax+1], 2"
+Vague 1, pc: 3: addr 0x804806b @asm "movw   [eax+6], 2"
+Vague 2, pc: 4: addr 0x8048071 @asm "mov    edi, 2"
+Vague 2, pc: 5: addr 0x8048076 @asm "mov    ebx, 2"
+\end{verbatim}
+\end{center}
+
+Ne pouvant pas émuler des programmes utilisant des appels systèmes, nous avons laissé de coté cette approche pour une approche par instrumentation permettant l'analyse de programmes réels.
 
 
-\section{Désassemblage d'un programme \sm}
+\subsection{Instrumentation avec Pin}
 
-
-\section{Émulation avec BAP}
-
-
-\section{Instrumentation avec Pin}
-
-
+Pin est l'outil d'instrumentation développé par Intel pour ses processeurs \xq\ et \xs.
+Il fournit un niveau d'information sémantique de niveau 2, donc suffisant pour suivre chaque instruction et connaître l'ensemble des adresses mémoire que l'instruction modifie. 
+Nous avons à nouveau implémenté l'algorithme \ref{algo:analyse_dyn_vagues} sous la forme d'un PinTool : codé en C, il s'agit d'un programme définissant les actions à effectuer avant et après l'exécution de chaque instruction.
