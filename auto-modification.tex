@@ -35,7 +35,7 @@ En fait vu qu'aucune des adresses modifiées par la première instruction auto-m
 Beaucoup de logiciels protégés restaurent de grandes parties de code au démarrage : un grand nombre d'instructions sont modifiées sans que les instructions modifiées ne soient exécutées. 
 Il nous paraît plus cohérent que toutes ces modifications soient réunies puisqu'elles correspondent à une étape lors de l'exécution du programme, l'étape suivante étant l'exécution d'une de ces instructions modifiées.
 
-Dans ce découpage informel on appelle vague une représentation de la mémoire à un instant donné. 
+Dans ce découpage informel on appelle vague le désassemblage d'un instantané de la mémoire, pris à un instant donné. 
 L'exécution d'un programme est alors caractérisée par une suite d'exécutions sur des vagues successives comme représenté en figure \ref{fig:vagues_visuel}. Les instructions qui sont présentes dans la trace sont colorées en rose tandis que le point d'entrée et la dernière instruction sont en orange et bleu clair, respectivement.
 On passe d'une vague $k$ à la vague suivante $k+1$ lorsqu'une adresse mémoire écrite dans la vague $k$ est exécutée.
 Ainsi dans une vague $k$, toutes les instructions exécutées ont été écrites au moins à la vague $k-1$. 
@@ -332,6 +332,14 @@ $i\leftarrow i+1$\\
 \end{rem}
 
 \section{Désassemblage d'un programme \sm}
+Nous avons précédemment défini le désassemblage parfait d'un programme \nsm\ comme la donnée de l'ensemble des adresses auxquelles des instructions peuvent être atteintes lors de l'exécution.
+Dans le cas d'un programme \sm, cette définition n'est pas suffisante puisque l'instruction présente à une adresse dépend du contexte d'exécution et des éventuelles modifications qui ont été faites à cette adresse.
+
+La donnée centrale reste l'ensemble des exécutions possibles du programme, quelle que soit l'entrée choisie.
+En particulier une entrée spécifique provoque une exécution que nous observons sous la forme d'une trace.
+Cette trace peut être découpée en niveaux d'exécution et chaque vague est le désassemblage parfait de l'instantané 
+
+
 \itodo{exemple + complet ?}
 \section{Implémentations}
 \todo[inline]{émulation VS instrumentation VS débogage}
