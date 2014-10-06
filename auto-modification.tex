@@ -339,6 +339,105 @@ La donnée centrale reste l'ensemble des exécutions possibles du programme, que
 En particulier une entrée spécifique provoque une exécution que nous observons sous la forme d'une trace.
 Cette trace peut être découpée en niveaux d'exécution et chaque vague est le désassemblage parfait de l'instantané 
 
+Nous considérons toujours que la donnée que l'analyste cherche à
+déterminer et représenter est l'ensemble des exécution possibles du
+programme : nous notons $E_T$ l'ensemble des traces d'exécution possibles.
+
+Le désassemblage, pris au sens de l'opération inverse de l'assemblage,
+consiste à déterminer les adresses contenant des instructions, les
+autres contenant des données.
+Au sein d'une exécution les octets sur lesquelles une instruction ayant
+un niveau d'exécution strictement supérieur à 1, c'est à dire que ces
+octets ont été modifiés avant que l'instruction ne soit exécutée, ne
+sont présents dans la représentation d'origine du programme qu'en temps
+que données.
+Ainsi le désassemblage parfait d'un programme \sm\ ne prend en compte
+que les instructions exécutées avec un le niveau d'exécution 1
+(proposition \ref{prop:desassemblage_parfait_sm}).
+
+\begin{prop}
+ Étant donné un programme P \sm\ et l'ensemble de ses traces d'exécution
+$E_T$, le désassemblage parfait de P est l'ensemble des adresses où une
+instruction de niveau d'exécution 1 est exécutée dans au moins une
+trace, c'est à dire
+ $\{a, \exists\ T\in E_T, \exists\ (i, X, D)\in T, X=1,\ $\da{D}$=a\}$.
+\label{prop:desassemblage_parfait_sm}
+\end{prop}
+
+Le graphe de flot de contrôle ne peut plus se contenter de représenter
+une instruction par son adresse puisque plusieurs instructions
+différentes peuvent être présentes à la même adresse.
+Le graphe de flot de contrôle parfait est alors le graphe dont les
+sommets sont des couples $(a, I)$ où \adr{a} est une adresse et $I$ une
+instruction assembleur. Il y a un arc entre deux sommets si le second
+suit directement le premier dans une trace d'exécution (définition
+\ref{def:cfg_parfait_sm}).
+
+\begin{defi}
+ Étant donné un programme \sm\ P et l'ensemble de ses traces d'exécution
+$E_T$, le graphe de flot de contrôle parfait de P est le graphe orienté
+$T=(V, E)$ tel que :
+ \begin{itemize}
+  \item $V=\{(a, I),  \exists\ T\in E_T, \exists\ (i, X, D)\in T,\
+$\da{D}$=a,\ $\di{D}$=I\}$
+  \item $((a_1, I_1), (a_2, I_2))\in E\ si\ et\ seulement\ si\ (a_1,
+I_1)\ et\ (a_2, I_2)\ se\ suivent\ dans\ une\ trace\ : \exists T\in
+E_T,\ i\in \BN, (i, X_1, D_1)\ et\ (i+1, X_2, D_2)\in T\ avec\
+$\da{D_1}$=a_1,\ $\di{D_1}$=I_1,$~\da{D_2}$=a_2,\ $\di{D_2}$=I_2$.
+ \end{itemize}
+\label{def:cfg_parfait_sm}
+\end{defi}
+
+Le problème de cette définition d'un CFG pour un programme \sm\ est que souvent les vagues se suivent et ont peu de rapport les unes avec les autres. Prenons un programme dont l'action est d'une part de déchiffrer un bloc de la mémoire dans lequel se trouve la charge finale puis d'exécuter ce bloc déchiffré.
+Nous considérons qu'il est plus sensé d'analyser ces deux parties de manières indépendante plutôt que de les mélanger dans le même graphe de flot de contrôle.
+
+\begin{figure}
+\begin{center}
+\subfigure[Code \sm]{
+\begin{tabular}[b]{|l|l|l|}
+\hline
+Adresse & Octets & Instruction\\ 
+\hline
+ 8048060 <debut>  &  40                 &  inc    eax \\
+ 8048061  &  74 07                      &  jz     804806a <si\_zero> \\
+ 	  &				&					\\
+ 8048063  &  bf 02 00 00 00             &  mov    edi, 2 \\
+ 8048068  &  eb f6                      &  jmp    8048060 <debut> \\
+	  &				&					\\
+ 804806a <si\_zero>  &  bf 01 00 00 00  &  mov    edi, 1 \\
+ 804806f  &  bb 60 80 04 08             &  mov    ebx,0x8048060 <debut> \\
+ 8048074  &  66 c7 43 01 c9 00          &  mov    [ebx], 90 \\
+ 8048079  &  66 c7 43 01 c9 00          &  mov    [ebx+1], c3 \\
+ 804807f  &  eb e4                      &  jmp    8048060 <debut> \\
+\hline
+\end{tabular}
+\label{fig:sm_asm}
+}
+\subfigure[CFG par analyse statique et récursive]{
+\includegraphics[width=0.8\textwidth]{supports/disas_sm/ex2_statique.pdf}
+\label{fig:sm_cfg_statique}
+}
+\caption{Exemple d'un code \sm}
+\label{fig:sm_exemple2}
+\end{center}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+\subfigure[CFG parfait]{
+\includegraphics[width=0.45\textwidth]{supports/disas_sm/ex2_parfait.pdf}
+% \input{supports/eax-cfg/eax.tex}
+\label{fig:sm_cfg_parfait}
+}
+\subfigure[CFG paramétré par une exécution]{
+\includegraphics[width=0.5\textwidth]{supports/disas_sm/ex2_vagues.pdf}
+% \input{supports/eax-cfg/eax.tex}
+\label{fig:sm_cfg_vagues}
+}
+\end{center}
+\caption{CFGs}
+\label{fig:sm_cfgs}
+\end{figure}
 
 \itodo{exemple + complet ?}
 \section{Implémentations}
