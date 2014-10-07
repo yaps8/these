@@ -427,10 +427,10 @@ Nous nous intéressons en particulier au graphe de flot de contrôle parfait (d�
 Cette définition d'un graphe de flot de contrôle parfait représente une instruction par son adresse en mémoire : il s'agit d'une simplification cohérente dans le cas d'un programme \nsm\ et nous verrons par la suite comment étendre la notion de graphe de flot de contrôle parfait à un programme qui se modifie lui-même.
 
 \begin{defi}
- Étant donné un programme \nsm\ P prenant une entrée I, le graphe de flot de contrôle parfait de P est le graphe orienté $T=(V, E)$ tel que :
+ Étant donné un programme \nsm\ P prenant une entrée I, le graphe de flot de contrôle parfait de P est le graphe orienté $G=(V, E)$ tel que :
  \begin{itemize}
-  \item V est l'ensemble des sommets de T et est inclus dans l'ensemble des adresses de P
-  \item $E\subset V\times V$ est l'ensemble des arcs de T
+  \item V est l'ensemble des sommets de G et est inclus dans l'ensemble des adresses de P
+  \item $E\subset V\times V$ est l'ensemble des arcs de G
   \item $(a, b)\in E$ si et seulement si il existe un chemin d'exécution de P au sein duquel l'adresse $b$ suit immédiatement l'adresse $a$ dans l'ordre d'exécution.
  \end{itemize}
 \label{def:cfg_parfait_nsm}
