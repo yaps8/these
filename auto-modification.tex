@@ -65,52 +65,56 @@ Le programme exécuté a pour sources principales de données les registres et l
 En utilisant la sémantique concrète précédemment définie on est capable, à partir d'un ensemble de valeurs initiales pour les registres et la mémoire, d'exécuter un programme sur cette entrée.
 L'exécution d'un programme consiste en la définition d'un contexte d'exécution initial, l'évaluation sémantique de la première instruction dans ce contexte, puis l'évaluation de l'instruction suivante dans le contexte mis à jour, etc.
 
-Nous définissons une instruction dynamique (définition \ref{def:ensembles_inst_dyn}) par son adresse, les adresses mémoires sur lesquelles elle est codée et l'instruction machine correspondant. Ces informations sont données par le décodage d'une instruction à l'adresse mémoire spécifiée dans un contexte donné (définition \ref{def:decode}). 
-En pratique l'opération de désassemblage atomique définie au chapitre précédent nous donne ces informations. Pour l'assembleur \xq, une instruction est codée au maximum sur 15 octets. Si on cherche à désassembler \telock\ à l'adresse \adr{0x01006e7a}, et qu'à l'adresse \adr{0x01006e7d} sont présents les octets suivant : $\Theta[0x01006e7d..0x01006e8b]=$ \texttt{eb ff c9 7f e6 8b c1 29 00 00 00 f3 aa 66 ab}, l'opérateur \texttt{decode} renvoie la première instruction dynamique à cette adresse : il s'agit de l'instruction assembleur \texttt{jmp +1} (d'une taille de deux octets : \texttt{eb ff}) à l'adresse \adr{0x01006e7d}, codée sur le segment d'adresses [\adr{0x01006e7d}, \adr{0x01006e7e}].
-
-Afin de pouvoir séparer la trace d'exécution selon le moment où chaque instruction a été écrite, nous définissons aussi, pour une instruction dynamique et un contexte d'exécution, l'ensemble des adresses mémoire sur lesquelles elle provoque une écriture (définition \ref{def:ensembles_inst_dyn_write}). Cette information est donnée par la sémantique concrète choisie. Avec la sémantique définie au chapitre précédent les seules instructions qui provoquent des écritures sont celles dont la liste d'instructions atomiques donnée par le désassemblage contiennent des assignations de la forme $x\leftarrow g(x_1, ..., x_m)$ : Si D est une instruction dynamique sémantiquement équivalente, dans le contexte $\Theta$, à l'enchaînement des instructions atomiques $d_1, ..., d_n$ alors \dww{\Theta}{D}=\dww{\Theta}{d_1..d_n}=\dww{\Theta}{d_1}$\ \cup\ ...\ \cup\ $\dww{\Theta}{d_n} avec
-\\
-\dww{\Theta}{d_i}$=
-\left\{
-  \begin{array}{ll}
-	  x &$ si $d_i=m\leftarrow g(x_1, ..., x_k)\ et\ m\in\BT
-	\\\Theta(v) &$ si $d_i=[v]\leftarrow g(x_1, ..., x_k)\ et\ \Theta(v)\in\BT
-	\\ \emptyset &$ sinon.$
-  \end{array}
-\right.
-$
+Nous définissons une instruction dynamique (définition \ref{def:ensembles_inst_dyn}) par son adresse, les adresses mémoires sur lesquelles elle est codée et l'instruction machine correspondant. Ces informations sont données par le décodage d'une instruction à l'adresse mémoire spécifiée dans un contexte donné. 
 
 \begin{defi}
 On note $D$ une instruction dynamique constituée des éléments suivants.
 \begin{itemize}
  \item \da{D} l'adresse mémoire de l'instruction dynamique
- \item \dc{D} l'intervalle des adresses mémoire sur lequel \di{D} est codée
+ \item \dc{D} l'intervalle des adresses mémoire sur lequel $D$ est codée
  \item \di{D} l'instruction machine à l'adresse \da{D}
 %  \item \dr{D_i} l'ensemble des variables sur lesquelles l'exécution de \di{D_i} provoque une lecture
 %  \item \dw{D} l'ensemble des variables sur lesquelles l'exécution de \di{D} provoque une écriture
 \end{itemize}
+On définit l'opérateur \texttt{decode} qui associe à une adresse mémoire $a$ et un store $\Theta$ l'instruction dynamique $D=$\texttt{decode}$(a, \Theta)$ présente à l'adresse $a$.
 \label{def:ensembles_inst_dyn}
 \end{defi}
 
-\begin{defi}
-On définit l'opérateur \texttt{decode} qui associe à une adresse mémoire $a$ et un store $\Theta$ l'instruction dynamique $D=$\texttt{decode}$(a, \Theta)$ présente à l'adresse $a$ :
-\begin{itemize}
- \item \da{D}$=a$
- \item \di{D} est l'instruction assembleur présente à l'adresse $a$ dans $\Theta$
- \item \dc{D} est le segment des adresses sur lequelles l'instruction assembleur est codée.
-\end{itemize}
-\label{def:decode}
-\end{defi}
+En pratique l'opération de désassemblage atomique définie au chapitre précédent nous donne ces informations. Pour l'assembleur \xq, une instruction est codée au maximum sur 15 octets.
+Nous rappelons que nous notons, à tout instant durant l'exécution, $\Theta$ le store représentant l'état des variables (mémoire et registres) et $\BT$ l'ensemble des adresses mémoires.
+Si on cherche à désassembler \telock\ à l'adresse \adr{0x01006e7a}, et qu'à l'adresse \adr{0x01006e7d} sont présents les octets suivant : $\Theta[0x01006e7d..0x01006e8b]=$ \texttt{eb ff c9 7f e6 8b c1 29 00 00 00 f3 aa 66 ab}, l'opérateur \texttt{decode} renvoie la première instruction dynamique D à cette adresse : il s'agit de l'instruction assembleur \di{D}=\texttt{jmp +1} (d'une taille de deux octets : \texttt{eb ff}) à l'adresse \da{D}=\adr{0x01006e7d}, codée sur l'intervalle d'adresses \dc{D}=[\adr{0x01006e7d}, \adr{0x01006e7e}].
+
+Afin de pouvoir séparer la trace d'exécution selon le moment où chaque instruction a été écrite, nous définissons aussi, pour une instruction dynamique et un contexte d'exécution, l'ensemble des adresses mémoire sur lesquelles elle provoque une écriture (définition \ref{def:ensembles_inst_dyn_write}). Cette information est donnée par la sémantique concrète choisie. Avec la sémantique définie au chapitre précédent les seules instructions qui provoquent des écritures sont celles dont la liste d'instructions atomiques donnée par le désassemblage contiennent des assignations écrivant, par adressage direct ou indirect, à une adresse mémoire $m$. Si D est une instruction dynamique sémantiquement équivalente, dans le contexte $\Theta$, à l'enchaînement des instructions atomiques $d_1, ..., d_n$ alors \dww{\Theta}{D}=\dww{\Theta}{d_1}$\ \cup\ ...\ \cup\ $\dww{\Theta}{d_n} (propriété \ref{propri:eq_W_D_di}) avec
+% \\
+$$\mdww{\Theta}{d_i}=
+\left\{
+  \begin{array}{ll}
+	  m &$ si $d_i=m\leftarrow g(x_1, ..., x_k)\ et\ m\in\BT
+	\\\Theta(v) &$ si $d_i=[v]\leftarrow g(x_1, ..., x_k)\ et\ \Theta(v)\in\BT
+	\\ \emptyset &$ sinon.$
+  \end{array}
+\right.
+$$
+
+
 
 \begin{defi}
 Soit $D$ une instruction dynamique et $\Theta$ un store représentant l'état des variables (mémoire et registres). On note \dww{\Theta}{D} l'ensemble des adresses mémoire sur lesquelles l'exécution de $D$ provoque une écriture.
 \label{def:ensembles_inst_dyn_write}
 \end{defi}
 
+\begin{propri}
+Soit $D$ une instruction dynamique, $\Theta$ un store représentant l'état des variables (mémoire et registres) et $d_1, ..., d_n$ une suite d'instruction atomiques dans un langage intermédiaire telle que la suite d'instruction $d_1, ..., d_n$ dans le langage intermédiaire est sémantiquement équivalente à l'instruction assembleur \di{D}. On a :
+$$\mdww{\Theta}{D}=\mdww{\Theta}{d_1,..., d_n}=\mdww{\Theta}{d_1}\ \cup\ ...\ \cup\ \mdww{\Theta}{d_n}.$$
+\label{propri:eq_W_D_di}
+\end{propri}
+
 % \begin{defi}
 % Nous définissons le niveau d'écriture d'une adresse mémoire comme un entier naturel et le store $W^M: \BT\rightarrow\BN$ associant à une adresse mémoire son niveau d'écriture.
 % \label{def:store_mem}
 % \end{defi}
+
+Nous définissons plus formellement la notion de contexte d'exécution (définition \ref{def:contexte_exec}) comme la donnée d'un niveau d'exécution, d'un store contenant les valeurs de la mémoire et des registres et d'un store contenant les niveaux d'écriture courants de chaque adresse mémoire.
 
 \begin{defi}
 Un contexte d'exécution est la donnée d'un triplet $E=(X, \Theta, W^M)$ où
@@ -133,7 +137,6 @@ Une exécution d'un programme dont le point d'entrée est $ep$ est la donnée d'
 \label{def:contexte_exec}
 \end{defi}
 
-Nous définissons plus formellement la notion de contexte d'exécution (définition \ref{def:contexte_exec}) comme la donnée d'un niveau d'exécution, d'un store contenant les valeurs de la mémoire et des registres et d'un store contenant les niveaux d'écriture courants de chaque adresse mémoire. 
 Une exécution consiste en une série de contextes d'exécution liés dont la transition est provoquée par l'évaluation sémantique de l'instruction pointée par le registre de compteur ordinal (noté en général \pc\ ou \eax\ en assembleur \xq), comme illustré par la figure suivante.
 
 % \begin{figure}
@@ -145,10 +148,10 @@ Une exécution consiste en une série de contextes d'exécution liés dont la tr
 \node[state, draw=none, right=2cm of E1] (E2){$E_2$};
 \node[state, draw=none, right=2cm of E2] (EP){$...$};
 \node[state, draw=none, right=2cm of EP] (EN){$E_n$};
-\draw (E0.east) -> node[above]{$I_1$} (E1.west);
-\draw (E1.east) -> node[above]{$I_2$} (E2.west);
+\draw (E0.east) -> node[above]{$D_1$} (E1.west);
+\draw (E1.east) -> node[above]{$D_2$} (E2.west);
 \draw (E2.east) -> node[above]{...} (EP.west);
-\draw (EP.east) -> node[above]{$I_n$} (EN.west);
+\draw (EP.east) -> node[above]{$D_n$} (EN.west);
 \end{tikzpicture}
 }
 \end{center}
