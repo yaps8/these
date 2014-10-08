@@ -123,15 +123,15 @@ Un contexte d'exécution est la donnée d'un triplet $E=(X, \Theta, W^M)$ où
  \item $\Theta$ est le store des valeurs du contexte, associant une valeur à chaque registre et chaque adresse mémoire
  \item $W^M$ est le store des niveaux d'écriture du contexte, associant à chaque adresse mémoire un niveau d'écriture dans $\BN$
 \end{itemize}
-Une exécution d'un programme dont le point d'entrée est $ep$ est la donnée d'une suite finie de contextes d'exécution $E_0, E_1, ..., E_n$ tel que :
+Une exécution d'un programme, dont le point d'entrée est $ep$, est la donnée d'une suite finie de contextes d'exécution $E_0, E_1, ..., E_n$ tel que :
 \begin{itemize}
  \item $X_0=1$, $\Theta_0[eip]=ep$ et $\forall m\in \BT, W_0^M[m\leftarrow 0]$
- \item En notant $D=$\texttt{decode}$(\Theta_i[eip], \Theta_i)$ l'instruction dynamique exécutée lors de la transition entre le contexte $E_i$ et $E_{i+1}$, on a :
+ \item En notant $D_{i+1}=$\texttt{decode}$(\Theta_i[eip], \Theta_i)$ l'instruction dynamique exécutée lors de la transition entre le contexte $E_i$ et $E_{i+1}$, on a :
     \begin{itemize}
-     \item Le niveau d'écriture de $D$ est le niveau d'écriture maximum des octets qui la composent : $W_D=max(\{W^M[m],\ m\in\ $\dc{D_i}$\})$
+     \item Le niveau d'écriture de $D_{i+1}$ est le niveau d'écriture maximum des octets qui la composent : $W_D=max(\{W^M[m],\ m\in\ $\dc{D_{i+1}}$\})$
      \item $X_{i+1}=max(X_i, W_D+1)$
      \item $\Theta_{i+1}$ est $\Theta_i$ mis à jour par l'évaluation sémantique de \di{D}
-     \item $W_{i+1}^M=W_{i}^M$ sauf pour les adresses mémoire écrites par $D$: $\forall m\in\ $\dw{D}$,\ W_{i+1}^M[m\leftarrow X_i]$
+     \item $W_{i+1}^M=W_{i}^M$ sauf pour les adresses mémoire écrites par $D_{i+1}$:\\ $\forall m\in\ $\dw{D_{i+1}}$,\ W_{i+1}^M[m\leftarrow X_i]$
     \end{itemize}
 \end{itemize}
 \label{def:contexte_exec}
@@ -178,7 +178,7 @@ Lors d'une exécution le niveau d'exécution ainsi que le niveau d'écriture de 
 % \end{defi}
 
 \begin{defi}
-Étant donnée une exécution d'un programme composée des contextes d'exécution $E_0, E_1, ..., E_n$ avec $E_i=(X_i, \Theta_i, W_i^M)$, on appelle trace d'exécution la suite $T=(t_1, t_2, ..., t_n)$ où $t_i=(i, X_{i-1}, D_{i-1})$ avec $D_{i-1}=$\texttt{decode}$(\Theta_{i-1}[eip], \Theta_{i-1})$
+Étant donnée une exécution d'un programme composée des contextes d'exécution $E_0, E_1, ..., E_n$ avec $E_i=(X_i, \Theta_i, W_i^M)$, on appelle trace d'exécution la suite $T=(t_1, t_2, ..., t_n)$ où $t_i=(i, X_{i-1}, D_i)$ avec $D_i=$\texttt{decode}$(\Theta_{i-1}[eip], \Theta_{i-1})$.
 \label{def:trace}
 \end{defi}
 
@@ -293,7 +293,7 @@ $X \leftarrow\ max(X,\ W_D+1)$ \\
 \begin{algorithm}[H] %or another one check
 \caption{Analyse dynamique avec calcul des vagues}
 \SetAlgoLined
-\KwIn{Les registres R et une mémoire M dans laquelle un programme a été chargé à son point d'entrée \texttt{ep}}
+\KwIn{Les registres R et une mémoire M dans laquelle un programme de point d'entrée \texttt{ep} a été chargé}
 \KwResult{La trace des instructions dynamiques chacune associée à leur niveau d'exécution et les différentes vagues de la trace}
 \SetKwProg{Fn}{}{}{}
 \SetKwFunction{FRecurs}{analyseDynamique}
