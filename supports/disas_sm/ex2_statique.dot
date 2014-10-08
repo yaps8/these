@@ -1,8 +1,8 @@
 digraph G {
 labeljust=r
-"60" [labeljust=r,label="0x8048060 xor edi, edi \l0x8048062 inc eax \l0x8048063 jz 0x804806a\l", shape=box, style="filled", fillcolor=orange]
-"63" [labeljust=r,label="0x8048065 mov edi, 2\l0x804806a jmp 0x8048060\l", shape=box, style="filled", fillcolor=white]
-"6a" [labeljust=r,label="0x804806c mov edi, 1 \l0x8048071 mov ebx, 0x8048060  \l0x8048076 mov [ebx], 0x47 \l0x804807b mov [ebx+1], 0x47 \l0x8048081 mov [ebx+3], 0xc3 \l0x8048087 jmp 0x8048060\l", shape=box, style="filled", fillcolor=white]
+"60" [labeljust=r,label="0x8048060 inc eax\l0x8048061 jz 0x804806a\l", shape=box, style="filled", fillcolor=orange]
+"63" [labeljust=r,label="0x8048063 mov edi, 2\l0x8048068 jmp 0x8048060\l", shape=box, style="filled", fillcolor=white]
+"6a" [labeljust=r,label="0x804806a mov edi, 1 \l0x804806f mov ebx, 0x8048060  \l0x8048074 mov [ebx], 0x90 \l0x8048079 mov [ebx+1], 0xc3 \l0x804807f jmp 0x8048060\l", shape=box, style="filled", fillcolor=white]
 "60" -> "6a" [color=red]
 "60" -> "63" [color=black]
 "63" -> "60" [color=red]

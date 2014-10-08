@@ -144,28 +144,32 @@ La principale tâche de l'analyste est alors d'extraire du fichier binaires les 
 
 \label{section:assembleur}
 \section{Assembleur \xq\ et \xs}
-L'architecture la plus fréquente sur les ordinateurs personnels est celle des processeurs Intel CISC avec le jeu d'instructions \xq\ pour les machines adressant la mémoire sur 32 bits, et le jeu d'instructions \xs\ pour celles adressant la mémoire sur 64 bits.
+L'architecture la plus fréquente pour les processeurs des ordinateurs personnels est celle des processeurs Intel CISC avec le jeu d'instructions \xq\ pour les machines adressant la mémoire sur 32 bits, et le jeu d'instructions \xs\ pour celles adressant la mémoire sur 64 bits.
 \todo[inline]{
 Différence 32 / 64 bits ?
 }
 
-\paragraph{Architecture de Harvard modifiée.}
-Les ordinateurs actuels fonctionnent selon une version modifiée de l'architecture de Harvard \cite{ibm_mark1} \todo{citation sur mod harvard arch ou on repasse à Neumann ?}\jym{Harvard ou Von Neumann ?}.
+\paragraph{Architecture de Harvard et de Von Neumann}
+Une des architectures possibles, l'architecture de Harvard \cite{ibm_mark1}, sépare le code exécutable des données en deux mémoires distinctes.
 La première implémentation de l'architecture de Harvard était L’ASCC (Automatic Sequence Controlled Calculator) d'IBM, également appelé le Mark I et considérée comme le premier calculateur universel, en 1944 . 
 Il lisait les instructions sur des cartes perforées et les données étaient entrées manuellement à l'aide d'interrupteurs. 
 Ainsi le code exécutable était physiquement non modifiable et séparé des données. 
 
+% \paragraph{Architecture de Von Neumann.}
+L'architecture de Von Neumann, nommée en référence aux travaux de John von Neumann, John William Mauchly et John Eckert en 1945, acceptait la modification de la logique des programmes \cite{timsit}.
+Elle était cependant limitée à l'utilisation d'un seul bus de données entre le processeur et la mémoire.
+Cette restriction limite grandement les capacités de lecture et écriture mémoire d'une machine utilisant le modèle de Von Neumann.
 
-L'architecture de Von Neumann, qui acceptait la modification de la logique des programmes, était limitée à l'utilisation d'un seul bus de données entre le processeur et la mémoire.
-Cette restriction limite grandement les capacités de lecture et écriture mémoire d'une machine utilisant le modèle de Von Neumann. On appelle alors architecture de Harvard modifiée l'architecture de Harvard à plusieurs bus mémoire dans laquelle les instructions et les données sont stockées dans la même mémoire et donc accessibles autant en lecture qu'en écriture.
-
-Dans ce modèle la machine est articulée autour du processeur et de son unité de contrôle chargée de synchroniser les autres composants, d'exécuter les instructions du binaire chargé en mémoire, de gérer les entrées et les sorties, de lire et d'écrire dans la mémoire et les registres. L'unité arithmétique et logique opère toute l'arithmétique du processeur et modifie les drapeaux du registre d'état en conséquence selon les résultats des opérations effectuées. Par exemple si une addition provoque un débordement d'entier, c'est à dire que le résultat de l'addition ne peut être stocké dans un seul registre, alors le drapeau OF (overflow) est passé à 1.
-Une organisation simplifiée d'une machine utilisant le modèle de Harvard modifié est donnée Figure \ref{fig:arch_harvard_mod}.
+% \paragraph{Architecture actuelle.}
+L'architecture utilisée actuellement pour les ordinateurs personnels est un mélange des deux approches.
+Elle utilise plusieurs bus mémoire mais les instructions et les données sont stockées dans la même mémoire et donc accessibles autant en lecture qu'en écriture \cite{timsit}.
+Dans ce modèle la machine est articulée autour du processeur et de son unité de contrôle chargée de synchroniser les autres composants, d'exécuter les instructions du binaire chargé en mémoire, de gérer les entrées et les sorties, de lire et d'écrire dans la mémoire et les registres. L'unité arithmétique et logique opère toute l'arithmétique du processeur et modifie les drapeaux du registre d'état en conséquence selon les résultats des opérations effectuées. Par exemple si une addition provoque un débordement d'entier, c'est à dire que le résultat de l'addition ne peut être stocké dans un seul registre, alors le drapeau de dépassement d'entier (OF) est passé à 1.
+Une organisation simplifiée d'une machine utilisant ce modèle est donnée Figure \ref{fig:arch_harvard_mod}.
 
 \begin{figure}
 \begin{center}
 \input{supports/architecture/arch.tex}
-\caption{Architecture de Harvard modifiée}
+\caption{Architecture simplifiée}
 \label{fig:arch_harvard_mod}
 \ijym{utile?}
 \end{center}
@@ -267,7 +271,7 @@ Par exemple en assembleur il n'y a plus de noms ni de types pour les variables n
 
 Le désassemblage est l'opération inverse de l'assemblage : il consiste à récupérer le code assembleur source du binaire.
 Cette tâche semble particulièrement simple puisque l'assemblage consiste simplement à trouver les octets correspondants à chaque instruction à l'aide de la documentation officielle du processeur puis à mettre en forme le fichier binaire en remplissant correctement ses entêtes et ses sections.
-Pourtant on a vu que, dans le modèle de Harvard modifié, les données et le code peuvent être mêlés. 
+Pourtant on a vu que, dans le modèle de Von Neumann, les données et le code peuvent être mêlés. 
 En particulier les parties de données (comme la section \pdata) peuvent être exécutées. 
 De même les sections de code peuvent contenir des informations destinées à être simplement lues ou modifiées mais jamais exécutées.
 La difficulté du désassemblage consiste donc à séparer les parties potentiellement exécutables des données.
@@ -427,10 +431,10 @@ Nous nous intéressons en particulier au graphe de flot de contrôle parfait (d�
 Cette définition d'un graphe de flot de contrôle parfait représente une instruction par son adresse en mémoire : il s'agit d'une simplification cohérente dans le cas d'un programme \nsm\ et nous verrons par la suite comment étendre la notion de graphe de flot de contrôle parfait à un programme qui se modifie lui-même.
 
 \begin{defi}
- Étant donné un programme \nsm\ P prenant une entrée I, le graphe de flot de contrôle parfait de P est le graphe orienté $G=(V, E)$ tel que :
+ Étant donné un programme \nsm\ P prenant une entrée I, le graphe de flot de contrôle parfait de P est le graphe orienté $T=(V, E)$ tel que :
  \begin{itemize}
-  \item V est l'ensemble des sommets de G et est inclus dans l'ensemble des adresses de P
-  \item $E\subset V\times V$ est l'ensemble des arcs de G
+  \item V est l'ensemble des sommets de T et est inclus dans l'ensemble des adresses de P
+  \item $E\subset V\times V$ est l'ensemble des arcs de T
   \item $(a, b)\in E$ si et seulement si il existe un chemin d'exécution de P au sein duquel l'adresse $b$ suit immédiatement l'adresse $a$ dans l'ordre d'exécution.
  \end{itemize}
 \label{def:cfg_parfait_nsm}

@@ -31,7 +31,7 @@ Nous reprenons la classification informelle en trois niveaux d'information propo
 %     \node[anchor=south] at (current bounding box.north) {Progwramme};
 \end{tikzpicture}
 \end{center}
-\caption{Niveau des précision des informations sur une instruction}
+\caption{Niveaux de précision des informations sur une instruction}
 \label{fig:niveaux_sem}
 \end{figure}
 
@@ -366,7 +366,7 @@ Adresse & Octets & Instruction ASM & Transcription en LI\\
 \paragraph{Approche atomique.}
 En pratique nous souhaitons donc avoir accès à la représentation sous forme binaire du programme intial.
 Nous allons donc commencer par le charger en mémoire comme une partie intégrante de l'état interne de la machine.
-C'est le comportement attendu d'une machine de Harvard modifiée \todo{von neumann?} et le comportement du programme peut donc être auto-modifiant. Le décodage, le désassemblage puis la transformation en langage intermédiaire et l'évaluation sémantique des instructions du programme se feront donc au fur et à mesure de l'analyse, une instruction à la fois, depuis l'état de la mémoire.
+C'est le comportement attendu d'une machine de Von Neumann et le comportement du programme peut donc être auto-modifiant. Le décodage, le désassemblage puis la transformation en langage intermédiaire et l'évaluation sémantique des instructions du programme se feront donc au fur et à mesure de l'analyse, une instruction à la fois, depuis l'état de la mémoire.
 Ce modèle est illustré par le diagramme suivant.
 
 \begin{figure}
