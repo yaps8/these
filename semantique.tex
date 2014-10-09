@@ -1,5 +1,4 @@
 % \section{Sémantique concrète pour un langage assembleur}
-\itodo{Relire et checker la cohérence de la notation en expressions}
 
 Dans ce chapitre nous proposons un modèle simplifié pour le langage assembleur et une sémantique concrète pour ce langage.
 
@@ -139,16 +138,16 @@ Dans le cas où il n'y a pas d'instruction valide à l'adresse $t$, $D(t)=\bot$ 
 
 Une sémantique concrète cherche à définir les opérations de chaque instruction de la manière la plus précise qu'il soit afin de pouvoir simuler une exécution réelle du programme.
 Pour cela on va utiliser un store qui conserve l'état des variables lors de l'exécution du programme.
-Toute variable non initialisée a la valeur spéciale $\bot$ tandis que les variables définies ont des valeurs entières (définition \ref{sem_store_dynamique}).
+Toute variable non initialisée a la valeur spéciale $\bot$ tandis que les variables définies ont des valeurs entières (définition \ref{def:sem_store_dynamique}).
 
 \begin{defi}
  Un store dynamique $\Theta$ associe à chaque variable une valeur, $\Theta:\BV\rightarrow\BN\cup\{\bot\}$.\\
  Si v est une variable et n une valeur dans $\BN\cup\{\bot\}$, on note $\Theta[v\leftarrow n]$ l'assignation de v à n dans $\Theta$.
-\label{sem_store_dynamique}
+\label{def:sem_store_dynamique}
 \end{defi}
 
 Pour permettre l'adressage indirect on doit également définir le store sur l'ensemble des symboles de la forme $[v]$.
-La définition \ref{sem_store_dynamique_pointeurs} étend la notion de store à l'adressage indirect afin que chaque symbole ait une valeur.
+La définition \ref{def:sem_store_dynamique_pointeurs} étend la notion de store à l'adressage indirect afin que chaque symbole ait une valeur.
 
 
 \begin{defi}
@@ -176,7 +175,7 @@ La définition \ref{sem_store_dynamique_pointeurs} étend la notion de store à 
    \item Sinon $\Theta(v)\in\BN$ et $\Theta(v)\in\textlbrackdbl 0,\ N\textrbrackdbl$, alors $\Theta_X[x\leftarrow n]$ se résoud par $\Theta[T_{\Theta(v)}\leftarrow n]$.
   \end{itemize}
   \end{itemize}
-\label{sem_store_dynamique_pointeurs}
+\label{def:sem_store_dynamique_pointeurs}
 \end{defi}
 
 \paragraph{Règles de transition.}

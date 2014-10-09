@@ -1,13 +1,11 @@
-\itodo{désassemblage parfait dans le cas sm}
-
-Nous avons jusqu'à présent fait l'hypothèse \todo{todo} que les programmes analysés ne sont pas auto-modifiants.
+Nous avons jusqu'à présent fait l'hypothèse que les programmes analysés ne sont pas auto-modifiants.
 Dans ce chapitre nous détaillons une approche d'analyse dynamique adaptée aux programmes auto-modifiants et ayant pour but de réduire l'analyse d'un programme auto-modifiant en l'analyse de plusieurs sous-ensembles non auto-modifiants du programme.
 Cette approche est donnée par la littérature existante, en particulier par les travaux de thèse de Reynaud \cite{Reynaud2010} et Calvet \cite{Calvet2013}.
 
 \section{Auto-modification et vagues}
-Prenons le programme auto-modifiant donné à la figure \ref{fig:prg_asm_sm} et analysons une exécution de ses instructions de 1 à 5.
+Prenons le programme auto-modifiant donné à la figure \ref{fig:prg_asm_sm} et analysons une exécution de ses instructions 1 à 5.
 Deux instructions provoquent une auto-modification.
-L'instruction 2 à l'adresse \adr{8048065} va provoquer une écriture à l'adresse pointée par la valeur de \eax\ incrémentée de 1, soit à l'adresse \adr{804806c}. Cette écriture modifie l'instruction 4 en \texttt{mov edi, 2}, codée sur les octets \texttt{bf 02 00 00 00}. De même l'instruction 3 modifie l'instruction 5 en \texttt{mov ebx, 2}, codée sur \texttt{bb 02 00 00 00}.
+L'instruction 2 à l'adresse \adr{8048065} va provoquer une écriture à l'adresse pointée par la valeur de \eax\ incrémentée de 1, soit à l'adresse \adr{8048077}. Cette écriture modifie l'instruction 4 en \texttt{mov edi, 2}, codée sur les octets \texttt{bf 02 00 00 00}. De même l'instruction 3 modifie l'instruction 5 en \texttt{mov ebx, 2}, codée sur \texttt{bb 02 00 00 00}.
  
 \begin{figure}
 \begin{center}
@@ -41,7 +39,7 @@ On passe d'une vague $k$ à la vague suivante $k+1$ lorsqu'une adresse mémoire 
 Ainsi dans une vague $k$, toutes les instructions exécutées ont été écrites au moins à la vague $k-1$. 
 En ce sens chacune des vagues, prise indépendamment des autres, ne présente pas d'auto-modification.
 
-Nous détaillerons par la suite ce qu'est une trace d'exécution pour l'analyse dynamique ainsi que la sémantique d'enchaînement des vagues.
+Nous détaillerons par la suite, formellement, ce qu'est une trace d'exécution pour l'analyse dynamique ainsi que la sémantique d'enchaînement des vagues.
 
 \begin{figure}
  \includegraphics[width=1.0\textwidth]{supports/automodification/phases2_final.pdf}
@@ -56,15 +54,36 @@ Elle est similaire à la notion de \emph{phase} présentée par Debray et Patel 
 En particulier le programme auto-modifiant précédent (figure \ref{fig:prg_asm_sm}), exécuté, forme deux vagues : la vague initiale est le programme initial et la seconde, modifiée, est identique à l'exception des instructions 4 et 5 qui ont été modifiées en \texttt{mov edi, 2} et \texttt{mov ebx, 2} respectivement.
 En général la suppression des protections se fait à l'aide d'une analyse dynamique et d'une image de la mémoire à un instant donné au cours de l'exécution. C'est cette image mémoire qui sera considérée comme étant le programme d'origine. La difficulté réside alors dans le choix de l'instant où prendre l'image mémoire : il s'agit souvent la dernière phase.
 
-Preda, Giacobazzi, Debray, Coogan et Townsend \cite{PGDCT10} effectuent un découpage en phases mais chaque lecture d'une instruction écrite lors d'une vague précédente (pas uniquement lors de la phase en cours) provoque la création d'une nouvelle phase.
+Preda, Giacobazzi, Debray, Coogan et Townsend \cite{PGDCT10} effectuent un découpage en phases mais chaque exécution d'une instruction écrite lors d'une vague précédente (pas uniquement lors de la phase en cours) provoque la création d'une nouvelle phase.
 Avec l'exemple précédent, leur approche crée trois phases : la phase initiale, celle où uniquement l'instruction 4 a été modifiée, puis celle où les instructions 4 et 5 ont été modifiées.
 
 \section{Trace, niveaux d'exécution et vagues}
 Le programme exécuté a pour sources principales de données les registres et la mémoire constituée de la pile et du tas qui sont tous les deux adressables par des entiers. Une variable d'un programme est donc soit un registre du processeur soit une adresse mémoire, de même que défini dans la sémantique du langage intermédiaire défini au chapitre précédent (définition \ref{def:sem_conc_var}).
 
 En utilisant la sémantique concrète précédemment définie on est capable, à partir d'un ensemble de valeurs initiales pour les registres et la mémoire, d'exécuter un programme sur cette entrée.
-L'exécution d'un programme consiste en la définition d'un contexte d'exécution initial, l'évaluation sémantique de la première instruction dans ce contexte, puis l'évaluation de l'instruction suivante dans le contexte mis à jour, etc.
+Schématiquement, l'exécution d'un programme consiste en la définition d'un contexte d'exécution initial $E_0$, l'évaluation sémantique de la première instruction $D_1$ dans ce contexte, puis l'évaluation de l'instruction suivante dans le contexte mis à jour, et ainsi de suite :
 
+% \begin{figure}
+\begin{center}
+\scalebox{1}{
+\begin{tikzpicture}[->,scale=1,>=stealth',thick]
+\node[state, draw=none] (E0){$E_0$};
+\node[state, draw=none, right=2cm of E0] (E1){$E_1$};
+\node[state, draw=none, right=2cm of E1] (E2){$E_2$};
+\node[state, draw=none, right=2cm of E2] (EP){$...$};
+\node[state, draw=none, right=2cm of EP] (EN){$E_n$};
+\draw (E0.east) -> node[above]{$D_1$} (E1.west);
+\draw (E1.east) -> node[above]{$D_2$} (E2.west);
+\draw (E2.east) -> node[above]{...} (EP.west);
+\draw (EP.east) -> node[above]{$D_n$} (EN.west);
+\end{tikzpicture}
+}
+\end{center}
+% \caption{Enchaînement des contextes d'exécution et des instructions dynamiques}
+% \label{fig:mem_process}
+% \end{figure}
+
+Nous rappelons que nous notons, à tout instant durant l'exécution, $\BT$ le tableau contenant les adresses mémoires et $\Theta$ le store représentant l'état des variables (mémoire et registres), comme indiqué aux définitions \ref{def:sem_conc_var} et \ref{def:sem_store_dynamique}.
 Nous définissons une instruction dynamique (définition \ref{def:ensembles_inst_dyn}) par son adresse, les adresses mémoires sur lesquelles elle est codée et l'instruction machine correspondant. Ces informations sont données par le décodage d'une instruction à l'adresse mémoire spécifiée dans un contexte donné. 
 
 \begin{defi}
@@ -80,11 +99,26 @@ On définit l'opérateur \texttt{decode} qui associe à une adresse mémoire $a$
 \label{def:ensembles_inst_dyn}
 \end{defi}
 
-En pratique l'opération de désassemblage atomique définie au chapitre précédent nous donne ces informations. Pour l'assembleur \xq, une instruction est codée au maximum sur 15 octets.
-Nous rappelons que nous notons, à tout instant durant l'exécution, $\Theta$ le store représentant l'état des variables (mémoire et registres) et $\BT$ l'ensemble des adresses mémoires.
-Si on cherche à désassembler \telock\ à l'adresse \adr{0x01006e7a}, et qu'à l'adresse \adr{0x01006e7d} sont présents les octets suivant : $\Theta[0x01006e7d..0x01006e8b]=$ \texttt{eb ff c9 7f e6 8b c1 29 00 00 00 f3 aa 66 ab}, l'opérateur \texttt{decode} renvoie la première instruction dynamique D à cette adresse : il s'agit de l'instruction assembleur \di{D}=\texttt{jmp +1} (d'une taille de deux octets : \texttt{eb ff}) à l'adresse \da{D}=\adr{0x01006e7d}, codée sur l'intervalle d'adresses \dc{D}=[\adr{0x01006e7d}, \adr{0x01006e7e}].
+Si l'on dispose d'un langage intermédiaire comme défini au chapitre précédent, son opérateur de désassemblage atomique nous donne ces informations. Pour l'assembleur \xq, une instruction est codée au maximum sur 15 octets.
+% Si on cherche à désassembler \telock\ à l'adresse \adr{0x01006e7a}, et qu'à l'adresse \adr{0x01006e7d} sont présents les octets suivant : $\Theta[0x01006e7d..0x01006e8b]=$ \texttt{eb ff c9 7f e6 8b c1 29 00 00 00 f3 aa 66 ab}, l'opérateur \texttt{decode} renvoie la première instruction dynamique D à cette adresse : il s'agit de l'instruction assembleur \di{D}=\texttt{jmp +1} (d'une taille de deux octets : \texttt{eb ff}) à l'adresse \da{D}=\adr{0x01006e7d}, codée sur l'intervalle d'adresses \dc{D}=[\adr{0x01006e7d}, \adr{0x01006e7e}].
+Si on cherche à désassembler l'exemple précédent à l'adresse \adr{0x8048060} : à l'adresse \adr{0x8048060} sont présents les octets suivants : $\Theta[0x8048060..0x804806e]=$ \texttt{b8 6b 80 04 08 b8 6b 80 04 08 66 c7 40 06 02}, l'opérateur \texttt{decode} renvoie la première instruction dynamique D à cette adresse : il s'agit de l'instruction assembleur \di{D}=\texttt{mov eax, 0x8048076} (d'une taille de cinq octets : \texttt{b8 6b 80 04 08}) à l'adresse \da{D}=\adr{0x8048060}, codée sur l'intervalle d'adresses \dc{D}=[\adr{0x8048060}, \adr{0x8048064}].
 
-Afin de pouvoir séparer la trace d'exécution selon le moment où chaque instruction a été écrite, nous définissons aussi, pour une instruction dynamique et un contexte d'exécution, l'ensemble des adresses mémoire sur lesquelles elle provoque une écriture (définition \ref{def:ensembles_inst_dyn_write}). Cette information est donnée par la sémantique concrète choisie. Avec la sémantique définie au chapitre précédent les seules instructions qui provoquent des écritures sont celles dont la liste d'instructions atomiques donnée par le désassemblage contiennent des assignations écrivant, par adressage direct ou indirect, à une adresse mémoire $m$. Si D est une instruction dynamique sémantiquement équivalente, dans le contexte $\Theta$, à l'enchaînement des instructions atomiques $d_1, ..., d_n$ alors \dww{\Theta}{D}=\dww{\Theta}{d_1}$\ \cup\ ...\ \cup\ $\dww{\Theta}{d_n} (propriété \ref{propri:eq_W_D_di}) avec
+Afin de pouvoir séparer la trace d'exécution selon le moment où chaque instruction a été écrite, nous définissons aussi, pour une instruction dynamique et un store $\Theta$, l'ensemble des adresses mémoire sur lesquelles l'instruction elle provoque une écriture (définition \ref{def:ensembles_inst_dyn_write}).
+
+\begin{defi}
+Soit $D$ une instruction dynamique et $\Theta$ un store représentant l'état des variables (mémoire et registres). On note \dww{\Theta}{D} l'ensemble des adresses mémoire sur lesquelles l'exécution de $D$ provoque une écriture.
+\label{def:ensembles_inst_dyn_write}
+\end{defi}
+
+Cette information est donnée par la sémantique concrète choisie : si l'instruction assembleur \di{D} est sémantiquement équivalente, avec le store $\Theta$, à la suite d'instructions atomiques $d_1, ..., d_n$ dans un langage intermédiaire alors l'ensemble des adresses écrites par D est l'union de adresses écrites par chacune des instructions atomiques $d_i$ dans la sémantique concrète choisie pour ce langage intermédiaire (propriété \ref{propri:eq_W_D_di}).
+
+\begin{propri}
+Soit $D$ une instruction dynamique, $\Theta$ un store représentant l'état des variables (mémoire et registres) et $d_1, ..., d_n$ une suite d'instruction atomiques dans un langage intermédiaire telle que la suite d'instruction $d_1, ..., d_n$ dans le langage intermédiaire est sémantiquement équivalente à l'instruction assembleur \di{D}. On a :
+$$\mdww{\Theta}{D}=\mdww{\Theta}{d_1,..., d_n}=\mdww{\Theta}{d_1}\ \cup\ ...\ \cup\ \mdww{\Theta}{d_n}.$$
+\label{propri:eq_W_D_di}
+\end{propri}
+
+Avec la sémantique définie au chapitre précédent les seules instructions qui provoquent des écritures sont celles dont la liste d'instructions atomiques donnée par le désassemblage contiennent des assignations écrivant, par adressage direct ou indirect, à une adresse mémoire $m$. Si \di{D} est une instruction assembleur sémantiquement équivalente, avec le store $\Theta$, à l'enchaînement des instructions atomiques $d_1, ..., d_n$ dans le langage intermédiaire précédent, alors \dww{\Theta}{D}=\dww{\Theta}{d_1}$\ \cup\ ...\ \cup\ $\dww{\Theta}{d_n} (propriété \ref{propri:eq_W_D_di}) avec
 % \\
 $$\mdww{\Theta}{d_i}=
 \left\{
@@ -95,19 +129,6 @@ $$\mdww{\Theta}{d_i}=
   \end{array}
 \right.
 $$
-
-
-
-\begin{defi}
-Soit $D$ une instruction dynamique et $\Theta$ un store représentant l'état des variables (mémoire et registres). On note \dww{\Theta}{D} l'ensemble des adresses mémoire sur lesquelles l'exécution de $D$ provoque une écriture.
-\label{def:ensembles_inst_dyn_write}
-\end{defi}
-
-\begin{propri}
-Soit $D$ une instruction dynamique, $\Theta$ un store représentant l'état des variables (mémoire et registres) et $d_1, ..., d_n$ une suite d'instruction atomiques dans un langage intermédiaire telle que la suite d'instruction $d_1, ..., d_n$ dans le langage intermédiaire est sémantiquement équivalente à l'instruction assembleur \di{D}. On a :
-$$\mdww{\Theta}{D}=\mdww{\Theta}{d_1,..., d_n}=\mdww{\Theta}{d_1}\ \cup\ ...\ \cup\ \mdww{\Theta}{d_n}.$$
-\label{propri:eq_W_D_di}
-\end{propri}
 
 % \begin{defi}
 % Nous définissons le niveau d'écriture d'une adresse mémoire comme un entier naturel et le store $W^M: \BT\rightarrow\BN$ associant à une adresse mémoire son niveau d'écriture.
@@ -137,34 +158,17 @@ Une exécution d'un programme, dont le point d'entrée est $ep$, est la donnée 
 \label{def:contexte_exec}
 \end{defi}
 
-Une exécution consiste en une série de contextes d'exécution liés dont la transition est provoquée par l'évaluation sémantique de l'instruction pointée par le registre de compteur ordinal (noté en général \pc\ ou \eax\ en assembleur \xq), comme illustré par la figure suivante.
+Une exécution consiste en une série de contextes d'exécution dont la transition de l'un au suivant est provoquée par l'évaluation sémantique de l'instruction pointée par le registre de compteur ordinal (noté en général \pc\ ou \eip\ en assembleur \xq). Une trace d'exécution est une signature d'une exécution, elle contient les instructions successives avec leurs niveau d'exécution respectifs (définition \ref{def:trace}).
 
-% \begin{figure}
-\begin{center}
-\scalebox{1}{
-\begin{tikzpicture}[->,scale=1,>=stealth',thick]
-\node[state, draw=none] (E0){$E_0$};
-\node[state, draw=none, right=2cm of E0] (E1){$E_1$};
-\node[state, draw=none, right=2cm of E1] (E2){$E_2$};
-\node[state, draw=none, right=2cm of E2] (EP){$...$};
-\node[state, draw=none, right=2cm of EP] (EN){$E_n$};
-\draw (E0.east) -> node[above]{$D_1$} (E1.west);
-\draw (E1.east) -> node[above]{$D_2$} (E2.west);
-\draw (E2.east) -> node[above]{...} (EP.west);
-\draw (EP.east) -> node[above]{$D_n$} (EN.west);
-\end{tikzpicture}
-}
-\end{center}
-% \caption{Enchaînement des contextes d'exécution et des instructions dynamiques}
-% \label{fig:mem_process}
-% \end{figure}
-
+\begin{defi}
+Étant donnée une exécution d'un programme composée des contextes d'exécution $E_0, E_1, ..., E_n$ avec $E_i=(X_i, \Theta_i, W_i^M)$, on appelle trace d'exécution la suite $T=(t_1, t_2, ..., t_n)$ où $t_i=(i, X_{i-1}, D_i)$ avec $D_i=$\texttt{decode}$(\Theta_{i-1}[eip], \Theta_{i-1})$.
+\label{def:trace}
+\end{defi}
 
 Nous avons donc, pour une exécution donnée, des niveaux d'exécution successifs $1, 2, ..., n$.
 À chaque contexte d'exécution, toute adresse en mémoire $m$ a un niveau d'écriture $W^M[m]$ correspondant au dernier niveau d'exécution durant lequel une instruction a modifié la valeur à l'adresse $m$.
 Une instruction $D$ a un niveau d'écriture $W_D$ qui est le niveau d'écriture le plus élevé parmi les adresses sur lesquelles elle est codée.
 Lors d'une exécution le niveau d'exécution ainsi que le niveau d'écriture de chaque adresse mémoire sont croissants.
-
 
 
 % \begin{defi}
@@ -177,10 +181,7 @@ Lors d'une exécution le niveau d'exécution ainsi que le niveau d'écriture de 
 % \label{def:write_exec_levels}
 % \end{defi}
 
-\begin{defi}
-Étant donnée une exécution d'un programme composée des contextes d'exécution $E_0, E_1, ..., E_n$ avec $E_i=(X_i, \Theta_i, W_i^M)$, on appelle trace d'exécution la suite $T=(t_1, t_2, ..., t_n)$ où $t_i=(i, X_{i-1}, D_i)$ avec $D_i=$\texttt{decode}$(\Theta_{i-1}[eip], \Theta_{i-1})$.
-\label{def:trace}
-\end{defi}
+
 
 % \begin{propri}
 %  Si le niveau d'exécution courant est $X$, le niveau d'exécution de l'instruction à exécuter $D_i$ est :\\
@@ -190,10 +191,7 @@ Lors d'une exécution le niveau d'exécution ainsi que le niveau d'écriture de 
 % \label{propri:niveau_exec}
 % \end{propri}
 
-En pratique une instruction $D$ écrite par une instruction ayant pour niveau d'exécution $k$ puis directement exécutée aura pour niveau d'écriture $W_D=k$ et pour niveau d'exécution $X=k+1$. On définit alors formellement instantané du niveau d'exécution $k$ selon la définition \ref{def:instantane} et une vague comme étant le désassemblage parfait de cet instantané (définition \ref{def:vagues}).
-Une première vague est définie dès l'exécution de la première instruction du programme puis à chaque changement de niveau d'exécution une nouvelle vague est construite.
-L'algorithme \ref{algo:analyse_dyn_vagues} permet d'exécuter un programme dynamiquement avec la sémantique concrète choisie tout en déterminant les niveaux d'exécution de d'écriture au fur et à mesure de l'exécution. La sortie de l'algorithme \ref{algo:analyse_dyn_vagues} est la trace d'exécution et la liste des vagues reconstruites.
-\\
+En pratique une instruction $D$ écrite par une instruction ayant pour niveau d'exécution $k$ puis directement exécutée aura pour niveau d'écriture $W_D=k$ et pour niveau d'exécution $X=k+1$. On définit alors un instantané du niveau d'exécution $k$ selon la définition \ref{def:instantane} et une vague comme étant le désassemblage parfait de cet instantané (définition \ref{def:vagues}).
 
 \begin{defi}
  Étant donnée une exécution d'un programme composée des contextes d'exécution $E_0, E_1, ..., E_n$ avec $E_i=(X_i, \Theta_i, W_i^M)$, on appelle instantané du niveau d'exécution $k$ l'état de la mémoire contenu dans $\Theta_j$ où $E_j$ est le premier contexte d'exécution dont le niveau d'exécution est $X_j=k$.
@@ -205,6 +203,28 @@ L'algorithme \ref{algo:analyse_dyn_vagues} permet d'exécuter un programme dynam
  Étant donnée une exécution d'un programme, on appelle vague $k$ le graphe de flot de contrôle parfait du programme représenté par l'instantané du niveau d'exécution $k$ muni de son point d'entrée.
  \label{def:vagues}
 \end{defi}
+
+Une première vague est définie dès l'exécution de la première instruction du programme puis à chaque changement de niveau d'exécution une nouvelle vague est construite.
+L'algorithme \ref{algo:analyse_dyn_vagues} permet d'exécuter un programme dynamiquement avec la sémantique concrète choisie tout en déterminant les niveaux d'exécution de d'écriture au fur et à mesure de l'exécution. 
+Il fournit en sortie la trace d'exécution et la liste des vagues reconstruites.
+
+\begin{figure}[h]
+\begin{center}
+\begin{tabular}[b]{|l|l|l|l|l|l|l|}
+\hline
+i & \da{D_i} & \dc{D_i} & \di{D_i} & \dw{D_i} & $W^\Theta_i$ & $X_i$ \\
+\hline
+1 & 8048060  & [8048060, 8048064] & mov    eax, 0x8048076  &           & 0 & 1 \\
+2 & 8048065  & [8048065, 804806a] & mov    [eax+1], 2      & 0x8048077 & 0 & 1 \\
+3 & 804806b  & [804806b, 8048075] & mov    [eax+6], 2      & 0x804807c & 0 & 1 \\
+4 & 8048076  & [8048076, 804807a] & mov    edi, 1          &           & 1 & 2 \\
+5 & 804807b  & [804807b, 804807f] & mov    ebx, 1          &           & 1 & 2 \\
+\hline
+\end{tabular}
+\end{center}
+\caption{Trace d'exécution du programme auto-modifiant de la figure \ref{fig:prg_asm_sm}}
+\label{fig:prg_asm_sm_trace}
+\end{figure}
 
 Reprenons l'exemple du programme \sm\ précédent.
 La figure \ref{fig:prg_asm_sm_trace} donne une trace d'exécution de ce programme en détaillant les informations sur chaque instruction dynamique ainsi que les niveaux d'écriture et d'exécution de chaque instruction.
@@ -238,24 +258,6 @@ Cette exécution est donc séparée en deux vagues : la vague initiale, $v_0$ do
 % \caption{Trace d'exécution du programme auto-modifiant de la figure \ref{fig:unevague_v0}}
 % \label{fig:unevague_trace}
 % \end{figure}
-
-\begin{figure}
-\begin{center}
-\begin{tabular}[b]{|l|l|l|l|l|l|l|}
-\hline
-i & \da{D_i} & \dc{D_i} & \di{D_i} & \dw{D_i} & $W_i$ & $X_i$ \\
-\hline
-1 & 8048060  & [8048060, 8048064] & mov    eax, 0x8048076  &           & 0 & 1 \\
-2 & 8048065  & [8048065, 804806a] & mov    [eax+1], 2      & 0x8048077 & 0 & 1 \\
-3 & 804806b  & [804806b, 8048075] & mov    [eax+6], 2      & 0x804807c & 0 & 1 \\
-4 & 8048076  & [8048076, 804807a] & mov    edi, 1          &           & 1 & 2 \\
-5 & 804807b  & [804807b, 804807f] & mov    ebx, 1          &           & 1 & 2 \\
-\hline
-\end{tabular}
-\end{center}
-\caption{Trace d'exécution du programme auto-modifiant de la figure \ref{fig:prg_asm_sm}}
-\label{fig:prg_asm_sm_trace}
-\end{figure}
 
 \begin{algorithm}[h] %or another one check
 \caption{Mise à jour du niveau d'exécution d'une instruction}
@@ -483,7 +485,7 @@ Un tel CFG pour le programme \sm\ précédent est donné en figure \ref{fig:sm_c
 Cette définition est particulièrement pertinente si quelle que soit l'exécution choisie les vagues d'exécution sont les même, comme c'est le cas dans l'exemple choisi ici.
 Notre technique consiste donc à obtenir une exécution particulière d'un programme puis à augmenter la couverture de code à l'aide d'une analyse statique sur chaque instantané de l'exécution.
 
-\subsection{État de l'art}
+\subsection{Revue de littérature}
 
 \section{Implémentations}
 \todo[inline]{émulation VS instrumentation VS débogage}
