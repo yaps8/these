@@ -1,13 +1,163 @@
 
 
-\section{Analyse dynamique et auto-modification}
+% \section{Analyse dynamique et auto-modification}
 L'analyse dynamique consiste à se baser sur une ou des exécutions particulières d'un programme pour inférer des propriétés sur son fonctionnement.
 Elle demande donc de se munir d'une langage modélisant le fonctionnement de la machine durant l'exécution du programme, d'une sémantique concrète de l'assembleur utilisé et de lancer l'évaluation sémantique du programme sur une ou plusieurs entrées.
 Les entrées d'un programme sont par exemple les paramètres passés lors de l'appel au programme, l'état de la machine lors du démarrage, les données lues depuis la mémoire et les saisies faites par l'utilisateur au clavier ou à la souris lors de l'exécution s'il s'agit d'une application dotée d'une interface graphique.
 
 Dans cette partie nous reprendrons la sémantique simplifiée pour un langage assembleur définie au chapitre précédent et expliquerons comment séparer une exécution d'un programme auto-modifiant en plusieurs sous-exécution non auto-modifiantes afin d'utiliser des techniques standard d'analyse sur chacune de ces sous-exécutions.
 
+\section{Désassemblage d'un programme \sm}
+\subsection{Désassemblage parfait}
+Nous avons précédemment défini le désassemblage parfait d'un programme \nsm\ comme la donnée de l'ensemble des adresses auxquelles des instructions peuvent être atteintes lors de l'exécution.
+Dans le cas d'un programme \sm, cette définition n'est pas suffisante puisque l'instruction présente à une adresse dépend du contexte d'exécution et des éventuelles modifications qui ont été faites à cette adresse.
 
+Nous considérons toujours que la donnée que l'analyste cherche à
+déterminer et représenter est l'ensemble des exécution possibles du
+programme : nous notons $E_T$ l'ensemble des traces d'exécution possibles.
+En particulier une entrée spécifique provoque une exécution que nous observons sous la forme d'une trace.
+Cette trace peut être découpée en niveaux d'exécution et chaque vague est le désassemblage parfait de l'instantané.
+
+Le désassemblage, pris au sens de l'opération inverse de l'assemblage,
+consiste à déterminer les adresses contenant des instructions, les
+autres contenant des données.
+Au sein d'une exécution les octets sur lesquelles une instruction ayant
+un niveau d'exécution strictement supérieur à 1, c'est à dire que ces
+octets ont été modifiés avant que l'instruction ne soit exécutée, ne
+sont présents dans la représentation d'origine du programme qu'en temps
+que données.
+Ainsi le désassemblage parfait d'un programme \sm\ ne prend en compte
+que les instructions exécutées avec un le niveau d'exécution 1
+(proposition \ref{prop:desassemblage_parfait_sm}).
+
+\begin{prop}
+ Étant donné un programme P \sm\ et l'ensemble de ses traces d'exécution
+$E_T$, le désassemblage parfait de P est l'ensemble des adresses où une
+instruction de niveau d'exécution 1 est exécutée dans au moins une
+trace, c'est à dire
+ $\{a, \exists\ T\in E_T, \exists\ (i, X, D)\in T, X=1,\ $\da{D}$=a\}$.
+\label{prop:desassemblage_parfait_sm}
+\end{prop}
+
+
+\subsection{Graphe de flot de contrôle parfait}
+Le graphe de flot de contrôle ne peut plus se contenter de représenter
+une instruction par son adresse puisque plusieurs instructions
+différentes peuvent être présentes à la même adresse.
+Le graphe de flot de contrôle parfait est alors le graphe dont les
+sommets sont des couples $(a, I)$ où \adr{a} est une adresse et $I$ une
+instruction assembleur. Il y a un arc entre deux sommets si le second
+suit directement le premier dans une trace d'exécution (définition
+\ref{def:cfg_parfait_sm}).
+
+\begin{defi}
+ Étant donné un programme \sm\ P et l'ensemble de ses traces d'exécution
+$E_T$, le graphe de flot de contrôle parfait de P est le graphe orienté
+$G=(V, E)$ tel que :
+ \begin{itemize}
+  \item $V=\{(a, I),  \exists\ T\in E_T, \exists\ (i, X, D)\in T,\
+$\da{D}$=a,\ $\di{D}$=I\}$
+  \item $((a_1, I_1), (a_2, I_2))\in E\ si\ et\ seulement\ si\ (a_1,
+I_1)\ et\ (a_2, I_2)\ se\ suivent\ dans\ une\ trace\ : \exists T\in
+E_T,\ i\in \BN, (i, X_1, D_1)\ et\ (i+1, X_2, D_2)\in T\ avec\
+$\da{D_1}$=a_1,\ $\di{D_1}$=I_1,$~\da{D_2}$=a_2,\ $\di{D_2}$=I_2$.
+ \end{itemize}
+\label{def:cfg_parfait_sm}
+\end{defi}
+
+Le problème de cette définition d'un CFG pour un programme \sm\ est qu'%e souvent les vagues se suivent et ont peu de rapport les unes avec les autres.
+elle ne permet pas de visualiser l'enchaînement des vagues et peut conduire à une interprêtation biaisée des exécutions possibles.
+
+\paragraph{Exemple.}
+Prenons le programme donné en figure \ref{fig:sm_asm} dont le graphe de flot de contrôle construit par analyse statique à l'aide d'un parcours récursif est en figure \ref{fig:sm_cfg_statique}.
+
+\begin{figure}[h]
+\begin{center}
+\subfigure[Code \sm]{
+\begin{tabular}[b]{|l|l|l|l|}
+\hline
+Adresse & Octets & Instruction & Instruction écrite\\ 
+\hline
+ 8048060 <debut>  &  31 ff             &  xor    edi,edi		& \\
+ 8048062  &  40                        &  inc    eax			& \\
+ 8048063  &  74 07                     &  je     804806c <si\_zero> 	& \\
+ 	  &			       &				& \\
+ 8048065  &  bf 02 00 00 00            &  mov    edi, 0x2 		& \\
+ 804806a  &  eb f4                     &  jmp    8048060 <debut> 	& \\
+	  &			       &				& \\
+ 804806c <si\_zero> &  bf 01 00 00 00  &  mov    edi, 0x1 		& \\
+ 8048071  &  bb 60 80 04 08            &  mov    ebx, 0x8048060 	& \\
+ 8048076  &  66 c7 03 47 00            &  mov    [ebx], 0x47 		& inc edi\\
+ 804807b  &  66 c7 43 01 47 00         &  mov    [ebx+0x1], 0x47	& inc edi \\
+ 8048081  &  66 c7 43 03 c3 00         &  mov    [ebx+0x3], 0xc3	& ret \\
+ 8048087  &  eb d7                     &  jmp    8048060 <debut> 	& \\
+\hline
+\end{tabular}
+\label{fig:sm_asm}
+}
+\subfigure[CFG par analyse statique et récursive]{
+\includegraphics[width=0.8\textwidth]{supports/disas_sm/ex2_statique.pdf}
+\label{fig:sm_cfg_statique}
+}
+\caption{Exemple d'un code \sm}
+\label{fig:sm_exemple2}
+\end{center}
+\end{figure}
+
+La branche du saut effectué à l'adresse \adr{0x8048063} dans le cas où \eax\ est différent de zéro revient vers le point d'entrée, incrémente \eax\ et passe à nouveau dans le saut conditionnel. Cette boucle provoquera à terme un dépassement d'entier sur la valeur \eax\ qui sera remise à zéro et l'autre branche du saut sera appelée.
+Cette seconde branche a pour effet de modifier les instructions aux adresses \adr{0x8048060}, \adr{0x8048061} et \adr{0x8048063} pour y placer les instructions \texttt{inc edi}, \texttt{inc edi} et \texttt{ret} respectivement, puis de sauter sur l'adresse \adr{0x8048060}, provoquant l'exécution des instructions écrites ainsi que de l'instruction \texttt{inc eax}, non modifiée.
+
+Ainsi toutes les exécutions possibles, paramétrées par la valeur initiale d'\eax, bouclent sur la branche conditionnelle un nombre fini, qui peut être nul, de fois et exécutent la seconde branche, qui met la valeur 1 dans \edi, provoque une auto-modification, incrémente \edi\ deux fois puis quitte la fonction. Dans toutes les exécutions possibles la valeur finale de \edi\ est toujours 3.
+
+Le CFG parfait de ce programme est donné en figure \ref{fig:sm_cfg_parfait}. En raison du mélange des instructions à différents niveaux d'exécution, il n'est pas possible de distinguer les vagues d'exécution et un analyseur statique simple approxime la valeur de \edi\ à 2 ou 3.
+
+\begin{figure}[h]
+\begin{center}
+  \includegraphics[width=0.7\textwidth]{supports/disas_sm/ex2_parfait.pdf}
+\end{center}
+\caption{CFG parfait}
+\label{fig:sm_cfg_parfait}
+\end{figure}
+
+
+Cette difficulté n'est pas intrinsèque aux programmes \sm\ et provient du fait même que le graphe de flot de contrôle est sur une surapproximation \todo{typo?} de l'ensemble des exécutions possibles. Il est cependant exacerbé dans le cas des programmes \sm\ puisque souvent les vagues successives n'ont que peu de code commun entre elles et il n'est pas cohérent de les mélanger dans le CFG.
+
+
+\subsection{Graphe de flot de contrôle paramétré par une exécution}
+Nous proposons une représentation du CFG basée sur une exécution particulière et son découpage en différents niveaux d'exécution.
+Cette exécution consiste en une trace et un enchaînement d'instantanés de chaque niveau d'exécution.
+Chaque instantané est pris comme un programme ayant pour point d'entrée la première instruction de la trace ayant le niveau d'exécution correspondant et un point de sortie étant la dernière instruction ayant ce même niveau d'exécution.
+Nous appelons CFG paramétré par cette exécution l'union des CFG parfaits de chaque de ces instantanés dans lesquel les sommets sont caractérisés par le niveau d'exécution de l'instantané, une adresse et une instruction assembleur.
+Un tel CFG pour le programme \sm\ précédent est donné en figure \ref{fig:sm_cfg_vagues} : l'exécution prise en compte est celle démarrant avec \eax=-2. La boucle directe est exécutée une fois, puis comme \eax=0, la partie auto-modifiante est activée.
+\itodo{def formelle?}
+
+% \begin{defi}
+%  Étant donné un programme \sm\ P et une trace d'exécution $T$, le graphe de flot de contrôle de P paramétré par $T$ est $G=(V, E)$ tel que :
+%  \begin{itemize}
+%   \item $V=\{(a, I),  \exists\ T\in E_T, \exists\ (i, X, D)\in T,\
+% $\da{D}$=a,\ $\di{D}$=I\}$
+%   \item $((a_1, I_1), (a_2, I_2))\in E\ si\ et\ seulement\ si\ (a_1,
+% I_1)\ et\ (a_2, I_2)\ se\ suivent\ dans\ une\ trace\ : \exists T\in
+% E_T,\ i\in \BN, (i, X_1, D_1)\ et\ (i+1, X_2, D_2)\in T\ avec\
+% $\da{D_1}$=a_1,\ $\di{D_1}$=I_1,$~\da{D_2}$=a_2,\ $\di{D_2}$=I_2$.
+%  \end{itemize}
+% \label{def:cfg_param_sm}
+% \end{defi}
+
+\begin{figure}[h]
+\begin{center}
+  \includegraphics[width=0.7\textwidth]{supports/disas_sm/ex2_vagues.pdf}
+\end{center}
+\caption{CFG paramétré par l'exécution démarrant avec \eax=-2}
+\label{fig:sm_cfg_vagues}
+\end{figure}
+
+Cette définition est particulièrement pertinente si quelle que soit l'exécution choisie les vagues d'exécution sont les même, comme c'est le cas dans l'exemple choisi ici.
+L'idée consiste donc à obtenir une exécution particulière d'un programme puis à augmenter la couverture de code à l'aide d'une analyse statique sur chaque instantané de l'exécution.
+
+\subsection{Revue de littérature}
+\itodo{CFG avec octets, CFA automates de Jakstab / Kinder}
+(\todo{nom+cite}) proposent d'introduire la représentation sous forme d'octets de chaque instruction au sein du CFG et d'ajouter les conditions des sauts conditionnels légende des arcs du CFG. (...)
 
 \section{Approche hybride et Codisasm}
 Nous avons vu comment séparer une trace d'exécution en plusieurs sous-traces définissant des vagues d'exécution.
@@ -18,3 +168,5 @@ Nous décidons alors d'effectuer, pour chaque vague, un désassemblage par analy
 \itodo{diagramme}
 \subsection{Obtention des traces et des vagues}
 \subsection{Analyse statique de chaque vague}
+
+\section{Revue de littérature}

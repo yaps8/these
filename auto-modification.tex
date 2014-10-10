@@ -47,21 +47,11 @@ Nous détaillerons par la suite, formellement, ce qu'est une trace d'exécution 
  \label{fig:vagues_visuel}
 \end{figure}
 
-
-\section{Revue de littérature}
-La notion de vague présentée dans ce chapitre a été développée dans les thèse de Reynaud \cite{Reynaud2010} et Calvet \cite{Calvet2013}.
-Elle est similaire à la notion de \emph{phase} présentée par Debray et Patel \cite{DP10} et utilisée pour automatiser la suppression de la protection d'un binaire. Le découpage d'une trace en phases est, chez eux, identique au découpage en vagues que l'on présente dans ce chapitre.
-En particulier le programme auto-modifiant précédent (figure \ref{fig:prg_asm_sm}), exécuté, forme deux vagues : la vague initiale est le programme initial et la seconde, modifiée, est identique à l'exception des instructions 4 et 5 qui ont été modifiées en \texttt{mov edi, 2} et \texttt{mov ebx, 2} respectivement.
-En général la suppression des protections se fait à l'aide d'une analyse dynamique et d'une image de la mémoire à un instant donné au cours de l'exécution. C'est cette image mémoire qui sera considérée comme étant le programme d'origine. La difficulté réside alors dans le choix de l'instant où prendre l'image mémoire : il s'agit souvent la dernière phase.
-
-Preda, Giacobazzi, Debray, Coogan et Townsend \cite{PGDCT10} effectuent un découpage en phases mais chaque exécution d'une instruction écrite lors d'une vague précédente (pas uniquement lors de la phase en cours) provoque la création d'une nouvelle phase.
-Avec l'exemple précédent, leur approche crée trois phases : la phase initiale, celle où uniquement l'instruction 4 a été modifiée, puis celle où les instructions 4 et 5 ont été modifiées.
-
 \section{Trace, niveaux d'exécution et vagues}
 Le programme exécuté a pour sources principales de données les registres et la mémoire constituée de la pile et du tas qui sont tous les deux adressables par des entiers. Une variable d'un programme est donc soit un registre du processeur soit une adresse mémoire, de même que défini dans la sémantique du langage intermédiaire défini au chapitre précédent (définition \ref{def:sem_conc_var}).
 
 En utilisant la sémantique concrète précédemment définie on est capable, à partir d'un ensemble de valeurs initiales pour les registres et la mémoire, d'exécuter un programme sur cette entrée.
-Schématiquement, l'exécution d'un programme consiste en la définition d'un contexte d'exécution initial $E_0$, l'évaluation sémantique de la première instruction $D_1$ dans ce contexte, puis l'évaluation de l'instruction suivante dans le contexte mis à jour, et ainsi de suite :
+Schématiquement, l'exécution d'un programme consiste en la définition d'un contexte d'exécution initial $E_0$, l'évaluation sémantique de la première instruction $D_1$ dans ce contexte, puis l'évaluation de l'instruction suivante dans le contexte mis à jour, et ainsi de suite. Dans cette partie nous définirons formellement ces éléments mais leur enchaînement est schématiquement le suivant.
 
 % \begin{figure}
 \begin{center}
@@ -334,170 +324,19 @@ $i\leftarrow i+1$\\
 \end{algorithm}
 
 \begin{rem}
- Étant donné la définition croissante des vagues, une instruction dynamique peut-être exécutée non seulement plusieurs fois dans la même vague mais également être présente à des vagues différentes.
+ Étant donné la définition croissante des niveaux d'exécution, une instruction dynamique peut-être exécutée non seulement plusieurs fois au même niveau d'exécution mais également être présente à des niveaux d'exécution différents.
 \end{rem}
 
-\section{Désassemblage d'un programme \sm}
-\subsection{Désassemblage parfait}
-Nous avons précédemment défini le désassemblage parfait d'un programme \nsm\ comme la donnée de l'ensemble des adresses auxquelles des instructions peuvent être atteintes lors de l'exécution.
-Dans le cas d'un programme \sm, cette définition n'est pas suffisante puisque l'instruction présente à une adresse dépend du contexte d'exécution et des éventuelles modifications qui ont été faites à cette adresse.
+\section{Revue de littérature}
+La notion de vague présentée dans ce chapitre a été développée dans les thèse de Reynaud \cite{Reynaud2010} et Calvet \cite{Calvet2013}.
+Elle est similaire à la notion de \emph{phase} présentée par Debray et Patel \cite{DP10} et utilisée pour automatiser la suppression de la protection d'un binaire. Le découpage d'une trace en phases est, chez eux, identique au découpage en vagues que l'on présente dans ce chapitre.
+En particulier le programme auto-modifiant précédent (figure \ref{fig:prg_asm_sm}), exécuté, forme deux vagues : la vague initiale est le programme initial et la seconde, modifiée, est identique à l'exception des instructions 4 et 5 qui ont été modifiées en \texttt{mov edi, 2} et \texttt{mov ebx, 2} respectivement.
+En général la suppression des protections se fait à l'aide d'une analyse dynamique et d'une image de la mémoire à un instant donné au cours de l'exécution. C'est cette image mémoire qui sera considérée comme étant le programme d'origine. La difficulté réside alors dans le choix de l'instant où prendre l'image mémoire : il s'agit souvent la dernière phase.
 
-Nous considérons toujours que la donnée que l'analyste cherche à
-déterminer et représenter est l'ensemble des exécution possibles du
-programme : nous notons $E_T$ l'ensemble des traces d'exécution possibles.
-En particulier une entrée spécifique provoque une exécution que nous observons sous la forme d'une trace.
-Cette trace peut être découpée en niveaux d'exécution et chaque vague est le désassemblage parfait de l'instantané.
-
-Le désassemblage, pris au sens de l'opération inverse de l'assemblage,
-consiste à déterminer les adresses contenant des instructions, les
-autres contenant des données.
-Au sein d'une exécution les octets sur lesquelles une instruction ayant
-un niveau d'exécution strictement supérieur à 1, c'est à dire que ces
-octets ont été modifiés avant que l'instruction ne soit exécutée, ne
-sont présents dans la représentation d'origine du programme qu'en temps
-que données.
-Ainsi le désassemblage parfait d'un programme \sm\ ne prend en compte
-que les instructions exécutées avec un le niveau d'exécution 1
-(proposition \ref{prop:desassemblage_parfait_sm}).
-
-\begin{prop}
- Étant donné un programme P \sm\ et l'ensemble de ses traces d'exécution
-$E_T$, le désassemblage parfait de P est l'ensemble des adresses où une
-instruction de niveau d'exécution 1 est exécutée dans au moins une
-trace, c'est à dire
- $\{a, \exists\ T\in E_T, \exists\ (i, X, D)\in T, X=1,\ $\da{D}$=a\}$.
-\label{prop:desassemblage_parfait_sm}
-\end{prop}
-
-
-\subsection{Graphe de flot de contrôle parfait}
-Le graphe de flot de contrôle ne peut plus se contenter de représenter
-une instruction par son adresse puisque plusieurs instructions
-différentes peuvent être présentes à la même adresse.
-Le graphe de flot de contrôle parfait est alors le graphe dont les
-sommets sont des couples $(a, I)$ où \adr{a} est une adresse et $I$ une
-instruction assembleur. Il y a un arc entre deux sommets si le second
-suit directement le premier dans une trace d'exécution (définition
-\ref{def:cfg_parfait_sm}).
-
-\begin{defi}
- Étant donné un programme \sm\ P et l'ensemble de ses traces d'exécution
-$E_T$, le graphe de flot de contrôle parfait de P est le graphe orienté
-$G=(V, E)$ tel que :
- \begin{itemize}
-  \item $V=\{(a, I),  \exists\ T\in E_T, \exists\ (i, X, D)\in T,\
-$\da{D}$=a,\ $\di{D}$=I\}$
-  \item $((a_1, I_1), (a_2, I_2))\in E\ si\ et\ seulement\ si\ (a_1,
-I_1)\ et\ (a_2, I_2)\ se\ suivent\ dans\ une\ trace\ : \exists T\in
-E_T,\ i\in \BN, (i, X_1, D_1)\ et\ (i+1, X_2, D_2)\in T\ avec\
-$\da{D_1}$=a_1,\ $\di{D_1}$=I_1,$~\da{D_2}$=a_2,\ $\di{D_2}$=I_2$.
- \end{itemize}
-\label{def:cfg_parfait_sm}
-\end{defi}
-
-Le problème de cette définition d'un CFG pour un programme \sm\ est qu'%e souvent les vagues se suivent et ont peu de rapport les unes avec les autres.
-elle ne permet pas de visualiser l'enchaînement des vagues et peut conduire à une interprêtation biaisée des exécutions possibles.
-
-\paragraph{Exemple.}
-Prenons le programme donné en figure \ref{fig:sm_asm} dont le graphe de flot de contrôle construit par analyse statique à l'aide d'un parcours récursif est en figure \ref{fig:sm_cfg_statique}.
-
-\begin{figure}
-\begin{center}
-\subfigure[Code \sm]{
-\begin{tabular}[b]{|l|l|l|l|}
-\hline
-Adresse & Octets & Instruction & Instruction écrite\\ 
-\hline
- 8048060 <debut>  &  31 ff             &  xor    edi,edi		& \\
- 8048062  &  40                        &  inc    eax			& \\
- 8048063  &  74 07                     &  je     804806c <si\_zero> 	& \\
- 	  &			       &				& \\
- 8048065  &  bf 02 00 00 00            &  mov    edi, 0x2 		& \\
- 804806a  &  eb f4                     &  jmp    8048060 <debut> 	& \\
-	  &			       &				& \\
- 804806c <si\_zero> &  bf 01 00 00 00  &  mov    edi, 0x1 		& \\
- 8048071  &  bb 60 80 04 08            &  mov    ebx, 0x8048060 	& \\
- 8048076  &  66 c7 03 47 00            &  mov    [ebx], 0x47 		& inc edi\\
- 804807b  &  66 c7 43 01 47 00         &  mov    [ebx+0x1], 0x47	& inc edi \\
- 8048081  &  66 c7 43 03 c3 00         &  mov    [ebx+0x3], 0xc3	& ret \\
- 8048087  &  eb d7                     &  jmp    8048060 <debut> 	& \\
-\hline
-\end{tabular}
-\label{fig:sm_asm}
-}
-\subfigure[CFG par analyse statique et récursive]{
-\includegraphics[width=0.8\textwidth]{supports/disas_sm/ex2_statique.pdf}
-\label{fig:sm_cfg_statique}
-}
-\caption{Exemple d'un code \sm}
-\label{fig:sm_exemple2}
-\end{center}
-\end{figure}
-
-La branche du saut effectué à l'adresse \adr{0x8048063} dans le cas où \eax\ est différent de zéro revient vers le point d'entrée, incrémente \eax\ et passe à nouveau dans le saut conditionnel. Cette boucle provoquera à terme un dépassement d'entier sur la valeur \eax\ qui sera remise à zéro et l'autre branche du saut sera appelée.
-Cette seconde branche a pour effet de modifier les instructions aux adresses \adr{0x8048060}, \adr{0x8048061} et \adr{0x8048063} pour y placer les instructions \texttt{inc edi}, \texttt{inc edi} et \texttt{ret} respectivement, puis de sauter sur l'adresse \adr{0x8048060}, provoquant l'exécution des instructions écrites ainsi que de l'instruction \texttt{inc eax}, non modifiée.
-
-Ainsi toutes les exécutions possibles, paramétrées par la valeur initiale d'\eax, bouclent sur la branche conditionnelle un nombre fini, qui peut être nul, de fois et exécutent la seconde branche, qui met la valeur 1 dans \edi, provoque une auto-modification, incrémente \edi\ deux fois puis quitte la fonction. Dans toutes les exécutions possibles la valeur finale de \edi\ est toujours 3.
-
-Le CFG parfait de ce programme est donné en figure \ref{fig:sm_cfg_parfait}. En raison du mélange des instructions à différents niveaux d'exécution, il n'est pas possible de distinguer les vagues d'exécution et un analyseur statique simple approxime la valeur de \edi\ à 2 ou 3.
-
-\begin{figure}
-\begin{center}
-  \includegraphics[width=0.7\textwidth]{supports/disas_sm/ex2_parfait.pdf}
-\end{center}
-\caption{CFG parfait}
-\label{fig:sm_cfg_parfait}
-\end{figure}
-
-
-Cette difficulté n'est pas intrinsèque aux programmes \sm\ et provient du fait même que le graphe de flot de contrôle est sur une surapproximation \todo{typo?} de l'ensemble des exécutions possibles. Il est cependant exacerbé dans le cas des programmes \sm\ puisque souvent les vagues successives n'ont que peu de code commun entre elles et il n'est pas cohérent de les mélanger dans le CFG.
-
-
-\subsection{Graphe de flot de contrôle paramétré par une exécution}
-Nous proposons une représentation du CFG basée sur une exécution particulière et son découpage en différents niveaux d'exécution.
-Cette exécution consiste en une trace et un enchaînement d'instantanés de chaque niveau d'exécution.
-Chaque instantané est pris comme un programme ayant pour point d'entrée la première instruction de la trace ayant le niveau d'exécution correspondant et un point de sortie étant la dernière instruction ayant ce même niveau d'exécution.
-Nous appelons CFG paramétré par cette exécution l'union des CFG parfaits de chaque de ces instantanés dans lesquel les sommets sont caractérisés par le niveau d'exécution de l'instantané, une adresse et une instruction assembleur.
-Un tel CFG pour le programme \sm\ précédent est donné en figure \ref{fig:sm_cfg_vagues} : l'exécution prise en compte est celle démarrant avec \eax=-2. La boucle directe est exécutée une fois, puis comme \eax=0, la partie auto-modifiante est activée.
-\itodo{def formelle?}
-
-% \begin{defi}
-%  Étant donné un programme \sm\ P et une trace d'exécution $T$, le graphe de flot de contrôle de P paramétré par $T$ est $G=(V, E)$ tel que :
-%  \begin{itemize}
-%   \item $V=\{(a, I),  \exists\ T\in E_T, \exists\ (i, X, D)\in T,\
-% $\da{D}$=a,\ $\di{D}$=I\}$
-%   \item $((a_1, I_1), (a_2, I_2))\in E\ si\ et\ seulement\ si\ (a_1,
-% I_1)\ et\ (a_2, I_2)\ se\ suivent\ dans\ une\ trace\ : \exists T\in
-% E_T,\ i\in \BN, (i, X_1, D_1)\ et\ (i+1, X_2, D_2)\in T\ avec\
-% $\da{D_1}$=a_1,\ $\di{D_1}$=I_1,$~\da{D_2}$=a_2,\ $\di{D_2}$=I_2$.
-%  \end{itemize}
-% \label{def:cfg_param_sm}
-% \end{defi}
-
-\begin{figure}
-\begin{center}
-  \includegraphics[width=0.7\textwidth]{supports/disas_sm/ex2_vagues.pdf}
-\end{center}
-\caption{CFG paramétré par l'exécution démarrant avec \eax=-2}
-\label{fig:sm_cfg_vagues}
-\end{figure}
-
-Cette définition est particulièrement pertinente si quelle que soit l'exécution choisie les vagues d'exécution sont les même, comme c'est le cas dans l'exemple choisi ici.
-Notre technique consiste donc à obtenir une exécution particulière d'un programme puis à augmenter la couverture de code à l'aide d'une analyse statique sur chaque instantané de l'exécution.
-
-\subsection{Revue de littérature}
+Preda, Giacobazzi, Debray, Coogan et Townsend \cite{PGDCT10} effectuent un découpage en phases mais chaque exécution d'une instruction écrite lors d'une vague précédente (pas uniquement lors de la phase en cours) provoque la création d'une nouvelle phase.
+Avec l'exemple précédent, leur approche crée trois phases : la phase initiale, celle où uniquement l'instruction 4 a été modifiée, puis celle où les instructions 4 et 5 ont été modifiées.
 
 \section{Implémentations}
-\todo[inline]{émulation VS instrumentation VS débogage}
-\todo[inline]{BAP: \\
-Jakstab: \\
-TraceSurfer: (outil de daniel)\\
-Renovo : \\
-LLVM : (pk ne pas l'utiliser??) \\
-Implem en C: \\
-Xed : \\
-}
-
 Plusieurs choix s'offrent à qui cherche à implémenter un système d'analyse dynamique de binaire tels l'émulation, l'instrumentation et le débogage.
 
 L'émulation consiste à lancer l'exécution dans un environnement d'exécution simulé, qui peut être un système d'exploitation complet comme c'est le cas avec BAP ou TEMU, le module d'analyse dynamique du projet BitBlaze \cite{bitblaze08}, basé sur l'émulateur QEMU \cite{QEMU05}.
@@ -514,7 +353,7 @@ En particulier les appels systèmes, qui ne sont pas transcrits par BAP, ne peuv
 Les approches nécessitant une exécution non restreinte sur le système sont alors réalisées au sein d'une machine virtuelle.
 
 Une caractéristique cruciale d'un analyseur dynamique est qu'il doit être transparent : le programme analysé ne doit pas être capable de différencier son exécution dans l'analyseur de son exécution sur un système réel.
-Cette transparence est en général partielle, que ce soit avec un émulateur, un débogueur ou une technique d'instrumentation.
+Cette transparence est en général partielle, que ce soit avec un émulateur, un débogueur ou une technique d'instrumentation. \more{cite blue pill ou autre}
 
 L'instrumentation, par rapport au débogage, offre des performances temporelles d'exécution bien supérieures.
 Pour ces raisons, nous nous sommes intéressés à l'émulation comme à l'instrumentation.
@@ -544,7 +383,11 @@ Ne pouvant pas émuler des programmes utilisant des appels systèmes, nous avons
 
 
 \subsection{Instrumentation avec Pin}
-
+\itodo{tracesurfer?}
 Pin est l'outil d'instrumentation développé par Intel pour ses processeurs \xq\ et \xs.
 Il fournit un niveau d'information sémantique de niveau 2, donc suffisant pour suivre chaque instruction et connaître l'ensemble des adresses mémoire que l'instruction modifie. 
-Nous avons à nouveau implémenté l'algorithme \ref{algo:analyse_dyn_vagues} sous la forme d'un PinTool : codé en C, il s'agit d'un programme définissant les actions à effectuer avant et après l'exécution de chaque instruction.
+Nous avons repris l'implémentation de l'algorithme \ref{algo:analyse_dyn_vagues} développé par Reynaud \cite{Reynaud2010} sous la forme d'un PinTool : codé en C, il s'agit d'un programme définissant les actions à effectuer avant et après l'exécution de chaque instruction selon le type de l'instruction considérée.
+
+L'analyse d'un programme malveillant a lieu sur une machine virtuelle munie de Pin et ne souffre pas des limitations de l'émulation : les appels systèmes sont correctement analysés et exécutés. 
+Dans la suite de cette thèse, nous avons exclusivement utilisé cette approche pour l'analyse dynamique.
+
