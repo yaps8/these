@@ -406,12 +406,12 @@ Les données sont les parties du programme qui peuvent être lues lors d'une ex�
 \end{tikzpicture}
 \end{center}
 
-Une définition formelle du désassemblage parfait d'un programme P (définition \ref{def:desassemblage_parfait}) est alors la détermination de l'ensemble des adresses atteignables de P.
+Une définition formelle du désassemblage parfait d'un programme P (définition \ref{prop:desassemblage_parfait_nsm}) est alors la détermination de l'ensemble des adresses atteignables de P.
 
-\begin{defi}
+\begin{prop}
  Étant donné un programme P \nsm\ prenant une entrée I, le désassemblage parfait de P est la donnée de l'ensemble des adresses $a$ de P pouvant être atteintes, soit $\bigcup_{I} \{a,\ P(I)\ atteint\ a\}$.
-\label{def:desassemblage_parfait}
-\end{defi}
+\label{prop:desassemblage_parfait_nsm}
+\end{prop}
 
 L'analyste est par contre intéressé par plus d'informations que simplement la liste des adresses atteignables. 
 % Il est utile de connaître les enchaînements d'instructions possibles, représentés dans le graphe de flot de contrôle.
@@ -429,7 +429,7 @@ Cette définition d'un graphe de flot de contrôle parfait représente une instr
 \begin{defi}
  Étant donné un programme \nsm\ P prenant une entrée I, le graphe de flot de contrôle parfait de P est le graphe orienté $T=(V, E)$ tel que :
  \begin{itemize}
-  \item V est l'ensemble des sommets de T et est inclus dans l'ensemble des adresses de P
+  \item L'ensemble V des sommets de T est l'ensemble des adresses présentes dans le désassemblage parfait de T
   \item $E\subset V\times V$ est l'ensemble des arcs de T
   \item $(a, b)\in E$ si et seulement si il existe un chemin d'exécution de P au sein duquel l'adresse $b$ suit immédiatement l'adresse $a$ dans l'ordre d'exécution.
  \end{itemize}

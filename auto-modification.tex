@@ -369,7 +369,65 @@ L'instrumentation permet d'exécuter plus fidèlement le programme à analyser, 
 
 
 \section{Désassemblage d'un programme \sm}
+Nous considérons toujours que la donnée que l'analyste cherche à déterminer et représenter est l'ensemble des exécution possibles du programme : nous notons $E_T$ l'ensemble des traces d'exécution possibles.
 
+Le désassemblage, pris au sens de l'opération inverse de l'assemblage, consiste à déterminer les adresses contenant des instructions, les autres contenant des données.
+Au sein d'une exécution les octets sur lesquelles une instruction ayant un niveau d'exécution strictement supérieur à 1, c'est à dire que ces octets ont été modifiés avant que l'instruction ne soit exécutée, ne sont présents dans la représentation d'origine du programme qu'en temps que données.
+Ainsi le désassemblage parfait d'un programme \sm\ ne prend en compte que les instructions exécutées avec un le niveau d'exécution 1 (proposition \ref{prop:desassemblage_parfait_sm}).
+
+Le graphe de flot de contrôle ne peut plus se contenter de représenter une instruction par son adresse puisque plusieurs instructions différentes peuvent être présentes à la même adresse.
+Le graphe de flot de contrôle parfait est alors le graphe dont les sommets sont des couples $(a, I)$ où \adr{a} est une adresse et $I$ une instruction assembleur. Il y a un arc entre deux sommets si le second suit directement le premier dans une trace d'exécution (définition \ref{def:cfg_parfait_sm}).
+
+\begin{prop}
+ Étant donné un programme P \sm\ et l'ensemble de ses traces d'exécution $E_T$, le désassemblage parfait de P est l'ensemble des adresses où une instruction de niveau d'exécution 1 est exécutée dans au moins une trace, c'est à dire
+ $\{a, \exists\ T\in E_T, \exists\ (i, X, D)\in T, X=1,\ $\da{D}$=a\}$.
+\label{prop:desassemblage_parfait_sm}
+\end{prop}
+
+\begin{defi}
+ Étant donné un programme \sm\ P et l'ensemble de ses traces d'exécution $E_T$, le graphe de flot de contrôle parfait de P est le graphe orienté $T=(V, E)$ tel que :
+ \begin{itemize}
+  \item $V=\{(a, I),  \exists\ T\in E_T, \exists\ (i, X, D)\in T,\ $\da{D}$=a,\ $\di{D}$=I\}$
+  \item $((a_1, I_1), (a_2, I_2))\in E\ si\ et\ seulement\ si\ (a_1, I_1)\ et\ (a_2, I_2)\ se\ suivent\ dans\ une\ trace\ : \exists T\in E_T,\ i\in \BN, (i, X_1, D_1)\ et\ (i+1, X_2, D_2)\in T\ avec\ $\da{D_1}$=a_1,\ $\di{D_1}$=I_1,$~\da{D_2}$=a_2,\ $\di{D_2}$=I_2$.
+ \end{itemize}
+\label{def:cfg_parfait_sm}
+\end{defi}
+
+\begin{figure}
+\begin{center}
+\subfigure[Code assembleur]{
+\begin{tabular}[b]{|l|l|l|}
+\hline
+Adresse & Octets & Instruction\\ 
+\hline
+ 8048060  &  (...)         	& Pile -> RWX \\ 
+ 804807c  &  bf 00 00 00 00         &  mov    edi, 0x0 \\
+ 8048081  &  b8 91 80 04 08         &  mov    eax, 0x8048091 \\
+ 8048086  &  66 c7 00 eb 00         &  mov    [eax], 0xeb \\
+ 804808b  &  66 c7 40 01 07 00      &  mov    [eax+1], 0x7 \\
+ 8048091  &  eb 0e                  &  jmp    80480a1 <edi3> \\
+ 8048093  &  bf 01 00 00 00         &  mov    edi,0x1 \\
+ 8048098  &  eb 0e                  &  jmp    80480a8 <fin> \\
+ 804809a  &  bf 02 00 00 00         &  mov    edi,0x2 \\
+ 804809f  &  eb 07                  &  jmp    80480a8 <fin> \\
+ 80480a1  &  bf 03 00 00 00         &  mov    edi,0x3 \\
+ 80480a6  &  eb 00                  &  jmp    80480a8 <fin> \\
+ 80480a8  &  (...)		    &  Affiche edi \\
+ 80480c3  &  (...)		    & Quitte \\
+\hline
+\end{tabular}
+\label{fig:unevague_v0_code}
+}
+\subfigure[Graphe de flot de contrôle]{
+\includegraphics[width=1.0\textwidth]{supports/unevague/uv.pdf}
+\label{fig:unevague_v0_cfg}
+}
+\end{center}
+\ijym{détailler les ... (en annexe?)}
+\ijym{fonction f, adresses f, f+1, f+3, ...}
+\caption{Code assembleur auto-modifiant}
+\label{fig:unevague_v0}
+\end{figure}
 
 \section{Émulation avec BAP}
 
