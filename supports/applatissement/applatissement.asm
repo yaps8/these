@@ -18,7 +18,7 @@ ret
 E:
 mov edi, 1
 cmp ebx, 1
-je F
+jne C
 
 F:
 add edi, 2

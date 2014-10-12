@@ -1,0 +1,16 @@
+digraph G {
+labeljust=r
+"A" [labeljust=r,label="A", shape=box, style="filled", fillcolor=orange]
+"B" [labeljust=r,label="B", shape=box, style="filled", fillcolor=white]
+"C" [labeljust=r,label="C", shape=box, style="filled", fillcolor=white]
+"D" [labeljust=r,label="D :\l0x804806b ret\l", shape=box, style="filled", fillcolor=white]
+"E" [labeljust=r,label="E", shape=box, style="filled", fillcolor=white]
+"F" [labeljust=r,label="F", shape=box, style="filled", fillcolor=white]
+"A" -> "B" [color=black]
+"A" -> "E" [color=red]
+"B" -> "C" [color=black]
+"C" -> "D" [color=black]
+"E" -> "F" [color=black]
+"E" -> "C" [color=red]
+"F" -> "D" [color=red]
+}

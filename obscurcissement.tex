@@ -79,8 +79,193 @@ Une autre technique courante d'obscurcissement \cite{MKK07} consiste à utiliser
 Une telle condition est appelée un prédicat opaque et peut être implémentée par des relations d'arithmétique. Par exemple en appliquant le petit théorème de Fermat \cite{fermat} : quel que soit l'entier e, $e^3\ =\ e\ mod\ 3$.
 Le programmeur sait que l'égalité est toujours vérifiée mais un analyseur statique ne pourra pas le déterminer aisément.
 
-\itodo{Applatissement de graphe de flot de contrôle.}
-\ijym{idem}
+\paragraph{Aplatissement de graphe de flot de contrôle.}
+Nous avons vu que le but principal de l'analyse est la construction d'un graphe de flot de contrôle cohérent du binaire.
+Celui-ci peut être à la base d'une analyse automatique et, s'il est suffisamment lisible, permet à un analyste humain de gagner du temps dans la compréhension du programme.
+À partir d'un programme dont le CFG est facile à comprendre, le développeur de programmes malveillants à intérêt à appliquer des transformations permettant de le rendre plus opaque.
+
+Une de ces techniques est l'aplatissement du CFG \cite{Wang2000}. Elle consiste à transformer les changements de flot de contrôle, par exemple les appels à différentes fonctions, en un seul bloc déterminant l'adresse du saut et y effectuant un saut dynamique à l'instar d'un bloc d'aiguillage (ou \emph{switch}).
+
+Prenons le programme \xq\ donné en figure \ref{fig:applatissement_asm_orig}, dont le graphe de flot de contrôle est donné à la figure \ref{fig:applatissement_cfg_orig}.
+Ce programme modifie la valeur de \edi\ selon la valeur d'origine de \ebx. Son CFG est simple et l'on peut par exemple déterminer facilement les valeur possibles de \edi\ en sortie (lorsque que l'instruction \ret\ est atteinte) : 1, 2 ou 3.
+
+% \begin{figure}[h]
+% \begin{center}
+% \begin{tabular}[b]{|l|l|l|}
+% \hline
+% Adresse & Octets & Instruction\\ 
+% \hline
+%  8048060 <A>  &  83 fb 00               &  cmp    ebx,0x0 \\
+%  8048063      &  75 07                  &  jne    804806c <E> \\
+%  8048065 <B>  &  bf 00 00 00 00         &  mov    edi,0x0 \\
+%  804806a <C>  &  47                     &  inc    edi \\
+%  804806b <D>  &  c3                     &  ret     \\
+%  804806c <E>  &  bf 01 00 00 00         &  mov    edi,0x1 \\
+%  8048071      &  83 fb 01               &  cmp    ebx,0x1 \\
+%  8048074      &  74 00                  &  jne     804807a <C> \\
+%  8048076 <F>  &  83 c7 02               &  add    edi,0x2 \\
+%  8048079      &  eb f0                  &  jmp    804806b <D> \\
+% \hline
+% \end{tabular}
+% \end{center}
+% \caption{Programme d'origine}
+% \label{fig:applatissement_asm_orig}
+% \end{figure}
+% 
+% \begin{figure}[h]
+% \begin{center}
+% \includegraphics[width=0.6\textwidth]{supports/applatissement/applatissement.pdf}
+% \end{center}
+% \caption{Graphe de flot de contrôle du programme d'origine}
+% \label{fig:applatissement_cfg_orig}
+% \end{figure}
+
+\begin{figure}[h]
+\begin{center}
+\subfigure[Code assembleur]{
+\begin{tabular}[b]{|l|l|l|}
+\hline
+Adresse & Octets & Instruction\\ 
+\hline
+ 8048060 <A>  &  83 fb 00               &  cmp    ebx,0x0 \\
+ 8048063      &  75 07                  &  jne    804806c <E> \\
+ 8048065 <B>  &  bf 00 00 00 00         &  mov    edi,0x0 \\
+ 804806a <C>  &  47                     &  inc    edi \\
+ 804806b <D>  &  c3                     &  ret     \\
+ 804806c <E>  &  bf 01 00 00 00         &  mov    edi,0x1 \\
+ 8048071      &  83 fb 01               &  cmp    ebx,0x1 \\
+ 8048074      &  74 00                  &  jne     804807a <C> \\
+ 8048076 <F>  &  83 c7 02               &  add    edi,0x2 \\
+ 8048079      &  eb f0                  &  jmp    804806b <D> \\
+\hline
+\end{tabular}
+\label{fig:applatissement_asm_orig}
+}
+\subfigure[Graphe de flot de contrôle]{
+\includegraphics[width=0.6\textwidth]{supports/applatissement/applatissement.pdf}
+\label{fig:applatissement_cfg_orig}
+}
+\end{center}
+\caption{Programme d'origine}
+\label{fig:applatissement_orig}
+\end{figure}
+
+Il est équivalent au programme aplati donné en figure \ref{fig:applatissement_asm_applati} dont le CFG est donné en figure \ref{fig:applatissement_cfg_applati_simple}. 
+Ce programme modifié est articulé autour de l'instruction de saut dynamique \texttt{jmp eax}.
+On a remplacé chaque saut par l'assignation de l'adresse du saut à \eax\ suivi d'un appel à l'instruction de saut dynamique. 
+
+% \begin{figure}[h]
+% \begin{center}
+% \begin{tabular}[b]{|l|l|l|}
+% \hline
+% Adresse & Octets & Instruction\\ 
+% \hline
+%  8048060  &  b8 67 80 04 08         &  mov    eax,0x8048067 \\
+%  8048065 <S> &  ff e0                  &  jmp    eax \\
+%  8048067 <A> &  83 fb 00               &  cmp    ebx,0x0 \\
+%  804806a  &  75 07                  &  jne    8048073 <A2> \\
+%  804806c <A1>  &  b8 7a 80 04 08         &  mov    eax,0x804807a \\
+%  8048071  &  eb f2                  &  jmp    8048065 <S> \\
+%  8048073 <A2> &  b8 8f 80 04 08         &  mov    eax,0x804808f \\
+%  8048078  &  eb eb                  &  jmp    8048065 <S> \\
+%  804807a <B> &  bf 00 00 00 00         &  mov    edi,0x0 \\
+%  804807f  &  b8 86 80 04 08         &  mov    eax,0x8048086 \\
+%  8048084  &  eb df                  &  jmp    8048065 <S> \\
+%  8048086 <C> &  47                     &  inc    edi \\
+%  8048087  &  b8 8e 80 04 08         &  mov    eax,0x804808e \\
+%  804808c  &  eb d7                  &  jmp    8048065 <S> \\
+%  804808e <D> &  c3                     &  ret     \\
+%  804808f <E> &  bf 01 00 00 00         &  mov    edi,0x1 \\
+%  8048094  &  83 fb 01               &  cmp    ebx,0x1 \\
+%  8048097  &  75 07                  &  jne    80480a0 <E2> \\
+%  8048099 <E1> &  b8 a7 80 04 08         &  mov    eax,0x80480a7 \\
+%  804809e  &  eb c5                  &  jmp    8048065 <S> \\
+%  80480a0 <E2> &  b8 86 80 04 08         &  mov    eax,0x8048086 \\
+%  80480a5  &  eb be                  &  jmp    8048065 <S> \\
+%  80480a7 <F> &  83 c7 02               &  add    edi,0x2 \\
+%  80480aa  &  b8 8e 80 04 08         &  mov    eax,0x804808e \\
+%  80480af  &  eb b4                  &  jmp    8048065 <S> \\
+% \hline
+% \end{tabular}
+% \end{center}
+% \caption{Programme aplati}
+% \label{fig:applatissement_asm_applati}
+% \end{figure}
+
+% \begin{figure}
+% \begin{center}
+% \includegraphics[width=1.0\textwidth]{supports/applatissement/applatissement_applati.pdf}
+% \end{center}
+% \caption{Graphe de flot de contrôle du programme applati}
+% \label{fig:applatissement_cfg_applati}
+% \end{figure}
+
+% \begin{figure}[h]
+% \begin{center}
+% \includegraphics[width=0.8\textwidth]{supports/applatissement/applatissement_applati_simple.pdf}
+% \end{center}
+% \caption{Graphe de flot de contrôle simplifié du programme aplati}
+% \label{fig:applatissement_cfg_applati_simple}
+% \end{figure}
+
+\begin{figure}[h]
+\begin{center}
+\subfigure[Code assembleur]{
+\begin{tabular}[b]{|l|l|l|}
+\hline
+Adresse & Octets & Instruction\\ 
+\hline
+ 8048060  &  b8 67 80 04 08         &  mov    eax,0x8048067 \\
+ 8048065 <S> &  ff e0                  &  jmp    eax \\
+ 8048067 <A> &  83 fb 00               &  cmp    ebx,0x0 \\
+ 804806a  &  75 07                  &  jne    8048073 <A2> \\
+ 804806c <A1>  &  b8 7a 80 04 08         &  mov    eax,0x804807a \\
+ 8048071  &  eb f2                  &  jmp    8048065 <S> \\
+ 8048073 <A2> &  b8 8f 80 04 08         &  mov    eax,0x804808f \\
+ 8048078  &  eb eb                  &  jmp    8048065 <S> \\
+ 804807a <B> &  bf 00 00 00 00         &  mov    edi,0x0 \\
+ 804807f  &  b8 86 80 04 08         &  mov    eax,0x8048086 \\
+ 8048084  &  eb df                  &  jmp    8048065 <S> \\
+ 8048086 <C> &  47                     &  inc    edi \\
+ 8048087  &  b8 8e 80 04 08         &  mov    eax,0x804808e \\
+ 804808c  &  eb d7                  &  jmp    8048065 <S> \\
+ 804808e <D> &  c3                     &  ret     \\
+ 804808f <E> &  bf 01 00 00 00         &  mov    edi,0x1 \\
+ 8048094  &  83 fb 01               &  cmp    ebx,0x1 \\
+ 8048097  &  75 07                  &  jne    80480a0 <E2> \\
+ 8048099 <E1> &  b8 a7 80 04 08         &  mov    eax,0x80480a7 \\
+ 804809e  &  eb c5                  &  jmp    8048065 <S> \\
+ 80480a0 <E2> &  b8 86 80 04 08         &  mov    eax,0x8048086 \\
+ 80480a5  &  eb be                  &  jmp    8048065 <S> \\
+ 80480a7 <F> &  83 c7 02               &  add    edi,0x2 \\
+ 80480aa  &  b8 8e 80 04 08         &  mov    eax,0x804808e \\
+ 80480af  &  eb b4                  &  jmp    8048065 <S> \\
+\hline
+\end{tabular}
+\label{fig:applatissement_asm_applati}
+}
+\subfigure[Graphe de flot de contrôle]{
+\includegraphics[width=0.8\textwidth]{supports/applatissement/applatissement_applati_simple.pdf}
+\label{fig:applatissement_cfg_applati_simple}
+}
+\end{center}
+\caption{Programme aplati}
+\label{fig:applatissement_applati}
+\end{figure}
+
+
+Le graphe de flot de contrôle du programme obscurci ne peut pas être exploité en l'état pour connaître les valeurs possibles de \edi\ en sortie : il n'est pas possible de boucler sur le bloc C provoquant l'incrément de \edi\ mais il est nécessaire de vérifier les instructions du bloc que pour vérifier.
+
+
+% \begin{figure}
+% \begin{center}
+% \includegraphics[width=0.3\textwidth]{supports/applatissement/applatissement_simple.pdf}
+% \end{center}
+% \caption{Graphe de flot de contrôle simplifié du programme d'origine}
+% \label{fig:applatissement_cfg_orig_simple}
+% \end{figure}
+
+
 
 \section{Chevauchement de code}
 On a vu que la taille d'une instruction assembleur varie de un à 15 octets \done{15 dans intel2 chercher 15}.
@@ -381,5 +566,6 @@ L'empaqueteur libre UPX \cite{UPX} est un cas typique du schéma précédent. Il
 \section{Conclusion}
 Cette thèse s'intéresse particulièrement à l'analyse des programmes écrits en assembleur \xq\ et \xs. Ces programmes ont en général été compilés à partir d'un langage de haut niveau puis ont été modifiés à l'aide d'un logiciel de protection. Les binaires que l'on étudie sont donc protégés avec des techniques statiques comme auto-modifiantes. Notre travail consiste alors à chercher à désassembler correctement ces programmes dans le but de faciliter leur analyse.
 
-Les chapitres suivants détailleront plusieurs techniques d'analyse que nous avons appliquées. Nous nous intéresserons d'abord à l'aspect auto-modifiant des programmes et verrons comment l'analyse dynamique peut être utilisée pour reconstruire un modèle pour le programme auto-modifiant. Dans un second temps nous introduirons des techniques d'analyse statiques pour chercher à recomposer le maximum de code assembleur du programme et contourner d'autres méthodes de protection comme le chevauchement de code.
-\itodo{non, ce n'est pas ça le plan}
+Les chapitres suivants détailleront plusieurs techniques d'analyse que nous avons appliquées. 
+Dans un premier temps nous introduirons des techniques d'analyse statiques pour chercher à construire un graphe de flot de contrôle approximant le graphe de flot de contrôle parfait et contourner certaines méthodes de protection comme le chevauchement de code.
+Nous nous intéresserons ensuite à l'aspect auto-modifiant des programmes et verrons comment l'analyse dynamique peut être utilisée pour reconstruire un modèle pour le programme auto-modifiant. 

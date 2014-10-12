@@ -370,7 +370,7 @@ Le calcul effectif du nombre d'arcs entrant (respectivement sortant) d'un sommet
 additionnant, à colonne (respectivement ligne) constante correspondant au sommet, les valeurs de la matrice sur toutes les lignes (respectivement colonnes).
 \\
 
-L'algorithme est détaillé dans la figure \ref{fig:algo-ullman} : il consiste à associer chaque sommet de P à un sommet de T. On note i le numéro du prochain sommet de P à associer à un sommet de T. On démarre donc avec i=1.
+L'algorithme est détaillé dans la figure \ref{algo:ullman} : il consiste à associer chaque sommet de P à un sommet de T. On note i le numéro du prochain sommet de P à associer à un sommet de T. On démarre donc avec i=1.
 On conserve la permutation $\sigma$ sous la forme d'un ensemble F d'éléments de couples de la forme $(i, j)$ avec $i\in T$, et $j\in P$. La première étape
 consiste donc à initialiser les matrices que l'on va utiliser ($M_T,\ M_P,\ I_{n_P, n_T},\ et\ C^0$). Une fois l'initialisation faite, pour parcourir toutes les possibilités, on
 utilise la procédure \emph{backtrack} en partant d'une matrice de possibilités $C^0$, de i=1, et d'un ensemble F vide. 
@@ -427,9 +427,8 @@ backtrack($C^0$, 1, $\emptyset$)\\
     $F \leftarrow F-\{(i, j)\}$
   }
 }
-\label{algo:codageProf}
+\label{algo:ullman}
 \end{algorithm}
-\label{fig:algo-ullman}
 \end{figure}
 
 % \begin{figure}
@@ -466,7 +465,7 @@ possible cette association, sinon elle l'interdira. Enfin si plus aucune associa
 \emph{forwardChecking} renvoie \emph{false}. Elle renvoie \emph{true} dans le cas contraire. 
 % Le nouvel algorithme est donné dans la figure , et
 % la fonction \emph{Forward\_Checking} dans la figure \ref{fig:algo-ullman-forwardch}.
-\\
+% \\
 
 % La complexité dans le pire des cas \cite{MessPhd} arrive quand toutes les associations sont possibles ($C^0$ n'est composée que de 1). 
 % Dans ce cas, à chaque niveau de

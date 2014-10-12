@@ -1,0 +1,16 @@
+digraph G {
+labeljust=r
+"A" [labeljust=r,label="A :\l0x8048060 cmp ebx, 0\l0x8048063 jne 804806c\l", shape=box, style="filled", fillcolor=orange]
+"B" [labeljust=r,label="B :\l0x8048065 mov edi, 0\l", shape=box, style="filled", fillcolor=white]
+"C" [labeljust=r,label="C :\l0x804806a inc edi\l", shape=box, style="filled", fillcolor=white]
+"D" [labeljust=r,label="D :\l0x804806b ret\l", shape=box, style="filled", fillcolor=white]
+"E" [labeljust=r,label="E :\l0x804806c mov edi, 1\l0x8048071 cmp ebx, 1\l0x8048074 jne 804807a\l", shape=box, style="filled", fillcolor=white]
+"F" [labeljust=r,label="F :\l0x8048076 add edi, 2\l0x8048079 jmp 804806b\l", shape=box, style="filled", fillcolor=white]
+"A" -> "B" [color=black]
+"A" -> "E" [color=red]
+"B" -> "C" [color=black]
+"C" -> "D" [color=black]
+"E" -> "F" [color=black]
+"E" -> "C" [color=red]
+"F" -> "D" [color=red]
+}
