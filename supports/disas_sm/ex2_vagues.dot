@@ -1,0 +1,27 @@
+digraph G {
+labeljust=r
+"60v1" [labeljust=r,label="1, 0x8048060 inc eax\l", shape=box, style="filled", fillcolor=orange]
+"60v2" [labeljust=r,label="2, 0x8048060 nop\l", shape=box, style="filled", fillcolor=orange]
+"61a" [labeljust=r,label="1, 0x8048061 jz 0x804806a\l", shape=box, style="filled", fillcolor=white]
+"61b" [labeljust=r,label="2, 0x8048061 ret\l", shape=box, style="filled", fillcolor=lightblue]
+"63" [labeljust=r,label="1, 0x8048063 mov edi, 2\l1, 0x8048068 jmp 0x8048060\l", shape=box, style="filled", fillcolor=white]
+"6a" [labeljust=r,label="1, 0x804806a mov edi, 1 \l1, 0x804806f mov ebx, 0x8048060 \l1, 0x8048074 mov [ebx], 0x90 \l1, 0x8048079 mov [ebx+1], 0xc3 \l1, 0x804807f jmp 0x8048060\l", shape=box, style="filled", fillcolor=lightblue]
+"60v1" -> "61a" [color=black]
+"61a" -> "6a" [color=red]
+"61a" -> "63" [color=black]
+"63" -> "60v1" [color=red]
+"6a" -> "60v2" [color=red]
+"60v2" -> "61b" [color=black]
+subgraph clusterv1{
+label="Vague 1"
+"60v1"
+"61a"
+"63" 
+"6a" 
+}
+subgraph clusterv2{
+label="Vague 2"
+"60v2"
+"61b"
+}
+}

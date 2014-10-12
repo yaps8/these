@@ -1,9 +1,8 @@
 % \newcommand{\xqq}{x862}
+\igdo{Mieux délimiter les figures}
 
-\todo[inline]{relire}
 Nous nous intéressons en premier lieu aux programmes malveillants fonctionnant sur des ordinateurs personnels et en particulier les programmes compilés, qui s'exécutent nativement dans le langage assembleur spécifique au processeur de la machine.
 
-\ijym{Mieux délimiter les figures}
 
 \section{Compilation et fichiers exécutables}
 Un exécutable est en général d'abord écrit dans un langage de haut niveau. Chacun de ses modules est ensuite compilé en un fichier objet (binaire) encodant le langage assembleur spécifique à la machine. La dernière étape est l'édition de liens qui consiste à regrouper tous les fichiers objets en un exécutable unique.
@@ -50,25 +49,71 @@ int     0x80	    ; ~Appel au noyau~
 
 Le fichier binaire exécutable résultant de la compilation est un exécutable binaire pour Linux, sous format ELF.
 % Le format ELF est structuré de la manière suivante. 
-Comme indiqué sur la figure \ref{fig:structure_elf}, il contient des entêtes dans lesquels sont indiqués des informations générales sur le binaire telle que le point d'entrée du programme, les différentes sections du programme (leur taille, leurs adresses) et les différentes sections : ici une section \pdata\ (Figure \ref{fig:data_helloworld}) contient les données du programmes (dont la chaîne de caractères ``Hello World'') et une section \ptext\ (Figure \ref{fig:text_helloworld}) contenant le code assembleur à exécuter.
+Comme indiqué sur la figure \ref{fig:structure_elf}, il contient des entêtes dans lesquels sont indiqués des informations générales sur le binaire telle que le point d'entrée du programme, les différentes sections du programme (leur taille, leurs adresses) et les différentes sections : ici une section \pdata\ (Figure \ref{fig:data_helloworld}) contient les données du programmes (dont la chaîne de caractères ``Hello World'') et une section \ptext\ (Figure \ref{fig:text_helloworld}) contenant le code assembleur à exécuter. L'entête de chargement (appelé officiellement \emph{program header table}) contient des informations supplémentaire pour un binaire amené à être chargé en mémoire à une adresse spécifique.
 À l'instar de la figure \ref{fig:structure_elf} donnant une structure simplifiée du format ELF pour Linux, la figure \ref{fig:structure_pe} donne un aperçu du format des fichiers exécutables pour un binaire \xq\ sous Windows (format PE).
 
-\begin{figure}
+% \begin{figure}
+% \begin{center}
+% \subfigure[Fichier ELF]{
+% \begin{tabular}[b]{|l|}
+% \hline
+% Entête ELF\\
+% \hline
+% Table des entêtes du programme\\
+% \hline
+% Section .text\\
+% \hline
+% Section .rodata\\
+% \hline
+% Section ...\\
+% \hline
+% Section .data\\
+% \hline
+% Table des sections\\
+% \hline
+% \end{tabular}
+% \label{fig:structure_elf}
+% }
+% \subfigure[Fichier PE]{
+% \begin{tabular}[b]{|l|}
+% \hline
+% Entête PE\\
+% \hline
+% Table des sections\\
+% \hline
+% Sections de code\\
+% \hline
+% Sections d'imports\\
+% \hline
+% Sections de données\\
+% \hline
+% \end{tabular}
+% \label{fig:structure_pe}
+% }
+% \ijym{à expliquer / détailler}
+% \end{center}
+% \caption{Format des exécutables ELF (Linux) et PE (Windows)}
+% \label{fig:structure_exe}
+% \end{figure}
+
+
+\begin{figure}[h]
 \begin{center}
 \subfigure[Fichier ELF]{
-\begin{tabular}[b]{|c|}
+\begin{tabular}[b]{|l|}
 \hline
 Entête ELF\\
 \hline
-Table des entêtes du programme\\
+Entête de chargement\\
 \hline
-Section .text\\
-\hline
-Section .rodata\\
-\hline
-Section ...\\
-\hline
-Section .data\\
+Données des sections\\
+~~~~.text\\
+% \hline
+~~~~.rodata\\
+% \hline
+~~~~.data\\
+% \hline
+~~~~...\\
 \hline
 Table des sections\\
 \hline
@@ -76,26 +121,29 @@ Table des sections\\
 \label{fig:structure_elf}
 }
 \subfigure[Fichier PE]{
-\begin{tabular}[b]{|c|}
+\begin{tabular}[b]{|l|}
 \hline
 Entête PE\\
 \hline
 Table des sections\\
 \hline
-Sections de code\\
-\hline
-Sections d'imports\\
-\hline
-Sections de données\\
+Données des sections\\
+~~~~de code\\
+% \hline
+~~~~d'imports\\
+% \hline
+~~~~de données\\
+% \hline
+~~~~...\\
 \hline
 \end{tabular}
 \label{fig:structure_pe}
 }
-\ijym{à expliquer / détailler}
 \end{center}
 \caption{Format des exécutables ELF (Linux) et PE (Windows)}
 \label{fig:structure_exe}
 \end{figure}
+
 
 \begin{figure}
 \begin{center}
@@ -144,35 +192,65 @@ La principale tâche de l'analyste est alors d'extraire du fichier binaires les 
 
 \label{section:assembleur}
 \section{Assembleur \xq\ et \xs}
-L'architecture la plus fréquente sur les ordinateurs personnels est celle des processeurs Intel CISC avec le jeu d'instructions \xq\ pour les machines adressant la mémoire sur 32 bits, et le jeu d'instructions \xs\ pour celles adressant la mémoire sur 64 bits.
-\todo[inline]{
+L'architecture la plus fréquente pour les processeurs des ordinateurs personnels est celle des processeurs Intel CISC avec le jeu d'instructions \xq\ pour les machines adressant la mémoire sur 32 bits, et le jeu d'instructions \xs\ pour celles adressant la mémoire sur 64 bits.
+\imore{
 Différence 32 / 64 bits ?
 }
 
-\paragraph{Architecture de Harvard modifiée.}
-Les ordinateurs actuels fonctionnent selon une version modifiée de l'architecture de Harvard \cite{ibm_mark1} \todo{citation sur mod harvard arch ou on repasse à Neumann ?}\jym{Harvard ou Von Neumann ?}.
+\paragraph{Architecture de Harvard et de Von Neumann}
+Une des architectures possibles, l'architecture de Harvard \cite{ibm_mark1}, sépare le code exécutable des données en deux mémoires distinctes.
 La première implémentation de l'architecture de Harvard était L’ASCC (Automatic Sequence Controlled Calculator) d'IBM, également appelé le Mark I et considérée comme le premier calculateur universel, en 1944 . 
 Il lisait les instructions sur des cartes perforées et les données étaient entrées manuellement à l'aide d'interrupteurs. 
 Ainsi le code exécutable était physiquement non modifiable et séparé des données. 
 
+% \paragraph{Architecture de Von Neumann.}
+L'architecture de Von Neumann, nommée en référence aux travaux de John von Neumann, John William Mauchly et John Eckert en 1945, acceptait la modification de la logique des programmes \cite{timsit}.
+Elle était cependant limitée à l'utilisation d'un seul bus de données entre le processeur et la mémoire.
+Cette restriction limite grandement les capacités de lecture et écriture mémoire d'une machine utilisant le modèle de Von Neumann.
 
-L'architecture de Von Neumann, qui acceptait la modification de la logique des programmes, était limitée à l'utilisation d'un seul bus de données entre le processeur et la mémoire.
-Cette restriction limite grandement les capacités de lecture et écriture mémoire d'une machine utilisant le modèle de Von Neumann. On appelle alors architecture de Harvard modifiée l'architecture de Harvard à plusieurs bus mémoire dans laquelle les instructions et les données sont stockées dans la même mémoire et donc accessibles autant en lecture qu'en écriture.
-
-Dans ce modèle la machine est articulée autour du processeur et de son unité de contrôle chargée de synchroniser les autres composants, d'exécuter les instructions du binaire chargé en mémoire, de gérer les entrées et les sorties, de lire et d'écrire dans la mémoire et les registres. L'unité arithmétique et logique opère toute l'arithmétique du processeur et modifie les drapeaux du registre d'état en conséquence selon les résultats des opérations effectuées. Par exemple si une addition provoque un débordement d'entier, c'est à dire que le résultat de l'addition ne peut être stocké dans un seul registre, alors le drapeau OF (overflow) est passé à 1.
-Une organisation simplifiée d'une machine utilisant le modèle de Harvard modifié est donnée Figure \ref{fig:arch_harvard_mod}.
+% \paragraph{Architecture actuelle.}
+L'architecture utilisée actuellement pour les ordinateurs personnels est un mélange des deux approches.
+Elle utilise plusieurs bus mémoire mais les instructions et les données sont stockées dans la même mémoire et donc accessibles autant en lecture qu'en écriture \cite{timsit}.
+Dans ce modèle la machine est articulée autour du processeur et de son unité de contrôle chargée de synchroniser les autres composants, d'exécuter les instructions du binaire chargé en mémoire, de gérer les entrées et les sorties, de lire et d'écrire dans la mémoire et les registres. L'unité arithmétique et logique opère toute l'arithmétique du processeur et modifie les drapeaux du registre d'état en conséquence selon les résultats des opérations effectuées. Par exemple si une addition provoque un débordement d'entier, c'est à dire que le résultat de l'addition ne peut être stocké dans un seul registre, alors le drapeau de dépassement d'entier (OF) est passé à 1.
+Une organisation simplifiée d'une machine utilisant ce modèle est donnée Figure \ref{fig:arch_harvard_mod}.
 
 \begin{figure}
 \begin{center}
-\input{supports/architecture/arch.tex}
-\caption{Architecture de Harvard modifiée}
-\label{fig:arch_harvard_mod}
-\ijym{utile?}
+\scalebox{1}{
+\begin{tikzpicture}[->,scale=1,>=stealth',thick]
+\node[state] (UC){Unité de contrôle};
+\node[state, above=2cm of UC] (MEM){Mémoire};
+\node[state, above right=0.5cm and 3cm of UC.east] (REG){Registres};
+\node[state, below right=1cm and -1cm of REG.south west] (UAL){Unité arithmétique et logique};
+\node[state, below=2cm of UC.south] (INPUT){Entrées et sorties};
+
+\path[->] ($(MEM.south) + (-0.2, 0) $)  edge   [bend right=10]  ($(UC.north) + (-0.2, 0) $);
+\path[->] ($(UC.north) + (0.2, 0) $)  edge   [bend right=10]  ($(MEM.south) + (0.2, 0) $);
+\path[->] ($(INPUT.north) + (-0.2, 0) $)  edge   [bend left=10]  ($(UC.south) + (-0.2, 0) $);
+\path[->] ($(UC.south) + (0.2, 0) $)  edge   [bend left=10]  ($(INPUT.north) + (0.2, 0) $);
+
+\path[->] ($(REG.west) + (0, 0) $)  edge   [bend right=10]  ($(UC.north east) + (0, 0) $);
+\path[->] ($(UC.north east) + (0, -0.1) $)  edge   [bend right=10]  ($(REG.west) + (0, -0.1) $);
+\path[->] ($(UAL.west) + (0, 0) $)  edge   [bend left=10]  ($(UC.south east) + (0, 0) $);
+\path[->] ($(UC.south east) + (0, +0.1) $)  edge   [bend left=10]  ($(UAL.west) + (0, +0.1) $);
+
+\path[->] ($(UAL.north) + (-0.7cm, 0) $)  edge   [bend right=10]  ($(REG.south) + (0, 0) $);
+
+\node [fit={($(UC.west) + (0, 0)$) ($(REG.north east) + (0, 0)$) ($(UAL.south east) + (0, 0.0)$)}, draw, label=\large Processeur] {};
+\end{tikzpicture}
+}
 \end{center}
+\caption{Architecture simplifiée}
+\label{fig:arch_harvard_mod}
 \end{figure}
 
-\paragraph{Structure de la mémoire.}~\\
-\todo[inline]{segmentation, pagination? mémoire d'un processus VS mémoire globale?}
+\paragraph{Structure de la mémoire.}
+La mémoire physique de la machine peut-être faite de supports volatiles (mémoire vive), de supports amovibles (disques durs), ou autre.
+Chacun de ces supports peut être vu comme une liste d'adresses mémoire où l'on peut stocker des données et le système d'exploitation gère ces supports comme il l'entend.
+En particulier un programme n'est pas nécessairement chargé sur une plage contiguë d'adresses mémoire.
+Pour éviter au programmeur de devoir gérer des adresses mémoires qui ne concernent pas son programme, un mécanisme de mémoire virtuelle a été mis en place : de son point de vue, le programme courant voit sa mémoire comme un intervalle d'adresses mémoire contiguës. C'est le système d'exploitation qui traduit les adresses virtuelles en adresses physiques lors de l'exécution du programme.
+Cette technique permet au système d'exploitation de choisir, de manière transparente pour le programme, un support différent pour certaines parties du programme. Elle lui permet aussi de gérer plus finement l'accès à la mémoire, tant pour interdire l'accès à certaines zones que pour partager des zones entre plusieurs processus.
+
 En pratique, lors de l'exécution d'un programme, des informations peuvent être stockées en plusieurs lieux. 
 Premièrement les registres du processeur permettent un accès rapide à quelques variables.
 Certains registres sont réservés, souvent par convention. Par exemple, lors d'un appel de fonction, la convention par défaut (CDECL) stipule que la valeur de retour est passée dans le registre \texttt{eax}.
@@ -229,16 +307,6 @@ Enfin les préfixes permettent par exemple de répéter plusieurs fois l'instruc
 \end{figure}
 
 \paragraph{Intuition de sémantique.}
-% ~\\
-% \todo[inline]{assignations (déplacement en mémoire)\\
-% opérations arithmétique\\
-% controle de flot inconditionnel\\
-% conditionnel}
-% 
-% \todo[inline]{effets de bords\\
-% explicites\\
-% implicites}
-
 Bien que la documentation exhaustive d'Intel pour les processeurs \xq\ et \xs\ \cite{intel_vol2} détaille plusieurs centaines d'instructions, elles peuvent être regroupées en 3 classes informelles.
 Prenons l'instruction \texttt{mov} : elle sert à copier des informations depuis une zone (mémoire ou registre) vers une autre zone.
 Ainsi \texttt{mov eax, [ebx+10]} copie la valeur à l'adresse \texttt{ebx+10} dans le registre \eax. 
@@ -249,7 +317,8 @@ Une instructions comme \texttt{add eax, ebx} ajoute la valeur de \ebx\ à celle 
 Ce type d'opération combine en fait une opération arithmétique et une assignation. 
 On peut y inclure l'instruction \cmp\ qui compare deux valeurs et met à jour les drapeaux de tests. 
 Ces drapeaux indiquent entre autres le signe du résultat d'une opération ainsi que si elle a provoqué un débordement d'entier (dans le cas où le résultat est trop grand pour être stocké sur un entier).
-En fait les instructions arithmétiques comme \add\ provoquent aussi une mise à jour de ces drapeaux : il s'agit d'une assignation implicite.\jym{sens ? expliquer ce qu'on veut dire par explicite/implicite?}
+% En fait les instructions arithmétiques comme \add\ provoquent aussi une mise à jour de ces drapeaux : il s'agit d'une assignation implicite.\jym{sens ? expliquer ce qu'on veut dire par explicite/implicite?}
+\imore{assignations implicites et explicites?}
 
 Les instructions précédemment décrites sont séquentielles et ne modifient pas l'ordre d'exécution d'une instruction. 
 Après l'exécution d'une instruction de type \mov\ à l'adresse $a$ codée sur $n$ octets, l'instruction située à l'adresse $a+n$.
@@ -257,7 +326,7 @@ Le dernier type d'instruction modifie le flot de contrôle du programme et effec
 Ces sauts peuvent être inconditionnels comme un \texttt{jmp 8048085} qui provoque un saut à l'adresse \texttt{8048085} ou le saut dynamique \texttt{jmp eax} dont l'adresse cible du saut est la valeur de \eax.
 Les sauts peuvent aussi être conditionnels : \texttt{je +10}, à l'adresse $a$ et de taille $n$, sera suivie de l'instruction à l'adresse $a+10$ si le registre ZF vaut 1 (en cas d'égalité) et de l'instruction à l'adresse $a+n$ dans le cas contraire.
 
-\ijym{parler du multi-threading, de cores et de l'accès mémoire en cas de multi-threading}
+\imore{parler du multi-threading, de cores et de l'accès mémoire en cas de multi-threading}
 
 
 \section{Désassemblage}
@@ -267,7 +336,7 @@ Par exemple en assembleur il n'y a plus de noms ni de types pour les variables n
 
 Le désassemblage est l'opération inverse de l'assemblage : il consiste à récupérer le code assembleur source du binaire.
 Cette tâche semble particulièrement simple puisque l'assemblage consiste simplement à trouver les octets correspondants à chaque instruction à l'aide de la documentation officielle du processeur puis à mettre en forme le fichier binaire en remplissant correctement ses entêtes et ses sections.
-Pourtant on a vu que, dans le modèle de Harvard modifié, les données et le code peuvent être mêlés. 
+Pourtant on a vu que, dans le modèle de Von Neumann, les données et le code peuvent être mêlés. 
 En particulier les parties de données (comme la section \pdata) peuvent être exécutées. 
 De même les sections de code peuvent contenir des informations destinées à être simplement lues ou modifiées mais jamais exécutées.
 La difficulté du désassemblage consiste donc à séparer les parties potentiellement exécutables des données.
@@ -356,7 +425,7 @@ La figure \ref{fig:asm_eax_code} donne un exemple de désassemblage linéaire d'
 L'avantage de cette technique réside dans sa simplicité et le fait qu'elle couvre l'ensemble de la mémoire.
 Pourtant, ne cherchant pas à suivre le flot de contrôle, elle ne permet pas de séparer le code exécutable des données et désassemble des instructions qui ne sont pas atteignables comme l'instruction \mov\ à l'adresse $804806e$ de la figure \ref{fig:asm_eax}.
 C'est l'approche utilisée par le désassembleur standard du projet GNU, objdump \cite{objdump}.
-\todo[inline]{radare?}
+La commande de désassemblage par défaut désassembleur interactif libre Radare \cite{radare} fonctionne également par parcours linéaire.
 
 \subsection{Parcours récursif}
 À l'inverse du parcours linéaire, le parcours récursif suit le flot de contrôle et désassemble les instructions qui se suivent logiquement en partant du point d'entrée du programme. Le graphe de flot de contrôle peut être déduit du parcours récursif : la figure \ref{fig:asm_eax_cfg} donne celui de l'exemple précédent.

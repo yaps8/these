@@ -3,14 +3,17 @@
 % \newcommand{\idone}[1]{}
 \newcommand{\itodo}[1]{\todo[inline]{#1}}
 
-\newcommand{\done}[1]{\todo[color=green!80!blue!80]{#1}}
-\newcommand{\idone}[1]{\todo[inline,color=green!80!blue!80]{#1}}
+\newcommand{\done}[1]{\todo[color=green!80!blue!80]{D: #1}}
+\newcommand{\idone}[1]{\todo[inline,color=green!80!blue!80]{Done: #1}}
 
 \newcommand{\jym}[1]{\todo[color=red!80!blue!50]{#1}}
 \newcommand{\ijym}[1]{\todo[inline,color=red!80!blue!50]{#1}}
 
-\newcommand{\more}[1]{\todo[color=purple!60!blue!30]{#1}}
-\newcommand{\imore}[1]{\todo[inline,color=purple!60!blue!30]{#1}}
+\newcommand{\more}[1]{\todo[color=purple!60!blue!30]{M: #1}}
+\newcommand{\imore}[1]{\todo[inline,color=purple!60!blue!30]{More: #1}}
+
+\newcommand{\gdo}[1]{\todo[color=green!60!red!80]{G: #1}}
+\newcommand{\igdo}[1]{\todo[inline,color=green!60!red!80]{General: #1}}
 
 % Samples
 \newcommand{\telock}{tElock}
@@ -31,14 +34,17 @@
 
 % sm
 \newcommand{\sm}{auto-modifiant}
+\newcommand{\sms}{auto-modifiants}
 \newcommand{\nsm}{non auto-modifiant}
+\newcommand{\nsms}{non auto-modifiants}
+
 
 % Structure
 \newtheorem{pb}{Problème}
 \newtheorem{theo}{Théorème}
 \newtheorem{defi}{Définition}[chapter]
 \newtheorem{prop}{Proposition}[chapter]
-\newtheorem{propri}{Propriété}
+\newtheorem{propri}{Propriété}[chapter]
 \newtheorem{pr}{Preuve}
 \newtheorem{cor}{Corollaire}
 \newtheorem{rem}{Remarque}
@@ -114,6 +120,12 @@
 \newcommand{\dr}[1]{$\CR[#1]$}
 \newcommand{\dw}[1]{$\CW[#1]$}
 \newcommand{\dww}[2]{$\CW^{#1}[#2]$}
+\newcommand{\mda}[1]{\CA[#1]}
+\newcommand{\mdi}[1]{\CI[#1]}
+\newcommand{\mdc}[1]{\CC[#1]}
+\newcommand{\mdr}[1]{\CR[#1]}
+\newcommand{\mdw}[1]{\CW[#1]}
+\newcommand{\mdww}[2]{\CW^{#1}[#2]}
 
 % tikz
 \tikzset{

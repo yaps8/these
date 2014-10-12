@@ -1,5 +1,4 @@
 % \section{Sémantique concrète pour un langage assembleur}
-\itodo{Relire et checker la cohérence de la notation en expressions}
 
 Dans ce chapitre nous proposons un modèle simplifié pour le langage assembleur et une sémantique concrète pour ce langage.
 
@@ -31,7 +30,7 @@ Nous reprenons la classification informelle en trois niveaux d'information propo
 %     \node[anchor=south] at (current bounding box.north) {Progwramme};
 \end{tikzpicture}
 \end{center}
-\caption{Niveau des précision des informations sur une instruction}
+\caption{Niveaux de précision des informations sur une instruction}
 \label{fig:niveaux_sem}
 \end{figure}
 
@@ -139,16 +138,16 @@ Dans le cas où il n'y a pas d'instruction valide à l'adresse $t$, $D(t)=\bot$ 
 
 Une sémantique concrète cherche à définir les opérations de chaque instruction de la manière la plus précise qu'il soit afin de pouvoir simuler une exécution réelle du programme.
 Pour cela on va utiliser un store qui conserve l'état des variables lors de l'exécution du programme.
-Toute variable non initialisée a la valeur spéciale $\bot$ tandis que les variables définies ont des valeurs entières (définition \ref{sem_store_dynamique}).
+Toute variable non initialisée a la valeur spéciale $\bot$ tandis que les variables définies ont des valeurs entières (définition \ref{def:sem_store_dynamique}).
 
 \begin{defi}
  Un store dynamique $\Theta$ associe à chaque variable une valeur, $\Theta:\BV\rightarrow\BN\cup\{\bot\}$.\\
  Si v est une variable et n une valeur dans $\BN\cup\{\bot\}$, on note $\Theta[v\leftarrow n]$ l'assignation de v à n dans $\Theta$.
-\label{sem_store_dynamique}
+\label{def:sem_store_dynamique}
 \end{defi}
 
 Pour permettre l'adressage indirect on doit également définir le store sur l'ensemble des symboles de la forme $[v]$.
-La définition \ref{sem_store_dynamique_pointeurs} étend la notion de store à l'adressage indirect afin que chaque symbole ait une valeur.
+La définition \ref{def:sem_store_dynamique_pointeurs} étend la notion de store à l'adressage indirect afin que chaque symbole ait une valeur.
 
 
 \begin{defi}
@@ -176,7 +175,7 @@ La définition \ref{sem_store_dynamique_pointeurs} étend la notion de store à 
    \item Sinon $\Theta(v)\in\BN$ et $\Theta(v)\in\textlbrackdbl 0,\ N\textrbrackdbl$, alors $\Theta_X[x\leftarrow n]$ se résoud par $\Theta[T_{\Theta(v)}\leftarrow n]$.
   \end{itemize}
   \end{itemize}
-\label{sem_store_dynamique_pointeurs}
+\label{def:sem_store_dynamique_pointeurs}
 \end{defi}
 
 \paragraph{Règles de transition.}
@@ -212,7 +211,7 @@ L'état initial du store est : $\forall v\in\BV, \Theta_X(v)=\bot$ et l'on part 
 \textlangle$t\in\BT;\ \Theta_X$\textrangle & $\longrightarrow$ & \textlangle$t:D(t);\ \Theta_X$\textrangle  \\
 & & \\
 % \hline
-\textlangle$t:x\leftarrow g(x_1, ..., x_m), d_2..d_n;\ \Theta_X$\textrangle & $\longrightarrow$  & \textlangle$t:d_2..d_n;\ \Theta_X[x\leftarrow\bot]$\textrangle\  \\
+\textlangle$t:x\leftarrow g(x_1, ..., x_m), d_2..d_n;\ \Theta_X$\textrangle & $\longrightarrow$  & \textlangle$t:\bot;\ \Theta_X$\textrangle\  \\
  &   & ~~~si $\exists i, \Theta_X(x_i)=\bot$  \\
  & $\longrightarrow$  & \textlangle$t:d_2..d_n;\ \Theta_X[x\leftarrow g(\Theta_X(x_1),...,\ \Theta_X(x_m))]$\textrangle\    \\
   &   & ~~~sinon  \\
@@ -240,7 +239,6 @@ L'état initial du store est : $\forall v\in\BV, \Theta_X(v)=\bot$ et l'on part 
 \end{tabular}
 \end{center}
 
-\itodo{est-il possible de mettre $\bot$ dans une variable ? -> c'est une erreur plutôt non ?}
 
 Dans la suite nous appellerons évaluation sémantique ou \texttt{sem\_eval} la fonction qui, à une adresse $t$ et un store $\Theta_X$, associe l'état sur les instructions \xq\ suivant : si $t'$ et $\Theta_X'$ sont les premières valeurs vérifiant \textlangle$t, \Theta$\textrangle$\rightarrow^*$\textlangle$t', \Theta_X'$\textrangle\ avec $t\ne t'$ alors \texttt{sem\_eval}$(t, \Theta_X)=(t', \Theta_X')$.
 
@@ -257,20 +255,21 @@ Le mnémonique \texttt{sub} désigne une vingtaine de variantes de la soustracti
 Une instruction assembleur va donc être traduite en une ou plusieurs instructions atomiques dans le langage intermédiaire, que l'on sait équivalentes sémantiquement à l'instruction \xq\ et dont on a une sémantique concrète pour les exécuter.
 Une difficulté pratique vient de la richesse du langage \xq\ : écrire l'équivalence de chacun de ses instructions dans le langage intermédiaire choisi est une tâche longue et prône aux erreurs, notamment lors de l'analyse de la documentation. 
 Pour cette raison nous avons rapidement choisi de nous orienter vers des langages intermédiaire pour lesquels cette étape a déjà été réalisée.
+\\
+
+Une seconde difficulté provient de l'implémentation des appels systèmes. 
+Ces instructions (\texttt{int 80} en assembleur \xq\ et \texttt{syscall} en assembleur \xs) appellent des fonctions spéficiques du système d'exploitation sur lequel le programme est exécuté.
+La sémantique pour l'entrée comme la sortie de ces instructions n'est donc pas spécifiée dans le langage assembleur mais par le système d'exploitation cible.
+Ces appels sont omniprésents dans un programme réel puisque toutes la plupart interactions avec le système (lecture et écriture dans un fichier, connexion internet, allocation de mémoire via la fonction \emph{malloc} en C par exemple, etc.) passent par un appel système.
 
 \section{Revue de littérature des langages intermédiaires}
-\todo[inline]{Jakstab: \\
-TraceSurfer: \\
+\todo[inline]{TraceSurfer: \\
 Renovo : \\
 LLVM : \\
-Implem en C: \\
-TraceSurfer: \\
-Pin : \\
-Xed : \\
 }
 
 
-Parmis les projets de langages intermédiaires existants et fournissant d'une part une transcription depuis l'assembleur et d'autre part une sémantique concrète du langage considéré, nous nous sommes intéressés à BAP \cite{BAP11}. 
+\paragraph{BAP.} Parmis les projets de langages intermédiaires existants et fournissant d'une part une transcription depuis l'assembleur et d'autre part une sémantique concrète du langage considéré, nous nous sommes intéressés à BAP \cite{BAP11}. 
 BAP est le successeur du projet BitBlaze qui a défini et développé une plateforme d'analyse statique basée sur le langage intermédiaire Vine IL \cite{bitblaze08}. 
 Sémantiquement le langage intermédiaire défini par BAP ne diffère pas fondamentalement de celui défini dans ce chapitre. 
 Ils définissent également un opérateur permettant de gérer l'adressage indirect : \texttt{load($e_1$, $e_2$, $e_3$, $\tau_{reg}$)} place la valeur de l'expression $e_1$ à l'adresse $e_2$, ainsi \texttt{load($x$, $eax$, $e_3$, $\tau_{reg}$)} effectue l'opération \texttt{$[eax]\leftarrow x$}. 
@@ -278,17 +277,20 @@ Le paramètre $e_3$ a une valeur booléenne indiquant si la machine fonctionne e
 L'avantage de BAP par rapport au langage présenté précédemment est qu'il est est bien plus proche du langage assembleur : les valeurs des variables ne sont pas dans $\BN$ mais dans $\textlbrackdbl 0,\ 2^{32}-1\textrbrackdbl$, $\textlbrackdbl -2^{31},\ 2^{31}-1\textrbrackdbl$, $\textlbrackdbl 0,\ 2^{64}-1\textrbrackdbl$ ou $\textlbrackdbl -2^{63},\ 2^{63}-1\textrbrackdbl$ selon la machine que l'on cherche à modéliser et le type des variables (signé ou non). 
 De même les fonctions entières sont explicitées et contiennent, entre autres, des opérations binaires comme l'addition, le ``ou'' logique, la comparaison de deux valeurs.
 
+\paragraph{Jakstab.} Le projet Jakstab \cite{jakstab} ajoute un modèle de la mémoire pouvant gérer les allocations dynamiques de mémoire effectuée par l'appel système \emph{malloc} en incluant dans langage intermédiaire les instructions \emph{alloc} et \emph{free} \cite{jakstab-drivers}. 
+La mémoire est alors scindée en trois régions : la région globale contient le code et les variables globales du programme, une seconde région contient la pile, et la dernière région inclut le tas, c'est à dire la mémoire allouée dynamiquement par des \emph{malloc}. 
+Cette dernière région contient autant de blocs distincts qu'il y a eu d'allocations dynamiques.
 
 \section{Langage intermédiaire et analyse de binaires}
 Un programme sous forme d'instructions dans un langage intermédiaire est plus facile à exploiter qu'un programme assembleur puisqu'on a une sémantique concrète clairement définie et assez compacte.
 Il est donc, comme nous le verrons par la suite, fréquent de construire des méthodes de désassemblage et d'analyse de binaires autour d'une représentation intermédiaire.
 
 \paragraph{Approche globale.}
-Une première approche consiste, à l'instar de la compilation, à transformer l'intégralité du programme assembleur en un programme en langage intermédiaire et à effectuer les analyses sur cette représentation intermédiaire.
+Une première approche, suivie par exemple par BAP, consiste, à l'instar de la compilation, à transformer l'intégralité du programme assembleur en un programme en langage intermédiaire et à effectuer les analyses sur cette représentation intermédiaire.
 Cette approche est illustrée par le graphique donné à la figure \ref{fig:diag_approche_globale}. La partie d'analyse consiste en l'exécution ou l'émulation du programme dans son langage intermédiaire en partant du point d'entrée.
 Une première instruction est décodée, analysée et ajoutée dans le graphe de flot de contrôle du programme. Puis cette instruction est évaluée selon la méthode d'évaluation sémantique précédemment définie.
-Cette évaluation a des conséquence sur l'état interne du processeur et de la mémoire de la machine réelle ou virtuelle (selon si l'analyse est réalisée par exécution\todo{exécution ? alors qu'on ne parle que d'émulation/store ?} ou émulation).
-L'instruction qui doit être exécutée ensuite est cette présente à l'adresse donnée par le registre d'exécution (\eip\ en assembleur \xq). On récupère alors cette instruction pour l'analyser à son tour.
+Cette évaluation a des conséquence sur l'état des registres du processeur et de la mémoire de la machine.
+L'instruction qui doit être exécutée ensuite est cette présente à l'adresse donnée par le registre contenant le compteur ordinal (\eip\ en assembleur \xq). On récupère alors cette instruction pour l'analyser à son tour.
 
 \begin{figure}
 \begin{center}
@@ -318,7 +320,7 @@ L'instruction qui doit être exécutée ensuite est cette présente à l'adresse
 \end{figure}
 
 
-Le souci de cette approche est qu'elle induit des potentielles pertes d'informations : la représentation d'origine du binaire sous forme d'octets n'est plus accessible dans la représentation intermédiaire.
+Le souci de cette approche est qu'elle induit une perte d'informations de bas niveau : la représentation d'origine du binaire sous forme d'octets n'est plus accessible dans la représentation intermédiaire.
 Pourtant on ne peut pas séparer les instructions de leur représentation en mémoire : si une instruction est codée à l'adresse \adr{a} sur deux octets et que l'octet à l'adresse \adr{a+1} est modifié, cette modification peut être transcrite dans le langage intermédiaire mais il est toujours nécessaire de connaître l'octet à l'adresse \adr{a} pour pouvoir décoder la nouvelle instruction.
 
 La figure \ref{fig:prg_asm_li} donne un exemple de ce cas. Le segment de code donné est constitué de trois instructions dont l'une modifie la valeur du registre \edi. Supposons que le but de l'analyse est de connaître la valeur de \edi\ à l'issue de l'exécution.
@@ -366,7 +368,7 @@ Adresse & Octets & Instruction ASM & Transcription en LI\\
 \paragraph{Approche atomique.}
 En pratique nous souhaitons donc avoir accès à la représentation sous forme binaire du programme intial.
 Nous allons donc commencer par le charger en mémoire comme une partie intégrante de l'état interne de la machine.
-C'est le comportement attendu d'une machine de Harvard modifiée \todo{von neumann?} et le comportement du programme peut donc être auto-modifiant. Le décodage, le désassemblage puis la transformation en langage intermédiaire et l'évaluation sémantique des instructions du programme se feront donc au fur et à mesure de l'analyse, une instruction à la fois, depuis l'état de la mémoire.
+C'est le comportement attendu d'une machine de Von Neumann et le comportement du programme peut donc être auto-modifiant. Le décodage, le désassemblage puis la transformation en langage intermédiaire et l'évaluation sémantique des instructions du programme se feront donc au fur et à mesure de l'analyse, une instruction à la fois, depuis l'état de la mémoire.
 Ce modèle est illustré par le diagramme suivant.
 
 \begin{figure}
@@ -408,11 +410,11 @@ Ce modèle est illustré par le diagramme suivant.
 Au c\oe ur de cette architecture se trouvent deux opérateurs. Le premier est l'opérateur de désassemblage capable de transformer des octets présents à une certaines adresse mémoire en une liste d'instructions dans le langage intermédiaire, équivalentes sémantiquement à l'instruction assembleur codée sur ces octets. 
 Le second est l'opérateur d'évaluation sémantique qui modifie l'état interne de la machine selon l'instruction dans le langage intermédiaire donnée en entrée.
 
-\subsection{Implémentation}
-L'objectif principal de l'implémentation est d'obtenir un couple d'opérateurs de désassemblage et d'évaluation sémantique permettant l'analyse de programmes auto-modifiants.
+\section{Implémentations}
+L'objectif principal de l'implémentation est d'obtenir un couple d'opérateurs de désassemblage et d'évaluation sémantique permettant l'analyse de programmes auto-modifiants. Ces implémentations fonctionneront donc selon l'approche atomique définie à la partie précédente.
 Le langage intermédiaire utilisé n'a pas d'importance vu qu'il n'est jamais utilisé en dehors de ces deux opérateurs et que seule la sortie de l'évaluation sémantique est observée.
 
-\subsubsection{Preuve de concept en C}
+\subsection{Preuve de concept en C}
 Nous avons réalisé une implémentation en C de la sémantique concrète de notre langage.
 Le langage intermédiaire est calqué sur celui défini dans ce chapitre : une instruction atomique est d'un des types suivants.
 \begin{itemize}
@@ -441,9 +443,8 @@ Pour les instructions d'assignation de la forme $x\leftarrow g(x_1, ..., x_m)$, 
 Cette dernière fonction, avec celles permettant de déterminer si une variable est nulle ou si une variable est paire, est cruciale pour transcoder l'instruction assembleur \cmp\ permettant de comparer deux variables avant d'effectuer un saut selon le résultat de la comparaison.
 
 \paragraph{Désassemblage.}
-~\\\itodo{niveaux de sémantique?}
 Nous avons utilisé la librairie XED d'Intel \cite{xed} qui permet d'encoder et de décoder des instructions assembleur sur demande.
-À partir d'une séquence d'octets elle fournit une structure contenant, entre autres, les informations suivantes :
+À partir d'une séquence d'octets elle fournit une structure contenant, entre autres, les informations correspondant au niveau 2 de sémantique précédemment défini :
 \begin{itemize}
  \item Une chaîne de caractères décrivant l'instruction
  \item Le type de l'instruction (\texttt{CMP}, \texttt{MOV}, \texttt{JMP} par exemple)
@@ -478,9 +479,16 @@ Le second aspect de l'évaluation sémantique est la détermination de l'adresse
 Nous avons implémenté la transcription de quelques instructions assembleur en langage intermédiaire mais le temps requis pour implémenter toutes les variantes de chaque instruction est suffisamment long pour qu'on se tourne vers des plateformes d'analyse de binaires où cette étape a déjà été réalisée.
 
 
-\subsubsection{Avec BAP}
-BAP permet de transcrire un programme en assembleur en un programme écrit dans le langage intermédiaire utilisé par BAP.
+\subsection{En utilisant BAP}
+BAP permet de transcrire un programme en assembleur en un programme écrit dans le langage intermédiaire utilisé par BAP, en utilisant le modèle global décrit précédemment.
 Il fournit également un émulateur permettant d'exécuter un programme en langage intermédiaire.
 Seul l'assembleur \xq\ est supporté par la version 0.7 de BAP que nous avons utilisée et l'émulateur ne permet pas l'auto-modification.
 
-Nous souhaitions utiliser BAP pour qu'il nous fournisse l'opérateur d'évaluation sémantique \texttt{sem\_eval} défini précédemment.
+Nous souhaitions utiliser BAP pour qu'il nous fournisse l'opérateur de désassemblage et d'évaluation sémantique et ainsi permettre l'analyse de code auto-modifiant.
+Ces deux opérateurs sont déjà implémentés dans BAP mais ne sont pas normalement accessibles depuis l'interface de programmation, nous avons donc légèrement modifié le code de BAP, codé en OCaml, pour les rendre accessibles et permettre le décodage d'une instruction puis son exécution dans un contexte donné.
+
+\paragraph{Limites de l'approche.}
+Nous sommes capables d'émuler l'exécution de programmes \sms\ simples mais les appels systèmes ne sont pas gérés par BAP.
+La sémantique d'un appel système dépendant largement du système d'exploitation sur lequel le programme est exécution, il s'agit d'une limite naturelle de toute méthode basée sur l'émulation.
+Notre implémentation n'est donc pas fonctionnelle pour des programmes réels qui utilisent de nombreux appels système.
+
