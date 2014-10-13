@@ -123,8 +123,10 @@ Octets & eb & ff & c9 & 7f & e6\\
 % \label{fig:telock-layers-recursive}
 % \end{figure}
 
+\subsection{Définitions\label{sec:chevauchement_analyse_definitions}}
+
 Formellement on définit une \layer\ comme un ensemble d'instructions qui ne se chevauchent pas (définition \ref{def:layer}).
-Par conséquent lors du désassemblage on cherche à effectuer un découpage cohérent des instructions inclues dans le graphe de flot de contrôle en différentes \layers. Un découpage cohérent est simplement la donnée d'un ensemble de \layers\ deux à deux disjointes et recouvrant l'ensemble des instructions désassemblées.
+Par conséquent lors du désassemblage on cherche à effectuer un découpage cohérent des instructions inclues dans le graphe de flot de contrôle en différentes \layers\ (définition \ref{def:decoupage}).
 L'exemple précédent pour \telock\ est un découpage cohérent.
 
 \begin{defi}
@@ -132,7 +134,12 @@ L'exemple précédent pour \telock\ est un découpage cohérent.
 \label{def:layer}
 \end{defi}
 
-\paragraph{Borne du nombre de \layers.}
+\begin{defi}
+ Étant donné le désassemblage d'un programme P, un découpage cohérent est un ensemble de \layers\ deux à deux disjointes et recouvrant l'ensemble des instructions désassemblées.
+\label{def:decoupage}
+\end{defi}
+
+\paragraph{Borne du nombre minimal de \layers.}
 Le nombre minimal de \layers\ permettant de former un découpage cohérent est borné par la taille maximale des instructions, c'est à dire 15 octets pour l'assembleur \xq.
 Pour s'en convaincre il suffit de définir le découpage cohérent suivant. Pour un segment d'octets à l'adresse \adr{a}, on place dans la \layer\ i, pour $1\leq i\leq 15$ toutes les instructions aux adresses congrues à $a+i-1 (mod\ 15)$. C'est à dire que la \layer\ 1 contient les instructions aux adresses \adr{a}, \adr{a+15}, \adr{a+30}, etc ; la \layer\ 2 celles aux adresses \adr{a+1}, \adr{a+16}, \adr{a+31}, etc. Puisque les instructions dans chaque \layer\ sont distantes de 15 octets, il ne peut pas y avoir de chevauchement au sein d'une \layer\ et les \layers\ sont disjointes ; il s'agit bien d'un découpage cohérent une fois qu'on enlève les \layers\ ne contenant pas d'instructions valides. Ce découpage contient au plus 15 \layers.
 \itodo{l'exemple qui donne 15 layers ?}
@@ -148,8 +155,10 @@ Ainsi on peut construire une \layer\ de code à partir de chaque adresse du bina
 Un tel découpage pour \telock\ donne les layers indiqués en figure \ref{fig:telock-layers-linear}.
 
 Ce découpage est donc, par définition, basé sur l'alignement des instructions : au sein d'une \layer, les instructions sont alignées, c'est à dire qu'un désassemblage linéaire depuis la première instruction de la \layer\ parcourt toutes les autres instructions de la \layer. 
-Il est à noter qu'en assembleur \xq\ ou \xs\ les instructions ont tendance à se réaligner rapidement : si deux instructions se chevauchent et qu'on l'on réalise un parcours linéaire depuis chacune d'entre elles, il suffit en général d'au plus quatre \todo{cite, vrai?}instructions pour que ces deux parcours se confondent.
-Cette propriété a pour conséquence que la plupart des \layers\ linéaires se réalignent sur une \layer\ précédente, en général la première. Sur la figure \ref{fig:telock-layers-linear} les \layers\ 1 et 2 se réalignent et partagent l'instruction \texttt{jg 0x1006e68}.
+Il est à noter qu'en assembleur \xq\ ou \xs\ les instructions ont tendance à se réaligner rapidement, 
+% il suffit en général d'au plus quatre \todo{cite, vrai?}instructions pour que ces deux parcours se confondent.
+cette propriété a pour conséquence que la plupart des \layers\ linéaires se réalignent, après quelques instructions, sur une \layer\ précédente, en général la première. Sur la figure \ref{fig:telock-layers-linear} les \layers\ 1 et 2 se réalignent et partagent l'instruction \texttt{jg 0x1006e68}.
+\imore{combien d'instructions pour se réaligner ? cite ?}
 Cette propriété n'est évidemment pas vérifiée si les instructions ont été spécialement choisie pour provoquer de longs chemins de chevauchement, comme avec l'obscurcissement précédemment cité \cite{JLH13}.
 
 Nous souhaitons obtenir un découpage cohérent des \layers\ sous forme d'ensembles deux à deux disjoints.
@@ -164,7 +173,7 @@ L'extension consiste à simplement à réaliser un découpage cohérent pour cha
 % Les \layers\ linéaires sont en fait une extension du désassemblage linéaire. Un programme non obscurcis peut être désassemblé avec un minimum d'erreurs par un parcours linéaire représenté.
 Le découpage en \layers\ linéaires n'est pas en soi un algorithme de désassemblage : il s'agit d'une analyse exhaustive de toutes les instructions codées dans le segment analysé, elle est donc par définition incorrecte.
 On peut voir ce découpage comme une caractéristique du binaire qui contient l'ensemble des instructions potentiellement exécutées (hors auto-modification) et qui dépend de leur agencement en mémoire.
-
+La première \layer\ correspond à un désassemblage linéaire depuis la première adresse du segment analysé, les \layers\ suivantes ne sont pas présents dans le désassemblage linéaire et ne sont utiles à un désassemblage qu'en cas de chevauchement réel de plusieurs instructions.
 
 \paragraph{Caractérisations des binaires obscurcis.}
 Considérons un programme désassemblé en son graphe de flot de contrôle parfait.
@@ -175,8 +184,6 @@ L'inverse n'est par contre pas vrai puisque deux instructions peuvent ne pas êt
 Lors du désassemblage d'un binaire plusieurs métriques peuvent être observées.
 On peut d'une part observer combien de \layers\ différentes sont utilisées : chaque \layer, en dehors de la première de chaque segment, atteste du départ d'un chemin désaligné avec le chemin principal.
 D'autre part on peut compter le nombre de sauts d'une instruction d'une \layer\ vers une instruction désalignée d'une autre \layer. Dans le cas de \telock, le saut depuis l'instruction \texttt{dec ecx} à l'adresse \adr{0x01006e7e} vers l'instruction \texttt{jg 0x1006e68} à l'adresse \adr{0x01006e80}, bien qu'il provoque un changement de \layer, n'est pas désaligné. Le nombre de ces sauts de désalignement atteste de la prévalence des chemins représentés par chaque \layer.
-
-\itodo{rapport à un désassemblage linéaire}
 
 \begin{figure}
 \begin{center}
@@ -247,7 +254,8 @@ Octets & eb & ff & c9 & 7f & e6\\
 
 % Nous allons définir un algorithme de découpage cohérent en \layers\ lors d'un désassemblage récursif qui sera repris dans notre proposition de désassembleur. Nous tenterons \todo{ahah} de prouver quelques propriétés sur le découpage qui en résulte.
 
-L'algorithme \ref{algo:ajout_inst_layers} explicite le choix fait lors de l'insertion d'une instruction dans un découpage cohérent existant : on choisit simplement la première \layer\ dont les instructions ne chevauchent pas l'instruction à ajouter. La création d'une nouvelle \layer\ peut être nécessaire. Ce découpage étant minimal [à prouver] \todo{à prouver}, il ne peut pas dépasser 15 \layers.
+L'algorithme \ref{algo:ajout_inst_layers} explicite le choix fait lors de l'insertion d'une instruction dans un découpage cohérent existant : on choisit simplement la première \layer\ dont les instructions ne chevauchent pas l'instruction à ajouter. La création d'une nouvelle \layer\ peut être nécessaire. 
+Ce découpage résulte en des \layers\ ayant au moins autant d'instructions que le découpage cohérent décrit au paragraphe \ref{sec:chevauchement_analyse_definitions} : sur chaque couche il y a au minimum une instruction tous les 15 octets puisqu'une instruction est codée au maximum sur 15 octets. Ainsi ce découpage résulte en un maximum de 15 \layers.
 
 \begin{algorithm}[H] %or another one check
 \caption{Ajout d'une instruction à un découpage cohérent en \layers}
@@ -277,7 +285,14 @@ L'algorithme \ref{algo:ajout_inst_layers} explicite le choix fait lors de l'inse
 \label{algo:ajout_inst_layers}
 \end{algorithm}
 
-\paragraph{Non-unicité du découpage pour un parcours récursif.}
+
+\paragraph{Choix du découpage.}
+Dans la suite de cette thèse nous favorisons ce découpage pour la définition des \layers\ parce qu'il nous permet d'observer les difficultés qu'impliquent le chevauchement de code lors d'un désassemblage, quel que soit l'algorithme de désassemblage choisi.
+
+\subsection{Application à un désassemblage par parcours récursif}
+Nous appliquons la seconde méthode de découpage en \layers\ à un désassemblage fonctionnant par parcours récursif.
+
+\paragraph{Non-unicité du découpage.}
 La technique de désassemblage que nous proposons est basée sur un parcours récursif. Il est à noter qu'avec ce type de parcours les \layers\ obtenus en applicant l'algorithme précédent dépendent de l'ordre dans lequel les fils de chaque sommet sont explorés.
 
 Reprenons un graphe de flot simplifié de l'échantillon d'UPX donné au chapitre \ref{chap:obscurcissement}, donné en figure \ref{fig:upx_cfg_simple}. Le sommet 1 est le point d'entrée, le sommet 4 le point d'arrêt et les instructions aux sommets 2 et 3 se chevauchent. Le sommet 1 a deux fils : le sommet 2 qui est accessible séquentiellement (les instructions se suivent) et le sommet 3 qui est la cible d'un saut.
@@ -297,5 +312,4 @@ Le découpage précis en \layers\ dépend de la manière dont le parcours récur
 On utilisera le nombre de \layers\ pour observer la complexité des chevauchements de code tandis que le nombre de sauts de changement de \layers\ indique la fréquence d'utilisation de cette technique d'obscurcissement.
 
 
-\itodo{Découpage cohérent minimal.}
-\itodo{discussion : pourquoi on préfère celui là ?}
+\imore{Découpage cohérent minimal.}
