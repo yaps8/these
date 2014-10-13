@@ -332,16 +332,16 @@ Les sauts peuvent aussi être conditionnels : \texttt{je +10}, à l'adresse $a$ 
 \section{Désassemblage}
 L'analyse d'un programme sous forme binaire est en général plus difficile que d'analyse le code source du programme écrit dans un langage de haut niveau.
 La compilation provoque une perte d'informations de haut niveau.
-Par exemple en assembleur il n'y a plus de noms ni de types pour les variables ni pour les fonctions. 
+Par exemple en assembleur il n'y a plus de noms ni de types pour les variables et les fonctions. 
 
 Le désassemblage est l'opération inverse de l'assemblage : il consiste à récupérer le code assembleur source du binaire.
-Cette tâche semble particulièrement simple puisque l'assemblage consiste simplement à trouver les octets correspondants à chaque instruction à l'aide de la documentation officielle du processeur puis à mettre en forme le fichier binaire en remplissant correctement ses entêtes et ses sections.
+Cette tâche semble particulièrement simple puisque l'assemblage consiste à trouver les octets correspondants à chaque instruction à l'aide de la documentation officielle du processeur puis à mettre en forme le fichier binaire en remplissant correctement ses entêtes et ses sections.
 Pourtant on a vu que, dans le modèle de Von Neumann, les données et le code peuvent être mêlés. 
 En particulier les parties de données (comme la section \pdata) peuvent être exécutées. 
 De même les sections de code peuvent contenir des informations destinées à être simplement lues ou modifiées mais jamais exécutées.
 La difficulté du désassemblage consiste donc à séparer les parties potentiellement exécutables des données.
 
-Ainsi un désassemblage à priori cohérent de \helloworld\ consisterait à considérer les deux sections comme contenant du code potentiellement exécutable. Ce désassemblage sera composé de la section \ptext\ déjà désassemblé Figure \ref{fig:text_helloworld} et la section \pdata\ donnée Figure \ref{fig:data_exec_helloworld}.
+Ainsi un désassemblage à priori cohérent de \helloworld\ consisterait à considérer les deux sections comme contenant du code potentiellement exécutable. Ce désassemblage sera composé de la section \ptext\ d'origine (figure \ref{fig:text_helloworld}) et de la section \pdata\ (figure \ref{fig:data_exec_helloworld}).
 Ce désassemblage n'est pas correct et on peut le prédire. 
 On connaît le point d'entrée du binaire, qui est l'adresse \texttt{8048080} dans la section \ptext.
 Les instructions exécutées dans la section \ptext\ à la suite du point d'entrée sont séquentielles et ne peuvent détourner l'exécution vers la section \pdata. 
@@ -378,7 +378,7 @@ Dans l'exemple du \helloworld, si une telle instruction est présente dans la se
 Une des principales difficultés réside dans l'utilisation de ces sauts dynamiques dont la cible ne peut être déterminée qu'en ayant une connaissance fine de la ou des valeurs possibles pour \eax.
 \\
 
-Dans cette partie nous nous intéressons au problème du désassemblage, tant d'un point de vue théorique en définissant en ses objectifs, et les obstacles, tant d'un point de vue pratique en expliquant les différentes techniques mises en \oe uvre pour l'effectuer.
+Dans cette partie nous nous intéressons au problème du désassemblage, tant d'un point de vue théorique en définissant ses objectifs et les obstacles, tant d'un point de vue pratique en expliquant les différentes techniques mises en \oe uvre pour l'effectuer.
 Nous avons précédemment décrit une architecture simplifiée pour les machines que nous étudions. En particulier les instructions et les données ne sont pas séparées dans la mémoire.
 Certains programmes, dits \sms, utilisent ce fait pour modifier leur code au fur et à mesure de leur exécution, rendant leur analyse plus difficile. Un des objets de cette thèse est l'étude de ces programmes : nous détaillerons dans les chapitres suivants leur fonctionnement et certaines techniques d'analyse.
 
@@ -392,7 +392,7 @@ Ainsi le graphe de flot de contrôle de ce programme est celui donné en figure 
 
 Le sommet coloré en orange est le point d'entrée du programme. Dans le cas où le flot de contrôle peut passer de l'instruction $a$ à l'instruction $b$, l'arc entre $a$ et $b$ est en noir si $b$ suit $a$ en mémoire et en rouge sinon, c'est à dire dans le cas où il s'agit d'un saut.
 
-Un graphe de flot parfait inclut exactement l'ensemble des instructions atteignables dans le programme et un arc ne relie deux instructions que s'il existe au moins une exécution du programme dans laquelle les deux instructions sont exécutées consécutivement.
+% Un graphe de flot parfait inclut exactement l'ensemble des instructions atteignables dans le programme et un arc ne relie deux instructions que s'il existe au moins une exécution du programme dans laquelle les deux instructions sont exécutées consécutivement.
 
 \begin{figure}
 \begin{center}
@@ -432,7 +432,7 @@ La figure \ref{fig:asm_eax_code} donne un exemple de désassemblage linéaire d'
 L'avantage de cette technique réside dans sa simplicité et le fait qu'elle couvre l'ensemble de la mémoire.
 Pourtant, ne cherchant pas à suivre le flot de contrôle, elle ne permet pas de séparer le code exécutable des données et désassemble des instructions qui ne sont pas atteignables comme l'instruction \mov\ à l'adresse $804806e$ de la figure \ref{fig:asm_eax}.
 C'est l'approche utilisée par le désassembleur standard du projet GNU, objdump \cite{objdump}.
-La commande de désassemblage par défaut désassembleur interactif libre Radare \cite{radare} fonctionne également par parcours linéaire.
+La commande de désassemblage par défaut du désassembleur interactif libre Radare \cite{radare} fonctionne également par parcours linéaire.
 
 \subsection{Parcours récursif}
 À l'inverse du parcours linéaire, le parcours récursif suit le flot de contrôle et désassemble les instructions qui se suivent logiquement en partant du point d'entrée du programme. Le graphe de flot de contrôle peut être déduit du parcours récursif : la figure \ref{fig:asm_eax_cfg} donne celui de l'exemple précédent.
@@ -492,6 +492,8 @@ Une définition formelle du désassemblage parfait d'un programme P (définition
 L'analyste est par contre intéressé par plus d'informations que simplement la liste des adresses atteignables. 
 % Il est utile de connaître les enchaînements d'instructions possibles, représentés dans le graphe de flot de contrôle.
 La meilleure source pour l'analyse d'un programme serait la connaissance de tous les chemins d'exécution possibles, quelle que soit l'entrée donnée au programme (définition \ref{def:exec_possibles}).
+\imore{informel -> un exemple de liste des chemins d'exec}
+\itodo{sur et sous approximation}
 
 \begin{defi}
  Étant donné un programme P prenant une entrée I, l'ensemble des chemins d'exécution possibles de P est l'union sur les entrées I des chemins d'exécution pris par P(I).
@@ -522,12 +524,12 @@ En pratique nous ne disposons pas de la liste exhaustive de tous les chemins d'e
 \imore{Pb du désassemblage : borne min : intersection de CODE(P,I), borne max : union}
 \imore{borne min ~ arrêt ?}
 % On a vu que le problème du désassemblage tient dans la difficulté de séparer les parties de code potentiel des parties de données.
-Si on cherche à séparer le code des données alors le but du désassemblage d'un programme P est de résoudre le problème suivant. On se limite dans un premier temps à un programme P de taille finie et non auto-modifiant.
+Si on cherche à séparer le code des données alors le but du désassemblage d'un programme P est de résoudre le problème suivant. On se limite dans un premier temps à un programme P non auto-modifiant.
 \begin{pb}
 Soit \adr{a} une adresse, existe-t-il une entrée I de P telle que P(I) atteint \adr{a} ?
 \end{pb}
 
-Nous citons ici un argument tiré de la thèse de Joan Calvet \cite{Calvet2013} montrant le caractère indécidable de ce problème en réduisant le problème de l'arrêt à celui-ci.
+Nous reprenons ici un argument tiré de la thèse de Joan Calvet \cite{Calvet2013} montrant le caractère indécidable de ce problème en réduisant le problème de l'arrêt à celui-ci.
 
 % Supposons que le problème soit décidable. 
 Notons CODE le programme vérifiant, pour tout programme P et adresse \adr{a}, CODE(P, \adr{a}) = 1 si et seulement si il existe une entrée I de P telle que P(I) atteint \adr{a}. Dans le cas contraire CODE (P, \adr{a}) = 0.
