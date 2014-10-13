@@ -376,9 +376,16 @@ En pratique un programme est constitué d'un grand nombre d'instructions de saut
 Ce type d'instructions posent un souci lors de l'analyse : sans connaître précisément la ou les valeurs potentielles d'\eax, impossible de prédire la cible du saut et donc de savoir le code potentiellement exécuté à la suite de cette instruction.
 Dans l'exemple du \helloworld, si une telle instruction est présente dans la section \ptext, il devient difficile d'exclure l'exécution possible de code dans la section \pdata.
 Une des principales difficultés réside dans l'utilisation de ces sauts dynamiques dont la cible ne peut être déterminée qu'en ayant une connaissance fine de la ou des valeurs possibles pour \eax.
+\\
+
+Dans cette partie nous nous intéressons au problème du désassemblage, tant d'un point de vue théorique en définissant en ses objectifs, et les obstacles, tant d'un point de vue pratique en expliquant les différentes techniques mises en \oe uvre pour l'effectuer.
+Nous avons précédemment décrit une architecture simplifiée pour les machines que nous étudions. En particulier les instructions et les données ne sont pas séparées dans la mémoire.
+Certains programmes, dits \sms, utilisent ce fait pour modifier leur code au fur et à mesure de leur exécution, rendant leur analyse plus difficile. Un des objets de cette thèse est l'étude de ces programmes : nous détaillerons dans les chapitres suivants leur fonctionnement et certaines techniques d'analyse.
+
+Cependant, dans la suite de ce chapitre introductif, nous considérons que les programmes étudiés ne sont pas \sms. En conséquence l'intégralité du code de ces programmes est observable dès leur chargement en mémoire et ce code n'est pas amené à être modifié au cours de l'exécution.
 
 \subsection{Reconstruction du graphe de flot de contrôle}
-Nous avons vu jusqu'ici une réprésentation des programmes assembleur et binaires sous forme de code linéaire mais il est plus aisé de visualiser les programmes à l'aide d'un graphe de flot de contrôle (GFC).
+Nous avons vu jusqu'ici une représentation des programmes assembleur et binaires sous forme de code linéaire mais il est plus aisé de visualiser les programmes à l'aide d'un graphe de flot de contrôle (GFC).
 Ce graphe représente les instructions sous forme de sommets et les sauts du flot de contrôle d'une instruction à une autre sous forme d'arcs.
 Prenons le programme assembleur donné en figure \ref{fig:asm_eax_code}. Il ne fait que modifier le registre \eax, effectue des sauts selon la valeur d'\eax\ et se termine avec une valeur pour \eax\ à 1 ou 2. L'instruction \texttt{mov eax, 3} n'est pas atteignable puisqu'elle suit un saut inconditionnel et qu'aucune autre instruction ne provoque un saut vers elle.
 Ainsi le graphe de flot de contrôle de ce programme est celui donné en figure \ref{fig:asm_eax_cfg}.
