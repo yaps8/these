@@ -263,8 +263,7 @@ La sémantique pour l'entrée comme la sortie de ces instructions n'est donc pas
 Ces appels sont omniprésents dans un programme réel puisque toutes la plupart interactions avec le système (lecture et écriture dans un fichier, connexion internet, allocation de mémoire via la fonction \emph{malloc} en C par exemple, etc.) passent par un appel système.
 
 \section{Revue de littérature des langages intermédiaires}
-\todo[inline]{TraceSurfer: \\
-Renovo : \\
+\todo[inline]{Renovo : \\
 LLVM : \\
 }
 
@@ -292,7 +291,7 @@ Une première instruction est décodée, analysée et ajoutée dans le graphe de
 Cette évaluation a des conséquence sur l'état des registres du processeur et de la mémoire de la machine.
 L'instruction qui doit être exécutée ensuite est cette présente à l'adresse donnée par le registre contenant le compteur ordinal (\eip\ en assembleur \xq). On récupère alors cette instruction pour l'analyser à son tour.
 
-\begin{figure}
+\begin{figure}[h]
 \begin{center}
 \scalebox{1}{
 \begin{tikzpicture}[->,scale=1,>=stealth',thick]

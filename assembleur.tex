@@ -1,5 +1,4 @@
 % \newcommand{\xqq}{x862}
-\igdo{Mieux délimiter les figures}
 
 Nous nous intéressons en premier lieu aux programmes malveillants fonctionnant sur des ordinateurs personnels et en particulier les programmes compilés, qui s'exécutent nativement dans le langage assembleur spécifique au processeur de la machine.
 
@@ -36,7 +35,7 @@ mov     eax, 4      ; ~Numéro d'appel système (sys$\_$write)~
 mov     ebx, 1      ; ~Premier argument : le fichier de sortie (ici stdout)~
 mov     ecx, msg    ; ~Second argument : un pointeur vers la châine à afficher~
 mov	edx, len    ; ~Troisième argument : la taille de la chaîne~
-int     0x80        ; ~Appel effectif au noyau~
+int     0x80        ; ~Appel au noyau~
 
 ; ~Fermer proprement le programme~
 mov     eax, 1      ; ~Numéro d'appel système (sys$\_$exit)~
@@ -193,9 +192,6 @@ La principale tâche de l'analyste est alors d'extraire du fichier binaires les 
 \label{section:assembleur}
 \section{Assembleur \xq\ et \xs}
 L'architecture la plus fréquente pour les processeurs des ordinateurs personnels est celle des processeurs Intel CISC avec le jeu d'instructions \xq\ pour les machines adressant la mémoire sur 32 bits, et le jeu d'instructions \xs\ pour celles adressant la mémoire sur 64 bits.
-\imore{
-Différence 32 / 64 bits ?
-}
 
 \paragraph{Architecture de Harvard et de Von Neumann}
 Une des architectures possibles, l'architecture de Harvard \cite{ibm_mark1}, sépare le code exécutable des données en deux mémoires distinctes.
@@ -211,7 +207,10 @@ Cette restriction limite grandement les capacités de lecture et écriture mémo
 % \paragraph{Architecture actuelle.}
 L'architecture utilisée actuellement pour les ordinateurs personnels est un mélange des deux approches.
 Elle utilise plusieurs bus mémoire mais les instructions et les données sont stockées dans la même mémoire et donc accessibles autant en lecture qu'en écriture \cite{timsit}.
-Dans ce modèle la machine est articulée autour du processeur et de son unité de contrôle chargée de synchroniser les autres composants, d'exécuter les instructions du binaire chargé en mémoire, de gérer les entrées et les sorties, de lire et d'écrire dans la mémoire et les registres. L'unité arithmétique et logique opère toute l'arithmétique du processeur et modifie les drapeaux du registre d'état en conséquence selon les résultats des opérations effectuées. Par exemple si une addition provoque un débordement d'entier, c'est à dire que le résultat de l'addition ne peut être stocké dans un seul registre, alors le drapeau de dépassement d'entier (OF) est passé à 1.
+Dans ce modèle la machine est articulée autour du processeur et de son unité de contrôle chargée de synchroniser les autres composants, d'exécuter les instructions du binaire chargé en mémoire, de gérer les entrées et les sorties, de lire et d'écrire dans la mémoire et les registres.
+Les registres ne peuvent contenir que des entiers dans les intervalles $\textlbrackdbl -2^{31},\ 2^{31}-1\textrbrackdbl$ ou  $\textlbrackdbl -2^{63},\ 2^{63}-1\textrbrackdbl$ en assembleur \xq\ et \xs\ respectivement.
+L'unité arithmétique et logique opère toute l'arithmétique du processeur et modifie les drapeaux du registre d'état en conséquence selon les résultats des opérations effectuées. 
+Une addition provoque un débordement d'entier lorsque le résultat de l'addition ne peut être stocké dans un seul registre  dans ce cas le drapeau de dépassement d'entier (OF) est passé à 1.
 Une organisation simplifiée d'une machine utilisant ce modèle est donnée Figure \ref{fig:arch_harvard_mod}.
 
 \begin{figure}
@@ -245,7 +244,7 @@ Une organisation simplifiée d'une machine utilisant ce modèle est donnée Figu
 \end{figure}
 
 \paragraph{Structure de la mémoire.}
-La mémoire physique de la machine peut-être faite de supports volatiles (mémoire vive), de supports amovibles (disques durs), ou autre.
+La mémoire physique de la machine peut-être faite, entre autres, de supports volatiles (mémoire vive) et de supports amovibles (disques durs).
 Chacun de ces supports peut être vu comme une liste d'adresses mémoire où l'on peut stocker des données et le système d'exploitation gère ces supports comme il l'entend.
 En particulier un programme n'est pas nécessairement chargé sur une plage contiguë d'adresses mémoire.
 Pour éviter au programmeur de devoir gérer des adresses mémoires qui ne concernent pas son programme, un mécanisme de mémoire virtuelle a été mis en place : de son point de vue, le programme courant voit sa mémoire comme un intervalle d'adresses mémoire contiguës. C'est le système d'exploitation qui traduit les adresses virtuelles en adresses physiques lors de l'exécution du programme.
@@ -490,10 +489,10 @@ Une définition formelle du désassemblage parfait d'un programme P (définition
 \end{prop}
 
 L'analyste est par contre intéressé par plus d'informations que simplement la liste des adresses atteignables. 
+L'enchaînement des instructions lors des différentes exécution du programme est une donnée primordiale.
+Reprenons l'exemple de code assembleur de la figure \ref{fig:asm_eax_code}. Une exécution possible consiste à prendre les instructions \adr{8048067}, \adr{804806c}, \adr{8048073}, \adr{8048076}, \adr{804807e}, \adr{8048083} dans cet ordre. En fait quelles que soient les valeurs initiales de \eax, des autres registres ou de la mémoire, le chemin précédent est toujours emprunté : il s'agit du seul chemin d'exécution possible.
 % Il est utile de connaître les enchaînements d'instructions possibles, représentés dans le graphe de flot de contrôle.
-La meilleure source pour l'analyse d'un programme serait la connaissance de tous les chemins d'exécution possibles, quelle que soit l'entrée donnée au programme (définition \ref{def:exec_possibles}).
-\imore{informel -> un exemple de liste des chemins d'exec}
-\itodo{sur et sous approximation}
+La meilleure source pour l'analyse d'un programme serait cette connaissance de tous les chemins d'exécution possibles, quelle que soit l'entrée donnée au programme (définition \ref{def:exec_possibles}).
 
 \begin{defi}
  Étant donné un programme P prenant une entrée I, l'ensemble des chemins d'exécution possibles de P est l'union sur les entrées I des chemins d'exécution pris par P(I).
@@ -547,7 +546,8 @@ Dans le domaine de l'analyse de code, on parle d'analyse dynamique lorsque le fi
 
 Les deux techniques permettent de récupérer du code assembleur à partir du programme et donc de réaliser un désassemblage et de reconstruire un graphe de flot de contrôle.
 L'avantage de l'analyseur dynamique est que, puisqu'il travaille sur une exécution spécifique du programme, il est précis : les instructions qui sont exécutées doivent être inclues dans le désassemblage.
-Par contre il n'est pas complet vu qu'il ne suivra pas des branches du programme qui pourraient être utilisées si leurs conditions étaient vérifiées. À l'inverse un analyseur statique n'est pas précis et ne peut en général pas être complet à cause de l'impossibilité de prédire certaines cibles de sauts dynamiques.
+Les traces d'exécution fournissent ainsi une sous-approximation de l'ensemble des chemins d'exécution possibles.
+Par contre l'analyseur dynamique n'est pas complet vu qu'il ne suivra pas des branches du programme qui pourraient être utilisées si leurs conditions étaient vérifiées. À l'inverse un analyseur statique n'est pas précis et ne peut en général pas être complet à cause de l'impossibilité de prédire certaines cibles de sauts dynamiques. En considérant que les sauts dynamiques dont les cibles sont inconnues peuvent aboutir à n'importe quelle adresse mémoire, l'analyse statique fournit une sur-approximation de l'ensemble des chemins d'exécution possibles.
 
 En pratique le désassemblage est classiquement du domaine de l'analyse statique. Nous expliquerons comment l'analyse dynamique peut aider à reconstruire les graphes de flot et le code des programmes obscurcis.
 

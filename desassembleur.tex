@@ -1,13 +1,13 @@
 
 
 % \section{Analyse dynamique et auto-modification}
-L'analyse dynamique consiste à se baser sur une ou des exécutions particulières d'un programme pour inférer des propriétés sur son fonctionnement.
-Elle demande donc de se munir d'une langage modélisant le fonctionnement de la machine durant l'exécution du programme, d'une sémantique concrète de l'assembleur utilisé et de lancer l'évaluation sémantique du programme sur une ou plusieurs entrées.
+L'analyse dynamique consiste donc à se baser sur une ou des exécutions particulières d'un programme pour inférer des propriétés sur son fonctionnement.
+% Elle demande donc de se munir d'une langage modélisant le fonctionnement de la machine durant l'exécution du programme, d'une sémantique concrète de l'assembleur utilisé et de lancer l'évaluation sémantique du programme sur une ou plusieurs entrées.
 Les entrées d'un programme sont par exemple les paramètres passés lors de l'appel au programme, l'état de la machine lors du démarrage, les données lues depuis la mémoire et les saisies faites par l'utilisateur au clavier ou à la souris lors de l'exécution s'il s'agit d'une application dotée d'une interface graphique.
 
 Dans cette partie nous reprendrons la sémantique simplifiée pour un langage assembleur définie au chapitre précédent et expliquerons comment séparer une exécution d'un programme auto-modifiant en plusieurs sous-exécution non auto-modifiantes afin d'utiliser des techniques standard d'analyse sur chacune de ces sous-exécutions.
 
-\section{Désassemblage d'un programme \sm}
+\section{Objectifs}
 \subsection{Désassemblage parfait}
 Nous avons précédemment défini le désassemblage parfait d'un programme \nsm\ comme la donnée de l'ensemble des adresses auxquelles des instructions peuvent être atteintes lors de l'exécution.
 Dans le cas d'un programme \sm, cette définition n'est pas suffisante puisque l'instruction présente à une adresse dépend du contexte d'exécution et des éventuelles modifications qui ont été faites à cette adresse.

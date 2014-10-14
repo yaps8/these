@@ -2,6 +2,11 @@ Nous avons jusqu'à présent fait l'hypothèse que les programmes analysés ne s
 Dans ce chapitre nous détaillons une approche d'analyse dynamique adaptée aux programmes auto-modifiants et ayant pour but de réduire l'analyse d'un programme auto-modifiant en l'analyse de plusieurs sous-ensembles non auto-modifiants du programme.
 Cette approche est donnée par la littérature existante, en particulier par les travaux de thèse de Reynaud \cite{Reynaud2010} et Calvet \cite{Calvet2013}.
 
+L'analyse dynamique consiste à se baser sur une ou des exécutions particulières d'un programme pour inférer des propriétés sur son fonctionnement.
+Elle demande donc de se munir d'une langage modélisant le fonctionnement de la machine durant l'exécution du programme, d'une sémantique concrète de l'assembleur utilisé et de lancer l'évaluation sémantique du programme sur une ou plusieurs entrées : nous reprendrons à cet effet le langage assembleur et sémantique concrète définis au chapitre précédent comme référence.
+% Les entrées d'un programme sont par exemple les paramètres passés lors de l'appel au programme, l'état de la machine lors du démarrage, les données lues depuis la mémoire et les saisies faites par l'utilisateur au clavier ou à la souris lors de l'exécution s'il s'agit d'une application dotée d'une interface graphique.
+% Nous reprendrons la sémantique simplifiée pour un langage assembleur définie au chapitre précédent et expliquerons comment séparer une exécution d'un programme auto-modifiant en plusieurs sous-exécution non auto-modifiantes afin d'utiliser des techniques standard d'analyse sur chacune de ces sous-exécutions.
+
 \section{Auto-modification et vagues}
 Prenons le programme auto-modifiant donné à la figure \ref{fig:prg_asm_sm} et analysons une exécution de ses instructions 1 à 5.
 Deux instructions provoquent une auto-modification.
@@ -27,7 +32,7 @@ i & Adresse & Octets & Instruction\\
 
 
 Au vu de l'enchaînement des instructions, on peut construire trois représentations en mémoire des parties exécutables du programme.
-La première correspond à la vision du programme lors de son chargement : la section .text est dans son état initial, donné en figure \ref{fig:prg_asm_sm}.
+La première correspond à la vision du programme lors de son chargement : la section \ptext\ est dans son état initial, donné en figure \ref{fig:prg_asm_sm}.
 La seconde est celle après que la première modification du programme faite par l'instruction 2 et la troisième après la seconde modification effectuée par l'instruction 3.
 En fait vu qu'aucune des adresses modifiées par la première instruction auto-modifiante n'est exécutée avant que la seconde modification ne soit faite, on peut regrouper les deux instructions auto-modifiantes et considérer que le programme n'a que deux représentations en mémoire : la représentation initiale et la représentation après que l'instruction 3 ait été exécutée. 
 Beaucoup de logiciels protégés restaurent de grandes parties de code au démarrage : un grand nombre d'instructions sont modifiées sans que les instructions modifiées ne soient exécutées. 
@@ -46,16 +51,6 @@ Nous détaillerons par la suite, formellement, ce qu'est une trace d'exécution 
  \caption{Vision informelle des vagues}
  \label{fig:vagues_visuel}
 \end{figure}
-
-
-\section{Revue de littérature}
-La notion de vague présentée dans ce chapitre a été développée dans les thèse de Reynaud \cite{Reynaud2010} et Calvet \cite{Calvet2013}.
-Elle est similaire à la notion de \emph{phase} présentée par Debray et Patel \cite{DP10} et utilisée pour automatiser la suppression de la protection d'un binaire. Le découpage d'une trace en phases est, chez eux, identique au découpage en vagues que l'on présente dans ce chapitre.
-En particulier le programme auto-modifiant précédent (figure \ref{fig:prg_asm_sm}), exécuté, forme deux vagues : la vague initiale est le programme initial et la seconde, modifiée, est identique à l'exception des instructions 4 et 5 qui ont été modifiées en \texttt{mov edi, 2} et \texttt{mov ebx, 2} respectivement.
-En général la suppression des protections se fait à l'aide d'une analyse dynamique et d'une image de la mémoire à un instant donné au cours de l'exécution. C'est cette image mémoire qui sera considérée comme étant le programme d'origine. La difficulté réside alors dans le choix de l'instant où prendre l'image mémoire : il s'agit souvent la dernière phase.
-
-Preda, Giacobazzi, Debray, Coogan et Townsend \cite{PGDCT10} effectuent un découpage en phases mais chaque lecture d'une instruction écrite lors d'une vague précédente (pas uniquement lors de la phase en cours) provoque la création d'une nouvelle phase.
-Avec l'exemple précédent, leur approche crée trois phases : la phase initiale, celle où uniquement l'instruction 4 a été modifiée, puis celle où les instructions 4 et 5 ont été modifiées.
 
 \section{Trace, niveaux d'exécution et vagues}
 Le programme exécuté a pour sources principales de données les registres et la mémoire constituée de la pile et du tas qui sont tous les deux adressables par des entiers. Une variable d'un programme est donc soit un registre du processeur soit une adresse mémoire, de même que défini dans la sémantique du langage intermédiaire défini au chapitre précédent (définition \ref{def:sem_conc_var}).
