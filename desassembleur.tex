@@ -1,15 +1,19 @@
 
 
 % \section{Analyse dynamique et auto-modification}
-L'analyse dynamique consiste donc à se baser sur une ou des exécutions particulières d'un programme pour inférer des propriétés sur son fonctionnement.
+% L'analyse dynamique consiste donc à se baser sur une ou des exécutions particulières d'un programme pour inférer des propriétés sur son fonctionnement.
 % Elle demande donc de se munir d'une langage modélisant le fonctionnement de la machine durant l'exécution du programme, d'une sémantique concrète de l'assembleur utilisé et de lancer l'évaluation sémantique du programme sur une ou plusieurs entrées.
-Les entrées d'un programme sont par exemple les paramètres passés lors de l'appel au programme, l'état de la machine lors du démarrage, les données lues depuis la mémoire et les saisies faites par l'utilisateur au clavier ou à la souris lors de l'exécution s'il s'agit d'une application dotée d'une interface graphique.
+% Les entrées d'un programme sont par exemple les paramètres passés lors de l'appel au programme, l'état de la machine lors du démarrage, les données lues depuis la mémoire et les saisies faites par l'utilisateur au clavier ou à la souris lors de l'exécution s'il s'agit d'une application dotée d'une interface graphique.
+% Dans cette partie nous reprendrons la sémantique simplifiée pour un langage assembleur définie au chapitre précédent et expliquerons comment séparer une exécution d'un programme auto-modifiant en plusieurs sous-exécution non auto-modifiantes afin d'utiliser des techniques standard d'analyse sur chacune de ces sous-exécutions.
 
-Dans cette partie nous reprendrons la sémantique simplifiée pour un langage assembleur définie au chapitre précédent et expliquerons comment séparer une exécution d'un programme auto-modifiant en plusieurs sous-exécution non auto-modifiantes afin d'utiliser des techniques standard d'analyse sur chacune de ces sous-exécutions.
+Nous avons précédemment détaillé plusieurs techniques d'obscurcissement de code. 
+Nous avons décrit des méthodes d'analyse de programmes \nsm\ présentant des chevauchements de code et une méthode permettant de ramener l'analyse d'un programme \sm\ à l'analyse de plusieurs programmes \nsms\ par découpage en instantanés.
+
+Dans ce chapitre nous présentons une méthode d'analyse combinant l'approche dynamique pour gérer les programmes \sms\ et une analyse statique de chaque sous programme considéré à partir d'un instantané et de la trace d'exécution.
 
 \section{Objectifs}
 \subsection{Désassemblage parfait}
-Nous avons précédemment défini le désassemblage parfait d'un programme \nsm\ comme la donnée de l'ensemble des adresses auxquelles des instructions peuvent être atteintes lors de l'exécution.
+Nous avons, au chapitre \ref{chap:assembleur}, défini le désassemblage parfait d'un programme \nsm\ comme la donnée de l'ensemble des adresses auxquelles des instructions peuvent être atteintes lors de l'exécution.
 Dans le cas d'un programme \sm, cette définition n'est pas suffisante puisque l'instruction présente à une adresse dépend du contexte d'exécution et des éventuelles modifications qui ont été faites à cette adresse.
 
 Nous considérons toujours que la donnée que l'analyste cherche à
@@ -120,7 +124,7 @@ Le CFG parfait de ce programme est donné en figure \ref{fig:sm_cfg_parfait}. En
 \end{figure}
 
 
-Cette difficulté n'est pas intrinsèque aux programmes \sm\ et provient du fait même que le graphe de flot de contrôle est sur une surapproximation \todo{typo?} de l'ensemble des exécutions possibles. Il est cependant exacerbé dans le cas des programmes \sm\ puisque souvent les vagues successives n'ont que peu de code commun entre elles et il n'est pas cohérent de les mélanger dans le CFG.
+Cette difficulté n'est pas intrinsèque aux programmes \sm\ et provient du fait même que le graphe de flot de contrôle est sur une \sura\ de l'ensemble des exécutions possibles. Il est cependant exacerbé dans le cas des programmes \sm\ puisque souvent les vagues successives n'ont que peu de code commun entre elles et il n'est pas cohérent de les mélanger dans le CFG.
 
 
 \subsection{Graphe de flot de contrôle paramétré par une exécution}
@@ -165,7 +169,59 @@ Chaque sous trace, au sein d'une vague, ne présente pas d'auto-modification.
 Nous décidons alors d'effectuer, pour chaque vague, un désassemblage par analyse statique en séparant le code en plusieurs \layers. Cette analyse est pertinente si les vagues ne présentent pas d'auto-modification. Nous discuterons ce point\todo{todo}.
 
 \subsection{Architecture générale}
-\itodo{diagramme}
+\begin{figure}[h]
+\begin{center}
+\scalebox{1}{
+\begin{tikzpicture}[->,scale=1,>=stealth',thick]
+\newcommand\espace{0.3cm}
+\node[state] (BIN){Binaire};
+\node[state, above right=2cm and 3.8cm of BIN] (TRACE) {Trace};
+\node[state, below=1.8cm of TRACE.west, anchor=west] (I0) {Instantané 0};
+\node[state, below=3.0cm of TRACE.west, anchor=west] (I1) {Instantané 1};
+\node[state, below=4.2cm of TRACE.west, anchor=west] (Ip) {Instantané ...};
+\node[state, below=5.4cm of TRACE.west, anchor=west] (In) {Instantané n};
+% \node[state, right=1.4cm  of BIN] (ASM){ASM};
+% \node[state, right=1.4cm of ASM] (IR){LI};
+
+\node[state, right=4cm of I0] (V0) {Vague 0};
+\node[state, below=1.2 of V0.west, anchor=west] (V1) {Vague 1};
+\node[state, below=2.4 of V0.west, anchor=west] (Vp) {Vague ...};
+\node[state, below=3.6 of V0.west, anchor=west] (Vn) {Vague n};
+
+\coordinate [right=2cm of BIN.east] (DYN);
+\coordinate [right=1.6cm of TRACE.east] (C0);
+\coordinate [right=0.5cm of C0] (C1);
+\coordinate [right=0.5cm of C1] (Cp);
+\coordinate [right=0.5cm of Cp] (Cn);
+% \coordinate [above=0.1cm of C1] (C10m);
+% \coordinate [below=0.1cm of C1] (C10p);
+\draw [-] (TRACE.east) -- (C0);
+\draw [-] (C0) -- (C1);
+\draw [-] (C1) -- (Cp);
+\draw [-] (Cp) -- (Cn);
+\draw (C0) -- ($(C0)+(0, -1.8cm)$);
+\draw (C1) -- ($(C1)+(0, -3cm)$);
+\draw (Cp) -- ($(Cp)+(0, -4.2cm)$);
+\draw (Cn) -- ($(Cn)+(0, -5.4cm)$);
+% \draw (C1) -- (C10m);
+% \draw (C10p) -- ($(C1)+(0, -1.8cm)$);
+\draw [-] (BIN.east) -- node[below left=3.0cm and -3.2cm, text width=4cm](DYNAMIC){Analyse dynamique} (DYN);
+\draw (DYN) |- (TRACE.west);
+\draw (DYN) |- (I0.west);
+\draw (DYN) |- (I1.west);
+\draw (DYN) |- (Ip.west);
+\draw (DYN) |- (In.west);
+\draw (I0) -- (V0);
+\draw (I1) -- (V1);
+\draw (Ip) -- (Vp);
+\draw (In) -- node[below right=0.5cm and -1.8cm, text width=4cm](STATIC){Analyse statique} (Vn);
+\node [fit={($(V0.north west) + (-0.2, 0)$) ($(V1) + (0.0, 0)$) ($(Vp) + (0.0, 0)$) ($(Vn.south east) + (0.3, 0)$)}, draw, label=CFG paramétré par la trace] {};
+\end{tikzpicture}
+}
+\end{center}
+\caption{Architecture générale du désassembleur hybride}
+\label{fig:diag_codisasm}
+\end{figure}
 \subsection{Obtention des traces et des vagues}
 \subsection{Analyse statique de chaque vague}
 
