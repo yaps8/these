@@ -1,9 +1,36 @@
-\section{Panorama des technique de détection}
+Le second objet d'étude de cette thèse est une technique de détection de logiciels malveillants fonctionnant par comparaison de leurs graphes de flot de contrôle (GFC).
+Cette partie est organisée comme suit. Nous présentons en premier lieu différentes approches de la détection de programme malveillants, puis nous détaillerons l'analyse morphologique fonctionnant par comparaison des graphes de flot de contrôle et expliquerons comme optimiser cette approche. Enfin nous donnerons des exemples d'études de codes malveillants basées sur cette approche.
+
+Dans ce chapitre nous présentons plusieurs techniques de détection de programmes malveillants et introduisons l'analyse morphologique.
+
+\section{Contexte de détection}
+Nous rappelons la définition d'un programme malveillant, donnée en introduction (définition \ref{def:malware}).
+
+\begin{defi}
+Un logiciel est dit malveillant s'il réalise volontairement des opérations allant à l'encontre de l'intérêt de l'utilisateur, et ce à l'insu de celui-ci.
+\label{def:malware}
+\end{defi}
+
+Sa définition varie en fait d'un utilisateur à un autre et une technique plus formelle permettant de classifier un programme fait intervenir la spécification d'une politique de sécurité. 
+Cette politique de sécurité décrit les différents flots de données autorisés et ceux étant interdits. Par exemple il serait qu'il est interdit de lire le fichier /etc/shadow, contenant des informations relatives aux mots de passe d'un ordinateur sous Linux, et d'exfiltrer ces informations hors de la machine (via le réseau ou un support amovible par exemple).
+
+Il n'existe pas de programme capable d'analyser tout programme binaire pour connaître à priori leur comportement de manière exacte : on ne peut déjà pas construire un analyseur déterminant s'ils programme analysé lisent /etc/shadow.
+La raison est que le problème du désassemblage est déjà indécidable ; celui de la détection l'est également.
+
+Puisqu'il n'existe pas de méthode de détection parfaite mais que l'on est en pratique capable d'analyser des programmes à la main, nous disposons de corpus de programmes malveillants et légitimes.
+Certaines méthodes mesurent une distance entre le programme analysé et d'une part les programmes malveillants connus, d'autre part les programmes légitimes connus. Si le programme analysé est suffisamment proche d'un programme malveillant il sera considéré comme malveillant. S'il est identique ou très proche d'un programme légitime, il pourra être classifié comme légitime.
+
+\subsection{Programmes obscurcis}
+
+\subsection{Programmes \sms}
+
 \itodo{On part pas de rien : corpus de malware connus, de logiciels légitimes connus}
 \itodo{Reprendre Szor}
 \itodo{Exemple d'un malware vu par différentes techniques}
 \itodo{Approches comportementales ?}
-\section{Faiblesse de l'approche syntaxique}
+\section{État de l'art}
+\itodo{Faiblesse de l'approche syntaxique}
+\itodo{comportementales : rapide tour d'horizon, pas de jugement de valeur}
 \itodo{biblio}
 \section{Comparaison des graphes de flot de contrôle}
 \itodo{cesare, bonfante et al.}
