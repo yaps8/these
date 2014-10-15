@@ -11,8 +11,8 @@ Nous avons décrit des méthodes d'analyse de programmes \nsm\ présentant des c
 
 Dans ce chapitre nous présentons une méthode d'analyse combinant l'approche dynamique pour gérer les programmes \sms\ et une analyse statique de chaque sous programme considéré à partir d'un instantané et de la trace d'exécution.
 
-\section{Objectifs}
-\subsection{Désassemblage parfait}
+\section{Désassemblage parfait}
+% \subsection{}
 Nous avons, au chapitre \ref{chap:assembleur}, défini le désassemblage parfait d'un programme \nsm\ comme la donnée de l'ensemble des adresses auxquelles des instructions peuvent être atteintes lors de l'exécution.
 Dans le cas d'un programme \sm, cette définition n'est pas suffisante puisque l'instruction présente à une adresse dépend du contexte d'exécution et des éventuelles modifications qui ont été faites à cette adresse.
 
@@ -69,7 +69,7 @@ $\da{D_1}$=a_1,\ $\di{D_1}$=I_1,$~\da{D_2}$=a_2,\ $\di{D_2}$=I_2$.
 \label{def:cfg_parfait_sm}
 \end{defi}
 
-Le problème de cette définition d'un CFG pour un programme \sm\ est qu'%e souvent les vagues se suivent et ont peu de rapport les unes avec les autres.
+Le problème de cette définition d'un GFC pour un programme \sm\ est qu'%e souvent les vagues se suivent et ont peu de rapport les unes avec les autres.
 elle ne permet pas de visualiser l'enchaînement des vagues et peut conduire à une interprêtation biaisée des exécutions possibles.
 
 \paragraph{Exemple.}
@@ -99,7 +99,7 @@ Adresse & Octets & Instruction & Instruction écrite\\
 \end{tabular}
 \label{fig:sm_asm}
 }
-\subfigure[CFG par analyse statique et récursive]{
+\subfigure[GFC par analyse statique et récursive]{
 \includegraphics[width=0.8\textwidth]{supports/disas_sm/ex2_statique.pdf}
 \label{fig:sm_cfg_statique}
 }
@@ -113,26 +113,26 @@ Cette seconde branche a pour effet de modifier les instructions aux adresses \ad
 
 Ainsi toutes les exécutions possibles, paramétrées par la valeur initiale d'\eax, bouclent sur la branche conditionnelle un nombre fini, qui peut être nul, de fois et exécutent la seconde branche, qui met la valeur 1 dans \edi, provoque une auto-modification, incrémente \edi\ deux fois puis quitte la fonction. Dans toutes les exécutions possibles la valeur finale de \edi\ est toujours 3.
 
-Le CFG parfait de ce programme est donné en figure \ref{fig:sm_cfg_parfait}. En raison du mélange des instructions à différents niveaux d'exécution, il n'est pas possible de distinguer les vagues d'exécution et un analyseur statique simple approxime la valeur de \edi\ à 2 ou 3.
+Le GFC parfait de ce programme est donné en figure \ref{fig:sm_cfg_parfait}. En raison du mélange des instructions à différents niveaux d'exécution, il n'est pas possible de distinguer les vagues d'exécution et un analyseur statique simple approxime la valeur de \edi\ à 2 ou 3.
 
 \begin{figure}[h]
 \begin{center}
   \includegraphics[width=0.7\textwidth]{supports/disas_sm/ex2_parfait.pdf}
 \end{center}
-\caption{CFG parfait}
+\caption{GFC parfait}
 \label{fig:sm_cfg_parfait}
 \end{figure}
 
 
-Cette difficulté n'est pas intrinsèque aux programmes \sm\ et provient du fait même que le graphe de flot de contrôle est sur une \sura\ de l'ensemble des exécutions possibles. Il est cependant exacerbé dans le cas des programmes \sm\ puisque souvent les vagues successives n'ont que peu de code commun entre elles et il n'est pas cohérent de les mélanger dans le CFG.
+Cette difficulté n'est pas intrinsèque aux programmes \sm\ et provient du fait même que le graphe de flot de contrôle est sur une \sura\ de l'ensemble des exécutions possibles. Il est cependant exacerbé dans le cas des programmes \sm\ puisque souvent les vagues successives n'ont que peu de code commun entre elles et il n'est pas cohérent de les mélanger dans le GFC.
 
 
 \subsection{Graphe de flot de contrôle paramétré par une exécution}
-Nous proposons une représentation du CFG basée sur une exécution particulière et son découpage en différents niveaux d'exécution.
+Nous proposons une représentation du GFC basée sur une exécution particulière et son découpage en différents niveaux d'exécution.
 Cette exécution consiste en une trace et un enchaînement d'instantanés de chaque niveau d'exécution.
 Chaque instantané est pris comme un programme ayant pour point d'entrée la première instruction de la trace ayant le niveau d'exécution correspondant et un point de sortie étant la dernière instruction ayant ce même niveau d'exécution.
-Nous appelons CFG paramétré par cette exécution l'union des CFG parfaits de chaque de ces instantanés dans lesquel les sommets sont caractérisés par le niveau d'exécution de l'instantané, une adresse et une instruction assembleur.
-Un tel CFG pour le programme \sm\ précédent est donné en figure \ref{fig:sm_cfg_vagues} : l'exécution prise en compte est celle démarrant avec \eax=-2. La boucle directe est exécutée une fois, puis comme \eax=0, la partie auto-modifiante est activée.
+Nous appelons GFC paramétré par cette exécution l'union des GFC parfaits de chaque de ces instantanés dans lesquel les sommets sont caractérisés par le niveau d'exécution de l'instantané, une adresse et une instruction assembleur.
+Un tel GFC pour le programme \sm\ précédent est donné en figure \ref{fig:sm_cfg_vagues} : l'exécution prise en compte est celle démarrant avec \eax=-2. La boucle directe est exécutée une fois, puis comme \eax=0, la partie auto-modifiante est activée.
 \itodo{def formelle?}
 
 % \begin{defi}
@@ -152,23 +152,31 @@ Un tel CFG pour le programme \sm\ précédent est donné en figure \ref{fig:sm_c
 \begin{center}
   \includegraphics[width=0.7\textwidth]{supports/disas_sm/ex2_vagues.pdf}
 \end{center}
-\caption{CFG paramétré par l'exécution démarrant avec \eax=-2}
+\caption{GFC paramétré par l'exécution démarrant avec \eax=-2}
 \label{fig:sm_cfg_vagues}
 \end{figure}
 
 Cette définition est particulièrement pertinente si quelle que soit l'exécution choisie les vagues d'exécution sont les même, comme c'est le cas dans l'exemple choisi ici.
 L'idée consiste donc à obtenir une exécution particulière d'un programme puis à augmenter la couverture de code à l'aide d'une analyse statique sur chaque instantané de l'exécution.
 
+\paragraph{Choix de l'exécution, pertinence de l'approche ?}
+~\\\itodo{todo}
+
 \subsection{Revue de littérature}
-\itodo{CFG avec octets, CFA automates de Jakstab / Kinder}
-(\todo{nom+cite}) proposent d'introduire la représentation sous forme d'octets de chaque instruction au sein du CFG et d'ajouter les conditions des sauts conditionnels légende des arcs du CFG. (...)
+\itodo{GFC avec octets, CFA automates de Jakstab / Kinder}
+(\todo{nom+cite}) proposent d'introduire la représentation sous forme d'octets de chaque instruction au sein du GFC et d'ajouter les conditions des sauts conditionnels légende des arcs du GFC. (...)
 
-\section{Approche hybride et Codisasm}
-Nous avons vu comment séparer une trace d'exécution en plusieurs sous-traces définissant des vagues d'exécution.
-Chaque sous trace, au sein d'une vague, ne présente pas d'auto-modification.
-Nous décidons alors d'effectuer, pour chaque vague, un désassemblage par analyse statique en séparant le code en plusieurs \layers. Cette analyse est pertinente si les vagues ne présentent pas d'auto-modification. Nous discuterons ce point\todo{todo}.
+\section{Approche hybride}
+% Nous avons vu comment séparer une trace d'exécution en plusieurs sous-traces définissant des vagues d'exécution.
+% Chaque sous trace, au sein d'une vague, ne présente pas d'auto-modification.
+% Nous décidons alors d'effectuer, pour chaque vague, un désassemblage par analyse statique en séparant le code en plusieurs \layers. Cette analyse est pertinente si les vagues ne présentent pas d'auto-modification. Nous discuterons ce point\todo{todo}.
 
-\subsection{Architecture générale}
+Notre objectif est donc de construire un GFC paramétré par une exécution représentative du programme à analyser.
+L'analyse dynamique du programme est faite selon l'algorithme \ref{algo:analyse_dyn_vagues} du chapitre précédent et fournit une trace d'exécution générale et un découpage de l'exécution en plusieurs instantanés de la mémoire.
+Nous obtenons les traces et les instantanés par instrumentation avec Pin comme indiqué au chapitre précédent.
+L'architecture générale du désassembleur est donnée par la figure \ref{fig:diag_codisasm}.
+
+% \subsection{Architecture générale}
 \begin{figure}[h]
 \begin{center}
 \scalebox{1}{
@@ -215,14 +223,41 @@ Nous décidons alors d'effectuer, pour chaque vague, un désassemblage par analy
 \draw (I1) -- (V1);
 \draw (Ip) -- (Vp);
 \draw (In) -- node[below right=0.5cm and -1.8cm, text width=4cm](STATIC){Analyse statique} (Vn);
-\node [fit={($(V0.north west) + (-0.2, 0)$) ($(V1) + (0.0, 0)$) ($(Vp) + (0.0, 0)$) ($(Vn.south east) + (0.3, 0)$)}, draw, label=CFG paramétré par la trace] {};
+\node [fit={($(V0.north west) + (-0.2, 0)$) ($(V1) + (0.0, 0)$) ($(Vp) + (0.0, 0)$) ($(Vn.south east) + (0.3, 0)$)}, draw, label=GFC paramétré par la trace] {};
 \end{tikzpicture}
 }
 \end{center}
 \caption{Architecture générale du désassembleur hybride}
 \label{fig:diag_codisasm}
 \end{figure}
-\subsection{Obtention des traces et des vagues}
-\subsection{Analyse statique de chaque vague}
+% \subsection{Obtention des traces et des vagues}
+\subsection{Analyse statique de chaque instantané}
+Pour l'analyse statique nous disposons de la trace et des instantanés munis de leurs points d'entrée et sortie respectifs.
+Nous cherchons, à partir de la trace et d'un instantané, à reconstruire la vague correspondante, c'est à dire le désassemblage parfait de l'instantané.
+Nous appelons trace partielle la liste des éléments de la trace qui sont exécutés au même niveau d'exécution que l'instantané étudié.
+Nous utilisons la trace partielle comme guide dans l'analyse de l'instantané. Toute instruction présente dans la trace est nécessaire du code et doit être inclue dans la vague et le GFC.
+
+\paragraph{Reconstruction du GFC par parcours récursif.}
+Nous effectuons un désassemblage par parcours récursif de l'instantané à partir de chaque instruction présente dans la trace partielle.
+Dans le GFC partiel \todo{def} reconstitué, les instructions présentes dans la trace sont en rose, les autres en blanc. Le point d'entrée et le point de sortie sont colorés en orange et bleu clair respectivement.
+Si deux instructions se suivent dans la trace alors l'arc dirigé les reliant provient de l'analyse dynamique et est plein. Si elles se suivent dans l'analyse récursive alors l'arc dirigé provient de l'analyse statique et est en pointillés. Un arc étant parcouru par l'analyse dynamique et statique est en gras. Les arcs en noir relie une instruction et l'instruction séquentielle suivante tandis que les arcs en noir représentent le saut d'un appel ou d'un saut (\call\ ou \jmp\ par exemple).
+
+\paragraph{Point de sortie.}
+La dernière instruction présente dans la trace partielle constitue le point de sortie de l'instantané.
+Dans le cas où cette instruction n'est exécutées qu'une seule fois dans la trace partielle, c'est à dire que le changement de niveau d'exécution intervient dès qu'elle est exécutée la première fois, nous stoppons le parcours du programme après cette instruction en considérant que les instructions suivantes doivent être analysées dans l'instantané suivant.
+
+\paragraph{Chemins invalides.}
+Si tous les chemins d'exécution passant par une instruction $D$ aboutissent nécessairement sur une instruction provoquant une erreur, soit parce que son adresse n'est pas valide, soit parce qu'elle n'est pas une adresse \xq\ valide, alors l'instruction $D$ n'est pas valide non plus.
+Nous n'incluons donc par ces instructions dans le GFC.
+Une instruction dont les chemins aboutissent à un saut dont les cibles ne sont pas connues ne sont pas concernées puisqu'il est possible qu'une de ces cibles soit valide.
+
+
+\paragraph{Mesure du chevauchement à l'aide des \layers.}
+Nous utilisons le découpage cohérent en \layers\ adapté au parcours récursif défini à la section \ref{sec:layers_decoupage_recursif} du chapitre \ref{chap:chevauchement}.
+Dans le GFC deux instructions qui se chevauchent sont liées par un arc noir non dirigé tracé en pointillés.
+
+
 
 \section{Revue de littérature}
+\section{Implémentation}
+\section{Résultats}

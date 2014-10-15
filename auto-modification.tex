@@ -391,9 +391,9 @@ Ne pouvant pas émuler des programmes utilisant des appels systèmes, nous avons
 
 \subsection{Instrumentation avec Pin}
 Pin est l'outil d'instrumentation développé par Intel pour ses processeurs \xq\ et \xs.
-Il fournit un niveau d'information sémantique de niveau 2, donc suffisant pour suivre chaque instruction et connaître l'ensemble des adresses mémoire que l'instruction modifie. 
-Nous avons repris l'implémentation de l'algorithme \ref{algo:analyse_dyn_vagues} développé par Reynaud \cite{Reynaud2010} sous la forme d'un PinTool : codé en C, il s'agit d'un programme définissant les actions à effectuer avant et après l'exécution de chaque instruction selon le type de l'instruction considérée.
-\itodo{Attention TraceSurfer=daniel mais il n'y avait pas l'algo, c'est arrivé après}
+Il fournit un niveau d'information sémantique de niveau 2, donc suffisant pour suivre chaque instruction et connaître l'ensemble des adresses mémoire que l'instruction modifie.
+Nous avons implémenté l'algorithme \ref{algo:analyse_dyn_vagues} sous la forme d'un PinTool : codé en C, il s'agit d'un programme définissant les actions à effectuer avant et après l'exécution de chaque instruction selon le type de l'instruction considérée.
+% \itodo{Attention TraceSurfer=daniel mais il n'y avait pas l'algo, c'est arrivé après}
 
 L'analyse d'un programme malveillant a lieu sur une machine virtuelle munie de Pin et ne souffre pas des limitations de l'émulation : les appels systèmes sont correctement analysés et exécutés. 
 Dans la suite de cette thèse, nous avons exclusivement utilisé cette approche pour l'analyse dynamique.
