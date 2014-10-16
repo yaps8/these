@@ -59,8 +59,7 @@ suit directement le premier dans une trace d'exécution (définition
 $E_T$, le graphe de flot de contrôle parfait de P est le graphe orienté
 $G=(V, E)$ tel que :
  \begin{itemize}
-  \item $V=\{(a, I),  \exists\ T\in E_T, \exists\ (i, X, D)\in T,\
-$\da{D}$=a,\ $\di{D}$=I\}$
+  \item $V=\{(\mda{D}, \mdi{D}),  (i, X, D)\in E_T\}$
   \item $((a_1, I_1), (a_2, I_2))\in E\ si\ et\ seulement\ si\ (a_1,
 I_1)\ et\ (a_2, I_2)\ se\ suivent\ dans\ une\ trace\ : \exists T\in
 E_T,\ i\in \BN, (i, X_1, D_1)\ et\ (i+1, X_2, D_2)\in T\ avec\
@@ -136,41 +135,45 @@ Cette difficulté n'est pas intrinsèque aux programmes \sm\ et provient du fait
 \FloatBarrier
 \subsection{Graphe de flot de contrôle paramétré par une exécution}
 Nous proposons une représentation du GFC basée sur une exécution particulière et son découpage en différents niveaux d'exécution.
-Cette exécution consiste en une trace et un enchaînement d'instantanés de chaque niveau d'exécution.
+Nous donnons la définition d'une exécution (définition \ref{def:execution}), issue du résultat de l'analyse dynamique définie au chapitre précédent. L'exécution d'un programme sur une entrée I est caractérisée, via l'algorithme \ref{algo:analyse_dyn_vagues}, par le couple $(T, S)$ où $T$ est une trace et $S$ une liste d'instantanés d'exécution, un pour chaque niveau d'exécution.
+
+\begin{defi}
+ Soit un programme P prenant une entrée et ayant pour point d'entrée $ep$.
+ $(T, S)$ est une exécution de P si et seulement si il existe une entrée I telle que (T, S)=\texttt{exécution(P, I, ep)}.
+ 
+ On note $E_X$ l'ensemble des exécutions de P : $E_X=\bigcup_I\{\texttt{exécution(P, I, ep)}\}$.
+\label{def:execution}
+\end{defi}
+
+L'exécution choisie, dite de référence, consiste donc en une trace et un enchaînement d'instantanés de chaque niveau d'exécution.
 Chaque instantané est pris comme un programme ayant pour point d'entrée la première instruction de la trace ayant le niveau d'exécution correspondant et un point de sortie étant la dernière instruction ayant ce même niveau d'exécution.
-Nous appelons GFC paramétré par cette exécution l'union des GFC parfaits de chaque de ces instantanés dans lesquel les sommets sont caractérisés par le niveau d'exécution de l'instantané, une adresse et une instruction assembleur.
-Un tel GFC pour le programme \sm\ précédent est donné en figure \ref{fig:sm_cfg_vagues} : l'exécution prise en compte est celle démarrant avec \eax=-2. La boucle directe est exécutée une fois, puis comme \eax=0, la partie auto-modifiante est activée.
 
-
-Formellement cette définition est basée sur l'hypothèse suivante. Nous supposons que toutes les exécution du programme résultent en l'obtention du même ensemble d'instantanés de la mémoire, et donc des mêmes vagues. Plus précisément le GFC paramétré représente donc les exécution qui partagent le même découpage en vagues que l'exécution observée.
-En conservant les notations prises au chapitre précédent, l'exécution d'un programme sur une entrée I est caractérisée, via l'algorithme \ref{algo:analyse_dyn_vagues}, par le couple $(T, S)$ où $T$ est une trace et $S$ une liste d'instantanés d'exécution, un pour chaque niveau d'exécution.
+Nous appelons GFC paramétré par cette exécution l'union des GFC parfaits de chaque de ces instantanés dans lequel les sommets sont caractérisés par le niveau d'exécution de l'instantané, une adresse et une instruction assembleur.
+Formellement cette définition est possible si l'on se restreint à vouloir construire le GFC des seules exécutions dont les instantanés sont identiques à ceux de l'exécution de référence, on dit alors que ces exécutions sont compatibles (définition \ref{def:executions_compatibles}).
 
 \begin{defi}
  Soit un programme P et $(T, S)$ et $(T', S')$ deux exécutions de P.
  $(T, S)$ et $(T', S')$ sont dites compatibles si et seulement si $S=S'$.
+\label{def:executions_compatibles}
 \end{defi}
 
+Le GFC paramétré (définition \ref{def:cfg_param_sm}) représente chaque instruction contenue dans une trace dont l'exécution est compatible avec l'exécution de référence comme un sommet en prenant en compte son niveau d'exécution, son adresse et l'instruction assembleur. Deux sommets sont reliés par un arc si, dans une trace d'une exécution compatible, leurs deux instructions se suivent immédiatement.
 
 \begin{defi}
  Étant donné un programme P \sm, $(T, S)$ une exécution de P et $E_C$ l'ensemble des exécutions de P compatibles avec $(T, S)$.
  Nous appelons GFC paramétré par $T$ le graphe $G=(V, E)$ tel que :
  \begin{itemize}
-  \item $V=\{(X , a, I),  \exists\ (T', S')\in E_C, \exists\ (i, X, D)\in T',\
-$\da{D}$=a,\ $\di{D}$=I\}$
-  \item $((X_1, a_1, I_1), (X_2, a_2, I_2))\in E_C$ si et seulement si $(X_1, a_1,
-I_1)\ et\ (X_2, a_2, I_2)$ se suivent dans une trace : $\exists T'\in
-E_C,\ i\in \BN, (i, X_1, D_1)\ et\ (i+1, X_2, D_2)\in T\ avec\
-$\da{D_1}$=a_1,\ $\di{D_1}$=I_1,$~\da{D_2}$=a_2,\ $\di{D_2}$=I_2$.
- \end{itemize}
-\end{defi}
-\begin{defi}
- nous appelons GFC paramétré par $t$ le graphe $G=(V, E)$ tel que :
- \begin{itemize}
-  \item a
+  \item $V=\{(X,\ $\da{D}$,\ $\di{D}$), (i, X, D)\in T',\ (T', S')\in E_C \}$%\in E_C, \exists\ (i, X, D)\in T',\
+%$\da{D}$=a,\ $\di{D}$=I\}$
+  \item $((X_1, a_1, I_1), (X_2, a_2, I_2))\in E$ si et seulement si $(X_1, a_1,
+I_1)\ et\ (X_2, a_2, I_2)$ se suivent dans une trace : $\exists (T', S')\in
+E_C,\ i\in \BN, (i, X_1, D_1)\ et\ (i+1, X_2, D_2)\in T$ avec \da{D_1}$=a_1,\ $\di{D_1}$=I_1,$~\da{D_2}$=a_2,\ $\di{D_2}$=I_2$.
  \end{itemize}
 \label{def:cfg_param_sm}
 \end{defi}
 
+
+Un tel GFC pour le programme \sm\ précédent est donné en figure \ref{fig:sm_cfg_vagues} : l'exécution prise en compte est celle démarrant avec \eax=-2. La boucle directe est exécutée une fois, puis comme \eax=0, la partie auto-modifiante est activée. Dans l'exemple choisi ici, toutes les exécution partagent le même découpage en vagues.
 
 % \begin{defi}
 %  Étant donné un programme \sm\ P et une trace d'exécution $T$, le graphe de flot de contrôle de P paramétré par $T$ est $G=(V, E)$ tel que :
@@ -193,9 +196,18 @@ $\da{D_1}$=a_1,\ $\di{D_1}$=I_1,$~\da{D_2}$=a_2,\ $\di{D_2}$=I_2$.
 \label{fig:sm_cfg_vagues}
 \end{figure}
 
-Dans l'exemple choisi ici, toutes les exécution partagent le même découpage en vagues.
+
 L'idée consiste donc à obtenir une exécution particulière d'un programme puis à augmenter la couverture de code à l'aide d'une analyse statique sur chaque instantané de l'exécution.
-\paragraph{Choix de l'exécution, pertinence de l'approche ?}
+
+\paragraph{Pertinence de l'approche.}
+L'exécution à partir de laquelle on cherche à reconstruire le GFC se doit d'être représentative d'une exécution standard du programme sur une machine cible.
+Dans le cas des programmes malveillants on tente donc de se faire passer pour une machine ciblée par l'attaquant pour laisser le programme mener son attaque. 
+À part les informations provenant du système d'exploitation, un programme malveillant ne prend en général pas d'entrée et ne nécessite pas d'interaction avec l'utilisateur. Une seule exécution devrait donc permettre d'analyser son comportement.
+D'autre part la plupart des logiciels malveillants sont compilés sans comportement auto-modifiant et sont ensuite empaquetés. C'est le binaire empaqueté qui est obscurcis et auto-modifiant.
+Dans ce cas il est fréquent \cite{Calvet2013} que la charge utile, c'est à dire le binaire d'origine, ne soit activé qu'à la dernière vague de l'exécution.
+Par conséquent c'est principalement le logiciel de protection qui peut empêcher l'exécution de référence d'être représentative en détectant que le programme est instrumenté, débogué ou émulé et en détournant l'exécution dans ce cas.
+
+\itodo{citer des cas de détection}
 
 \FloatBarrier
 \subsection{Revue de littérature}
