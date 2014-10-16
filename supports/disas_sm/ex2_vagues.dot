@@ -1,27 +1,32 @@
 digraph G {
 labeljust=r
-"60v1" [labeljust=r,label="1, 0x8048060 inc eax\l", shape=box, style="filled", fillcolor=orange]
-"60v2" [labeljust=r,label="2, 0x8048060 nop\l", shape=box, style="filled", fillcolor=orange]
-"61a" [labeljust=r,label="1, 0x8048061 jz 0x804806a\l", shape=box, style="filled", fillcolor=white]
-"61b" [labeljust=r,label="2, 0x8048061 ret\l", shape=box, style="filled", fillcolor=lightblue]
-"63" [labeljust=r,label="1, 0x8048063 mov edi, 2\l1, 0x8048068 jmp 0x8048060\l", shape=box, style="filled", fillcolor=white]
-"6a" [labeljust=r,label="1, 0x804806a mov edi, 1 \l1, 0x804806f mov ebx, 0x8048060 \l1, 0x8048074 mov [ebx], 0x90 \l1, 0x8048079 mov [ebx+1], 0xc3 \l1, 0x804807f jmp 0x8048060\l", shape=box, style="filled", fillcolor=lightblue]
-"60v1" -> "61a" [color=black]
-"61a" -> "6a" [color=red]
-"61a" -> "63" [color=black]
-"63" -> "60v1" [color=red]
-"6a" -> "60v2" [color=red]
-"60v2" -> "61b" [color=black]
+"60v1" [labeljust=r,label="1, 0x8048060 xor edi, edi\l1, 0x8048062 inc eax\l", shape=box, style="filled", fillcolor=orange]
+"60v2" [labeljust=r,label="2, 0x8048060 inc edi\l2, 0x8048061 inc edi\l", shape=box, style="filled", fillcolor=orange]
+"62v1" [labeljust=r,label="1, 0x8048062 inc eax\l", shape=box, style="filled", fillcolor=white]
+"62v2" [labeljust=r,label="2, 0x8048062 inc eax\l", shape=box, style="filled", fillcolor=white]
+"63v1" [labeljust=r,label="1, 0x8048063 jz 0x804806c\l", shape=box, style="filled", fillcolor=white]
+"63v2" [labeljust=r,label="2, 0x8048063 ret\l", shape=box, style="filled", fillcolor=lightblue]
+"65" [labeljust=r,label="1, 0x8048065 mov edi, 2\l1, 0x804806a jmp 0x8048060\l", shape=box, style="filled", fillcolor=white]
+"6c" [labeljust=r,label="1, 0x804806c mov edi, 1 \l1, 0x8048071 mov ebx, 0x8048060 \l1, 0x8048076 mov [ebx], 0x47 \l1, 0x804807b mov [ebx+1], 0x47 \l1, 0x8048081 mov [ebx+3], 0xc3 \l1, 0x8048081 jmp 0x8048060\l", shape=box, style="filled", fillcolor=lightblue]
+"60v1" -> "62v1" [color=black]
+"62v1" -> "63v1" [color=red]
+"63v1" -> "65" [color=black]
+"63v1" -> "6c" [color=red]
+"6c" -> "60v2" [color=red]
+"60v2" -> "62v2" [color=black]
+"62v2" -> "63v2" [color=black]
 subgraph clusterv1{
 label="Vague 1"
 "60v1"
-"61a"
-"63" 
-"6a" 
+"62v1"
+"63v1" 
+"65"
+"6c" 
 }
 subgraph clusterv2{
 label="Vague 2"
 "60v2"
-"61b"
+"62v2"
+"63v2"
 }
 }

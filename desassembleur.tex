@@ -77,7 +77,7 @@ Prenons le programme donné en figure \ref{fig:sm_asm} dont le graphe de flot de
 
 \begin{figure}[h]
 \begin{center}
-\subfigure[Code \sm]{
+% \subfigure[]{
 \begin{tabular}[b]{|l|l|l|l|}
 \hline
 Adresse & Octets & Instruction & Instruction écrite\\ 
@@ -97,16 +97,22 @@ Adresse & Octets & Instruction & Instruction écrite\\
  8048087  &  eb d7                     &  jmp    8048060 <debut> 	& \\
 \hline
 \end{tabular}
+\caption{Code \sm}
 \label{fig:sm_asm}
-}
-\subfigure[GFC par analyse statique et récursive]{
-\includegraphics[width=0.8\textwidth]{supports/disas_sm/ex2_statique.pdf}
-\label{fig:sm_cfg_statique}
-}
-\caption{Exemple d'un code \sm}
-\label{fig:sm_exemple2}
 \end{center}
 \end{figure}
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=0.8\textwidth]{supports/disas_sm/ex2_statique.pdf}
+% \label{fig:sm_cfg_statique}
+% }
+\caption{GFC par analyse statique et récursive}
+\label{fig:sm_cfg_statique}
+\end{center}
+\end{figure}
+
+% \FloatBarrier
 
 La branche du saut effectué à l'adresse \adr{0x8048063} dans le cas où \eax\ est différent de zéro revient vers le point d'entrée, incrémente \eax\ et passe à nouveau dans le saut conditionnel. Cette boucle provoquera à terme un dépassement d'entier sur la valeur \eax\ qui sera remise à zéro et l'autre branche du saut sera appelée.
 Cette seconde branche a pour effet de modifier les instructions aux adresses \adr{0x8048060}, \adr{0x8048061} et \adr{0x8048063} pour y placer les instructions \texttt{inc edi}, \texttt{inc edi} et \texttt{ret} respectivement, puis de sauter sur l'adresse \adr{0x8048060}, provoquant l'exécution des instructions écrites ainsi que de l'instruction \texttt{inc eax}, non modifiée.
@@ -124,16 +130,47 @@ Le GFC parfait de ce programme est donné en figure \ref{fig:sm_cfg_parfait}. En
 \end{figure}
 
 
+
 Cette difficulté n'est pas intrinsèque aux programmes \sm\ et provient du fait même que le graphe de flot de contrôle est sur une \sura\ de l'ensemble des exécutions possibles. Il est cependant exacerbé dans le cas des programmes \sm\ puisque souvent les vagues successives n'ont que peu de code commun entre elles et il n'est pas cohérent de les mélanger dans le CFG.
 
-
+\FloatBarrier
 \subsection{Graphe de flot de contrôle paramétré par une exécution}
 Nous proposons une représentation du GFC basée sur une exécution particulière et son découpage en différents niveaux d'exécution.
 Cette exécution consiste en une trace et un enchaînement d'instantanés de chaque niveau d'exécution.
 Chaque instantané est pris comme un programme ayant pour point d'entrée la première instruction de la trace ayant le niveau d'exécution correspondant et un point de sortie étant la dernière instruction ayant ce même niveau d'exécution.
 Nous appelons GFC paramétré par cette exécution l'union des GFC parfaits de chaque de ces instantanés dans lesquel les sommets sont caractérisés par le niveau d'exécution de l'instantané, une adresse et une instruction assembleur.
 Un tel GFC pour le programme \sm\ précédent est donné en figure \ref{fig:sm_cfg_vagues} : l'exécution prise en compte est celle démarrant avec \eax=-2. La boucle directe est exécutée une fois, puis comme \eax=0, la partie auto-modifiante est activée.
-\itodo{def formelle?}
+
+
+Formellement cette définition est basée sur l'hypothèse suivante. Nous supposons que toutes les exécution du programme résultent en l'obtention du même ensemble d'instantanés de la mémoire, et donc des mêmes vagues. Plus précisément le GFC paramétré représente donc les exécution qui partagent le même découpage en vagues que l'exécution observée.
+En conservant les notations prises au chapitre précédent, l'exécution d'un programme sur une entrée I est caractérisée, via l'algorithme \ref{algo:analyse_dyn_vagues}, par le couple $(T, S)$ où $T$ est une trace et $S$ une liste d'instantanés d'exécution, un pour chaque niveau d'exécution.
+
+\begin{defi}
+ Soit un programme P et $(T, S)$ et $(T', S')$ deux exécutions de P.
+ $(T, S)$ et $(T', S')$ sont dites compatibles si et seulement si $S=S'$.
+\end{defi}
+
+
+\begin{defi}
+ Étant donné un programme P \sm, $(T, S)$ une exécution de P et $E_C$ l'ensemble des exécutions de P compatibles avec $(T, S)$.
+ Nous appelons GFC paramétré par $T$ le graphe $G=(V, E)$ tel que :
+ \begin{itemize}
+  \item $V=\{(X , a, I),  \exists\ (T', S')\in E_C, \exists\ (i, X, D)\in T',\
+$\da{D}$=a,\ $\di{D}$=I\}$
+  \item $((X_1, a_1, I_1), (X_2, a_2, I_2))\in E_C$ si et seulement si $(X_1, a_1,
+I_1)\ et\ (X_2, a_2, I_2)$ se suivent dans une trace : $\exists T'\in
+E_C,\ i\in \BN, (i, X_1, D_1)\ et\ (i+1, X_2, D_2)\in T\ avec\
+$\da{D_1}$=a_1,\ $\di{D_1}$=I_1,$~\da{D_2}$=a_2,\ $\di{D_2}$=I_2$.
+ \end{itemize}
+\end{defi}
+\begin{defi}
+ nous appelons GFC paramétré par $t$ le graphe $G=(V, E)$ tel que :
+ \begin{itemize}
+  \item a
+ \end{itemize}
+\label{def:cfg_param_sm}
+\end{defi}
+
 
 % \begin{defi}
 %  Étant donné un programme \sm\ P et une trace d'exécution $T$, le graphe de flot de contrôle de P paramétré par $T$ est $G=(V, E)$ tel que :
@@ -150,20 +187,30 @@ Un tel GFC pour le programme \sm\ précédent est donné en figure \ref{fig:sm_c
 
 \begin{figure}[h]
 \begin{center}
-  \includegraphics[width=0.7\textwidth]{supports/disas_sm/ex2_vagues.pdf}
+  \includegraphics[width=0.6\textwidth]{supports/disas_sm/ex2_vagues.pdf}
 \end{center}
 \caption{GFC paramétré par l'exécution démarrant avec \eax=-2}
 \label{fig:sm_cfg_vagues}
 \end{figure}
 
-Cette définition est particulièrement pertinente si quelle que soit l'exécution choisie les vagues d'exécution sont les même, comme c'est le cas dans l'exemple choisi ici.
+Dans l'exemple choisi ici, toutes les exécution partagent le même découpage en vagues.
 L'idée consiste donc à obtenir une exécution particulière d'un programme puis à augmenter la couverture de code à l'aide d'une analyse statique sur chaque instantané de l'exécution.
 \paragraph{Choix de l'exécution, pertinence de l'approche ?}
 
+\FloatBarrier
 \subsection{Revue de littérature}
-Anckaert, Madou et Bosschere \cite{AMB06} proposent d'introduire la représentation sous forme d'octets de chaque instruction au sein du graphe de flot de contrôle et d'ajouter aux arcs les conditions sur les octets en mémoire. Sur l'exemple précédent, leur GFC est identique au GFC parfait présenté en figure \ref{fig:sm_cfg_parfait} mais il est alors possible de différencier les chemins selon l'état de la mémoire et donc plus précis pour une analyse automatique.
+Anckaert, Madou et Bosschere \cite{AMB06} proposent d'introduire la représentation sous forme d'octets de chaque instruction au sein du graphe de flot de contrôle et d'ajouter aux arcs les conditions sur les octets en mémoire. Sur l'exemple précédent, leur GFC, présenté en figure \ref{fig:sm_cfg_parfait_amb}, est identique au GFC parfait mais il est alors possible de différencier les chemins selon l'état de la mémoire et donc plus précis pour une analyse automatique.
 En fait le graphe qu'ils représentent est un automate, permettant de compléter la notion d'automate de flot de contrôle introduit comme extension au graphe de flot de contrôle \cite{HJMS02} pour des programmes \sms.
 
+\begin{figure}[h]
+\begin{center}
+  \includegraphics[width=0.7\textwidth]{supports/disas_sm/ex2_parfait_amb.pdf}
+\end{center}
+\caption{GFC parfait augmenté des octets et des conditions de transition}
+\label{fig:sm_cfg_parfait_amb}
+\end{figure}
+
+\FloatBarrier
 \section{Approche hybride}
 % Nous avons vu comment séparer une trace d'exécution en plusieurs sous-traces définissant des vagues d'exécution.
 % Chaque sous trace, au sein d'une vague, ne présente pas d'auto-modification.
