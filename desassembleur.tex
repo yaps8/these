@@ -160,8 +160,18 @@ Cette définition est particulièrement pertinente si quelle que soit l'exécuti
 L'idée consiste donc à obtenir une exécution particulière d'un programme puis à augmenter la couverture de code à l'aide d'une analyse statique sur chaque instantané de l'exécution.
 
 \subsection{Revue de littérature}
-\itodo{CFG avec octets, CFA automates de Jakstab / Kinder}
-(\todo{nom+cite}) proposent d'introduire la représentation sous forme d'octets de chaque instruction au sein du CFG et d'ajouter les conditions des sauts conditionnels légende des arcs du CFG. (...)
+Anckaert, Madou et Bosschere \cite{AMB06} proposent d'introduire la représentation sous forme d'octets de chaque instruction au sein du graphe de flot de contrôle et d'ajouter aux arcs les conditions sur les octets en mémoire. Sur l'exemple précédent, leur GFC est identique au GFC parfait présenté en figure \ref{fig:sm_cfg_parfait} mais il est alors possible de différencier les chemins selon l'état de la mémoire et donc plus précis pour une analyse automatique.
+En fait le graphe qu'ils représentent est un automate, permettant de compléter la notion d'automate de flot de contrôle introduit comme extension au graphe de flot de contrôle \cite{HJMS02} pour des programmes \sms.
+
+\begin{figure}[h]
+\begin{center}
+  \includegraphics[width=0.7\textwidth]{supports/disas_sm/ex2_parfait_amb.pdf}
+\end{center}
+\caption{CFG parfait avec octets et arcs annotés}
+\label{fig:sm_cfg_parfait_amb}
+\end{figure}
+
+
 
 \section{Approche hybride et Codisasm}
 Nous avons vu comment séparer une trace d'exécution en plusieurs sous-traces définissant des vagues d'exécution.
