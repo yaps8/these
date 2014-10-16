@@ -1,0 +1,16 @@
+digraph G {
+labeljust=r
+"60" [labeljust=r,label="0x8048060 inc eax\l", shape=box, style="filled", fillcolor=orange]
+"61a" [labeljust=r,label="0x8048061 jz 0x804806a\l", shape=box, style="filled", fillcolor=white]
+"61b" [labeljust=r,label="0x8048061 ret\l", shape=box, style="filled", fillcolor=lightblue]
+"63" [labeljust=r,label="0x8048063 mov edi, 2\l0x8048068 jmp 0x8048060\l", shape=box, style="filled", fillcolor=white]
+"6a" [labeljust=r,label="0x804806a mov edi, 1 \l0x804806f mov ebx, 0x8048060 \l0x8048074 mov [ebx], 0x90 \l0x8048079 mov [ebx+1], 0xc3 \l0x804807f jmp 0x8048060\l", shape=box, style="filled", fillcolor=white]
+"0x60" [shape=record, label="{<f0> 0x60 |<f1> 31}"]
+"60" -> "0x60":f1 [arrowhead=none, color=black]
+"60" -> "61a" [color=black]
+"60" -> "61b" [color=black]
+"61a" -> "6a" [color=red]
+"61a" -> "63" [color=black]
+"63" -> "60" [color=red]
+"6a" -> "60" [color=red]
+}

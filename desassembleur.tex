@@ -124,7 +124,7 @@ Le GFC parfait de ce programme est donné en figure \ref{fig:sm_cfg_parfait}. En
 \end{figure}
 
 
-Cette difficulté n'est pas intrinsèque aux programmes \sm\ et provient du fait même que le graphe de flot de contrôle est sur une \sura\ de l'ensemble des exécutions possibles. Il est cependant exacerbé dans le cas des programmes \sm\ puisque souvent les vagues successives n'ont que peu de code commun entre elles et il n'est pas cohérent de les mélanger dans le GFC.
+Cette difficulté n'est pas intrinsèque aux programmes \sm\ et provient du fait même que le graphe de flot de contrôle est sur une \sura\ de l'ensemble des exécutions possibles. Il est cependant exacerbé dans le cas des programmes \sm\ puisque souvent les vagues successives n'ont que peu de code commun entre elles et il n'est pas cohérent de les mélanger dans le CFG.
 
 
 \subsection{Graphe de flot de contrôle paramétré par une exécution}
@@ -158,13 +158,11 @@ Un tel GFC pour le programme \sm\ précédent est donné en figure \ref{fig:sm_c
 
 Cette définition est particulièrement pertinente si quelle que soit l'exécution choisie les vagues d'exécution sont les même, comme c'est le cas dans l'exemple choisi ici.
 L'idée consiste donc à obtenir une exécution particulière d'un programme puis à augmenter la couverture de code à l'aide d'une analyse statique sur chaque instantané de l'exécution.
-
 \paragraph{Choix de l'exécution, pertinence de l'approche ?}
-~\\\itodo{todo}
 
 \subsection{Revue de littérature}
-\itodo{GFC avec octets, CFA automates de Jakstab / Kinder}
-(\todo{nom+cite}) proposent d'introduire la représentation sous forme d'octets de chaque instruction au sein du GFC et d'ajouter les conditions des sauts conditionnels légende des arcs du GFC. (...)
+Anckaert, Madou et Bosschere \cite{AMB06} proposent d'introduire la représentation sous forme d'octets de chaque instruction au sein du graphe de flot de contrôle et d'ajouter aux arcs les conditions sur les octets en mémoire. Sur l'exemple précédent, leur GFC est identique au GFC parfait présenté en figure \ref{fig:sm_cfg_parfait} mais il est alors possible de différencier les chemins selon l'état de la mémoire et donc plus précis pour une analyse automatique.
+En fait le graphe qu'ils représentent est un automate, permettant de compléter la notion d'automate de flot de contrôle introduit comme extension au graphe de flot de contrôle \cite{HJMS02} pour des programmes \sms.
 
 \section{Approche hybride}
 % Nous avons vu comment séparer une trace d'exécution en plusieurs sous-traces définissant des vagues d'exécution.
@@ -259,5 +257,3 @@ Dans le GFC deux instructions qui se chevauchent sont liées par un arc noir non
 
 
 \section{Revue de littérature}
-\section{Implémentation}
-\section{Résultats}
