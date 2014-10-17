@@ -9,12 +9,13 @@ labeljust=r
 "65" [labeljust=r,label="1, 0x8048065 mov edi, 2\l1, 0x804806a jmp 0x8048060\l", shape=box, style="filled", fillcolor=white]
 "6c" [labeljust=r,label="1, 0x804806c mov edi, 1 \l1, 0x8048071 mov ebx, 0x8048060 \l1, 0x8048076 mov [ebx], 0x47 \l1, 0x804807b mov [ebx+1], 0x47 \l1, 0x8048081 mov [ebx+3], 0xc3 \l1, 0x8048081 jmp 0x8048060\l", shape=box, style="filled", fillcolor=lightblue]
 "60v1" -> "62v1" [color=black]
-"62v1" -> "63v1" [color=red]
+"62v1" -> "63v1" [color=black]
 "63v1" -> "65" [color=black]
 "63v1" -> "6c" [color=red]
 "6c" -> "60v2" [color=red]
 "60v2" -> "62v2" [color=black]
 "62v2" -> "63v2" [color=black]
+"65" -> "60v1" [color=red]
 subgraph clusterv1{
 label="Vague 1"
 "60v1"

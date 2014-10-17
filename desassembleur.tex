@@ -173,7 +173,13 @@ E_C,\ i\in \BN, (i, X_1, D_1)\ et\ (i+1, X_2, D_2)\in T$ avec \da{D_1}$=a_1,\ $\
 \end{defi}
 
 
-Un tel GFC pour le programme \sm\ précédent est donné en figure \ref{fig:sm_cfg_vagues} : l'exécution prise en compte est celle démarrant avec \eax=-2. La boucle directe est exécutée une fois, puis comme \eax=0, la partie auto-modifiante est activée. Dans l'exemple choisi ici, toutes les exécution partagent le même découpage en vagues.
+Un tel GFC pour le programme \sm\ précédent est donné en figure \ref{fig:sm_cfg_vagues} : l'exécution prise en compte est celle démarrant avec \eax=-2. La boucle directe est exécutée une fois, puis comme \eax=0, la partie auto-modifiante est activée. Dans l'exemple choisi ici, toutes les exécution partagent le même découpage en vagues et le GFC est séparé en deux GFC partiels (définition \ref{def:GFC_partiel}), celui de la vague 1 et celui de la vague 2.
+
+\begin{defi}
+ On appelle GFC partiel paramétré par une exécution $(T, S)$ et un instantané du niveau d'exécution $X$ le GFC paramétré par $T$ restreint aux sommets dont le niveau d'exécution est $X$.
+\label{def:GFC_partiel}
+\end{defi}
+
 
 % \begin{defi}
 %  Étant donné un programme \sm\ P et une trace d'exécution $T$, le graphe de flot de contrôle de P paramétré par $T$ est $G=(V, E)$ tel que :
@@ -197,26 +203,17 @@ Un tel GFC pour le programme \sm\ précédent est donné en figure \ref{fig:sm_c
 \end{figure}
 
 
-L'idée consiste donc à obtenir une exécution particulière d'un programme puis à augmenter la couverture de code à l'aide d'une analyse statique sur chaque instantané de l'exécution.
-
-\paragraph{Pertinence de l'approche.}
-L'exécution à partir de laquelle on cherche à reconstruire le GFC se doit d'être représentative d'une exécution standard du programme sur une machine cible.
-Dans le cas des programmes malveillants on tente donc de se faire passer pour une machine ciblée par l'attaquant pour laisser le programme mener son attaque. 
-À part les informations provenant du système d'exploitation, un programme malveillant ne prend en général pas d'entrée et ne nécessite pas d'interaction avec l'utilisateur. Une seule exécution devrait donc permettre d'analyser son comportement.
-D'autre part la plupart des logiciels malveillants sont compilés sans comportement auto-modifiant et sont ensuite empaquetés. C'est le binaire empaqueté qui est obscurcis et auto-modifiant.
-Dans ce cas il est fréquent \cite{Calvet2013} que la charge utile, c'est à dire le binaire d'origine, ne soit activé qu'à la dernière vague de l'exécution.
-Par conséquent c'est principalement le logiciel de protection qui peut empêcher l'exécution de référence d'être représentative en détectant que le programme est instrumenté, débogué ou émulé et en détournant l'exécution dans ce cas.
-
-\itodo{citer des cas de détection}
+L'idée consiste donc à obtenir une exécution particulière d'un programme puis à augmenter la couverture de code à l'aide d'une analyse statique sur chaque instantané de l'exécution. Nous discuterons de la pertinence de cette approche.
 
 \FloatBarrier
 \subsection{Revue de littérature}
+\itodo{renovo ?}
 Anckaert, Madou et Bosschere \cite{AMB06} proposent d'introduire la représentation sous forme d'octets de chaque instruction au sein du graphe de flot de contrôle et d'ajouter aux arcs les conditions sur les octets en mémoire. Sur l'exemple précédent, leur GFC, présenté en figure \ref{fig:sm_cfg_parfait_amb}, est identique au GFC parfait mais il est alors possible de différencier les chemins selon l'état de la mémoire et donc plus précis pour une analyse automatique.
 En fait le graphe qu'ils représentent est un automate, permettant de compléter la notion d'automate de flot de contrôle introduit comme extension au graphe de flot de contrôle \cite{HJMS02} pour des programmes \sms.
 
 \begin{figure}[h]
 \begin{center}
-  \includegraphics[width=0.7\textwidth]{supports/disas_sm/ex2_parfait_amb.pdf}
+  \includegraphics[width=0.8\textwidth]{supports/disas_sm/ex2_parfait_amb.pdf}
 \end{center}
 \caption{GFC parfait augmenté des octets et des conditions de transition}
 \label{fig:sm_cfg_parfait_amb}
@@ -287,6 +284,17 @@ L'architecture générale du désassembleur est donnée par la figure \ref{fig:d
 \caption{Architecture générale du désassembleur hybride}
 \label{fig:diag_codisasm}
 \end{figure}
+
+\paragraph{Pertinence de l'approche.}
+L'exécution à partir de laquelle on cherche à reconstruire le GFC se doit d'être représentative d'une exécution standard du programme sur une machine cible.
+Dans le cas des programmes malveillants on tente donc de se faire passer pour une machine ciblée par l'attaquant pour laisser le programme mener son attaque. 
+À part les informations provenant du système d'exploitation, un programme malveillant ne prend en général pas d'entrée et ne nécessite pas d'interaction avec l'utilisateur. Une seule exécution devrait donc permettre d'analyser son comportement.
+D'autre part la plupart des logiciels malveillants sont compilés sans comportement auto-modifiant et sont ensuite empaquetés. C'est le binaire empaqueté qui est obscurcis et auto-modifiant.
+Dans ce cas il est fréquent \cite{Calvet2013} que la charge utile, c'est à dire le binaire d'origine, ne soit activé qu'à la dernière vague de l'exécution.
+Par conséquent c'est principalement le logiciel de protection qui peut empêcher l'exécution de référence d'être représentative en détectant que le programme est instrumenté, débogué ou émulé et en détournant l'exécution dans ce cas.
+
+\itodo{citer des cas de détection}
+
 % \subsection{Obtention des traces et des vagues}
 \subsection{Analyse statique de chaque instantané}
 Pour l'analyse statique nous disposons de la trace et des instantanés munis de leurs points d'entrée et sortie respectifs.
@@ -312,6 +320,16 @@ Une instruction dont les chemins aboutissent à un saut dont les cibles ne sont 
 \paragraph{Mesure du chevauchement à l'aide des \layers.}
 Nous utilisons le découpage cohérent en \layers\ adapté au parcours récursif défini à la section \ref{sec:layers_decoupage_recursif} du chapitre \ref{chap:chevauchement}.
 Dans le GFC deux instructions qui se chevauchent sont liées par un arc noir non dirigé tracé en pointillés.
+
+
+\paragraph{Construction des blocs de base.}
+Dans les exemples de GFC déjà vus précédemment, nous avons regroupé certaines instructions dans le même bloc, dit bloc de base, lorsque le regroupement aide à la lisibilité et ne fait pas perdre d'informations. Nous regrouperons deux instructions $I_1$ et $I_2$ du GFC si et seulement si :
+\begin{itemize}
+ \item Elles se suivent séquentiellement : elles sont reliées par un arc dirigé de $I_1$ vers $I_2$ de couleur noire, et
+ \item $I_1$ n'a pas d'autres arcs sortant que celui aboutissant sur $I_2$
+ \item $I_2$ n'a pas d'autres arcs entrant que celui provenant de $I_1$
+ \item $I_1$ et $I_2$ ne sont pas en chevauchement avec d'autres instructions
+\end{itemize}
 
 
 
