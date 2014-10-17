@@ -155,8 +155,8 @@ Merci.
 % On évitera donc d'utiliser directement \pagenumbering{arabic}.
 \mainmatter
 
+\DontNumberThisInToc
 \DontFrameThisInToc
-\NumberThisInToc
 \chapter{Introduction\label{chap:introduction}}
 \input{introduction}
 
@@ -215,6 +215,10 @@ Merci.
 \DontFrameThisInToc
 \chapter{Cas d'étude : Duqu et Stuxnet}
 \input{duqu-stux} % test
+
+\DontFrameThisInToc
+\chapter{Conclusion}
+\input{conclusion} % test
 
 \PutLineInToc
 % \PutNewPageInToc

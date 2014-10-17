@@ -481,12 +481,12 @@ Les données sont les parties du programme qui peuvent être lues lors d'une ex�
 \end{tikzpicture}
 \end{center}
 
-Une définition formelle du désassemblage parfait d'un programme P (définition \ref{prop:desassemblage_parfait_nsm}) est alors la détermination de l'ensemble des adresses atteignables de P.
+Une définition formelle du désassemblage parfait d'un programme P (définition \ref{def:desassemblage_parfait_nsm}) est alors la détermination de l'ensemble des adresses atteignables de P.
 
-\begin{prop}
+\begin{defi}
  Étant donné un programme P \nsm\ prenant une entrée I, le désassemblage parfait de P est la donnée de l'ensemble des adresses $a$ de P pouvant être atteintes, soit $\bigcup_{I} \{a,\ P(I)\ atteint\ a\}$.
-\label{prop:desassemblage_parfait_nsm}
-\end{prop}
+\label{def:desassemblage_parfait_nsm}
+\end{defi}
 
 L'analyste est par contre intéressé par plus d'informations que simplement la liste des adresses atteignables. 
 L'enchaînement des instructions lors des différentes exécution du programme est une donnée primordiale.

@@ -18,10 +18,12 @@ all: default chap.pdf
 #chap.pdf: chap.bbl *.tex these.bbl $(pdf_from_dot)
 chap.pdf: *.tex chap.bib $(pdf_from_dot)
 	$(TEXCOMP) chap.tex
+	if [ -d ~/lectures ]; then cp chap.pdf ~/lectures/; fi
 
 #these.pdf: *.tex these.bbl $(pdf_from_dot)
 these.pdf: *.tex these.bib $(pdf_from_dot)
 	$(TEXCOMP) these.tex
+	if [ -d ~/lectures ]; then cp these.pdf ~/lectures/; fi
 
 #these.bbl: these.bib
 #	$(TEXCOMP) these.tex

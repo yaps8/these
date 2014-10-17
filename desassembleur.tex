@@ -32,16 +32,15 @@ sont présents dans la représentation d'origine du programme qu'en temps
 que données.
 Ainsi le désassemblage parfait d'un programme \sm\ ne prend en compte
 que les instructions exécutées avec un le niveau d'exécution 1
-(proposition \ref{prop:desassemblage_parfait_sm}).
+(proposition \ref{def:desassemblage_parfait_sm}).
 
-\begin{prop}
+\begin{defi}
  Étant donné un programme P \sm\ et l'ensemble de ses traces d'exécution
 $E_T$, le désassemblage parfait de P est l'ensemble des adresses où une
 instruction de niveau d'exécution 1 est exécutée dans au moins une
-trace, c'est à dire
- $\{a, \exists\ T\in E_T, \exists\ (i, X, D)\in T, X=1,\ $\da{D}$=a\}$.
-\label{prop:desassemblage_parfait_sm}
-\end{prop}
+trace, c'est à dire~$\{a, \exists\ T\in E_T, \exists\ (i, X, D)\in T, X=1,\ $\da{D}$=a\}$.
+\label{def:desassemblage_parfait_sm}
+\end{defi}
 
 
 \subsection{Graphe de flot de contrôle parfait}
@@ -207,7 +206,6 @@ L'idée consiste donc à obtenir une exécution particulière d'un programme pui
 
 \FloatBarrier
 \subsection{Revue de littérature}
-\itodo{renovo ?}
 Anckaert, Madou et Bosschere \cite{AMB06} proposent d'introduire la représentation sous forme d'octets de chaque instruction au sein du graphe de flot de contrôle et d'ajouter aux arcs les conditions sur les octets en mémoire. Sur l'exemple précédent, leur GFC, présenté en figure \ref{fig:sm_cfg_parfait_amb}, est identique au GFC parfait mais il est alors possible de différencier les chemins selon l'état de la mémoire et donc plus précis pour une analyse automatique.
 En fait le graphe qu'ils représentent est un automate, permettant de compléter la notion d'automate de flot de contrôle introduit comme extension au graphe de flot de contrôle \cite{HJMS02} pour des programmes \sms.
 
@@ -304,7 +302,7 @@ Nous utilisons la trace partielle comme guide dans l'analyse de l'instantané. T
 
 \paragraph{Reconstruction du GFC par parcours récursif.}
 Nous effectuons un désassemblage par parcours récursif de l'instantané à partir de chaque instruction présente dans la trace partielle.
-Dans le GFC partiel \todo{def} reconstitué, les instructions présentes dans la trace sont en rose, les autres en blanc. Le point d'entrée et le point de sortie sont colorés en orange et bleu clair respectivement.
+Dans le GFC partiel reconstitué, les instructions présentes dans la trace sont en rose, les autres en blanc. Le point d'entrée et le point de sortie sont colorés en orange et bleu clair respectivement.
 Si deux instructions se suivent dans la trace alors l'arc dirigé les reliant provient de l'analyse dynamique et est plein. Si elles se suivent dans l'analyse récursive alors l'arc dirigé provient de l'analyse statique et est en pointillés. Un arc étant parcouru par l'analyse dynamique et statique est en gras. Les arcs en noir relie une instruction et l'instruction séquentielle suivante tandis que les arcs en noir représentent le saut d'un appel ou d'un saut (\call\ ou \jmp\ par exemple).
 
 \paragraph{Point de sortie.}
@@ -331,6 +329,23 @@ Dans les exemples de GFC déjà vus précédemment, nous avons regroupé certain
  \item $I_1$ et $I_2$ ne sont pas en chevauchement avec d'autres instructions
 \end{itemize}
 
-
-
 \section{Revue de littérature}
+\subsection{Architecture globale}
+Une application directe de l'analyse des GFC faite dans ce chapitre est la reconstitution de l'original d'un binaire empaqueté.
+Renovo \cite{renovo} et PolyUnpack \cite{polyunpack} implémentent de tels systèmes d'extraction qui fonctionnent par analyse du code généré dynamiquement, notion similaire à nos instantanés d'exécution. Ils considèrent que le binaire d'origine est celui disponible dans le dernier instantané, c'est à dire qu'ils prennent la dernière vague.
+
+
+\subsection{Interprétation abstraite et analyse hybride}
+Nous présentons ici des approches qui pourraient remplacer l'analyse statique simple par parcours récursif effectuée dans le cadre de ce chapitre sur les instantanés à l'aide de la trace d'exécution. Cependant elles ne sont pas aptes à remplacer l'analyse dynamique puisqu'elles sont effectuées sur des programmes non \sms.
+
+L'analyse statique est souvent réalisée à l'aide d'une interprétation abstraite \cite{CousotC77}, méthode basée sur la définition d'une sémantique permettant d'obtenir une \sura\ des actions de chaque instructions et donc de travailler sur une \sura\ du GFC.
+Kinder et Kravchenko \cite{jakstab-alternating} proposent une technique basée sur une sémantique concrète et une sémantique de \sura, alternant entre l'une et l'autre pour obtenir des résultats plus précis : il s'agit donc aussi en une sens d'une approche hybride.
+
+Bardin, Herrmann et Védrine \cite{BHV11} proposent une méthode d'interprétation abstraite permettant de définir des niveaux de précision souhaités pour certaines variables, en particulier pour les instructions de saut dynamique. 
+Une première analyse trouve des approximations grossières sur les valeurs, puis les variables dont on cherche à connaître précisément la valeur sont à nouveau analysées, jusqu'à obtenir le niveau de précision suffisant (ou échouer).
+Cette approche a montré son efficacité pour déterminer les cibles de sauts dynamiques et donc pour reconstruire les GFC.
+
+
+\section{Implémentation}
+
+\section{Résultats}
