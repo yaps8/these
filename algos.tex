@@ -832,7 +832,7 @@ Par rapport à l'algorithme \ref{algo:ullman-forwardch}, on ne vérifie que le d
 
 \paragraph{Les fils sont ordonnés.}
 De plus on doit maintenant forcer les sommets correspondants entre P et T à être ordonnés de la même manière par rapport à leur père. La nouvelle fonction \emph{Forward Checking} est l'algorithme \ref{algo:ullman-forwardch-site}. Cette modification diminue grandement la complexité. \\
-(TODO: à quantifier/calculer et à implémenter)\\
+\itodo{à quantifier/calculer et à implémenter}
 
 Au final, avec les deux hypothèses de graphes avec des labels (et $n_T >> n_P$) qui sont des CFG simples, la complexité dans le pire des cas est bien inférieure
 à la complexité initiale, elle est de $O((n_T.P)^{n_P})$ avec $P=\sum_kl_k^2$ où les $l_i$ sont les probabilités d'apparition de chacun des labels.
