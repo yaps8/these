@@ -20,17 +20,198 @@ La raison est que le problème du désassemblage est déjà indécidable ; celui
 Puisqu'il n'existe pas de méthode de détection parfaite mais que l'on est en pratique capable d'analyser des programmes à la main, nous disposons de corpus de programmes malveillants et légitimes.
 Certaines méthodes mesurent une distance entre le programme analysé et d'une part les programmes malveillants connus, d'autre part les programmes légitimes connus. Si le programme analysé est suffisamment proche d'un programme malveillant il sera considéré comme malveillant. S'il est identique ou très proche d'un programme légitime, il pourra être classifié comme légitime.
 
-\subsection{Programmes obscurcis}
+\paragraph{Programmes obscurcis et \sms.}
+La plupart des programmes malveillants utilisent de l'obscurcissement et sont \sms.
+De plus certains programmes légitimes sont également \sms, tels ceux permettant la compilation à la volée.
+De nombreux éditeurs de logiciels non libres, cherchant à empêcher ou ralentir l'analyse de leur code afin de protéger leur propriété intellectuelle, utilisent le même arsenal de protection que les auteurs de logiciels malveillants.
 
-\subsection{Programmes \sms}
+\paragraph{Critères de classification.}
+La classification en logiciel légitime ou malveillant peut s'effectuer sur divers critères, que l'on compare à ceux de programmes ou de comportements connus :
+\begin{itemize}
+ \item Sa représentation sous forme de fichier
+ \item Des traces d'exécution
+ \item Son code assembleur désassemblé
+ \item Le code assembleur du programme dont on aurait enlevé les protections
+ \item Son graphe de flot (GFC) de contrôle parfait
+ \item Son graphe de flot (GFC) de contrôle paramétré par une exécution
+\end{itemize}
 
-\itodo{On part pas de rien : corpus de malware connus, de logiciels légitimes connus}
-\itodo{Reprendre Szor}
-\itodo{Exemple d'un malware vu par différentes techniques}
-\itodo{Approches comportementales ?}
+Ces caractéristiques et les techniques permettant de les déterminer ont été étudiées dans la première partie de ce document.
+Nous considérons que leur extraction ne fait pas à proprement partie de la détection : il s'agit de données à partir desquelles nous pouvons construire des signatures de programmes malveillants ou des comportements de référence.
+
+Dans le cas d'une détection par signature, les corpus de logiciels malveillants et légitimes contiennent des programmes dont ont préalablement été extraits les critères précédents et à partir desquels des règles de détection ont été décidées.
+Une détection de comportements contient également une liste de comportements connus servant à classifier un programme analysée. Le schéma général de détection par signatures est donné en figure \ref{fig:detection}.
+
+\begin{figure}[h]
+\begin{center}
+\scalebox{1}{
+\begin{tikzpicture}[->,scale=1,>=stealth',thick]
+\newcommand\espace{0.3cm}
+\node[state] (BIN){Binaire};
+\node[state, right=3.8cm of BIN.west, anchor=west] (CODE) {Code};
+\node[state, above=1.2cm of CODE.west, anchor=west] (TRACE) {Traces};
+\node[state, below=1.2cm of CODE.west, anchor=west] (GFC) {GFC};
+\coordinate [right=1cm of BIN.east] (DYN);
+\coordinate [right=4cm of DYN] (CLASS);
+\coordinate [right=1cm of CLASS] (IN);
+\coordinate [right=1cm of IN] (OUT);
+% \node[state, above=2cm of IN] (COMP) {Liste de comportements};
+\node[state, above=2cm of IN] (SIG) {Corpus de programmes classés};
+\node[state, above right=1cm and 1cm of OUT, anchor=west] (MAL) {Malveillant};
+\node[state, below right=1cm and 1cm of OUT, anchor=west] (LEG) {Légitime};
+\draw [-] (BIN.east) -- node[below left=1.6cm and -3.2cm, text width=4cm](DYNAMIC){Extraction} (DYN);
+\draw [-] (CLASS) -- (IN);
+\draw [-] (IN) -- node[below right=1.6cm and -1.8cm, text width=4cm](STATIC){Classification} (OUT);
+\draw (DYN) |- (TRACE.west);
+\draw (DYN) |- (CODE.west);
+\draw (DYN) |- (GFC.west);
+\draw (OUT) -- (MAL.west);
+\draw (OUT) -- (LEG.west);
+% \draw (COMP.south) -- (IN);
+\draw (SIG.south) -- (IN);
+\draw [-] (TRACE.east) -| (CLASS);
+\draw [-] (CODE.east) -| (CLASS);
+\draw [-] (GFC.east) -| (CLASS);
+% \draw (In) --  (Vn);
+% \node [fit={($(V0.north west) + (-0.2, 0)$) ($(V1) + (0.0, 0)$) ($(Vp) + (0.0, 0)$) ($(Vn.south east) + (0.3, 0)$)}, draw, label=GFC paramétré par la trace] {};
+\end{tikzpicture}
+}
+\end{center}
+\caption{Architecture générique d'un détecteur par signatures}
+\label{fig:detection}
+\end{figure}
+
+
 \section{État de l'art}
-\itodo{Faiblesse de l'approche syntaxique}
-\itodo{comportementales : rapide tour d'horizon, pas de jugement de valeur}
-\itodo{biblio}
-\section{Comparaison des graphes de flot de contrôle}
+\paragraph{Approche syntaxique par expressions régulières.}
+L'approche traditionnelle pour la classification consiste en l'extraction, pour chaque logiciel malveillant du corpus, d'une chaîne de caractère présente dans sa représentation sous forme de fichier \cite{Szor05}.
+Elle peut être complétée pour gérer, pour chaque logiciel du corpus, une expression régulière plutôt qu'une chaîne exacte.
+Cette approche, purement syntaxique, nécessite qu'un analyste choisisse l'expression régulière à prendre en compte pour chaque logiciel du corpus : il s'agit en général d'une chaîne de données caractéristique (un numéro de version, une clé de chiffrement, un nom, etc.) ou de la représentation en octets de quelques instructions représentatives du programme.
+Son avantage est que, mise en \oe uvre correctement, elle génère très peu de faux positifs. Son premier inconvénient majeur est qu'elle est très sensible à une légère modification du programme malveillant : il suffit souvent de rajouter ou de réorganiser le code pour empêcher la détection. Le second inconvénient de cette approche est qu'elle nécessite une analyse manuelle pour extraire la signature, opération d'autant plus contraignante si de nombreuses variantes du programme existe et qu'une nouvelle signature doit être générée pour chaque variante.
+
+\paragraph{Approches comportementales.}
+Les méthodes de détection comportementales utilisent peuvent cherchent à connaître le comportement d'un programme et à le comparer, soit à une liste de comportements connus comme légitimes, soit à des comportements classés comme malveillants.
+Certaines implémentations ont montré l'efficacité de l'approche, comme sur l'analyse d'extensions malveillantes pour Internet Explorer \cite{KKBVK06}.
+
+\paragraph{Mesure automatique de distance.}
+Une technique générique de détection par signatures consiste à chercher des similarités entre deux programmes en définissant par exemple une distance entre eux. 
+Ensuite la classification se fait par mesure de la distance entre le programme analysé et les différents programmes du corpus.
+Une possibilité est de décomposer le code des programmes en n-grammes contenant $n$ instructions séquentielles d'un même bloc de base. La signature du programme est alors l'ensemble de ces groupes de $n$ instructions. Pour rendre les instructions plus génériques, JBV11 et Zhou~\cite{UZ13} ne prennent pas les instructions entière mais seulement leur mnémonique (\texttt{mov eax, 3} devient \mov).
+
+\paragraph{Familles de logiciels malveillants.}
+Jang, Brumley et Venkataraman \cite{JBV11} proposent un outil générique de classification des logiciels en familles, quelles que soient les caractéristiques et donc les mesures choisies. Ce type d'approches permettent d'aller plus loin que la simple classification en logiciel légitime ou malveillant et peut donner des informations sur ce qu'on peut attendre d'un logiciel en fonction de la famille à laquelle il appartient.
+
+\section{Analyse morphologique}
+L'analyse morphologique, introduite par Kaczmarek \cite{Kacz08}, Bonfante et Marion \cite{BKM08}, propose une détection 
+basée sur la comparaison des graphes de flot de contrôle.
+
+\begin{figure}
+\begin{center}
+\scalebox{1}{
+\begin{tikzpicture}[->,scale=1,>=stealth',thick, text centered]
+\node [draw, circle, text width=1.1cm] (c1) at (0,0) {$I_n$};
+\node [draw, circle, text width=1.1cm] (c2) at (0,-2.3) {$INST$};
+\node [draw, circle, text width=1.1cm] (c3) at (0,-4.6) {$I_{n+2}$};
+\draw[->] (c1) -- (c2);
+\draw[->] (c2) -- (c3);
+
+\node [draw, circle, text width=1.1cm] (cp1) at (4,-1.2) {$I_n$};
+\node [draw, circle, text width=1.1cm] (cp2) at (4,-3.5) {$I_{n+2}$};
+\draw[->] (cp1) -- (cp2);
+\coordinate [right=0.7cm of c2.east] (R1);
+\coordinate [right=1.6cm of R1] (R2);
+\draw[->] (R1) -- node[below=0cm, text width=4cm](RED){Réduction} (R2);
+\end{tikzpicture}
+}
+\end{center}
+\caption{Concaténation des instructions séquentielles}
+\label{fig:red_insts}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+\scalebox{1}{
+\begin{tikzpicture}[->,scale=1,>=stealth',thick, text centered]
+\node [draw, circle, text width=1.1cm] (c1) at (0,0) {$I$};
+\node [draw, circle, text width=1.1cm] (c2) at (0,-2.3) {$JMP$};
+\node [draw, circle, text width=1.1cm] (c3) at (0,-4.6) {$I'$};
+\draw[->] (c1) -- (c2);
+\draw[->] (c2) -- (c3);
+
+\node [draw, circle, text width=1.1cm] (cp1) at (4,-1.2) {$I$};
+\node [draw, circle, text width=1.1cm] (cp2) at (4,-3.5) {$I'$};
+\draw[->] (cp1) -- (cp2);
+\coordinate [right=0.7cm of c2.east] (R1);
+\coordinate [right=1.6cm of R1] (R2);
+\draw[->] (R1) -- node[below=0cm, text width=4cm](RED){Réduction} (R2);
+\end{tikzpicture}
+}
+\end{center}
+\caption{Réalignement des sauts inconditionnels}
+\label{fig:red_jmp}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+\scalebox{1}{
+\begin{tikzpicture}[->,scale=1,>=stealth',thick, text centered]
+\node [draw, circle, text width=1.1cm] (c1) at (0,0) {$I_n$};
+\node [draw, circle, text width=1.1cm] (c2) at (0,-2.3) {$CALL$};
+\node [draw, circle, text width=1.1cm] (c3) at (-1,-4.6) {$I_{n+2}$};
+\node [draw, circle, text width=1.1cm] (c4) at (-1,-6.9) {$I_{n+3}$};
+\node [draw, circle, text width=1.1cm] (c5) at (1,-4.6) {$RET$};
+\draw[->] (c1) -- (c2);
+\draw[->] (c2) -- (c3);
+\draw[->] (c2) -- (c5);
+\draw[->] (c3) -- (c4);
+
+\node [draw, circle, text width=1.1cm] (cp1) at (6,-1.2) {$I_n$};
+\node [draw, circle, text width=1.1cm] (cp2) at (6,-3.5) {$I_{n+2}$};
+\node [draw, circle, text width=1.1cm] (cp3) at (6,-5.8) {$I_{n+3}$};
+\draw[->] (cp1) -- (cp2);
+\draw[->] (cp2) -- (cp3);
+\coordinate [below right=1cm and 1.3cm of c2.east] (R1);
+\coordinate [right=2.6cm of R1] (R2);
+\draw[->] (R1) -- node[below=0cm, text width=4cm](RED){Réduction} (R2);
+\end{tikzpicture}
+}
+\end{center}
+\caption{Suppression des appels (\call) frauduleux}
+\label{fig:red_call}
+\end{figure}
+
+\begin{figure}
+\begin{center}
+\scalebox{1}{
+\begin{tikzpicture}[->,scale=1,>=stealth',thick, text centered]
+\node [draw, circle, text width=1.1cm] (c1) at (0,0) {$JCC$};
+\node [draw, circle, text width=1.1cm] (c2) at (-1,-2.3) {$JCC$};
+\node [draw, circle, text width=1.1cm] (c3) at (-1,-4.6) {$I_1$};
+\node [draw, circle, text width=1.1cm] (c4) at (1,-4.6) {$I_2$};
+\draw[->] (c1) -- (c2);
+\draw[->] (c2) -- (c3);
+\draw[->] (c2) -- (c4);
+\draw[->] (c1) -- (c4);
+
+\node [draw, circle, text width=1.1cm] (cp1) at (7,-1.2) {$JCC$};
+\node [draw, circle, text width=1.1cm] (cp2) at (6,-3.5) {$I_1$};
+\node [draw, circle, text width=1.1cm] (cp3) at (8,-3.5) {$I_2$};
+\draw[->] (cp1) -- (cp2);
+\draw[->] (cp1) -- (cp3);
+\coordinate [right=2.3cm of c2.east] (R1);
+\coordinate [right=2.6cm of R1] (R2);
+\draw[->] (R1) -- node[below=0cm, text width=4cm](RED){Réduction} (R2);
+\end{tikzpicture}
+}
+\end{center}
+\caption{Fusion des sauts conditionnels}
+\label{fig:red_jcc}
+\end{figure}
+
+\subsection{Comparaison des graphes de flot de contrôle}
+
+\subsection{Réduction des graphes de flot de contrôle}
+
+\subsection{Algorithme de comparaison}
+
 \itodo{cesare, bonfante et al.}
