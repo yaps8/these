@@ -1,0 +1,19 @@
+Digraph G{
+"10" [label="cmp eax 0"]
+"1" [label="jne +7"]
+"2" [label="mov ecx eax"]
+"3" [label="dec ecx\n mul eax ecx\n cmp ecx 1"]
+"6" [label="jne -3"]
+"7" [label="jmp +2"]
+"8" [label="inc ecx"]
+"9" [label="ret"]
+"10" -> "1"
+"1" -> "2"
+"1" -> "8"
+"2" -> "3"
+"3" -> "6"
+"6" -> "3"
+"6" -> "7"
+"7" -> "9"
+"8" -> "9"
+}
