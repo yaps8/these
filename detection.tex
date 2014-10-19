@@ -104,125 +104,64 @@ Jang, Brumley et Venkataraman \cite{JBV11} proposent un outil générique de cla
 \section{Analyse morphologique}
 L'analyse morphologique, introduite par Kaczmarek \cite{Kacz08}, Bonfante et Marion \cite{BKM08}, propose une détection 
 basée sur la comparaison des graphes de flot de contrôle. L'idée est de comparer la forme des graphes de flot de contrôle plutôt que les instructions exactes qui y sont présentes.
+Prenons le programme assembleur défini à la figure \ref{fig:am_prog}. La structure utile de son graphe de flot contrôle réside dans les instructions de sauts inconditionnels \jne\ aux adresses \adr{8048068} et \adr{8048076}. Ce sont ces deux instructions qui donnent sa forme au GFC : deux chemins principaux dont l'un est constitué d'une boucle.
 
-% \begin{figure}
-% \begin{center}
-% \scalebox{1}{
-% \begin{tikzpicture}[->,scale=1,>=stealth',thick, text centered]
-% \node [draw, circle, text width=1.1cm] (c1) at (0,0) {$I_n$};
-% \node [draw, circle, text width=1.1cm] (c2) at (0,-2.3) {$INST$};
-% \node [draw, circle, text width=1.1cm] (c3) at (0,-4.6) {$I_{n+2}$};
-% \draw[->] (c1) -- (c2);
-% \draw[->] (c2) -- (c3);
-% 
-% \node [draw, circle, text width=1.1cm] (cp1) at (4,-1.2) {$I_n$};
-% \node [draw, circle, text width=1.1cm] (cp2) at (4,-3.5) {$I_{n+2}$};
-% \draw[->] (cp1) -- (cp2);
-% \coordinate [right=0.7cm of c2.east] (R1);
-% \coordinate [right=1.6cm of R1] (R2);
-% \draw[->] (R1) -- node[below=0cm, text width=4cm](RED){Réduction} (R2);
-% \end{tikzpicture}
-% }
-% \end{center}
-% \caption{Concaténation des instructions séquentielles}
-% \label{fig:red_insts}
-% \end{figure}
-% 
-% \begin{figure}
-% \begin{center}
-% \scalebox{1}{
-% \begin{tikzpicture}[->,scale=1,>=stealth',thick, text centered]
-% \node [draw, circle, text width=1.1cm] (c1) at (0,0) {$I$};
-% \node [draw, circle, text width=1.1cm] (c2) at (0,-2.3) {$JMP$};
-% \node [draw, circle, text width=1.1cm] (c3) at (0,-4.6) {$I'$};
-% \draw[->] (c1) -- (c2);
-% \draw[->] (c2) -- (c3);
-% 
-% \node [draw, circle, text width=1.1cm] (cp1) at (4,-1.2) {$I$};
-% \node [draw, circle, text width=1.1cm] (cp2) at (4,-3.5) {$I'$};
-% \draw[->] (cp1) -- (cp2);
-% \coordinate [right=0.7cm of c2.east] (R1);
-% \coordinate [right=1.6cm of R1] (R2);
-% \draw[->] (R1) -- node[below=0cm, text width=4cm](RED){Réduction} (R2);
-% \end{tikzpicture}
-% }
-% \end{center}
-% \caption{Réalignement des sauts inconditionnels}
-% \label{fig:red_jmp}
-% \end{figure}
-
-% \begin{figure}
-% \begin{center}
-% \scalebox{1}{
-% \begin{tikzpicture}[->,scale=1,>=stealth',thick, text centered]
-% \node [draw, circle, text width=1.1cm] (c1) at (0,0) {$I_n$};
-% \node [draw, circle, text width=1.1cm] (c2) at (0,-2.3) {$CALL$};
-% \node [draw, circle, text width=1.1cm] (c3) at (-1,-4.6) {$I_{n+2}$};
-% \node [draw, circle, text width=1.1cm] (c4) at (-1,-6.9) {$I_{n+3}$};
-% \node [draw, circle, text width=1.1cm] (c5) at (1,-4.6) {$RET$};
-% \draw[->] (c1) -- (c2);
-% \draw[->] (c2) -- (c3);
-% \draw[->] (c2) -- (c5);
-% \draw[->] (c3) -- (c4);
-% 
-% \node [draw, circle, text width=1.1cm] (cp1) at (6,-1.2) {$I_n$};
-% \node [draw, circle, text width=1.1cm] (cp2) at (6,-3.5) {$I_{n+2}$};
-% \node [draw, circle, text width=1.1cm] (cp3) at (6,-5.8) {$I_{n+3}$};
-% \draw[->] (cp1) -- (cp2);
-% \draw[->] (cp2) -- (cp3);
-% \coordinate [below right=1cm and 1.3cm of c2.east] (R1);
-% \coordinate [right=2.6cm of R1] (R2);
-% \draw[->] (R1) -- node[below=0cm, text width=4cm](RED){Réduction} (R2);
-% \end{tikzpicture}
-% }
-% \end{center}
-% \caption{Suppression des appels (\call) frauduleux}
-% \label{fig:red_call}
-% \end{figure}
-% 
-% \begin{figure}
-% \begin{center}
-% \scalebox{1}{
-% \begin{tikzpicture}[->,scale=1,>=stealth',thick, text centered]
-% \node [draw, circle, text width=1.1cm] (c1) at (0,0) {$JCC$};
-% \node [draw, circle, text width=1.1cm] (c2) at (-1,-2.3) {$JCC$};
-% \node [draw, circle, text width=1.1cm] (c3) at (-1,-4.6) {$I_1$};
-% \node [draw, circle, text width=1.1cm] (c4) at (1,-4.6) {$I_2$};
-% \draw[->] (c1) -- (c2);
-% \draw[->] (c2) -- (c3);
-% \draw[->] (c2) -- (c4);
-% \draw[->] (c1) -- (c4);
-% 
-% \node [draw, circle, text width=1.1cm] (cp1) at (7,-1.2) {$JCC$};
-% \node [draw, circle, text width=1.1cm] (cp2) at (6,-3.5) {$I_1$};
-% \node [draw, circle, text width=1.1cm] (cp3) at (8,-3.5) {$I_2$};
-% \draw[->] (cp1) -- (cp2);
-% \draw[->] (cp1) -- (cp3);
-% \coordinate [right=2.3cm of c2.east] (R1);
-% \coordinate [right=2.6cm of R1] (R2);
-% \draw[->] (R1) -- node[below=0cm, text width=4cm](RED){Réduction} (R2);
-% \end{tikzpicture}
-% }
-% \end{center}
-% \caption{Fusion des sauts conditionnels}
-% \label{fig:red_jcc}
-% \end{figure}
+\begin{figure}[h]
+% \def\imagetop#1{\vtop{\null\hbox{#1}}}
+\begin{center}
+\subfigure[Code assembleur]{
+\begin{tabular}[b]{|l|l|l|}
+\hline
+Adresse & Octets & Instruction\\ 
+\hline
+ 8048060           &  bf 00 00 00 00 &  mov edi, 0 \\
+ 8048065           &  83 f8 00       &  cmp eax, 0 \\
+ 8048068           &  75 0e          &  jne 8048078 <suite> \\
+		   &		     &			\\
+ 804806a           &  b8 0a 00 00 00 &  mov eax, 9 \\
+ 		   &		     &			\\
+<boucle>           &		     &			\\
+ 804806f           &  48             &  dec eax \\
+ 8048070           &  47             &  inc edi \\
+ 8048071           &  83 f8 00       &  cmp eax, 0 \\
+ 8048074           &  75 f9          &  jne 804806f <boucle> \\
+ 		   &		     &			\\
+ 8048076           &  eb 01          &  jmp 8048079 <fin> \\
+ 		   &		     &	            \\
+<suite>  	   &		     &			\\
+ 8048078           &  47             &  inc edi \\
+  		   &		     &			\\
+<fin>		   &		     &			\\
+ 8048079           &  c3             &  ret \\
+\hline
+\end{tabular}
+\label{fig:am_prog_asm}
+}
+\subfigure[Graphe de flot de contrôle]{
+\includegraphics[width=0.34\textwidth]{supports/detection/detection_cropped0.pdf}
+\label{fig:am_prog_cfg}
+}
+\end{center}
+\caption{Programme et graphe de flot de contrôle extraits}
+\label{fig:am_prog}
+\end{figure}
 
 
+% \FloatBarrier
 
 \subsection{Comparaison des graphes de flot de contrôle}
 La technique consiste à rechercher des parties du graphe de flot de contrôle de programmes du corpus dans le programme analysé.
 Si une portion suffisante du graphe de flot de contrôle de programmes malveillants connus est présente dans le programme testé, on peut le classer comme indésirable. Formellement il s'agit de trouver des isomorphismes de sous-graphe entre les deux graphes de flot de contrôle. Nous définirons plus précisément le problème et détaillerons plusieurs algorithmes de résolution dans le chapitre suivant. Avant de comparer les CFG, ceux-ci sont mis dans une forme canonique à l'aide de réduction.
 
 \paragraph{Simplification des sommets.}
-Les sommets des CFG sont modifiés afin que chaque instruction soit d'un des cinq types suivants : saut inconditionnel ($JMP$), saut conditionnel ($JCC$), appel de fonction ($CALL$), retour de fonction ($RET$) ou instruction séquentielle ($INST$).
+Les sommets des CFG sont modifiés afin que chaque instruction soit d'un des cinq types suivants : saut inconditionnel ($JMP$), saut conditionnel ($JCC$), appel de fonction ($CALL$), retour de fonction ($RET$) ou instruction séquentielle ($INST$). De même la distinction entre les arcs reliant deux instructions séquentielles, en noir dans GFC, et
 Cette transformation permet aux signatures d'être plus génériques.
 
 \paragraph{Réduction des graphes de flot de contrôle.}
 Plusieurs réductions ont été proposées (figure \ref{fig:am_reductions}) afin de résister à certaines formes d'obscurcissement comme l'insertion de code mort, la réorganisation d'instructions séquentielles, l'ajout de sauts inconditionnels ou d'appels inutiles.
 
-\begin{figure}
-\begin{tabular}{|c|c|}
+\begin{figure}[h]
+\begin{tabular}[t]{|c|c|}
 \hline
 Concaténation des instructions séquentielles & Réalignement des sauts inconditionnels \\
 \hline
@@ -319,56 +258,29 @@ Suppression des appels (\call) inutiles & Fusion des sauts conditionnels \\
 \label{fig:am_reductions}
 \end{figure}
 
-\begin{figure}
-\begin{center}
-\begin{tabular}[b]{|l|l|l|}
-\hline
-Adresse & Octets & Instruction\\ 
-\hline
- 8048060           &  bf 00 00 00 00     &  mov    edi, 0 \\
- 8048065           &  83 f8 00           &  cmp    eax, 0 \\
- 8048068           &  75 0e              &  jne    8048078 <suite> \\
-		   &			 &			\\
- 804806a           &  b8 0a 00 00 00     &  mov    eax, 9 \\
- 		   &			 &			\\
- 804806f <boucle>  &  48                 &  dec    eax \\
- 8048070           &  47                 &  inc    edi \\
- 8048071           &  83 f8 00           &  cmp    eax, 0 \\
- 8048074           &  75 f9              &  jne    804806f <boucle> \\
- 		   &			 &			\\
- 8048076           &  eb 01              &  jmp    8048079 <fin> \\
- 		   &			 &			\\
- 8048078 <suite>   &  47                 &  inc    edi \\
- 		   &			 &			\\
- 8048079 <fin>     &  c3                 &  ret     \\
-\hline
-\end{tabular}
-\end{center}
-\caption{Programme extrait}
-\label{fig:prog}
-\end{figure}
+Les graphes comparés au final sont sont les graphes sous forme réduite. Le graphe de flot du programme pris en exemple précédemment est rappelé, simplifié et réduit en figure \ref{fig:am_prog_cfgs}.
 
-\begin{figure}
+\begin{figure}[h]
 \begin{center}
 \def\imagetop#1{\vtop{\null\hbox{#1}}}
 \begin{tabular}[t]{|c|c|c|}
 \hline
 Graphe de flot de contrôle & GFC simplifié & GFC réduit\\
 \hline
-\imagetop{\includegraphics[width=0.4\textwidth]{supports/detection/detection.pdf}}
+\imagetop{\includegraphics[width=0.34\textwidth]{supports/detection/detection_cropped10.pdf}}
 &
-\imagetop{\includegraphics[width=0.2\textwidth]{supports/detection/detectionSimple.pdf}}
+\imagetop{\includegraphics[width=0.2\textwidth]{supports/detection/detectionSimple_cropped10.pdf}}
 &
-\imagetop{\includegraphics[width=0.2\textwidth]{supports/detection/detectionReduit.pdf}}
+\imagetop{\includegraphics[width=0.2\textwidth]{supports/detection/detectionReduit_cropped10.pdf}}
 \\
 \hline
 \end{tabular}
 \end{center}
-\caption{Transformations du graphe de flot de contrôle de l'exemple de la figure \ref{fig:prog}}
-\label{fig:prog_cfgs}
+\caption{Transformations du graphe de flot de contrôle de l'exemple de la figure \ref{fig:am_prog}}
+\label{fig:am_prog_cfgs}
 \end{figure}
 
-
+% \FloatBarrier
 \subsection{Algorithme de comparaison}
 L'algorithme de comparaison des graphes de flot de contrôle et de détection d'isomorphismes de sous-graphes développée à l'origine pour l'analyse morphologique \cite{BKM08} transforme les GFC en arbres et crée un automate d'arbres dans lequel les programme du corpus sont ajoutés.
 La détection ou non d'un
