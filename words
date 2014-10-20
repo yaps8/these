@@ -1,2 +1,3 @@
 #!/bin/bash
-total=0; for i in `./listTex`; do echo -n $i": ";n=`cat $i | grep -v -e "^%" | wc -w`; echo $n; total=`echo "$total+$n"|bc`; done; echo "total: "$total
+#total=0; for i in `./listTex`; do echo -n $i": ";n=`cat $i | grep -v -e "^%" | wc -w`; echo $n; total=`echo "$total+$n"|bc`; done; echo "total: "$total
+total=0; for i in `./listTex`; do echo -n $i": ";n=`cat $i | sed 's/%.*//' | wc -w`; echo $n; total=`echo "$total+$n"|bc`; done; echo "total: "$total

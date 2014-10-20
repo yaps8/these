@@ -12,9 +12,9 @@ Un logiciel est dit malveillant s'il réalise volontairement des opérations all
 \end{defi}
 
 Sa définition varie en fait d'un utilisateur à un autre et une technique plus formelle permettant de classifier un programme fait intervenir la spécification d'une politique de sécurité. 
-Cette politique de sécurité décrit les différents flots de données autorisés et ceux étant interdits. Par exemple il serait qu'il est interdit de lire le fichier /etc/shadow, contenant des informations relatives aux mots de passe d'un ordinateur sous Linux, et d'exfiltrer ces informations hors de la machine (via le réseau ou un support amovible par exemple).
+Cette politique de sécurité décrit les différents flots de données autorisés et ceux étant interdits. Par exemple elle pourrait interdire de lire le fichier /etc/shadow, contenant des informations relatives aux mots de passe d'un ordinateur sous Linux, et d'exfiltrer ces informations hors de la machine (via le réseau ou un support amovible par exemple).
 
-Il n'existe pas de programme capable d'analyser tout programme binaire pour connaître à priori leur comportement de manière exacte : on ne peut déjà pas construire un analyseur déterminant s'ils programme analysé lisent /etc/shadow.
+Il n'existe pas de programme capable d'analyser tout programme binaire pour connaître à priori leur comportement de manière exacte : on ne peut déjà pas construire un analyseur déterminant si les programmes analysés lisent /etc/shadow.
 La raison est que le problème du désassemblage est déjà indécidable ; celui de la détection l'est également.
 
 Puisqu'il n'existe pas de méthode de détection parfaite mais que l'on est en pratique capable d'analyser des programmes à la main, nous disposons de corpus de programmes malveillants et légitimes.
@@ -104,6 +104,7 @@ Jang, Brumley et Venkataraman \cite{JBV11} proposent un outil générique de cla
 \section{Analyse morphologique}
 L'analyse morphologique, introduite par Kaczmarek \cite{Kacz08}, Bonfante et Marion \cite{BKM08}, propose une détection 
 basée sur la comparaison des graphes de flot de contrôle. L'idée est de comparer la forme des graphes de flot de contrôle plutôt que les instructions exactes qui y sont présentes.
+Cette approche fonctionne donc par signatures, les signatures étant des graphes de flot de contrôle, et cherche à mesurer une distance automatique entre un programme et le corpus de programmes malveillants connus.
 Prenons le programme assembleur défini à la figure \ref{fig:am_prog}. La structure utile de son graphe de flot contrôle réside dans les instructions de sauts inconditionnels \jne\ aux adresses \adr{8048068} et \adr{8048076}. Ce sont ces deux instructions qui donnent sa forme au GFC : deux chemins principaux dont l'un est constitué d'une boucle.
 
 \begin{figure}[h]
@@ -285,7 +286,14 @@ L'algorithme de comparaison des graphes de flot de contrôle et de détection d'
 La classification d'un programme à analyser découpe son GFC réduit en sous-graphes de petite taille (typiquement entre 12 et 24 sommets), les transforme en arbres et détermine s'ils sont reconnus ou non par l'automate d'arbres.
 Un pourcentage de reconnaissance est extrait et selon sa valeur le programme est considéré malveillant ou légitime.
 
-\FloatBarrier
+% \FloatBarrier
 \subsection{Revue de littérature}
+Cesare et Xiang \cite{CX10} proposent une approche similaire cherchant également à classer de manière automatique un programme par comparaison de son GFC avec celui des programmes du corpus.
+Ils détectent les fonctions assembleur en utilisant des heuristiques et créent un GFC pour chacune de ces fonctions.
+Ces GFC sont ensuite transformés dans un langage intermédiaire pour les simplifiés, à l'instar des réductions que nous leur appliquons.
+Deux graphes de flot de contrôle de deux fonctions correspondent s'ils sont exacts. 
+Une base de GFC est donc créée et les auteurs formalisent une mesure de distance entre un programme et cette base.
+La principale différence est donc que les auteurs cherchent à détecter des fonctions dans le programme assembleur tandis que nous construisons un GFC global que nous découpons seulement ensuite.
 
-\itodo{cesare}
+L'application de techniques de réduction afin de rendre plus générique des codes malveillants et ainsi que les signatures soient plus efficaces est assez présente dans la littérature. 
+Certains travaux \cite{CKJKVM05} proposent des méthodes luttant spécifiquement contre certaines techniques d'obscurcissement comme la réorganisation de code ; c'est l'objectif des réductions proposées à la figure \ref{fig:am_reductions} dont le réalignement des sauts inconditionnels.
