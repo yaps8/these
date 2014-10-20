@@ -5,7 +5,7 @@ digraph G{
 "6f" [label="INST\l"]
 "74" [label="JCC\l"]
 "78" [label="INST"]
-"79" [label="RET"]
+"79" [label="RET", style="filled,bold", fillcolor=lightblue]
 "6f" -> "74" 
 "60" -> "68" 
 "68" -> "6a" 

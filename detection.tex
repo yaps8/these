@@ -155,7 +155,7 @@ La technique consiste à rechercher des parties du graphe de flot de contrôle d
 Si une portion suffisante du graphe de flot de contrôle de programmes malveillants connus est présente dans le programme testé, on peut le classer comme indésirable. Formellement il s'agit de trouver des isomorphismes de sous-graphe entre les deux graphes de flot de contrôle. Nous définirons plus précisément le problème et détaillerons plusieurs algorithmes de résolution dans le chapitre suivant. Avant de comparer les CFG, ceux-ci sont mis dans une forme canonique à l'aide de réduction.
 
 \paragraph{Simplification des sommets.}
-Les sommets des CFG sont modifiés afin que chaque instruction soit d'un des cinq types suivants : saut inconditionnel ($JMP$), saut conditionnel ($JCC$), appel de fonction ($CALL$), retour de fonction ($RET$) ou instruction séquentielle ($INST$). De même la distinction entre les arcs reliant deux instructions séquentielles, en noir dans GFC, et
+Les sommets des CFG sont modifiés afin que chaque instruction soit d'un des types suivants : saut inconditionnel ($JMP$), saut conditionnel ($JCC$), appel de fonction ($CALL$), retour de fonction ($RET$), fin du programme ($HLT$), instruction séquentielle ($INST$) ou instruction inconnue ($UNDEF$). De même la distinction entre les arcs reliant deux instructions séquentielles, en noir dans GFC, et
 Cette transformation permet aux signatures d'être plus génériques.
 
 \paragraph{Réduction des graphes de flot de contrôle.}
@@ -272,7 +272,7 @@ Graphe de flot de contrôle & GFC simplifié & GFC réduit\\
 &
 \imagetop{\includegraphics[width=0.2\textwidth]{supports/detection/detectionSimple_cropped10.pdf}}
 &
-\imagetop{\includegraphics[width=0.2\textwidth]{supports/detection/detectionReduit_cropped10.pdf}}
+\imagetop{\includegraphics[width=0.18\textwidth]{supports/detection/detectionReduit_cropped10.pdf}}
 \\
 \hline
 \end{tabular}

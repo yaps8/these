@@ -9,7 +9,7 @@ digraph G{
 "74" [label="JCC\l"]
 "76" [label="JMP"]
 "78" [label="INST"]
-"79" [label="RET"]
+"79" [label="RET", style="filled,bold", fillcolor=lightblue]
 "6f" -> "70"
 "70" -> "71"
 "71" -> "74"

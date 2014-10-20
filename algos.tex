@@ -21,21 +21,32 @@
 % \title{}
 \todo[inline]{Perfs + FP/FN}
 \todo[inline]{Limitations : obfuscation du CFG}
+\itodo{pb de l'iso de graphe, de sous-graphe : complexité, citation}
 
-\section{Comparaison de graphes de flots de contrôles et détection}
-On cherche à identifier des parties d'un graphe de flot inconnu qui seraient présentes dans une collection de graphes de flots de contrôles donnée (base de malware par exemple).
-On note T le graphe de flot de test à analyser.
-On définit formellement la reconnaissance de deux parties communes dans deux graphes par l'existence d'un isomorphisme de sous-graphe entre un graphe de la base et T.
-\begin{defi}\label{def-graphe-oriente}
+Nous avons vu au chapitre précédent que l'analyse morphologique fonctionne par comparaison des graphes de flot de contrôles.
+Dans ce chapitre nous nous intéressons au problème de la détection d'isomorphismes de sous-graphes. Nous définissons ce qu'est un graphe de flot, notion plus spécifique à l'étude des graphes de flot de contrôles que la notion générale de graphe.
+
+\section{Graphes de flot}
+Nous avons vu que les graphes de flot de contrôle sur lesquels nous travaillons sont étiquetés (définition \ref{def:graphe-oriente}) et, une fois réduits, les étiquettes possibles sont les suivantes : $INST$, $JMP$, $JCC$, $CALL$, $RET$, $HLT$ et $UNDEF$.
+Le nombre de fils d'un sommet est sa valence (définition \ref{def:valence}) ; à chaque étiquette est associée une valence maximale. Par exemple les instructions de saut conditionnel $JCC$ ont au maximum deux successeurs.
+
+\begin{defi}
 Un graphe orienté et étiqueté $T=(V, L, l, E)$ est composé par les ensembles finis V, L, E, et la fonction totale $l:V\rightarrow L$.
 V est l'ensemble des sommets de T, L un ensemble d'étiquettes, l la fonction donnant l'étiquette d'un sommet, et $E\subset V\times V$ est l'ensemble des arcs de T tel que $(t, h)\in E$ ssi il y a un arc entre le sommet t et le sommet h.
+\label{def:graphe-oriente}
 \end{defi}
 
 \begin{defi}\label{def:valence}
  La valence d'un sommet d'un graphe est le nombre de fils de ce sommet.
 \end{defi}
 
-Les graphes sur lesquels nous sommes amenés à travailler peuvent être partiels : il y a des branches qui peuvent être inconnues. De plus pour simplifier les algorithmes impliqués dans la recherche de parties communes à plusieurs graphes, il est pratique de forcer les fils de chaque sommet à être ordonnés.
+
+Afin de refléter l'incomplétude des graphes de flot de contrôles reconstruits, les graphes sur lesquels nous sommes amenés à travailler peuvent être partiels : il y a des branches qui peuvent être inconnues.
+Par exemple un sommet d'étiquette $JCC$ ayant un seul fils est incomplet : la cible du saut est inconnue.
+% De plus pour simplifier les algorithmes impliqués dans la recherche de parties communes à plusieurs graphes, il est pratique de forcer les fils de chaque sommet à être ordonnés.
+Nous forçons les fils de chaque sommet à être ordonnés. Il s'agit d'une contrainte forte qui est nécessitée par la complexité des algorithmes mis en \oe uvre pour résoudre l'isomorphisme de sous-graphe.
+Nous définissons ainsi formellement un graphe de flot à la définition \ref{def:gf}.
+Un exemple de graphe de flot est donné en figure \ref{fig:am_exemple_gf}.
 
 \begin{defi}\label{def:gf}
 Un graphe de flot est un graphe orienté et étiqueté vérifiant :
@@ -55,6 +66,37 @@ Un graphe de flot est un graphe orienté et étiqueté vérifiant :
 %  \item La valence de ses sommets est bornée
 \end{enumerate}
 \end{defi}
+
+On cherche à identifier des parties d'un graphe de flot inconnu qui seraient présentes dans une collection de graphes de flots de contrôles donnée (corpus de logiciels malveillants par exemple).
+On note T le graphe de flot de test à analyser.
+On définit formellement la reconnaissance de deux parties communes dans deux graphes par l'existence d'un isomorphisme de sous-graphe entre un graphe du corpus et T.
+
+% \begin{figure}[h]
+% \begin{center}
+% \def\imagetop#1{\vtop{\null\hbox{#1}}}
+% \begin{tabular}[t]{|c|c|}
+% \hline
+% Graphe de flot de contrôle réduit & Graphe de flot\\
+% \hline
+% \imagetop{\includegraphics[width=0.2\textwidth]{supports/detection/detectionNGF_cropped10.pdf}}
+% &
+% \imagetop{\includegraphics[width=0.2\textwidth]{supports/detection/detectionGF_cropped10.pdf}}
+% \\
+% \hline
+% \end{tabular}
+% \end{center}
+% \caption{Transformations du graphe de flot de contrôle de l'exemple de la figure \ref{fig:am_prog}}
+% \label{fig:am_cfg_gf}
+% \end{figure}
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=0.13\textwidth]{supports/detection/detectionGF_cropped0.pdf}
+\end{center}
+\caption{Exemple de graphe de flot}
+\label{fig:am_exemple_gf}
+\end{figure}
+
 % Un graphe de flot (définition \ref{def:gf}) est un graphe orienté particulier.
 
 % Le point 1 force à expliciter les fils ; par exemple un \emph{JCC} a nécessairement deux successeurs, selon que la condition vérifiée est satisfaite ou non. Les sites incomplets sont une extension autorisant que certains fils ne soit pas connus (on peut les omettre dans la représentation ou ajouter un fils artificiel $\bot$).
@@ -64,14 +106,31 @@ Un graphe de flot est un graphe orienté et étiqueté vérifiant :
 
 
 Deux graphes de flot sont isomorphes s'ils vérifient les
-propriétés de la définition \ref{def-iso-go}. On définit le sous-graphe d'un graphe T selon la définition \ref{def-sousgrapheflot}.
+propriétés de la définition \ref{def:iso-go}, c'est à dire s'il existe une permutation des sommets de l'un tel que le graphes modifié soit structurellement identique au second.
+
+\begin{defi}\label{def:iso-go}
+Soit $T=(V_T, L_T, l_T, E_T)$ et $P=(V_P, L_P, l_P, E_P)$ deux graphes de flot. Ils sont dits isomorphes s'il existe une bijection $f:V_T\rightarrow V_P$ entre les sommets de T et ceux de P et
+si f préserve la structure d'adjacence des graphes avec l'ordre des fils, c'est à dire si \\
+$\forall u, v \in V_T$ et $i\in\mathbb{N} : (u, i, v) \in E_T \Leftrightarrow (f(u), i, f(v)) \in E_P$.
+\end{defi}
+
+On définit le sous-graphe d'un graphe T selon la définition \ref{def:sousgrapheflot} et le sous-graphe de flot induit par un ensemble de sommet en définition \ref{def:sousgrapheflot-induit}.
+
+\begin{defi}\label{def:sousgrapheflot}
+Un graphe de flot $P=(V_P, L_P, l_P, E_P)$ est un sous-graphe du graphe de flot $T=(V_T, L_T, l_T, E_T)$ si et seulement si $V_P \subset V_T$, $E_P\subset\{(t, i, h)\in E_T / t, h \in V_P \}$, et $\forall u\in V_P, l_P(u)=l_T(u)$
+\end{defi}
+
+\begin{defi}\label{def:sousgrapheflot-induit}
+Le sous-graphe induit d'un graphe de flot $T=(V_T, L_T, l_T, E_T)$ à partir de l'ensemble de sommets $V_P \subset V_T$ est le graphe de flot $P=(V_P, L_P, l_P, E_P)$ tel que $E_P=\{(t, i, h)\in E_T / t, h \in V_P \}$, $L_P=L_T$, et $l_P=l_{T\vert V_P}$.
+\end{defi}
+
 % il est
 % important de noter qu'un sous-graphe a des sommets pris arbitrairement au graphe de base mais que ses arcs sont exactement tous ceux
 % du graphe de base qui s'appliquent aux sommets choisis. 
 Notre problème
 consiste donc, à partir du graphe de flot T à analyser, à déterminer si un de ses sous-graphes est isomorphe à un des graphes de flot de la base.
 Par exemple sur la figure \ref{fig:ex-gf-sous-gf}, on cherche à savoir si le graphe P peut-être vu comme identique à un sous-graphe de T en préservant sa
-structure. Ici le graphe P est isomorphe au sous-graphe constitué des sommets $\{d, e, a\}$ comme à celui formé par les sommets $\{b, d, a\}$.
+structure. Ici le graphe P est isomorphe au sous-graphe induit par les sommets $\{d, e, a\}$ comme à celui formé induit par les sommets sommets $\{b, d, a\}$.
 
 
 \begin{figure}[ht]
@@ -89,29 +148,19 @@ structure. Ici le graphe P est isomorphe au sous-graphe constitué des sommets $
 \label{fig:ex-gf-sous-gf}
 \end{figure}
 
-\begin{defi}\label{def-iso-go}
-Soit $T=(V_T, L_T, l_T, E_T)$ et $P=(V_P, L_P, l_P, E_P)$ deux graphes de flot. Ils sont dits isomorphes s'il existe une bijection $f:V_T\rightarrow V_P$ entre les sommets de T et ceux de P et
-si f préserve la structure d'adjacence des graphes avec l'ordre des fils, c'est à dire si \\
-$\forall u, v \in V_T$ et $i\in\mathbb{N} : (u, i, v) \in E_T \Leftrightarrow (f(u), i, f(v)) \in E_P$.
-\end{defi}
+
 
 % \begin{defi}\label{def-sousgraphe}
 % Un graphe orienté $P=(V_P, E_P)$ est un sous-graphe du graphe $T=(V_T, E_T)$ si et seulement si $V_P \subset V_T$, et $E_P=\{(t, h)\in E_T / t, h \in V_P \}$
 % \end{defi}
 
-\begin{defi}\label{def-sousgrapheflot}
-Un graphe de flot $P=(V_P, L_P, l_P, E_P)$ est un sous-graphe du graphe de flot $T=(V_T, L_T, l_T, E_T)$ si et seulement si $V_P \subset V_T$, $E_P\subset\{(t, i, h)\in E_T / t, h \in V_P \}$, et $\forall u\in V_P, l_P(u)=l_T(u)$
-\end{defi}
 
-\begin{defi}\label{def-sousgrapheflot-induit}
-Le sous-graphe induit d'un graphe de flot $T=(V_T, L_T, l_T, E_T)$ à partir de l'ensemble de sommets $V_P \subset V_T$ est le graphe de flot $P=(V_P, L_P, l_P, E_P)$ tel que $E_P=\{(t, i, h)\in E_T / t, h \in V_P \}$, $L_P=L_T$, et $l_P=l_{T\vert V_P}$.
-\end{defi}
 
 
 % TODO: def \ref{def-sousgraphe} et def \ref{def-sousgraphe2} sont équivalentes pour les sites!
 
 \section{Sites}
-En pratique on va choisir un certain nombre de sous-graphes particuliers de la base, appelés sites, qui seront les motifs qu'on cherche à détecter : on note généralement P un graphe de motif. Un site est un graphe de flot ayant une racine (définition \ref{def-site}). Un site peut être un sous-graphe d'un graphe de flot (définition \ref{def-soussite}) comme dans l'exemple de la figure \ref{fig:ex-gf-site}.
+En pratique on va choisir un certain nombre de sous-graphes particuliers de la base, appelés sites, qui seront les motifs que l'on cherche à détecter : on note généralement P un graphe de motif. Un site est un graphe de flot ayant une racine (définition \ref{def-site}). Un site peut être un sous-graphe d'un graphe de flot (définition \ref{def-soussite}) comme dans l'exemple de la figure \ref{fig:ex-gf-site}.
 
 \begin{defi}\label{def-site}
 Un site P est un graphe de flot ayant une racine : un sommet à partir duquel on peut atteindre n'importe quel autre sommet de P
@@ -313,25 +362,24 @@ L'approche par force brute demande de parcourir toutes les matrice de permutatio
 \section{Algorithme d'Ullmann}
 L'algorithme d'Ullmann est le plus connu pour résoudre le problème \ref{pbisosg} d'isomorphisme de sous-graphes \cite{Ull76} dans le cas général des graphes orientés. Il s'applique à un graphe de motif P à détecter et à un graphe T dans lequel faire la reconnaissance. Comme détaillé par la suite, sa complexité est exponentielle en le nombre de sommets maximal du graphe de motif P.
 
-
 De plus, si on veut l'utiliser pour résoudre le problème \ref{pbisosgbase} de recherche d'isomorphismes de sous-graphes dans une base de graphes de motifs, il est nécessaire de l'appliquer pour chaque graphe dans la base, la complexité est alors linéaire en le nombre de graphes dans la base.\\
-
 Puisqu'il est complet pour le problème d'isomorphisme de sous-graphes, ce sera l'algorithme de référence auquel on pourra comparer les heuristiques sur le plan de la complétude, de la complexité, et du temps d'exécution.\\
 
 Nous présenterons d'abord l'algorithme d'Ullmann dans le cas de graphes orientés quelconques puis nous y ferons des restrictions pour l'adapter au cas des graphes de flot.
-\subsection{L'algorithme d'Ullmann pour l'isomorphisme de sous-graphes}
-L'algorithme d'Ullmann repose
+% \subsection{L'algorithme d'Ullmann pour l'isomorphisme de sous-graphes}
+
+\paragraph{Isomorphisme de sous-graphes.}L'algorithme d'Ullmann repose
 sur le concept de retour sur traces (ou \emph{backtracking}) pour trouver successivement tous les sous-graphes isomorphes au 
 graphe de motif. Cette approche a ensuite été largement améliorée par Ullmann à l'aide de l'utilisation d'une technique de
 vérification à priori permettant d'éliminer de nombreux candidats sans avoir à les tester entièrement.
 
-\subsubsection{Backtracking simple}
+\subsection{Backtracking simple}
 Soit $T=(V_T, E_T)$ un graphe et $P=(V_P, E_P)$ un graphe dont on cherche à connaître les sous-graphes de T avec lesquels il est isomorphe.
 On note $n_T=Card(V_T)$ et $n_P=Card(V_P)$ les nombres de n\oe uds de chaque graphe.
 L'idée consiste à partir d'un sommet de P, à l'associer à un sommet de T, de vérifier si l'association créée est bien un
 isomorphisme de sous-graphe. Si c'est le cas, on prend un autre sommet de P à associer avec un sommet de T pas encore
 inclus dans la transformation. Si ce n'est pas un isomorphisme de sous-graphe, on retire la dernière association faite, et on
-repart en incluant un autre sommet. Et ainsi de suite. Lorsqu'on a une transformation utilisant tous les sommets de P et définissant
+repart en incluant un autre sommet. Et ainsi de suite. Lorsque l'on a une transformation utilisant tous les sommets de P et définissant
 un isomorphisme avec un sous-graphe de T, on la met de coté (c'est une solution), et on revient en arrière pour trouver les autres
 solutions.
 
@@ -389,7 +437,7 @@ On peut alors vérifier qu'il y a un isomorphisme de sous-graphe entre les graph
 \end{itemize}
 Ensuite il suffit de retirer la dernière association $(i, j)$ et de tester l'association suivante. 
 
-Il est à noter qu'on peut déterminer la matrice de permutation K à partir de l'ensemble F en fixant les éléments de F dans la permutation : $\forall (i,\ j)\in F,\ \sigma(i)=j$, et les autres
+Il est à noter que l'on peut déterminer la matrice de permutation K à partir de l'ensemble F en fixant les éléments de F dans la permutation : $\forall (i,\ j)\in F,\ \sigma(i)=j$, et les autres
 éléments n'ont pas d'importance. Il suffit que la fonction ainsi définie soit bien une permutation, on peut trouver des valeurs de $\sigma(k)$ en prenant à chaque fois le plus petit entier
 non encore attribué. Les sous-graphes $S_T$ et $S_P$ de T et P considérés sont respectivement les sous-graphes définis à partir des sommets i tels que $\exists j,\ (i,\ j)\in F$ et les sommets j tels que
 $\exists i,\ (i,\ j)\in F$.
@@ -452,7 +500,7 @@ backtrack($C^0$, 1, $\emptyset$)\\
 % \label{fig:algo-ullman}
 % \end{figure}
 
-\subsubsection{Raffinement et vérification à priori}
+\subsection{Raffinement et vérification à priori}
 L'algorithme détaillé précédemment est une application directe du backtracking au problème d'isomorphisme de sous-graphes, et Ullmann propose
 un deuxième algorithme basé sur une vérification à priori, ou \emph{Forward Checking}. L'idée est, à chaque ajout d'une correspondance dans la transformation,
 de vérifier qu'il existe une correspondance supplémentaire possible. L'intérêt est d'éliminer des branches impossibles en les vérifiant à l'avance. La vérification
@@ -593,7 +641,7 @@ backtrack($C^0$, 1, $\emptyset$)\\
 % % \tab a) Si i > n alors F
 % \end{center}
 
-\subsubsection{Implémentation}
+\subsection{Implémentation}
 % L'algorithme d'Ullmann a été implémenté parallèlement au projet principal. 
 Le programme prend en entrée
 deux fichiers de graphes au format binaire (compatible avec le format .dot) et indique
@@ -614,7 +662,7 @@ la dernière association ajoutée). Cette modification ne change pas le comporte
 dans F ont déjà été vérifiés précédemment.
 
 
-\subsubsection{Complexité}
+\subsection{Complexité}
 On peut étudier la complexité temporelle dans le pire des cas de l'algorithme d'Ullmann en gardant les notations prises précédemment.
 Le pire des cas se présente lorsque toutes les associations sont possibles \cite{MessPhd} ($C^0$ n'est composée que de 1), c'est à dire que les deux graphes sont entièrement connectés.
 
@@ -722,7 +770,7 @@ La complexité dans le pire des cas de l'algorithme d'Ullmann est donc exponenti
 % , et polynomiale en fonction de la taille du graphe à tester. 
 Nous allons maintenant voir qu'elle peut se réduire dans le cas des graphes de flot.
 
-\subsubsection{Cas des graphes de flot}
+\subsection{Optimisation dans le cas des graphes de flot}
 \paragraph{Les sommets sont étiquetés.}
 Pour que deux sommets correspondent dans un isomorphisme entre deux graphes de flot, on rend nécessaire qu'ils aient la même étiquette.
 À partir d'un échantillon de 43 malware pris comme
@@ -739,7 +787,7 @@ Voici la répartition de ces 48218 instructions. Ces valeurs n'étant pas repré
 \\
 \end{itemize}
 
-Formellement, on suppose qu'on a $n$ différents types d'instructions (ici 5) dont les probabilités d'apparition sont $l_i$ avec $1\le i\le n$.
+Formellement, on suppose que l'on a $n$ différents types d'instructions (ici 5) dont les probabilités d'apparition sont $l_i$ avec $1\le i\le n$.
 Ce qui est modifié, c'est la matrice $C^0$ initiale, qui au lieu de n'être composée que de 1, vaut 0 si $L_i\ne L_j$ où $L_i$ est le label de i et $L_j$ celui de j. Si on note H la probabilité pour deux sommets pris au hasard d'avoir
 le même label, à chaque fois que l'on veut faire correspondre un élément du graphe de motif au graphe à tester, il y a le nombre
 normal de possibilités divisé par H, dans l'hypothèse où $n_T$ est grand devant $n_P$ et donc à chaque étape la probabilité H reste
@@ -838,7 +886,7 @@ Au final, avec les deux hypothèses de graphes avec des labels (et $n_T >> n_P$)
 \\
 
 % Il est à noter que la complexité ici, bien que diminuée, est encore très élevée. Deux remarques positives peuvent cependant être faites.
-% D'une part il ne s'agit que de la complexité dans le pire des cas, et que pour chercher tous les isomorphismes, alors qu'on peut imaginer s'arrêter au premier trouvé, ce qui
+% D'une part il ne s'agit que de la complexité dans le pire des cas, et que pour chercher tous les isomorphismes, alors que l'on peut imaginer s'arrêter au premier trouvé, ce qui
 % diminuerait le temps d'exécution. Il serait également intéressant d'étudier une complexité moyenne sur des graphes connectés à la manière des CFG (finalement peu connectés).
 % \\
 
@@ -885,10 +933,10 @@ Un exemple de parcours en profondeur (respectivement en largeur) d'un graphe est
 \end{center}
 % \end{figure}
 
-On peut représenter le parcours en profondeur de ce site de la manière suivante : On commence par la racine, que l'on numérote 1, c'est un JCC, puis le premier fils nous amène à un nouveau sommet, numéroté 2, c'est un CALL. Son premier fils nous amène à numéroter 3: INST et 4: RET. Une fois au $4^e$ sommet, on retourne au sommet 2 pour prendre le second fils que l'on numéroté 5: RET. On remonte au sommet 1, on numérote le second fils : c'est le sommet 6: JCC puis on prend son seul fils (fils 2) et on numéroté 7: INST. De là on prend le premier fils pour retourner sur le fils 2. Le parcours s'arrête puisqu'on a visité tous les arcs du site.\\
+On peut représenter le parcours en profondeur de ce site de la manière suivante : On commence par la racine, que l'on numérote 1, c'est un JCC, puis le premier fils nous amène à un nouveau sommet, numéroté 2, c'est un CALL. Son premier fils nous amène à numéroter 3: INST et 4: RET. Une fois au $4^e$ sommet, on retourne au sommet 2 pour prendre le second fils que l'on numéroté 5: RET. On remonte au sommet 1, on numérote le second fils : c'est le sommet 6: JCC puis on prend son seul fils (fils 2) et on numéroté 7: INST. De là on prend le premier fils pour retourner sur le fils 2. Le parcours s'arrête puisque l'on a visité tous les arcs du site.\\
 On peut noter le parcours ainsi (avec l'algorithme \ref{algo:codageProf}) :\\
 $1: JCC\xrightarrow{1} 2: CALL \xrightarrow{1} 3: INST \xrightarrow{1} 4: RET \xrightarrow{R} 2 \xrightarrow{2} 5: RET \xrightarrow{R} 1 \xrightarrow{2} 6: JCC \xrightarrow{2} 7:INST \xrightarrow{1} 2$.\\
-En fait, décrit de cette manière, le parcours définit un site unique que l'on peut reconstruire puisqu'on sait quels sont les labels de chaque sommet, tous les arcs entre les sommets et le choix des fils choisi lors du parcours (ici en profondeur).\\
+En fait, décrit de cette manière, le parcours définit un site unique que l'on peut reconstruire puisque l'on sait quels sont les labels de chaque sommet, tous les arcs entre les sommets et le choix des fils choisi lors du parcours (ici en profondeur).\\
 De même, le parcours en largeur du site peut être décrit ainsi (avec l'algorithme \ref{algo:codageLarg}) :\\
 $1: JCC\xrightarrow{1} 2: CALL\xrightarrow{R} 1\xrightarrow{2} 3: JCC\xrightarrow{R} 2\xrightarrow{1} 4: INST\xrightarrow{R} 2\xrightarrow{2} 5: RET\xrightarrow{R} 3\xrightarrow{2} 6: INST\xrightarrow{R} 4\xrightarrow{1} 7: RET$.\\
 % \overset{def}
@@ -1256,7 +1304,7 @@ child {node {}
 L'ajout d'un site à la base consiste à ajouter un codage de parcours dans l'arbre de décision, cette opération nécessite un nombre de comparaison en $W.i$ où $i$ est le nombre de fils maximum de chaque sommet de l'arbre. Vue que les étiquettes des arcs de l'arbre sont de la forme $[\xrightarrow{\alpha}]i[:L]$, en notant $K$ le nombre de fils maximum de chaque sommet dans un site et $n_L$ le nombre d'étiquettes différentes pour les sommets des sites, $i\leq (K+2).W.n_L$ soit $n=O(W)$ donc l'ajout d'un site à la base se fait en $O(W^2)$.
 
 \subsubsection{Recherche d'un isomorphisme de sous-sites à partir de l'arbre de décision}
-Une fois l'arbre généré à partir de tous les codages des sites de $L_S$, on veut l'utiliser pour trouver tous les parcours de $L_S$ possibles dans le graphe de flot T. Pour compter le nombre de parcours de l'arbre que l'on peut réaliser à partir du sommet $r$ de $T$, on peut chercher à parcourir $T$ à partir de $r$ en parcourant les branches possibles dans l'arbre de décision. À chaque fois qu'on peut parcourir une branche jusqu'en bas c'est qu'un site isomorphe a été trouvé. L'algorithme \ref{algo:rechercheArbreTarjan} compte le nombre de ces branches possibles.
+Une fois l'arbre généré à partir de tous les codages des sites de $L_S$, on veut l'utiliser pour trouver tous les parcours de $L_S$ possibles dans le graphe de flot T. Pour compter le nombre de parcours de l'arbre que l'on peut réaliser à partir du sommet $r$ de $T$, on peut chercher à parcourir $T$ à partir de $r$ en parcourant les branches possibles dans l'arbre de décision. À chaque fois que l'on peut parcourir une branche jusqu'en bas c'est qu'un site isomorphe a été trouvé. L'algorithme \ref{algo:rechercheArbreTarjan} compte le nombre de ces branches possibles.
 
 On peut utiliser cet algorithme pour retrouver tous les sous-sites isomorphes en utilisant l'algorithme précédent à partir de chaque sommet de $T$.
 
@@ -1325,7 +1373,7 @@ Dans le pire des cas il y a $n$ branches à l'arbre A qui partent de la racine o
 
 \clearpage
 \section{SIDT : Site Isomorphism Decision Tree}
-Le problème \ref{pbisosg} consiste à détecter un site P dans un graphe de flot T. En pratique le site P aura été généré à partir d'un graphe de flot G. Si P est un sous-site de T, puisqu'on a généré le site à partir d'un parcours dans un autre graphe de flot, on peut envisager que le même parcours appliqué à T est susceptible de générer le site P. Ce n'est pas vrai dans le cas général et en ce sens l'algorithme présenté ici n'est pas complet.\\
+Le problème \ref{pbisosg} consiste à détecter un site P dans un graphe de flot T. En pratique le site P aura été généré à partir d'un graphe de flot G. Si P est un sous-site de T, puisque l'on a généré le site à partir d'un parcours dans un autre graphe de flot, on peut envisager que le même parcours appliqué à T est susceptible de générer le site P. Ce n'est pas vrai dans le cas général et en ce sens l'algorithme présenté ici n'est pas complet.\\
 Inversement il est clair que si le même parcours appliqué à partir de sommets de T et G génèrent le même site P, alors P est bien un sous-site de T.
 \\
 

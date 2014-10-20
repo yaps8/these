@@ -1,0 +1,17 @@
+digraph G{
+"60" [label="INST\l"]
+"68" [label="JCC\l"]
+"6a" [label="INST\l"]
+"6f" [label="INST\l"]
+"74" [label="JCC\l"]
+"78" [label="INST"]
+"79" [label="RET"]
+"6f" -> "74" [label="1"]
+"60" -> "68" [label="1"]
+"68" -> "6a" [label="1"] 
+"68" -> "78" [label="2"] 
+"6a" -> "6f" [label="1"] 
+"74" -> "6f" [label="1"] 
+"74" -> "79" [label="1"] 
+"78" -> "79" [label="1"] 
+}
