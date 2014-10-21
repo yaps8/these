@@ -21,7 +21,6 @@
 % \title{}
 \todo[inline]{Perfs + FP/FN}
 \todo[inline]{Limitations : obfuscation du CFG}
-\itodo{pb de l'iso de graphe, de sous-graphe : complexité, citation}
 
 Nous avons vu au chapitre précédent que l'analyse morphologique fonctionne par comparaison des graphes de flot de contrôles.
 Dans ce chapitre nous nous intéressons au problème de la détection d'isomorphismes de sous-graphes. Nous définissons ce qu'est un graphe de flot, notion plus spécifique à l'étude des graphes de flot de contrôles que la notion générale de graphe.
@@ -148,17 +147,6 @@ structure. Ici le graphe P est isomorphe au sous-graphe induit par les sommets $
 \label{fig:ex-gf-sous-gf}
 \end{figure}
 
-
-
-% \begin{defi}\label{def-sousgraphe}
-% Un graphe orienté $P=(V_P, E_P)$ est un sous-graphe du graphe $T=(V_T, E_T)$ si et seulement si $V_P \subset V_T$, et $E_P=\{(t, h)\in E_T / t, h \in V_P \}$
-% \end{defi}
-
-
-
-
-% TODO: def \ref{def-sousgraphe} et def \ref{def-sousgraphe2} sont équivalentes pour les sites!
-
 \section{Sites}
 L'analyse morphologique \cite{BKM08} ne cherche pas directement à savoir si un programme malveillant est un sous-graphe du programme analysé ou inversement. 
 Cette approche est vouée à l'échec puisqu'une modification mineure de l'un des deux conduirait à une non détection.
@@ -217,6 +205,9 @@ On a alors trois problèmes successifs, de difficulté croissante et faisant int
 %  À partir d'un ensemble de sites $L_P$ et d'un graphe de flot $T$, comment savoir s'il existe $P\in L_P$ tel que $P$ est un sous-site $T$ ?
  À partir d'un ensemble de sites $L_P$ et d'un graphe de flot $T$, comment déterminer l'ensemble des $P\in L_P$ tels que $P$ est un sous-site de $T$ ?
 \end{pb}
+
+Dans le cas général, le problème de l'isomorphisme de graphes est connu pour être NP sans que l'on sache s'il est NP complet \cite{Kob94}, tandis que le problème de l'isomorphisme de sous-graphes est NP complet \cite{W05}.
+Nous allons présenter quelques approches de ces problèmes et proposer des solutions tirant partie des spécificités des graphes de flot.
 
 \section{Représentation sous forme matricielle et recherche exhaustive}
 \begin{figure}[ht]
@@ -319,8 +310,6 @@ Il existe un isomorphisme de graphes entre un sous-graphe de T et P si et seulem
 \label{prop:iso-sg-mat}
 \end{prop}
 
-\itodo{plutot de taille np ? la complexité pourrait grandement diminuer}
-
 \begin{pr}
 On cherche un sous-ensemble $\{s_1, s_2, ..., s_{n_P}\}$ de $n_P$ sommets de T et un sous-ensemble d'arcs de T entre les sommets $\{s_1, s_2, ..., s_{n_P}\}$ tels que le sous-graphe défini par ces sommets et ces arcs soit isomorphe à P. Supposons qu'il existe un tel isomorphisme et on note $\sigma$ de $\mathfrak{S}(n_T)$ telle que $\forall i \leq n_P,\ \sigma(s_i) \leq n_P$ donnant les $n_P$ sommets de T y participant. Les autres éléments n'ont pas d'importance
 puisqu'ils ne participent pas à l'isomorphisme recherché. Soit K la matrice de permutation associée à $\sigma$.
@@ -411,7 +400,7 @@ Et ainsi de suite. Lorsque l'on a une transformation utilisant tous les sommets 
 
 
 La manière de tester si on a bien obtenu un isomorphisme est celle décrite précédemment à l'aide de la représentation matricielle.
-On définit la matrice de permutation K \todo{in what?} de la transformation,
+On définit la matrice de permutation K, carrée de taille $n_T$, de la transformation,
 puis la matrice $I_{n_P, n_T}$ permettant le redimensionnement d'une matrice, et on regarde si la relation $\forall k,l\leq n_P, (M_P)_{k,l}\leq (I_{n_P, n_T}.K.M_T.K^t.I_{n_T, n_P})_{k,l}$ est
 vérifiée.
 \\
@@ -672,14 +661,9 @@ backtrack($C^0$, 1, $\emptyset$)\\
 % % \tab a) Si i > n alors F
 % \end{center}
 
-\subsection{Implémentation}
-Le programme, développé en C, prend en entrée deux fichiers de graphes au format binaire (compatible avec le format .dot) et indique si le premier est un sous-graphe du second et le nombre d'isomorphismes dans ce cas.
+% \subsection{Implémentation}
 
-Comme l'algorithme détaillé précédemment, l'implémentation
-est principalement constituée des deux fonction \emph{backtrack} et \emph{forwardChecking}.
-Les notations prises dans le code seront utilisées dans la partie suivante.
 
-Une modification de l'algorithme d'Ullmann précédent permettant de l'optimiser a été utilisée. Dans la fonction Forward Checking, il n'est pas utile de vérifier tous les éléments de F à chaque appel, mais seulement les derniers élements ajoutés (qui correspondent exactement à la dernière association ajoutée). Cette modification ne change pas le comportement ni les résultats de l'algorithme puisque les éléments précédents dans F ont déjà été vérifiés précédemment.
 
 
 \subsection{Complexité}
@@ -900,8 +884,29 @@ De plus on doit maintenant forcer les sommets correspondants entre P et T à êt
 La nouvelle fonction \emph{Forward\_Checking}, prenant en compte les optimisations discutées, est l'algorithme \ref{algo:ullman-forwardch-site}.
 Cette modification diminue grandement la complexité mais nous ne l'avons pas quantifiée.
 
+\paragraph{Optimisation de la vérification à priori.}
+Une modification de l'algorithme d'Ullmann précédent permettant de l'optimiser a été utilisée. Dans la fonction Forward Checking, il n'est pas utile de vérifier tous les éléments de F à chaque appel, mais seulement les derniers élements ajoutés (qui correspondent exactement à la dernière association ajoutée). Cette modification ne change pas le comportement ni les résultats de l'algorithme puisque les éléments précédents dans F ont déjà été vérifiés précédemment.
+
 \paragraph{Conclusion sur la complexité.} 
 Pour le cas d'un graphe de flot, la complexité a été ramenée à $O((n_T.P)^{n_P})$ avec $P=\sum_kl_k^2$ où les $l_i$ sont les probabilités d'apparition de chacun des labels.
+
+\section{Revue de littérature}
+\paragraph{Optimisation de l'algorithme d'Ullmann.}
+Foggia, Vento, Sansone et Cordella \cite{VF99} proposent des améliorations à l'algorithme d'Ullmann, appelé algorithme VF.
+Ils ajoutent des règles de vérification à priori permettant d'éliminer à nouveau de nombreuses vérifications lors de l'appel de la fonction de retour sur traces.
+Les améliorations en termes de complexité sont importantes : ils réussissent à diviser la complexité d'un facteur de $n_T^2$ par rapport à l'algorithme d'Ullmann.
+Ils comparent également en pratique plusieurs algorithmes \cite{FSV01} dont celui d'Ullmann, le leur et une version modifiée, VF2. Ils montrent la pertinence de leur approche sur différents graphes de grande taille (un millier de sommets).
+
+\paragraph{Calcul préalable des isomorphismes.}
+Messmer \cite{MessPhd} propose plusieurs approches pour la comparaison de graphes lorsqu'on peut générer une base de détection au préalable.
+Pour l'isomorphisme de sous-graphe, Messmer et Bunke proposent \cite{MB95} de construire la matrice d'adjacence de chaque graphe du corpus, de générer toutes les matrices d'adjacence possibles par diminution du nombre de sommets et permutation, et de les ranger dans un arbre de décision.
+L'analyse d'un graphe inconnu est extrêmement rapide puisqu'il suffit de parcourir l'arbre de décision avec sa matrice d'adjacence pour vérifier s'il est un sous-graphe d'un graphe du corpus.
+La limite de l'approche est donc qu'il faut non seulement générer tous les isomorphismes, mais en plus les stocker.
+Ils montrent, en appliquant quelques optimisations, que l'on peut générer et stocker tous les isomorphismes de sous-graphes pour des graphes allant jusqu'à 22 sommets.
+\\
+
+Le cas des graphes de flot est assez différent puisque l'on va chercher à comparer des petits graphes de motif (moins de 24 sommets) et dans graphes de test de grande taille (plusieurs milliers ou dizaines de milliers de sommets).
+L'algorithme d'Ullmann ainsi que les deux approches expliquées dans cette section ne sont pas adaptés pour ce problème. Nous avons alors cherché des approches prenant en comptes les spécificités des graphes de flot.
 
 \section{Algorithme de Tarjan}
 Tarjan \cite{Tar71} propose un parcours en profondeur d'un graphe qui permet d'en simplifier la structure en construisant un arbre le recouvrant. 
@@ -1521,4 +1526,13 @@ On a donc trois algorithmes à comparer : l'algorithme d'Ullmann, pris pour réf
 
 Du point de vue la complexité dans le pire des cas, il est clair que l'algorithme d'Ullmann est très inefficace et l'algorithme SIDT devrait s'avérer être le plus rapide avec une complexité constante lors de l'agrandissement de la base.
 
+\section{Implémentations}
+\subsection{Ullmann}
+Le programme, développé en C, prend en entrée deux fichiers de graphes au format binaire (compatible avec le format .dot) et indique si le premier est un sous-graphe du second et le nombre d'isomorphismes dans ce cas.
+
+Comme l'algorithme détaillé précédemment, l'implémentation
+est principalement constituée des deux fonction \emph{backtrack} et \emph{forwardChecking}.
+Les notations prises dans le code seront utilisées dans la partie suivante.
+
+\section{Comparaison des performances}
 
