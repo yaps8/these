@@ -160,7 +160,15 @@ structure. Ici le graphe P est isomorphe au sous-graphe induit par les sommets $
 % TODO: def \ref{def-sousgraphe} et def \ref{def-sousgraphe2} sont équivalentes pour les sites!
 
 \section{Sites}
-En pratique on va choisir un certain nombre de sous-graphes particuliers de la base, appelés sites, qui seront les motifs que l'on cherche à détecter : on note généralement P un graphe de motif. Un site est un graphe de flot ayant une racine (définition \ref{def-site}). Un site peut être un sous-graphe d'un graphe de flot (définition \ref{def-soussite}) comme dans l'exemple de la figure \ref{fig:ex-gf-site}.
+L'analyse morphologique \cite{BKM08} ne cherche pas directement à savoir si un programme malveillant est un sous-graphe du programme analysé ou inversement. 
+Cette approche est vouée à l'échec puisqu'une modification mineure de l'un des deux conduirait à une non détection.
+Au contraire on va découper les graphes de flot du corpus en sous-graphes tout en gardant le graphe de test T intact.
+On cherchera alors des isomorphismes de sous-graphes entre chaque sous-graphe de la base et le graphe de flot de test.
+
+En pratique on va générer un certain nombre de sous-graphes, appelés sites, du corpus de graphes de flot qui seront les motifs que l'on cherche à retrouver dans le graphe de flot analysé : on notera généralement P un graphe de motif. 
+Ces sous-graphes sont définis par le sous-graphe induit par les sommets parcours à l'aide d'un parcours en largeur limité à un certain nombre de sommets (typiquement entre 12 et 24) à partir de chaque sommet du graphe d'origine. Ils ont donc une racine qui est le sommet à partir duquel ils ont été générés.
+
+Ainsi un site est un graphe de flot ayant une racine (définition \ref{def-site}). Un site peut être un sous-graphe d'un graphe de flot (définition \ref{def-soussite}) comme dans l'exemple de la figure \ref{fig:ex-gf-site} : le sous-site est généré à partir du sommet $b$ en construisant le sous-graphe induit par les trois premiers sommets atteignables par un parcours en largeur.
 
 \begin{defi}\label{def-site}
 Un site P est un graphe de flot ayant une racine : un sommet à partir duquel on peut atteindre n'importe quel autre sommet de P
@@ -192,7 +200,7 @@ On appelle sous-site d'un graphe de flot $T$ tout site étant un sous-graphe de 
 
 \section{Problème de la détection des sites isomorphes}
 Le problème se pose alors de la manière suivante. On dispose d'une liste de sites et %provenant de multiples graphes de flot de contrôle différents.
-on veut déterminer, dans le graphe de flot T, les sites qui sont isomorphes à (au moins) un site présent dans la liste connue. Dans une optique de détection, il est aussi nécessaire d'associer chaque site de la base connue au programme dont il est issu.
+on veut déterminer, dans le graphe de flot de test T, les sites qui sont isomorphes à (au moins) un site présent dans la liste connue. Dans une optique de détection, il est aussi nécessaire d'associer chaque site de la base connue au programme dont il est issu.
 
 On a alors trois problèmes successifs, de difficulté croissante et faisant intervenir différents algorithmes.
 \begin{pb}\label{pbisog}
@@ -206,10 +214,11 @@ On a alors trois problèmes successifs, de difficulté croissante et faisant int
 % Dans le problème~\ref{pbisosg}, on nomme $P$ le site de motif et $T$ le graphe de test.
 
 \begin{pb}\label{pbisosgbase}
- À partir d'un ensemble de sites $L_P$ et d'un graphe de flot $T$, comment savoir s'il existe $P\in L_P$ tel que $P$ est un sous-site $T$ ?
+%  À partir d'un ensemble de sites $L_P$ et d'un graphe de flot $T$, comment savoir s'il existe $P\in L_P$ tel que $P$ est un sous-site $T$ ?
+ À partir d'un ensemble de sites $L_P$ et d'un graphe de flot $T$, comment déterminer l'ensemble des $P\in L_P$ tels que $P$ est un sous-site de $T$ ?
 \end{pb}
 
-\section{Représentation sous forme matricielle}
+\section{Représentation sous forme matricielle et recherche exhaustive}
 \begin{figure}[ht]
 \begin{center}
   \subfigure[Graphe T]{
@@ -225,18 +234,19 @@ On a alors trois problèmes successifs, de difficulté croissante et faisant int
 \label{fig:ex-graphe-sg}
 \end{figure}
 
-Dans cette section et la suivante, on traite le cas général de l'isomorphisme de graphes et de sous-graphes orientés comme dans l'exemple de la figure \ref{fig:ex-graphe-sg}. En particulier ces graphes ne sont, sauf mention du contraire, pas étiquetés et les fils des sommets ne sont pas ordonnés. Nous redonnons les définitions précédentes de graphes orientés, de sous-graphe et sous-graphe induit ainsi que d'isomorphisme de graphes dans le cas des graphes orientés quelconques.
+Dans cette section et la suivante, on traite le cas général de l'isomorphisme de graphes et de sous-graphes orientés comme dans l'exemple de la figure \ref{fig:ex-graphe-sg}. En particulier ces graphes ne sont, sauf mention du contraire, pas étiquetés et les fils des sommets ne sont pas ordonnés. 
+Nous redonnons les définitions précédentes de graphes orientés, de sous-graphe et sous-graphe induit ainsi que d'isomorphisme de graphes, dans le cas habituel des graphes orientés quelconques, aux définitions \ref{def:graphe}, \ref{def:sousgraphe}, \ref{def:sousgraphe-induit} et \ref{def:isog}, respectivement.
 
-\begin{defi}\label{def-graphe}
+\begin{defi}\label{def:graphe}
 Un graphe orienté $T=(V, E)$ est composé par les ensembles finis V et E.
 V est l'ensemble des sommets de T, $E\subset V\times V$ est l'ensemble des arcs de T tel que $(t, h)\in E$ ssi il y a un arc entre le sommet t et le sommet h.
 \end{defi}
 
-\begin{defi}\label{def-sousgraphe}
+\begin{defi}\label{def:sousgraphe}
 Un graphe orienté $P=(V_P, E_P)$ est un sous-graphe du graphe orienté et étiqueté $T=(V_T, E_T)$ si et seulement si $V_P \subset V_T$ et $E_P\subset\{(t, h)\in E_T / t, h \in V_P \}$.
 \end{defi}
 
-\begin{defi}\label{def-sousgraphe-induit}
+\begin{defi}\label{def:sousgraphe-induit}
 Le sous-graphe induit d'un graphe orienté et étiqueté $T=(V_T, E_T)$ à partir de l'ensemble de sommets $V_P \subset V_T$ est le graphe $P=(V_P, E_P)$ tel que $E_P=\{(t, h)\in E_T / t, h \in V_P \}$.
 \end{defi}
 
@@ -249,8 +259,8 @@ $v_j~\mbox{alors}~M_{i, j}=~1,~\mbox{sinon}~M_{i,~j}=~0$ (définition \ref{def-a
 Pour un graphe donné dont les sommets ne sont pas ordonnés, on peut choisir arbitrairement un ordre à ses sommets et dans ce cas il y a autant de matrices d'adjacence possibles pour ce graphe qu'il y a de permutations de ses sommets. 
 
 Par la suite la matrice $M_T$ d'adjacence d'un graphe T représente une de ces matrices, arbitrairement fixée à la première occurence de $M_T$.
-En théorie le choix d'une matrice d'adjacence n'a pas d'impact sur les solutions trouvées puisque toutes les matrices d'adjacence d'un graphe sont les mêmes à une permutation des sommets près, et que par la suite on n'utilise des égalités entre ces matrices qu'à une permutation près.
-Dans les implémentations il est facile de fixer arbitrairement un ordre aux sommets. 
+Le choix d'une matrice d'adjacence n'a pas d'impact sur les solutions trouvées puisque toutes les matrices d'adjacence d'un graphe sont les mêmes à une permutation des sommets près, et, par la suite, nous n'utilisons des égalités entre ces matrices qu'à une permutation près.
+% Dans les implémentations il est facile de fixer arbitrairement un ordre aux sommets. 
 % En mémoire chaque sommet du graphe est réprésenté par une structure, il suffit de les ordonner selon l'adresse mémoire de cette structure. Enregistrés dans un fichier, les sommets sont décrits un par un, ce qui donne un ordre naturel.
 
 \begin{defi}\label{def-adjmatrice}
@@ -294,10 +304,25 @@ $M_{i, j} = \begin{array}{r|ccc}  & a & b & c \\ \hline a & 0 & 0 & 0 \\ b & 1 &
 \end{figure}
 
 Le problème de l'isomorphisme peut alors se reformuler. Deux graphes T et P sont isomorphes si et seulement si il existe une permutation $\sigma$ des sommets du graphe T telle
-que $M_{\sigma(T)}=M_P$. Il est donc nécessaire et suffisant qu'il existe une matrice de permutation K telle que $M_P = K.M_T.K^t$ (car $K^{-1}=K^t$ pour une matrice de permutation).
+que $M_{\sigma(T)}=M_P$. Il est donc nécessaire et suffisant qu'il existe une matrice de permutation K telle que $M_P = K.M_T.K^t$ (car $K^{-1}=K^t$ pour une matrice de permutation), comme indiqué à la proposition \ref{prop:iso-mat}.
 
+\begin{prop}
+ Deux graphes T et P sont isomorphes si et seulement si il existe une matrice de permutation K telle que $M_P = K.M_T.K^t$.
+ \label{prop:iso-mat}
+\end{prop}
 
-On note $n_T$ et $n_P$ le nombre de sommets des graphes T et P, respectivement. Pour l'isomorphisme de sous-graphe on cherche un sous-ensemble $\{s_1, s_2, ..., s_{n_P}\}$ de $n_P$ sommets de T et un sous-ensemble d'arcs de T entre les sommets $\{s_1, s_2, ..., s_{n_P}\}$ tels que le sous-graphe défini par ces sommets et ces arcs soit isomorphe à P. Supposons qu'il existe un tel isomorphisme et on note $\sigma$ de $\mathfrak{S}(n_T)$ telle que $\forall i \leq n_P,\ \sigma(s_i) \leq n_P$ donnant les $n_P$ sommets de T y participant. Les autres éléments n'ont pas d'importance
+Le problème de l'isomorphisme de sous-graphes entre T et P, de tailles respectives $n_T$ et $n_P$ avec $n_T\geq n_P$, nécessite de trouver une permutation entre un sous-graphe de T et P.
+Puisqu'il est possible de prendre un sous-graphe qui ne contient par tous les arcs de T et qu'un arc est représenté par un 1, la condition d'isomorphisme de sous-graphe sera une inégalité, comme indiqué à la proposition \ref{prop:iso-sg-mat}.
+
+\begin{prop}
+Il existe un isomorphisme de graphes entre un sous-graphe de T et P si et seulement si il existe une matrice de permutation $K$, carrée de taille $n_T$, telle que, en notant $Q=I_{n_P, n_T}.K$, $\forall k,l\leq n_P, (M_P)_{k,l}\leq (Q.M_T.Q^t)_{k,l}$.
+\label{prop:iso-sg-mat}
+\end{prop}
+
+\itodo{plutot de taille np ? la complexité pourrait grandement diminuer}
+
+\begin{pr}
+On cherche un sous-ensemble $\{s_1, s_2, ..., s_{n_P}\}$ de $n_P$ sommets de T et un sous-ensemble d'arcs de T entre les sommets $\{s_1, s_2, ..., s_{n_P}\}$ tels que le sous-graphe défini par ces sommets et ces arcs soit isomorphe à P. Supposons qu'il existe un tel isomorphisme et on note $\sigma$ de $\mathfrak{S}(n_T)$ telle que $\forall i \leq n_P,\ \sigma(s_i) \leq n_P$ donnant les $n_P$ sommets de T y participant. Les autres éléments n'ont pas d'importance
 puisqu'ils ne participent pas à l'isomorphisme recherché. Soit K la matrice de permutation associée à $\sigma$.
 Les arcs présents dans P doivent être présents dans le sous-graphe de T induit à partir de $\{s_1, s_2, ..., s_{n_P}\}$, ce qui en terme de matrices d'adjacence équivaut à ce que, si on note la matrice du graphe induit $M_{\sigma(T)}=K.M_T.K^t$, ses éléments, pour les sommets qui participent à l'isomorphisme (les $n_P$ premiers sommets), soient supérieurs aux éléments à la même place dans $M_P$ : $\forall k,l\leq n_P, (M_P)_{k,l}\leq (K.M_T.K^t)_{k,l}$. Il suffit alors de réduire la taille de la matrice en utilisant une matrice $I_{n_P, n_T}$ définie par
 $(I_{n_P, n_T})_{i, j} = \left\{
@@ -312,6 +337,7 @@ $.
 Dans ce cas, et si on pose $Q=I_{n_P, n_T}.K$ avec $Q\in \mathbb{M}_{n_P, n_T}$, on a $Q.M_T.Q^t=I_{n_P, n_T}.K.M_T.K^t.I_{n_T, n_P}$, les deux matrices $M_P$ et la condition devient : il est nécessaire qu'il existe une matrice $Q\in \mathbb{M}_{n_P, n_T}$ telle que pour toute ligne k et colonne l de $M_P$, $(M_P)_{k,l}\leq (Q.M_T.Q^t)_{k,l}$.
 
 Inversement, s'il existe une matrice de permutation $K$ (carrée de taille $n_T$) telle que, en notant $Q=I_{n_P, n_T}.K$, $\forall k,l\leq n_P, (M_P)_{k,l}\leq (Q.M_T.Q^t)_{k,l}$ alors il existe bien un isomorphisme de graphes entre un sous-graphe de T et P.
+\end{pr}
 
 Dans l'exemple des graphes de la figure \ref{fig:ex-graphe-sg}, P est isomorphe au sous-graphe de T composé des sommets $\{d, e, a\}$ en faisant correspondre les couples (a, a), (d, b) et (e, c) entre T et P, soit la
 permutation $\sigma$ telle que $\sigma(1)=~1,\ \sigma(4)=~2\ et\ \sigma(5)=~3$. La matrice de permutation K est donnée en figure \ref{fig:mat-perm}.
@@ -355,48 +381,50 @@ $\left( \begin{array}{ccccc}
 
 %$I^{n, m}_{i, j}=1$ si $i=j$, $I^{n, m}_{i, j}=0$ 
 
-
+\paragraph{Complexité.}
 L'approche par force brute demande de parcourir toutes les matrice de permutations de taille $n_T$ : il y en a $n_P!$. Pour chaque matrice de permutation, une matrice transposée est déterminée et plusieurs multiplications matricielles sont faites sur des matrices de taille $n_T.n_T$, opération réalisable au pire en $n_T^3$. La complexité de cette approche dans le pire des cas est donc $O(n_T^3.n_T!)$.
 
 
 \section{Algorithme d'Ullmann}
+\idone{il s'appelle Ullmann}
 L'algorithme d'Ullmann est le plus connu pour résoudre le problème \ref{pbisosg} d'isomorphisme de sous-graphes \cite{Ull76} dans le cas général des graphes orientés. Il s'applique à un graphe de motif P à détecter et à un graphe T dans lequel faire la reconnaissance. Comme détaillé par la suite, sa complexité est exponentielle en le nombre de sommets maximal du graphe de motif P.
 
-De plus, si on veut l'utiliser pour résoudre le problème \ref{pbisosgbase} de recherche d'isomorphismes de sous-graphes dans une base de graphes de motifs, il est nécessaire de l'appliquer pour chaque graphe dans la base, la complexité est alors linéaire en le nombre de graphes dans la base.\\
+De plus, si on veut l'utiliser pour résoudre le problème \ref{pbisosgbase} de recherche d'isomorphismes de sous-graphes dans une base de graphes de motifs, il est nécessaire de l'appliquer pour chaque graphe dans la base, la complexité est alors linéaire en le nombre de graphes dans la base.
 Puisqu'il est complet pour le problème d'isomorphisme de sous-graphes, ce sera l'algorithme de référence auquel on pourra comparer les heuristiques sur le plan de la complétude, de la complexité, et du temps d'exécution.\\
 
 Nous présenterons d'abord l'algorithme d'Ullmann dans le cas de graphes orientés quelconques puis nous y ferons des restrictions pour l'adapter au cas des graphes de flot.
 % \subsection{L'algorithme d'Ullmann pour l'isomorphisme de sous-graphes}
 
-\paragraph{Isomorphisme de sous-graphes.}L'algorithme d'Ullmann repose
-sur le concept de retour sur traces (ou \emph{backtracking}) pour trouver successivement tous les sous-graphes isomorphes au 
-graphe de motif. Cette approche a ensuite été largement améliorée par Ullmann à l'aide de l'utilisation d'une technique de
-vérification à priori permettant d'éliminer de nombreux candidats sans avoir à les tester entièrement.
+\paragraph{Backtracking.}
+L'algorithme d'Ullmann repose sur le concept de retour sur traces (ou \emph{backtracking}) pour trouver successivement tous les sous-graphes isomorphes au graphe de motif. 
+Cette approche a ensuite été largement améliorée par Ullmann à l'aide de l'utilisation d'une technique de vérification à priori permettant d'éliminer de nombreux candidats sans avoir à les tester entièrement.
 
 \subsection{Backtracking simple}
 Soit $T=(V_T, E_T)$ un graphe et $P=(V_P, E_P)$ un graphe dont on cherche à connaître les sous-graphes de T avec lesquels il est isomorphe.
-On note $n_T=Card(V_T)$ et $n_P=Card(V_P)$ les nombres de n\oe uds de chaque graphe.
+On note $n_T=Card(V_T)$ et $n_P=Card(V_P)$ les nombres de sommets de chaque graphe.
 L'idée consiste à partir d'un sommet de P, à l'associer à un sommet de T, de vérifier si l'association créée est bien un
-isomorphisme de sous-graphe. Si c'est le cas, on prend un autre sommet de P à associer avec un sommet de T pas encore
-inclus dans la transformation. Si ce n'est pas un isomorphisme de sous-graphe, on retire la dernière association faite, et on
-repart en incluant un autre sommet. Et ainsi de suite. Lorsque l'on a une transformation utilisant tous les sommets de P et définissant
-un isomorphisme avec un sous-graphe de T, on la met de coté (c'est une solution), et on revient en arrière pour trouver les autres
-solutions.
+isomorphisme de sous-graphe. 
+Si c'est le cas, on prend un autre sommet de P à associer avec un sommet de T pas encore
+inclus dans la transformation. 
+Si ce n'est pas un isomorphisme de sous-graphe, on retire la dernière association faite, et on repart en incluant un autre sommet. 
+Et ainsi de suite. Lorsque l'on a une transformation utilisant tous les sommets de P et définissant un isomorphisme avec un sous-graphe de T, on la met de coté (c'est une solution), et on revient en arrière pour trouver les autres solutions.
 
 
 La manière de tester si on a bien obtenu un isomorphisme est celle décrite précédemment à l'aide de la représentation matricielle.
-On définit la matrice de permutation K de la transformation,
+On définit la matrice de permutation K \todo{in what?} de la transformation,
 puis la matrice $I_{n_P, n_T}$ permettant le redimensionnement d'une matrice, et on regarde si la relation $\forall k,l\leq n_P, (M_P)_{k,l}\leq (I_{n_P, n_T}.K.M_T.K^t.I_{n_T, n_P})_{k,l}$ est
 vérifiée.
 \\
 
+\paragraph{Complétude.}
 La première remarque à faire sur le principe donne la validité de cet algorithme. Si deux graphes sont isomorphes et ont au moins 2 sommets,
 alors il existe deux sous-graphes respectifs de chacun des graphes, avec un sommet de moins, tels que les deux sous-graphes sont isomorphes.
 De ce fait, en augmentant progressivement la taille de chaque sous-graphe de P donnant un isomorphisme, on atteint tous les sous-graphes isomorphes à T.
 
 
+\paragraph{Optimisation.}
 Une deuxième remarque peut être faite : on peut dès le départ savoir que certaines associations ne donneront pas lieu à un sous-graphe. Avec les graphes P et T
-de la figure \ref{fig:ex-graphe-sg}, il est clair que le sommet c du graphe P ne peut pas être associé au sommet c du graphe T. En effet $c_P$ a stricement plus d'arcs
+de la figure \ref{fig:ex-graphe-sg}, il est clair que le sommet c du graphe P ne peut pas être associé au sommet c du graphe T. En effet $c_P$ a strictement plus d'arcs
 entrant que $c_T$, la structure autour de $c_P$ ne pourrait donc pas être préservée par un isomorphisme. On construit une matrice $C^0 \in \mathbb{M}_{n_P, n_T}$ telle que, pour
 $i\le n_P, j\le n_T$, on n'essaie d'associer les sommets i et j que si $C^0_{i, j}=1$. En prenant en compte la remarque précédente, on définit alors
 \\
@@ -415,12 +443,13 @@ Les conditions sur les inégalités sont prises au sens large.
 
 Le calcul effectif du nombre d'arcs entrant (respectivement sortant) d'un sommet d'un graphe se fait simplement à partir de sa matrice d'adjacence en
 additionnant, à colonne (respectivement ligne) constante correspondant au sommet, les valeurs de la matrice sur toutes les lignes (respectivement colonnes).
-\\
 
-L'algorithme est détaillé dans la figure \ref{algo:ullman} : il consiste à associer chaque sommet de P à un sommet de T. On note i le numéro du prochain sommet de P à associer à un sommet de T. On démarre donc avec i=1.
-On conserve la permutation $\sigma$ sous la forme d'un ensemble F d'éléments de couples de la forme $(i, j)$ avec $i\in T$, et $j\in P$. La première étape
-consiste donc à initialiser les matrices que l'on va utiliser ($M_T,\ M_P,\ I_{n_P, n_T},\ et\ C^0$). Une fois l'initialisation faite, pour parcourir toutes les possibilités, on
-utilise la procédure \emph{backtrack} en partant d'une matrice de possibilités $C^0$, de i=1, et d'un ensemble F vide. 
+
+\paragraph{Algorithme.}
+L'algorithme est détaillé dans la figure \ref{algo:ullman} : il consiste à associer chaque sommet de P à un sommet de T. On note i le numéro du prochain sommet de P à associer à un sommet de T. 
+On démarre donc avec i=1.
+On conserve la permutation $\sigma$ sous la forme d'un ensemble F d'éléments de couples de la forme $(i, j)$ avec $i\in T$, et $j\in P$. 
+La première étape consiste donc à initialiser les matrices que l'on va utiliser ($M_T,\ M_P,\ I_{n_P, n_T},\ et\ C^0$). Une fois l'initialisation faite, pour parcourir toutes les possibilités, on utilise la procédure \emph{backtrack} en partant d'une matrice de possibilités $C^0$, de i=1, et d'un ensemble F vide. 
 % Cette procédure commence par vérifier si la
 % situation courante est une solution d'isomorphisme de sous-graphe. Pour cela il faut d'une part que le sous-graphe soit de la taille de P, et d'autre part que ce soit bien un isomorphisme
 % avec P, c'est à dire que $M_P=I_{n_P, n_T}^t.K.M_T.K^t.I_{n_P, n_T}$ soit vérifiée. Si la situation courante est une solution, on arrête l'algorithme et on renvoie la solution. Si ce n'était pas
@@ -442,15 +471,15 @@ Il est à noter que l'on peut déterminer la matrice de permutation K à partir 
 non encore attribué. Les sous-graphes $S_T$ et $S_P$ de T et P considérés sont respectivement les sous-graphes définis à partir des sommets i tels que $\exists j,\ (i,\ j)\in F$ et les sommets j tels que
 $\exists i,\ (i,\ j)\in F$.
 
-\begin{figure}
+\begin{figure}[h]
 % \caption{Algorithme de backtracking simple}
 \begin{algorithm}[H] %or another one check
 \caption{Backtracking simple}
 \SetAlgoLined
 \KwData{Deux graphes P (de taille $n_P$) et T (de taille $n_T$)}
 \KwResult{Les possibilités d'association donnant un isomorphisme de sous-graphe entre P et T}
-Fixer l'ordre des sommets de $P$ et de $T$\\
-Initialiser $M_P$ et $M_T$ les matrices d'adjacence de P et T, respectivement\\
+% Fixer l'ordre des sommets de $P$ et de $T$\\
+% Initialiser $M_P$ et $M_T$ les matrices d'adjacence de P et T, respectivement\\
 Initialiser $C^0$\\
 backtrack($C^0$, 1, $\emptyset$)\\
 ~\\
@@ -500,13 +529,13 @@ backtrack($C^0$, 1, $\emptyset$)\\
 % \label{fig:algo-ullman}
 % \end{figure}
 
+% \FloatBarrier
 \subsection{Raffinement et vérification à priori}
 L'algorithme détaillé précédemment est une application directe du backtracking au problème d'isomorphisme de sous-graphes, et Ullmann propose
 un deuxième algorithme basé sur une vérification à priori, ou \emph{Forward Checking}. L'idée est, à chaque ajout d'une correspondance dans la transformation,
-de vérifier qu'il existe une correspondance supplémentaire possible. L'intérêt est d'éliminer des branches impossibles en les vérifiant à l'avance. La vérification
-est donc faite avant l'appel récursif à la nouvelle procédure \emph{backtrack} (algorithme \ref{algo:ullman-backforw}) grâce à la fonction \emph{forwardChecking} (algorithme \ref{algo:ullman-forwardch}). Cette vérification
-tient de la définition d'un isomorphisme en tant que graphe : Pour qu'un sous-graphe $S_T$ de T choisi soit isomorphe au sous-graphe $S_P$ de P 
-auquel il est associé, il est nécessaire que tous les arcs de $S_P$ soient présents dans $S_T$ : si deux sommets sont reliés par un arc dans $S_P$ alors leurs correspondants
+de vérifier qu'il existe une correspondance supplémentaire possible. L'intérêt est d'éliminer des branches impossibles en les vérifiant à l'avance. La vérification est donc faite par la fonction \emph{forwardChecking} (algorithme \ref{algo:ullman-forwardch}) avant l'appel récursif à la nouvelle procédure \emph{backtrack} (algorithme \ref{algo:ullman-backforw}). 
+Cette vérification tient de la définition d'un isomorphisme en tant que graphe.
+Pour qu'un sous-graphe $S_T$ de T choisi soit isomorphe au sous-graphe $S_P$ de P auquel il est associé, il est nécessaire que tous les arcs de $S_P$ soient présents dans $S_T$ : si deux sommets sont reliés par un arc dans $S_P$ alors leurs correspondants
 dans $S_T$ doivent aussi être reliés par un arc orienté de la même manière. Si cette condition est vérifiée alors la matrice C conservant les possibilités d'association gardera
 possible cette association, sinon elle l'interdira. Enfin si plus aucune association n'est possible pour le sommet à tester au vue des modifications faites à C, la fonction
 \emph{forwardChecking} renvoie \emph{false}. Elle renvoie \emph{true} dans le cas contraire. 
@@ -528,14 +557,51 @@ possible cette association, sinon elle l'interdira. Enfin si plus aucune associa
 % Cet algorithme reste une référence dans la recherche d'isomorphismes de sous-graphe. Je vais maintenant présenter une variante de l'algorithme d'Ullmann allant plus loin dans
 % le processus de vérification à priori, puis un algorithme de recherche d'isomorphismes adapté à une utilisation sur de grandes bases de graphes déjà connus.
 
-\begin{figure}
+\begin{figure}[h]
+\begin{algorithm}[H] %or another one check
+\caption{Forward Checking}
+\SetAlgoLined
+\KwData{Les associations possibles dans C, le numéro courant i du sommet de P, les associations déjà réalisées dans F}
+\KwResult{Les associations mises à jour et vrai/faux selon si une future association est possible}
+\SetKwProg{Fn}{}{}{}
+\SetKwFunction{FRecurs}{forwardChecking}
+\Fn(
+% \tcc*[h]{C : matrice des associations possibles, i : numéro du prochain sommet de P à associer, F : liste des couples d'associations déjà faites}
+){\FRecurs{C, i, F}}{
+\For{$(k,l)\in\llbracket i+1, n_P \rrbracket\times\llbracket 1, n_T \rrbracket$}{
+  \If{$C_{k,l}=1$}{
+    \tcp*[h]{On regarde si on peut faire correspondre k dans P à l dans T}\\
+    \For{$(v,w)\in F$}{
+    \If{$(k,v)\in E_P $ et $ (l,w)\notin E_T$}{
+      $C_{k,l}\leftarrow 0$
+    }
+    \If{$(v,k)\in E_P $ et $ (w,l)\notin E_T$}{
+      $C_{k,l}\leftarrow 0$
+    }
+    }
+  }
+}
+\tcp*[h]{On vérifie si chaque $k\geq i+1$ dans P peut encore être associé à au moins un élément de T}\\
+\For{$k\in\llbracket i+1, n_P \rrbracket$}{
+  \If{$\forall l\in\llbracket 1, n_T \rrbracket, C_{k,l}=0$}{
+    \Return $(C, false)$
+  }
+}
+\Return $(C, true)$
+}
+\label{algo:ullman-forwardch}
+\end{algorithm}
+% \caption{Fonction de \emph{Forward Checking} pour des graphes orientés quelconques}
+\end{figure}
+
+\begin{figure}[h]
 \begin{algorithm}[H] %or another one check
 \caption{Backtracking avec Forward Checking}
 \SetAlgoLined
 \KwData{Deux graphes P (de taille $n_P$) et T (de taille $n_T$)}
 \KwResult{Les possibilités d'association donnant un isomorphisme de sous-graphe entre P et T}
-Fixer l'ordre des sommets de $P$ et de $T$\\
-Initialiser $M_P$ et $M_T$ les matrices d'adjacence de P et T, respectivement\\
+% Fixer l'ordre des sommets de $P$ et de $T$\\
+% Initialiser $M_P$ et $M_T$ les matrices d'adjacence de P et T, respectivement\\
 Initialiser $C^0$\\
 backtrack($C^0$, 1, $\emptyset$)\\
 ~\\
@@ -585,42 +651,7 @@ backtrack($C^0$, 1, $\emptyset$)\\
 % % \tab a) Si i > n alors F
 % \end{center}
 
-\begin{figure}
-\begin{algorithm}[H] %or another one check
-\caption{Forward Checking}
-\SetAlgoLined
-\KwData{Les associations possibles dans C, le numéro courant i du sommet de P, les associations déjà réalisées dans F}
-\KwResult{Les associations mises à jour et vrai/faux selon si une future association est possible}
-\SetKwProg{Fn}{}{}{}
-\SetKwFunction{FRecurs}{forwardChecking}
-\Fn(
-% \tcc*[h]{C : matrice des associations possibles, i : numéro du prochain sommet de P à associer, F : liste des couples d'associations déjà faites}
-){\FRecurs{C, i, F}}{
-\For{$(k,l)\in\llbracket i+1, n_P \rrbracket\times\llbracket 1, n_T \rrbracket$}{
-  \If{$C_{k,l}=1$}{
-    \tcp*[h]{On regarde si on peut faire correspondre k dans P à l dans T}\\
-    \For{$(v,w)\in F$}{
-    \If{$(k,v)\in E_P $ et $ (l,w)\notin E_T$}{
-      $C_{k,l}\leftarrow 0$
-    }
-    \If{$(v,k)\in E_P $ et $ (w,l)\notin E_T$}{
-      $C_{k,l}\leftarrow 0$
-    }
-    }
-  }
-}
-\tcp*[h]{On vérifie si chaque $k\geq i+1$ dans P peut encore être associé à au moins un élément de T}\\
-\For{$k\in\llbracket i+1, n_P \rrbracket$}{
-  \If{$\forall l\in\llbracket 1, n_T \rrbracket, C_{k,l}=0$}{
-    \Return $(C, false)$
-  }
-}
-\Return $(C, true)$
-}
-\label{algo:ullman-forwardch}
-\end{algorithm}
-% \caption{Fonction de \emph{Forward Checking} pour des graphes orientés quelconques}
-\end{figure}
+
 
 % \begin{center}
 %   $\begin{array}{llll}
@@ -642,35 +673,30 @@ backtrack($C^0$, 1, $\emptyset$)\\
 % \end{center}
 
 \subsection{Implémentation}
-% L'algorithme d'Ullmann a été implémenté parallèlement au projet principal. 
-Le programme prend en entrée
-deux fichiers de graphes au format binaire (compatible avec le format .dot) et indique
-si le premier est un sous-graphe du second et le nombre d'isomorphismes dans ce cas.
-\\
+Le programme, développé en C, prend en entrée deux fichiers de graphes au format binaire (compatible avec le format .dot) et indique si le premier est un sous-graphe du second et le nombre d'isomorphismes dans ce cas.
 
-Ce module a été développé en langage C. Comme l'algorithme détaillé précédemment, l'implémentation
+Comme l'algorithme détaillé précédemment, l'implémentation
 est principalement constituée des deux fonction \emph{backtrack} et \emph{forwardChecking}.
 Les notations prises dans le code seront utilisées dans la partie suivante.
-% J'appelle le petit graphe que l'on cherche à retrouver
-% dans le second le graphe de motif P (de taille $n_P$), et le graphe dont on cherche un sous-graphe isomorphe au premier le graphe à tester
-% T (de taille $n_T$).
 
-
-Une modification de l'algorithme d'Ullmann précédent permettant de l'optimiser a été utilisée. Dans la fonction Forward Checking, il n'est pas
-utile de vérifier tous les éléments de F à chaque appel, mais seulement les derniers élements ajoutés (qui correspondent exactement à
-la dernière association ajoutée). Cette modification ne change pas le comportement ni les résultats de l'algorithme puisque les éléments précédents
-dans F ont déjà été vérifiés précédemment.
+Une modification de l'algorithme d'Ullmann précédent permettant de l'optimiser a été utilisée. Dans la fonction Forward Checking, il n'est pas utile de vérifier tous les éléments de F à chaque appel, mais seulement les derniers élements ajoutés (qui correspondent exactement à la dernière association ajoutée). Cette modification ne change pas le comportement ni les résultats de l'algorithme puisque les éléments précédents dans F ont déjà été vérifiés précédemment.
 
 
 \subsection{Complexité}
 On peut étudier la complexité temporelle dans le pire des cas de l'algorithme d'Ullmann en gardant les notations prises précédemment.
-Le pire des cas se présente lorsque toutes les associations sont possibles \cite{MessPhd} ($C^0$ n'est composée que de 1), c'est à dire que les deux graphes sont entièrement connectés.
+Le pire des cas se présente lorsque toutes les associations sont possibles \cite{MessPhd} ($C^0$ n'est composée que de 1), c'est à dire que les deux graphes sont entièrement connectés. La complexité de l'algorithme d'Ullmann avec vérification à priori est donnée à la proposition \ref{prop:complexite-ullmann}.
+Nous verrons par la suite qu'elle peut se réduire dans le cas des graphes de flot.
 
-Notons \emph{BT(i)} et \emph{FW(i)} respectivement la complexité des fonctions Backtrack et Forward\_Checking avec en entrée
+\begin{prop}
+La complexité dans le pire des cas de l'algorithme d'Ullmann est donc exponentielle en fonction de la taille du graphe de motif : $C=O(n_T^{n_P+1})$.
+\label{prop:complexite-ullmann}
+\end{prop}
+
+\begin{pr}
+Notons BT(i) et FW(i) respectivement la complexité des fonctions Backtrack et Forward\_Checking avec en entrée
 l'entier i.
 L'algorithme d'Ullmann consistant à un appel de la fonction récursive BT(1), c'est la complexité de cet appel que l'on cherche
 à évaluer.
-
 
 % Notons $z=i-1$. 
 À chaque appel de BT ou FW, on a déjà attribué $i-1$ associations et on cherche à attribuer l'association $i$.
@@ -680,13 +706,10 @@ $(n_T-(i-1))(n_P-(i-1))$ possibilités d'associations au maximum, et $n_T-(i-1)$
 pour le i-ème sommet du graphe de motif P. La fonction BT(i) vérifie, pour toutes ces associations encore possibles, si FW(i)
 est vrai (ce qui est le cas car toutes les associations sont possibles), et appelle BT(i+1).
 
-
 Ainsi $BT(i)=(n_T-(i-1))(FW(i) + BT(i+1))$. De plus $BT(n_P)=O(1)$ car $FW(n_P)=O(1)$.
-% 
 
 La fonction FW vérifie, $\forall k=(i+1)..n_P\ et\ l=1..n_T$ si $C_{k, l}=1$, et dans ce cas
 effectue un nombre de vérifications borné par $2n_T + 2n_P$ car, elle vérifie une conditions sur tous les fils de deux sommets de P et une condition sur tous les fils de deux sommets de T. On ne vérifie que les sommets de la dernière association (s'il y en a une) faite dans F, les autres ayant déjà été vérifiés auparavant. Une vérification sur tous les sites d'un sommet de P se fait en un temps maximum de $n_P$ si les fils sont représentés sous forme d'une liste, et la vérifications sur tous les sites d'un sommet de T au maximum en $n_T$. De plus $n_P\leq n_T$ donc la complexité est au pire de $4.n_T$. Ainsi, au pire, $FW(i)=4.n_T(n_T-(i-1))(n_P-(i-1))+(n_P-i).n_T\leq 4.n_T(n_T-(i-1)+1)(n_P-(i-1))$ sauf pour $FW(1)=(n_P-1).n_T$.
-
 
 Afin de représenter plus simplement ce problème récursif, notons $z_i=n_P-i$.
 Le problème est alors le suivant. On cherche à déterminer $BT(1)$.\\
@@ -702,15 +725,12 @@ $
 \\
 
 On peut noter que, quel que soit i, le terme $FW(i)$ n'apparaît que dans $BT(i)$, et on peut compter son
-nombre d'apparition. 
-\\Il apparaît $n_T(n_T-1)(n_T-2)...(n_T-(i-1))$ fois.
-\\
+nombre d'apparition : il apparaît $n_T(n_T-1)(n_T-2)...(n_T-(i-1))$ fois.
 
-Or $n_T(n_T-1)(n_T-2)...(n_T-(i-1))$ est même égal à $A^{i}_{n_T}$ avec
+Or $n_T(n_T-1)(n_T-2)...(n_T-(i-1))$ est lui-même égal à $A^{i}_{n_T}$ avec
 $A^k_n = \frac{n!}{(n-k)!}$.
-\\
-
 On peut remarquer que $A^{i}_{n_T}=O(n_T^i)$.
+
 Notons C la complexité totale de $BT(1)$.
 $$C=A^{1}_{n_T}FW(1)+A^{2}_{n_T}FW(2)+...+A^{n_P-2}_{n_T}FW(n_P-2)+A^{n_P-1}_{n_T}FW(n_P)$$
 On a vu que $FW(i)=4.n_T.(n_T-i+2)(n_P-i+1)\leq 4.n_T^2.n_P$, notons $FW=4.n_T^2.n_P$. De même $FW(1)=(n_P-1).n_T\leq FW$.
@@ -763,19 +783,17 @@ $$C<=4.k.n_T^{n_P+1}+12.k'.n_T^{n_P}+8.k''.n_T^{n_P+1}+k'''.f_0.n_T^{n_P},$$
 % $$C<=24k.n_T^{n_P+1}.$$
 % \\
 % \\
-Ainsi, il apparaît que $C=O(n_T^{n_P+1})$.
-\\
+Ainsi $C=O(n_T^{n_P+1})$.
+\end{pr}
 
-La complexité dans le pire des cas de l'algorithme d'Ullmann est donc exponentielle en fonction de la taille du graphe de motif.
 % , et polynomiale en fonction de la taille du graphe à tester. 
-Nous allons maintenant voir qu'elle peut se réduire dans le cas des graphes de flot.
+
 
 \subsection{Optimisation dans le cas des graphes de flot}
 \paragraph{Les sommets sont étiquetés.}
 Pour que deux sommets correspondent dans un isomorphisme entre deux graphes de flot, on rend nécessaire qu'ils aient la même étiquette.
-À partir d'un échantillon de 43 malware pris comme
-référence, on tente de voir le gain qu'une telle approche apporte dans le pire des cas avec l'algorithme d'Ullman.
-Voici la répartition de ces 48218 instructions. Ces valeurs n'étant pas représentatives (petit échantillon, pas nécessairement représentatif), les valeurs numériques sont arrondies.
+À partir d'un échantillon de 43 logiciels malveillants pris comme référence, on tente de voir le gain qu'une telle approche apporte dans le pire des cas avec l'algorithme d'Ullmann.
+Voici la répartition de ces 48218 instructions, les valeurs numériques ont été grossièrement arrondies.
 
 \begin{itemize}
  \item 1994 RET, 4.135\%, soit $l_1=5\%$
@@ -800,7 +818,8 @@ $$H=\sum_kP(L_i=k\ \cap\ L_j=k) \mbox{ car les labels sont tous différents (év
 $$H=\sum_kP(L_i=k).P(L_j=k) \mbox{ car ces événements sont indépendants,}$$
 $$H=\sum_kl_k^2.$$
 
-Comme $n_T >> n_P$, chaque choix de correspondance ne modifie pas la probabilité H que $C^0_{i, j}=1$ parmis les sommets restant
+Dans le cas que l'on traite les sous-sites P sont de petite taille (inférieure à 24 sommets) tandis que les graphes de flot T peuvent avoir plusieurs milliers de sommets.
+Comme $n_T >> n_P$, chaque choix de correspondance ne modifie pas la probabilité H que $C^0_{i, j}=1$ parmi les sommets restant
 malgré le fait que certaines correspondances
 aient déjà été choisies (leur nombre est très faible par rapport au nombre total de correspondances possibles).
 
@@ -810,9 +829,8 @@ en terme de complexité temporelle dans le pire des cas.
 Ainsi, dans notre cas la complexité est $O((n_T/3)^{n_P+1})$ alors qu'elle serait, dans le cas général, de $O((n_T.H)^{n_P+1})$ avec $H=\sum_kl_k^2$.
 
 \paragraph{L'arité des étiquettes est bornée.}
-On sait que chaque sommet a au plus k fils.
-La complexité de la fonction \emph{Forward Checking} en est modifiée car les vérifications des conditions sur les enfants de chaque sommet se font
-désormais en temps maximal fixé à k. On a donc dans le pire des cas $FW=4.k.n_T.n_P$. Ce qui se traduit par la perte en complexité totale d'un
+On sait qu'il existe une borne $k$ au nombre de fils de tous les sommets de nos graphes, avec $k=2$ : les instructions ayant le maximum de fils sont les sauts conditionnels et les appels de fonction.
+La complexité de la fonction \emph{Forward\_Checking} en est modifiée car les vérifications des conditions sur les enfants de chaque sommet se font désormais en temps maximal fixé à k. On a donc dans le pire des cas $FW=4.k.n_T.n_P$. Ce qui se traduit par la perte en complexité totale d'un
 multiple de $n_T$, soit $O(n_T^{n_P})$.
 % Bien que je sois convaincu que la complexité de l'algorithme est encore moindre avec les conditions de CFG simple, je n'ai pas réussi à le montrer.
 % \\
@@ -878,38 +896,18 @@ Par rapport à l'algorithme \ref{algo:ullman-forwardch}, on ne vérifie que le d
 % \end{center}
 
 \paragraph{Les fils sont ordonnés.}
-De plus on doit maintenant forcer les sommets correspondants entre P et T à être ordonnés de la même manière par rapport à leur père. La nouvelle fonction \emph{Forward Checking} est l'algorithme \ref{algo:ullman-forwardch-site}. Cette modification diminue grandement la complexité. \\
-\itodo{à quantifier/calculer et à implémenter}
+De plus on doit maintenant forcer les sommets correspondants entre P et T à être ordonnés de la même manière par rapport à leur père. 
+La nouvelle fonction \emph{Forward\_Checking}, prenant en compte les optimisations discutées, est l'algorithme \ref{algo:ullman-forwardch-site}.
+Cette modification diminue grandement la complexité mais nous ne l'avons pas quantifiée.
 
-Au final, avec les deux hypothèses de graphes avec des labels (et $n_T >> n_P$) qui sont des CFG simples, la complexité dans le pire des cas est bien inférieure
-à la complexité initiale, elle est de $O((n_T.P)^{n_P})$ avec $P=\sum_kl_k^2$ où les $l_i$ sont les probabilités d'apparition de chacun des labels.
-\\
+\paragraph{Conclusion sur la complexité.} 
+Pour le cas d'un graphe de flot, la complexité a été ramenée à $O((n_T.P)^{n_P})$ avec $P=\sum_kl_k^2$ où les $l_i$ sont les probabilités d'apparition de chacun des labels.
 
-% Il est à noter que la complexité ici, bien que diminuée, est encore très élevée. Deux remarques positives peuvent cependant être faites.
-% D'une part il ne s'agit que de la complexité dans le pire des cas, et que pour chercher tous les isomorphismes, alors que l'on peut imaginer s'arrêter au premier trouvé, ce qui
-% diminuerait le temps d'exécution. Il serait également intéressant d'étudier une complexité moyenne sur des graphes connectés à la manière des CFG (finalement peu connectés).
-% \\
-
-% D'autre part, si on choisit de découper les CFG que l'on recherche en plus petits graphes (de taille 24 par exemple) et de les rechercher individuellement dans le graphe
-% à tester, la complexité devient polynomiale en la taille du graphe à tester. L'exposant est cependant toujours considérable et complique les choses.
-% C'est ce cas de figure qui intervient en pratique. En effet, on part de chaque sommet du graphe de motif, on effectue un parcours en largeur pour
-% extraire un sous-graphe de taille W et on teste chacun de ces graphes de taille W contre le graphe de test avec l'algorithme d'Ullman.
-% Il y a au plus $n_P$ sous-graphes de taille W créés ainsi. Déterminer ce sous-graphe à partir d'un sommet
-% de P avec un parcours en largeur se fait en un temps $k^W$ où k est le nombre maximal de fils qu'a chaque sommet du graphe. Puis, l'algorithme d'Ullman
-% est utilisé avec un graphe de motif de taille W.
-
-
-% La complexité totale devient donc $O(n_P.(k.n_T.P)^{W})$. Pour l'instant k est égal à 2 (certaines réductions pourraient augmenter cette valeur),
-%  et si W=24, la complexité est largement inférieure à celle de l'algorithme d'Ullmann appliqué directement au graphe
-% de motif entier. Dans le cas de l'algorithme d'Ullman, le choix de W influe directement sur l'efficacité temporelle du détecteur, et ce de manière
-% exponentielle. La valeur de W doit donc prendre en compte d'une part les taux de faux positifs et de faux négatifs qu'elle induit, mais également
-% le temps d'exécution de l'algorithme. En pratique je l'ai souvent prise entre 10 et 24.
-% \\
-
-\clearpage
 \section{Algorithme de Tarjan}
-Tarjan \cite{Tar71} propose un parcours en profondeur d'un graphe qui permet d'en simplifier la structure en construisant un arbre le recouvrant. On peut adapter cette approche pour tester l'isomorphisme de sous-sites. \\
-Tout d'abord on peut formaliser le parcours d'un graphe $T$ de taille $n$ à partir d'un sommet $s$ comme suit : c'est une numérotation $\pi:V\rightarrow \llbracket 1, n \rrbracket$ de ses sommets vérifiant les propriétés suivantes.
+Tarjan \cite{Tar71} propose un parcours en profondeur d'un graphe qui permet d'en simplifier la structure en construisant un arbre le recouvrant. 
+On peut adapter cette approche pour tester l'isomorphisme de sous-sites. 
+Tout d'abord on peut formaliser le parcours d'un graphe $T$ de taille $n$ à partir d'un sommet $s$ comme suit.
+C'est une numérotation $\pi:V\rightarrow \llbracket 1, n \rrbracket$ de ses sommets vérifiant les propriétés suivantes.
 \begin{itemize}
  \item $\pi(s)=1$
  \item $\pi$ est injective
@@ -943,7 +941,7 @@ $1: JCC\xrightarrow{1} 2: CALL\xrightarrow{R} 1\xrightarrow{2} 3: JCC\xrightarro
 
 
 
-\begin{algorithm}
+\begin{algorithm}[h]
 \caption{Codage du parcours en profondeur d'un site}
 \SetAlgoLined
 \KwData{Un site de racine R}
@@ -975,7 +973,7 @@ parcoursProfondeur(R, 1, $\emptyset$, etiq, $\emptyset$)
 \label{algo:codageProf}
 \end{algorithm}
 
-\begin{algorithm}
+\begin{algorithm}[h]
 \caption{Codage du parcours en largeur d'un site}
 \SetAlgoLined
 \KwData{Un site de racine R}
@@ -1025,15 +1023,22 @@ $E\leftarrow \{\}$\tcc*[H]{E est l'ensemble des sommets déjà visités.}
 \label{algo:codageLarg}
 \end{algorithm}
 
-
+\FloatBarrier
 On peut reconstuire le site à partir du codage précédent en procédant de manière incrémentale (algorithme \ref{algo:siteDepuisCodage}) si le codage est bien formé (définition \ref{def-codage-bien-forme}).
 Par la suite on ne parlera que de codages bien formés sans l'expliciter.
+
 \begin{defi}
 \label{def-codage-bien-forme}
+ Un mot de parcours bien formé est soit :
+ \begin{itemize}
+  \item De type $m_1$, c'est à dire $1:L$ où L est une étiquette
+  \item De type $m_2$, c'est à dire $\xrightarrow{\alpha}i[:L]$ où i est un entier, L est une étiquette et $\alpha$ est soit un entier k, soit R
+ \end{itemize}
+
  Un codage de parcours est bien formé s'il vérifie :
 \begin{enumerate}
- \item Il est de la forme $1:L(\xrightarrow{\alpha}i[:L])*$ avec L une étiquette et $\alpha$ un entier k ou R
- \item L'étiquette de chaque sommet est spécifiée une unique fois : lors la première référence à ce sommet
+ \item Il est de la forme $m_1(m_2)^*$
+ \item L'étiquette de chaque sommet $i$ est spécifiée une unique fois, lors la première référence à ce sommet : à $i$ fixé, si un mot de la forme $[\xrightarrow{\alpha}]i:L$ est présent alors aucun mot le précédent n'est de la forme $[\xrightarrow{\alpha}]i[:L]$ et aucun mot suivant n'est de la forme $\xrightarrow{\alpha}i:L$
 %  \item S'il y a deux mots de la forme $i:L_1$ et $i:L_2$ alors $L_1=L_2$
  \item Pour tout mot de la forme $\xrightarrow{R}i[:L]$, un mot $i:L$ est présent précédemment dans le codage
  \item Il ne définit qu'une fois chaque fils de chaque sommet : à $i$ et $k$ fixés, il ne doit y avoir qu'une seule occurence de $i[:L]\xrightarrow{k}$
@@ -1043,18 +1048,18 @@ Par la suite on ne parlera que de codages bien formés sans l'expliciter.
 
 
 
-\begin{algorithm}[H] %or another one check
+\begin{algorithm}[h] %or another one check
 \caption{Reconstruction d'un site depuis son codage}
 \SetAlgoLined
 \KwData{Le codage d'un site}
 \KwResult{Un site}
 \SetKwProg{Fn}{}{}{}
 \SetKwFunction{FRecurs}{reconstructionSite}
-\Fn(\tcc*[h]{Le codage est de la forme $1:L(\xrightarrow{\alpha}i[:L])*$}){\FRecurs{codage}}{
+\Fn(\tcc*[h]{Le codage est de la forme $1:L(m_2)^*$}){\FRecurs{codage}}{
 % \Fn(// s: sommet, i: dernier numéro attribué, E: sommets déjà explorés){\FRecurs{s, i, E}}{
 Création d'un site vide\\
 Ajout du sommet 1 d'étiquette L qui est la racine du site et devient le sommet courant\\
-  \For{chaque suite de symboles de type $\xrightarrow{\alpha}i[:L]$}{
+  \For{chaque mot de type $\xrightarrow{\alpha}i[:L]$}{
   \eIf{$\alpha$ est un entier k}{
   Ajout du sommet i d'étiquette L s'il n'existait pas\\
   Ajout d'un arc entre le sommet courant et le sommet i\\
@@ -1085,7 +1090,8 @@ Ajout du sommet 1 d'étiquette L qui est la racine du site et devient le sommet 
 % 
 L'algorithme \ref{algo:parcoursSiteDepuisCodage} tente de trouver le sous-site désigné par un codage dans un graphe de flot T, à partir d'un sommet donné. S'il ne renvoie pas FAIL, il fournit un site qui est effectivement un sous-site du graphe (les sommets et les arcs sont forcément dans T, et ils sont accessibles à partir de la racine vu qu'il s'agit d'un parcours).
 
-\begin{algorithm}[H] %or another one check
+% \begin{figure}[h]
+\begin{algorithm}[h] %or another one check
 \caption{Reconstruction d'un sous-site de graphe de flot à partir d'un sommet donné, depuis son codage}
 \SetAlgoLined
 \KwData{Le codage d'un site, un graphe de flot T, un sommet R de T}
@@ -1122,9 +1128,11 @@ L'algorithme \ref{algo:parcoursSiteDepuisCodage} tente de trouver le sous-site d
 }
 \label{algo:parcoursSiteDepuisCodage}
 \end{algorithm}
+% \end{figure}
 
 On voudrait maintenant prouver l'équivalence entre l'existence d'un isomorphisme de sous-site entre un site P et un graphe de flot T d'une part, et la possibilité d'appliquer un parcours bien formé quelconque de P à partir d'un sommet de T. Les deux propositions suivantes vont permettre d'établir l'équivalence statuée au théorème \ref{theo:eqIsoCodage}.
 
+\FloatBarrier
 \begin{prop}
  Soit un codage C d'un parcours, $S_C$ son site associé par l'algorithme \ref{algo:siteDepuisCodage}, T un graphe de flot et R un sommet de T.\\
  Si un parcours de T à partir de R renvoie un site S (algorithme \ref{algo:parcoursSiteDepuisCodage}), alors $S_C$ et S sont isomorphes.
@@ -1177,38 +1185,34 @@ On en déduit que les sommets ajoutés sont toujours deux sommets correspondants
 L'intérêt de cet équivalence est qu'elle donne un algorithme simple et bien plus efficace que celui d'Ullmann pour résoudre le problème \ref{pbisosg} d'isomorphisme de sous-site entre un site de motif et un graphe de flot de test.
 
 \subsection{Application directe}
-\subsubsection{Résolution des problèmes d'isomorphisme}
+\paragraph{Résolution des problèmes d'isomorphisme.}
 L'équivalence entre isomorphisme et parcours permet de résoudre le problème \ref{pbisog} de la manière suivante :
-Deux sites sont isomorphes si et seulement si leurs codages de parcours en profondeur\footnote{On peut substituer le parcours en profondeur par un parcours en largeur on n'importe quel codage de parcours bien formé} sont identiques.
+Deux sites sont isomorphes si et seulement si leurs codages de parcours en profondeur\footnote{On peut substituer le parcours en profondeur par un parcours en largeur ou n'importe quel codage de parcours bien formé} sont identiques.
 
 Le problème \ref{pbisosg} de l'existence d'un isomorphisme entre un site et un sous-site d'un site peut être résolu ainsi :
 Il existe un sous-site de T isomorphe au site P si et seulement si il existe un sommet de T à partir duquel le codage du parcours en profondeur\footnotemark[\value{footnote}] de P est possible.
 
 Une solution au problème \ref{pbisosgbase} de l'existence d'un site dans une base $L_S$ isomorphe à un sous-site d'un site T consiste à itérer la solution précédente de l'isomorphisme de sous-site à chaque site de la base $L_S$.
 
-\subsubsection{Complexité}
+\paragraph{Complexité.}
 La résolution du problème de l'isomorphisme de sous-site avec cet algorithme se réalise dans le pire des cas en $O(n_T.n_P)$ puisqu'elle nécessite :
 \begin{itemize}
  \item Un parcours en profondeur du site de motif P avec détermination du codage : $O(n_P)$
  \item Un parcours du graphe de flot T à partir de chacun de ses sommets : chaque parcours se fait en $O(n_P)$, cette étape peut alors se réaliser en $O(n_T.n_P)$
+ \item Si on a une base de $n$ sites $L_S$ de taille $W$, la complexité dans le pire des cas pour déterminer un site de la base est isomorphe à un sous-site de T est $O(n.n_T.W)$.
 \end{itemize}
-~\\
-
-Si on a une base de $n$ sites $L_S$ de taille $W$, la complexité dans le pire des cas pour déterminer un site de la base est isomorphe à un sous-site de T est $O(n.n_T.W)$.
-
 
 \subsection{Codages rangés dans un arbre de décision}
 \subsubsection{Création d'un arbre de décision des codages}
-On peut générer les codages de parcours en profondeur de chaque site de la base puis les ranger dans un arbre de décision. Par exemple trois sites donnés en figure \ref{fig:troisProf}, dont les parcours en profondeur sont (dans l'ordre):\\
-$1: JCC\xrightarrow{1} 2: CALL \xrightarrow{1} 3: INST \xrightarrow{1} 4: RET \xrightarrow{R} 2 \xrightarrow{2} 5: RET \xrightarrow{R} 1 \xrightarrow{2} 6: JCC \xrightarrow{2} 7:INST \xrightarrow{1} 2$
-\\
-$1: JCC\xrightarrow{1} 2: CALL \xrightarrow{1} 3: INST \xrightarrow{1} 4: RET \xrightarrow{R} 2 \xrightarrow{2} 5: RET \xrightarrow{R} 1 \xrightarrow{2} 6: JCC \xrightarrow{2} 7:INST \xrightarrow{1} 3$
-\\
-$1: JCC\xrightarrow{1} 2: RET \xrightarrow{R} 1 \xrightarrow{2} 3: JCC \xrightarrow{2} 4: INST \xrightarrow{1} 5: CALL \xrightarrow{1} 6: INST \xrightarrow{1} 2 \xrightarrow{R} 5 \xrightarrow{2} 7: RET$
+On peut générer les codages de parcours en profondeur de chaque site de la base puis les ranger dans un arbre de décision. Par exemple trois sites donnés en figure \ref{fig:troisProf}, dont les parcours en profondeur sont (dans l'ordre):
+\begin{itemize}
+ \item $1: JCC\xrightarrow{1} 2: CALL \xrightarrow{1} 3: INST \xrightarrow{1} 4: RET \xrightarrow{R} 2 \xrightarrow{2} 5: RET \xrightarrow{R} 1 \xrightarrow{2} 6: JCC \xrightarrow{2} 7:INST \xrightarrow{1} 2$
+ \item $1: JCC\xrightarrow{1} 2: CALL \xrightarrow{1} 3: INST \xrightarrow{1} 4: RET \xrightarrow{R} 2 \xrightarrow{2} 5: RET \xrightarrow{R} 1 \xrightarrow{2} 6: JCC \xrightarrow{2} 7:INST \xrightarrow{1} 3$
+ \item $1: JCC\xrightarrow{1} 2: RET \xrightarrow{R} 1 \xrightarrow{2} 3: JCC \xrightarrow{2} 4: INST \xrightarrow{1} 5: CALL \xrightarrow{1} 6: INST \xrightarrow{1} 2 \xrightarrow{R} 5 \xrightarrow{2} 7: RET$
+\end{itemize}
+L'arbre de décision créé à partir de ces trois codages est donné en figure \ref{fig:arbreDecTarjan}. L'ajout d'un codage à l'arbre de décision est standard et ne sera pas détaillé.
 
-L'arbre de décision créé à partir de ces trois codages est donné en figure \ref{fig:arbreDecTarjan}. L'ajout d'un codage à l'arbre de décision est standard et ne sera pas détaillée.
-
-\begin{figure}
+\begin{figure}[h]
 \begin{center}
 \subfigure[]{
 \label{fig:troisProf1}
@@ -1225,7 +1229,7 @@ L'arbre de décision créé à partir de ces trois codages est donné en figure 
 \end{figure}
 % $1: JCC\xrightarrow{1} 2: CALL \xrightarrow{1} 3: INST \xrightarrow{1} 4: RET \xrightarrow{R} 2 \xrightarrow{2} 5: RET \xrightarrow{R} 1 \xrightarrow{2} 6: JCC \xrightarrow{2} 7:INST \xrightarrow{1} 2$
 
-\begin{figure}
+\begin{figure}[h]
 \begin{center}
 \begin{tikzpicture}[
   tlabel/.style={pos=0.4,right=-1pt,font=\footnotesize\color{black!70!black} },
@@ -1301,14 +1305,14 @@ child {node {}
 \end{figure}
 
 \paragraph{Complexité.}
-L'ajout d'un site à la base consiste à ajouter un codage de parcours dans l'arbre de décision, cette opération nécessite un nombre de comparaison en $W.i$ où $i$ est le nombre de fils maximum de chaque sommet de l'arbre. Vue que les étiquettes des arcs de l'arbre sont de la forme $[\xrightarrow{\alpha}]i[:L]$, en notant $K$ le nombre de fils maximum de chaque sommet dans un site et $n_L$ le nombre d'étiquettes différentes pour les sommets des sites, $i\leq (K+2).W.n_L$ soit $n=O(W)$ donc l'ajout d'un site à la base se fait en $O(W^2)$.
+L'ajout d'un site à la base consiste à ajouter un codage de parcours dans l'arbre de décision, cette opération nécessite un nombre de comparaison en $W\times i$ où $i$ est le nombre de fils maximum de chaque sommet de l'arbre. Vue que les étiquettes des arcs de l'arbre sont de la forme $[\xrightarrow{\alpha}]i[:L]$, en notant $K$ le nombre de fils maximum de chaque sommet dans un site et $n_L$ le nombre d'étiquettes différentes pour les sommets des sites, $i\leq (K+2)\times W\times n_L$ soit $n=O(W)$ donc l'ajout d'un site à la base se fait en $O(W^2)$.
 
 \subsubsection{Recherche d'un isomorphisme de sous-sites à partir de l'arbre de décision}
 Une fois l'arbre généré à partir de tous les codages des sites de $L_S$, on veut l'utiliser pour trouver tous les parcours de $L_S$ possibles dans le graphe de flot T. Pour compter le nombre de parcours de l'arbre que l'on peut réaliser à partir du sommet $r$ de $T$, on peut chercher à parcourir $T$ à partir de $r$ en parcourant les branches possibles dans l'arbre de décision. À chaque fois que l'on peut parcourir une branche jusqu'en bas c'est qu'un site isomorphe a été trouvé. L'algorithme \ref{algo:rechercheArbreTarjan} compte le nombre de ces branches possibles.
 
 On peut utiliser cet algorithme pour retrouver tous les sous-sites isomorphes en utilisant l'algorithme précédent à partir de chaque sommet de $T$.
 
-\begin{figure}
+\begin{figure}[h]
 \begin{algorithm}[H] %or another one check
 \caption{Décompte des parcours d'un arbre de parcours possibles dans un graphe de flot, à partir d'un sommet donné}
 \SetAlgoLined
@@ -1369,9 +1373,8 @@ On peut utiliser cet algorithme pour retrouver tous les sous-sites isomorphes en
 \end{figure}
 
 \paragraph{Complexité.}
-Dans le pire des cas il y a $n$ branches à l'arbre A qui partent de la racine où $n$ est le nombre de sites dans la base. Le parcours d'une branche avec au maximum un fils à chaque sommet, à partir de la racine se fait en $O(W)$ au vu de la récursion de l'algorithme  \ref{algo:rechercheArbreTarjan}. Pour chercher les isomorphismes de sous-sites de $T$ il faut répéter l'opération pour chacun de ses sommets : la complexité totale dans le pire des cas pour résoudre le problème \ref{pbisosgbase} d'isomorphisme de sous-sites entre un graphe de flot et une base de sites est de $O(n.n_T.W)$. Ainsi on n'a pas amélioré la complexité dans le pire des cas par rapport à l'utilisation directe du parcours de Tarjan vu dans la section précédente, bien qu'en pratique l'algorithme soit plus rapide comme nous le verrons par la suite.
+Dans le pire des cas il y a $n$ branches à l'arbre A qui partent de la racine où $n$ est le nombre de sites dans la base. Le parcours d'une branche avec au maximum un fils à chaque sommet, à partir de la racine se fait en $O(W)$ au vu de la récursion de l'algorithme \ref{algo:rechercheArbreTarjan}. Pour chercher les isomorphismes de sous-sites de $T$ il faut répéter l'opération pour chacun de ses sommets : la complexité totale dans le pire des cas pour résoudre le problème \ref{pbisosgbase} d'isomorphisme de sous-sites entre un graphe de flot et une base de sites est de $O(n.n_T.W)$. Ainsi on n'a pas amélioré la complexité dans le pire des cas par rapport à l'utilisation directe du parcours de Tarjan vu dans la section précédente, bien qu'en pratique l'algorithme soit plus rapide comme nous le verrons par la suite.
 
-\clearpage
 \section{SIDT : Site Isomorphism Decision Tree}
 Le problème \ref{pbisosg} consiste à détecter un site P dans un graphe de flot T. En pratique le site P aura été généré à partir d'un graphe de flot G. Si P est un sous-site de T, puisque l'on a généré le site à partir d'un parcours dans un autre graphe de flot, on peut envisager que le même parcours appliqué à T est susceptible de générer le site P. Ce n'est pas vrai dans le cas général et en ce sens l'algorithme présenté ici n'est pas complet.\\
 Inversement il est clair que si le même parcours appliqué à partir de sommets de T et G génèrent le même site P, alors P est bien un sous-site de T.
