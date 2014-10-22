@@ -160,6 +160,32 @@ On cherchera alors des isomorphismes de sous-graphes entre chaque petit graphe d
 En pratique on va générer un certain nombre de sous-graphes, appelés sites, du corpus de graphes de flot qui seront les motifs que l'on cherche à retrouver dans le graphe de flot analysé : on notera généralement P un graphe de motif. 
 Ces sous-graphes sont définis par le sous-graphe induit par les sommets parcourus avec d'un parcours en largeur limité à un certain nombre de sommets (typiquement entre 12 et 24) à partir de chaque sommet du graphe d'origine. Ils ont donc une racine qui est le sommet à partir duquel ils ont été générés.
 
+Générer les site de manière homogène, toujours à l'aide d'un parcours en largeur de taille fixe, permet d'obtenir automatiquement des signatures pour les programmes du corpus. L'algorithme \ref{algo:generation_sites_largeur} détermine l'ensemble des sites d'un graphe de flot obtenus par parcours en largeur limité à W sommets.
+
+\begin{algorithm}[h]
+\caption{Sites obtenus par parcours en largeur limité}
+\SetAlgoLined
+\KwData{Un graphe de flot T, un entier W}
+\KwResult{Un ensemble de sites ayant W sommets}
+\SetKwProg{Fn}{}{}{}
+\SetKwFunction{FRecurs}{sites}
+\Fn(\tcc*[h]{}){\FRecurs{T, W}}{
+% \Fn(// s: sommet, i: dernier numéro attribué, E: sommets déjà explorés){\FRecurs{s, i, E}}{
+
+}
+\SetKwFunction{FRecurs}{site}
+\Fn(\tcc*[h]{}){\FRecurs{T, R, W}}{
+$S\leftarrow \emptyset$\\
+$L\leftarrow \{R\}$\\
+$P\leftarrow \emptyset$\\
+\While{L n'est pas vide}{
+  
+}
+
+}
+\label{algo:generation_sites_largeur}
+\end{algorithm}
+
 Ainsi un site est un graphe de flot ayant une racine (définition \ref{def-site}). Un site peut être un sous-graphe d'un graphe de flot (définition \ref{def-soussite}) comme dans l'exemple de la figure \ref{fig:ex-gf-site} : le sous-site est généré à partir du sommet $b$ en construisant le sous-graphe induit par les trois premiers sommets atteignables par un parcours en largeur.
 
 \begin{defi}\label{def-site}
@@ -1323,7 +1349,7 @@ On peut utiliser cet algorithme pour retrouver tous les sous-sites isomorphes en
 
 \begin{figure}[h]
 \begin{algorithm}[H] %or another one check
-\caption{Décompte des parcours d'un arbre de parcours possibles dans un graphe de flot, à partir d'un sommet donné}
+\caption{Décompte, au sein d'un arbre de parcours donné, des parcours possibles d'un un graphe de flot, à partir d'un sommet donné}
 \SetAlgoLined
 \KwData{Un arbre A contenant les parcours de sites, un graphe de flot T, un sommet r de T}
 \KwResult{Le nombre de parcours possibles}
