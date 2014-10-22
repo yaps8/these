@@ -11,7 +11,7 @@ Un logiciel est dit malveillant s'il réalise volontairement des opérations all
 \label{def:malware}
 \end{defi}
 
-Sa définition varie en fait d'un utilisateur à un autre et une technique plus formelle permettant de classifier un programme fait intervenir la spécification d'une politique de sécurité. 
+La définition varie en fait d'un utilisateur à un autre et une technique plus formelle permettant de classifier un programme fait intervenir la spécification d'une politique de sécurité. 
 Cette politique de sécurité décrit les différents flots de données autorisés et ceux étant interdits. Par exemple elle pourrait interdire de lire le fichier /etc/shadow, contenant des informations relatives aux mots de passe d'un ordinateur sous Linux, et d'exfiltrer ces informations hors de la machine (via le réseau ou un support amovible par exemple).
 
 Il n'existe pas de programme capable d'analyser tout programme binaire pour connaître à priori leur comportement de manière exacte : on ne peut déjà pas construire un analyseur déterminant si les programmes analysés lisent /etc/shadow.
@@ -87,10 +87,10 @@ Une détection de comportements contient également une liste de comportements c
 L'approche traditionnelle pour la classification consiste en l'extraction, pour chaque logiciel malveillant du corpus, d'une chaîne de caractère présente dans sa représentation sous forme de fichier \cite{Szor05}.
 Elle peut être complétée pour gérer, pour chaque logiciel du corpus, une expression régulière plutôt qu'une chaîne exacte.
 Cette approche, purement syntaxique, nécessite qu'un analyste choisisse l'expression régulière à prendre en compte pour chaque logiciel du corpus : il s'agit en général d'une chaîne de données caractéristique (un numéro de version, une clé de chiffrement, un nom, etc.) ou de la représentation en octets de quelques instructions représentatives du programme.
-Son avantage est que, mise en \oe uvre correctement, elle génère très peu de faux positifs. Son premier inconvénient majeur est qu'elle est très sensible à une légère modification du programme malveillant : il suffit souvent de rajouter ou de réorganiser le code pour empêcher la détection. Le second inconvénient de cette approche est qu'elle nécessite une analyse manuelle pour extraire la signature, opération d'autant plus contraignante si de nombreuses variantes du programme existe et qu'une nouvelle signature doit être générée pour chaque variante.
+Son avantage est que, mise en \oe uvre correctement, elle génère très peu de faux positifs. Son premier inconvénient majeur est qu'elle est très sensible à une légère modification du programme malveillant : il suffit souvent de rajouter ou de réorganiser le code pour empêcher la détection \cite{CJ04}. Le second inconvénient de cette approche est qu'elle nécessite une analyse manuelle pour extraire la signature, opération d'autant plus contraignante si de nombreuses variantes du programme existe et qu'une nouvelle signature doit être générée pour chaque variante.
 
 \paragraph{Approches comportementales.}
-Les méthodes de détection comportementales utilisent peuvent cherchent à connaître le comportement d'un programme et à le comparer, soit à une liste de comportements connus comme légitimes, soit à des comportements classés comme malveillants.
+Les méthodes de détection comportementales utilisent peuvent cherchent à connaître le comportement d'un programme et à le comparer, soit à une liste de comportements connus comme légitimes, soit à des comportements classés comme malveillants \cite{JDF08}.
 Certaines implémentations ont montré l'efficacité de l'approche, comme sur l'analyse d'extensions malveillantes pour Internet Explorer \cite{KKBVK06}.
 
 \paragraph{Mesure automatique de distance.}
@@ -152,10 +152,10 @@ Adresse & Octets & Instruction\\
 
 \subsection{Comparaison des graphes de flot de contrôle}
 La technique consiste à rechercher des parties du graphe de flot de contrôle de programmes du corpus dans le programme analysé.
-Si une portion suffisante du graphe de flot de contrôle de programmes malveillants connus est présente dans le programme testé, on peut le classer comme indésirable. Formellement il s'agit de trouver des isomorphismes de sous-graphe entre les deux graphes de flot de contrôle. Nous définirons plus précisément le problème et détaillerons plusieurs algorithmes de résolution dans le chapitre suivant. Avant de comparer les CFG, ceux-ci sont mis dans une forme canonique à l'aide de réduction.
+Si une portion suffisante du graphe de flot de contrôle de programmes malveillants connus est présente dans le programme testé, on peut le classer comme indésirable. Formellement il s'agit de trouver des isomorphismes de sous-graphe entre les deux graphes de flot de contrôle. Nous définirons plus précisément le problème et détaillerons plusieurs algorithmes de résolution dans le chapitre suivant. Avant de comparer les GFC, ceux-ci sont mis dans une forme canonique à l'aide de réduction.
 
 \paragraph{Simplification des sommets.}
-Les sommets des CFG sont modifiés afin que chaque instruction soit d'un des types suivants : saut inconditionnel ($JMP$), saut conditionnel ($JCC$), appel de fonction ($CALL$), retour de fonction ($RET$), fin du programme ($HLT$), instruction séquentielle ($INST$) ou instruction inconnue ($UNDEF$). De même la distinction entre les arcs reliant deux instructions séquentielles, en noir dans GFC, et
+Les sommets des GFC sont modifiés afin que chaque instruction soit d'un des types suivants : saut inconditionnel ($JMP$), saut conditionnel ($JCC$), appel de fonction ($CALL$), retour de fonction ($RET$), fin du programme ($HLT$), instruction séquentielle ($INST$) ou instruction inconnue ($UNDEF$). De même la distinction entre les arcs reliant deux instructions séquentielles, en noir dans GFC, et
 Cette transformation permet aux signatures d'être plus génériques.
 
 \paragraph{Réduction des graphes de flot de contrôle.}
@@ -204,7 +204,7 @@ Concaténation des instructions séquentielles & Réalignement des sauts incondi
 } \\
 \hline
 \hline
-Suppression des appels (\call) inutiles & Fusion des sauts conditionnels \\
+Suppression des appels inutiles & Fusion des sauts conditionnels \\
 \hline
 \scalebox{0.7}{
 \begin{tikzpicture}[->,scale=1,>=stealth',thick, text centered]
@@ -297,3 +297,4 @@ La principale différence est donc que les auteurs cherchent à détecter des fo
 
 L'application de techniques de réduction afin de rendre plus générique des codes malveillants et ainsi que les signatures soient plus efficaces est assez présente dans la littérature. 
 Certains travaux \cite{CKJKVM05} proposent des méthodes luttant spécifiquement contre certaines techniques d'obscurcissement comme la réorganisation de code ; c'est l'objectif des réductions proposées à la figure \ref{fig:am_reductions} dont le réalignement des sauts inconditionnels.
+Bruschi, Martignoni et Monga \cite{BMM06} proposent d'utiliser un panel de techniques d'analyse statique existantes pour définir une forme réduite, dite canonique, pour les binaires, puis de comparer les graphes de flots de contrôle résultants.

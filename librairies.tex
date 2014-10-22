@@ -1,12 +1,108 @@
-\itodo{Cas Waledac / OpenSSL}
+L'analyse morphologique et la recherche de similarités dans les graphes de flot de contrôles de plusieurs binaires peut également être utilisée pour détecter l'utilisation de fonctionnalités similaires entre ces programmes et faire correspondre précisément des morceaux de code assembleur de l'un et de l'autre.
+
+Dans ce chapitre nous présentons des travaux réalisés en ce sens sur un logiciel malveillant, Waledac, qui utilise une bibliothèque connue de chiffrement, OpenSSL.
+\itodo{duqu/stux?}
+Ces travaux ont fait l'objet d'une communication orale à REcon en 2012 \cite{REAT12} et d'une publication à Malware \cite{mal12}.
+
 % \section{Problème : accélérer l'analyse}
-\section{Accélérer l'analyse manuelle}
-\itodo{Pb des librairies connues}
-\itodo{open source ou pas, déjà analysées}
+\section{Contexte d'analyse de code}
+L'analyse manuelle de code binaires inconnus est à la base de tout travail sur la détection de logiciels malveillants.
+L'analyste cherche d'une part à déterminer et comprendre l'ensemble du code du programme afin d'en connaître les fonctionnalités
+et le classer comme logiciel malveillant ou légitime.
+D'autre part, s'il s'agit d'un logiciel malveillant, il cherche à établir une signature du binaire permettant de détecter sa présence sur une machine infectée et, éventuellement, de le supprimer.
+L'analyse se fait à l'aide de différents outils, dont un désassembleur interactif tel IDA \cite{IDA} ou Radare \cite{radare} pour l'analyse statique et d'un outil pour l'analyse dynamique comme un débogueur, un émulateur ou un logiciel d'instrumentation.
 
-\section{Correspondance sommet à sommet dans les GFC}
+Les logiciels analysés ne présentent en général pas d'informations de compilation permettant d'identifier les bibliothèques logiciels utilisées ni leur version. Nous cherchons à automatiser la recherche de bibliothèques connues dans un logiciel à analyser et à marquer son emplacement dans un désassembleur interactif (IDA) afin d'éviter l'analyse inutile de code documenté et accélérer l'analyse manuelle.
 
-\subsection{Plugin IDA}
+\subsection{Waledac et OpenSSL}
+Waledac \cite{CRFLSGBA10}, apparu en 2008, est un botnet, c'est à dire un programme malveillant transformant les machines infectées en esclaves (ou \emph{zombies}) recevant des ordres d'un serveur de commande et contrôle (C\&C).
+Les machines du botnet communiquent entre elles sous la forme d'un réseau pair à pair et la charge finale principale du réseau est l'envoie de courrier électronique non sollicité (\emph{spam}).
+
+Afin de savoir quelles méthodes de chiffrement il utilise, nous avons cherché des chaînes de caractères dans le binaire correspondant à quelques bibliothèques standard à l'aide du l'outil \emph{strings}.
+Par chance il était facile de trouver qu'il utilise la version 0.9.8e de OpenSSL:
+\begin{verbatim}
+$ strings "Waledac v48 unpacked.exe" | grep OpenSSL
+   EC part of OpenSSL 0.9.8e 23 Feb 2007
+   ECDSA part of OpenSSL 0.9.8e 23 Feb 2007
+\end{verbatim}
+
+OpenSSL \cite{openssl} est une bibliothèque libre et documentée, elle ne devrait pas faire partie de l'analyse du binaire. Nous voulons ensuite connaître précisément les fonctions utilisées ainsi que parties de code communes.
+
+\section{Analyse morphologique}
+% \subsection{Trouver des sites communs}
+La technique d'analyse morphologique détaillée aux deux chapitres précédents a été directement utilisée : on détermine les graphes de flot de contrôle de chacun des deux binaires, on leur applique des réductions puis on les découpe en sites.
+On cherche ensuite des sites communs entre les Waledac et OpenSSL.
+
+\paragraph{Taille des graphes de flot.}
+Les binaires sur lesquels nous avons travaillé ont des graphes de flot de contrôle initiaux allant jusqu'à quelques centaines de milliers de sommets avant réduction et environ quinze mille sommets après réduction. Nous avons initialement trouvé 53 sites communs entre la version 0.9.8x de OpenSSL et Waledac.
+Nous avions initialement pris la version 0.9.8x, la version à jour d'OpenSSL, les versions antérieures n'étaient pas disponibles sous forme binaire pour Windows et nécessitaient d'être compilées.
+
+\begin{figure}[h]
+\begin{tabular}{|l|l|l|l|}
+\hline
+ Binaire & Taille du GFC & Taille du GFC réduit & Nombre de sites de taille 24 	\\
+\hline
+ Waledac &  38236 & 14626 & 11141					  	\\
+\hline
+ OpenSSL 0.9.8x  & 174754 & 28313 & 22171				  	\\
+\hline
+\end{tabular}
+\end{figure}
+
+\paragraph{Influence des options de compilation.}
+Nous avons ensuite compilé la version 0.9.8e en utilisant différentes options de compilation utilisées avec le compilateur pour Windows Visual Studio.
+Nous avons pu remarquer que les options donnant le plus sites en commun était celle compilée pour optimiser la taille du binaire.
+
+\begin{figure}[h]
+\begin{tabular}{|l|l|l|}
+ \hline
+Version & Remarque & Sites communs \\
+ \hline
+0.9.8x & Version de mai 2012 & 53 \\
+0.9.8e & Optimise les performances temporelles (/0x /02) & 53 \\
+0.9.8e & Optimise la taille du fichier (/01) & 1264 \\
+ \hline
+\end{tabular}
+\end{figure}
+
+\subsection{Correspondance fine entre instructions}
+Dans un second temps nous voulons être capables de marquer, dans le désassembleur, les instructions ainsi que les fonctions assembleur qui ont été reconnues.
+Nous avons utilisé les techniques précédentes pour qu'en plus de retourner une correspondance entre un site du graphe de motif P et un site du graphe de test T, nous ayons aussi l'information précise donnant la correspondance entre un sommet du sous-site de motif et
+un sommet du sous-site de test. Tous les algorithmes présentés au chapitre précédent fournissent cette information.
+
+Comme décrit dans l'algorithme \ref{algo:correspondance_fine}, nous considérons que plus la taille des sous-sites correspondants est grande, plus la correspondance entre les sommets sera précise.
+Nous cherchons en premier lieu le plus grand sous-site que l'on retrouve dans P et T et nous associons tous les sommets de P et de T  correspondants dans ce sous-site.
+Puis nous continuons avec un sous-site commun plus petit, en associant les sommets qui n'ont pas encore été associés, et ainsi de suite jusqu'à atteindre la taille initiale des sites choisis pour la détection, soit 24. 
+
+\itodo{algo donnant la liste des sites}
+\begin{figure}[h]
+\begin{algorithm}[H]
+\caption{Association des sommets de deux graphes de flot de contrôle}
+\SetAlgoLined
+\KwIn{Deux graphes de flot, P et T de taille respective $n_P$ et $n_T$, la taille minimale des sites recherchés, W}
+\KwResult{Une liste de correspondances sommet à sommet entre P et T}
+\SetKwProg{Fn}{}{}{}
+\SetKwFunction{FRecurs}{association}
+\Fn(
+% \tcc*[h]{C : matrice des associations possibles, i : numéro du prochain sommet de P à associer, F : liste des couples d'associations déjà faites}
+){\FRecurs{P, $n_P$, T, $n_T$, W}}{
+$L\leftarrow \emptyset$\\
+$m\leftarrow min(n_P, n_T)$\\
+\For {$W \leq i\leq m$} {
+  $S_P^i\leftarrow sites(P, i)$\\
+  $S_T^i\leftarrow sites(T, i)$
+}
+$k\leftarrow m$\\
+\While{$k\geq W$}{
+$C\leftarrow $\\
+$k\leftarrow k-1$
+}
+}
+\label{algo:correspondance_fine}
+\end{algorithm}
+\end{figure}
+
+\subsection{Implémentation et résultats}
 
 \section{Limites}
 \itodo{crypto code}

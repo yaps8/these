@@ -418,6 +418,12 @@
 	year = 2006
 }
 
+@misc{IDA,
+	author = "Hex-Rays",
+	note = "\url{https://www.hex-rays.com/products/ida/index.shtml}",
+	title = "{IDA}"
+}
+
 @inproceedings{JLH13,
 	author = "J{\"a}mthagen, Christopher and Lantz, Patrik and Hell, Martin",
 	journal = "Workshop on Anti-malware Testing Research (WATeR), 2013",
@@ -506,7 +512,7 @@
 	year = 1997
 }
 
-@inproceedings{bonfante:hal-00925184,
+@inproceedings{sstic13,
 	abstract = "{Proche de Stuxnet avec lequel il partage des fonctionnalit{\'e}s, Duqu a fait l'objet de nombreuses analyses au cours de l'ann{\'e}e pass{\'e}e. Nous nous proposons d'en {\'e}tudier un {\'e}l{\'e}ment en particulier, le driver. Notre contribution consiste en la r{\'e}troing{\'e}nierie de ce composant par la reconstitution de son code source et une analyse de ses fonctionnalit{\'e}s. Nous avons ensuite d{\'e}tourn{\'e} le driver pour d{\'e}tecter d'{\'e}ventuelles injections dans les ex{\'e}cutables Windows et pr{\'e}venir d'autres attaques. En particulier nous montrons comment le driver de Duqu modifi{\'e} aurait permis de d{\'e}tecter Duqu.}",
 	address = "Rennes, France",
 	affiliation = "CARTE - INRIA Nancy - Grand Est / LORIA",
@@ -514,7 +520,6 @@
 	author = "Bonfante, Guillaume and Marion, Jean-Yves and Sabatier, Fabrice and Thierry, Aur{\'e}lien",
 	booktitle = "{SSTIC - Symposium sur la s{\'e}curit{\'e} des technologies de l'information et des communications}",
 	hal_id = "hal-00925184",
-	language = "Fran\c{c}ais",
 	month = jun,
 	pdf = "http://hal.inria.fr/hal-00925184/PDF/SSTIC2013-Duqu-contre-Duqu-papier.pdf",
 	title = "{Duqu contre Duqu : Analyse et d{\'e}tournement du driver de Duqu}",
@@ -522,16 +527,15 @@
 	year = "2013"
 }
 
-@inproceedings{bonfante:hal-00925517,
+@article{mal13,
 	abstract = "{The propagation techniques and the payload of Duqu have been closely studied over the past year and it has been said that Duqu shared functionalities with Stuxnet. We focused on the driver used by Duqu during the infection, our contribution consists in reverse-engineering the driver: we rebuilt its source code and analyzed the mechanisms it uses to execute the payload while avoiding detection. Then we diverted the driver into a defensive version capable of detecting injections in Windows binaries, thus preventing further attacks. We specifically show how Duqu's modified driver would have detected Duqu.}",
 	address = "Fajardo, Porto Rico",
 	affiliation = "CARTE - INRIA Nancy - Grand Est / LORIA",
 	audience = "internationale",
 	author = "Bonfante, Guillaume and Marion, Jean-Yves and Sabatier, Fabrice and Thierry, Aur{\'e}lien",
-	booktitle = "{Malware 2013 - 8th International Conference on Malicious and Unwanted Software}",
 	hal_id = "hal-00925517",
+	journal = "{Malware 2013 - 8th International Conference on Malicious and Unwanted Software}",
 	keywords = "malware; Duqu; Stuxnet; driver; reverse-engineering",
-	language = "Anglais",
 	month = oct,
 	pdf = "http://hal.inria.fr/hal-00925517/PDF/malware2013.pdf",
 	publisher = "IEEE",
@@ -656,13 +660,6 @@
 	year = "1999"
 }
 
-@article{VF02,
-	author = "Foggia, P. and C.Sansone and Vento, M.",
-	journal = "",
-	title = "{A Performance Comparison of Five Algorithms for Graph Isomorphisms}",
-	year = "2002"
-}
-
 @online{intel_vol2,
 	author = "Intel",
 	note = "\url{http://www.intel.com/content/dam/www/public/us/en/documents/manuals/64-ia-32-architectures-software-developer-instruction-set-reference-manual-325383.pdf}",
@@ -759,10 +756,10 @@
 	title = "{Ultimate Packer for eXecutables}"
 }
 
-@misc{IDA,
-	author = "Hex-Rays",
-	note = "\url{https://www.hex-rays.com/products/ida/index.shtml}",
-	title = "{IDA}"
+@misc{openssl,
+	author = "OpenSSL",
+	note = "\url{https://www.openssl.org/}",
+	title = "{OpenSSL}"
 }
 
 @misc{fermat,
@@ -919,8 +916,13 @@
 }
 
 @techreport{CKJKVM05,
-	author = "Christodorescu, Mihai and Kinder, Johannes and Jha, Somesh and Katzenbeisser, Stefan and Veith, Helmut and M{\"u}nchen, Technische Universit{\"a}t",
-	title = "{Malware normalization}"
+	address = "Wisconsin, USA",
+	author = "Christodorescu, Mihai and Kinder, Johannes and Jha, Somesh and Katzenbeisser, Stefan and Veith, Helmut",
+	institution = "University of Wisconsin, Madison",
+	month = nov,
+	number = 1539,
+	title = "{Malware Normalization}",
+	year = 2005
 }
 
 @inproceedings{FSV01,
@@ -939,5 +941,29 @@
 	title = "{Complexity Theory: Exploring the Limits of Efficient Algorithms}",
 	url = "http://books.google.fr/books?id=1fo7\_KoFUPsC",
 	year = "2005"
+}
+
+@article{mal12,
+	author = "Bonfante, Guillaume and Marion, Jean-Yves and Sabatier, Fabrice and Thierry, Aur{\'e}lien",
+	hal_id = "hal-00764286",
+	hal_version = "v1",
+	journal = "{7th International Conference on Malicious and Unwanted Software (Malware)}",
+	month = oct,
+	publisher = "{IEEE Xplore}",
+	title = "{Code synchronization by morphological analysis}",
+	url = "https://hal.inria.fr/hal-00764286",
+	year = "2012"
+}
+
+@inproceedings{CRFLSGBA10,
+	address = "Austin, Texas, United States",
+	author = "Calvet, Joan and {R. Davis}, Carlton and Fernandez, Jos{\'e} M. and Marion, Jean-Yves and St-Onge, Pier-Luc and Guizani, Wadie and Bureau, Pierre-Marc and Anil, Somayaji",
+	booktitle = "{Annual Computer Security Applications Conference}",
+	hal_id = "inria-00536706",
+	hal_version = "v1",
+	month = dec,
+	title = "{The case for in-the-lab botnet experimentation: creating and taking down a 3000-node botnet}",
+	url = "https://hal.inria.fr/inria-00536706",
+	year = "2010"
 }
 
