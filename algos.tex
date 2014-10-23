@@ -158,33 +158,7 @@ Au contraire on va découper les graphes de flot du corpus en sous-graphes tout 
 On cherchera alors des isomorphismes de sous-graphes entre chaque petit graphe de la base et un sous-graphe du graphe de flot de test.
 
 En pratique on va générer un certain nombre de sous-graphes, appelés sites, du corpus de graphes de flot qui seront les motifs que l'on cherche à retrouver dans le graphe de flot analysé : on notera généralement P un graphe de motif. 
-Ces sous-graphes sont définis par le sous-graphe induit par les sommets parcourus avec d'un parcours en largeur limité à un certain nombre de sommets (typiquement entre 12 et 24) à partir de chaque sommet du graphe d'origine. Ils ont donc une racine qui est le sommet à partir duquel ils ont été générés.
-
-Générer les site de manière homogène, toujours à l'aide d'un parcours en largeur de taille fixe, permet d'obtenir automatiquement des signatures pour les programmes du corpus. L'algorithme \ref{algo:generation_sites_largeur} détermine l'ensemble des sites d'un graphe de flot obtenus par parcours en largeur limité à W sommets.
-
-\begin{algorithm}[h]
-\caption{Sites obtenus par parcours en largeur limité}
-\SetAlgoLined
-\KwData{Un graphe de flot T, un entier W}
-\KwResult{Un ensemble de sites ayant W sommets}
-\SetKwProg{Fn}{}{}{}
-\SetKwFunction{FRecurs}{sites}
-\Fn(\tcc*[h]{}){\FRecurs{T, W}}{
-% \Fn(// s: sommet, i: dernier numéro attribué, E: sommets déjà explorés){\FRecurs{s, i, E}}{
-
-}
-\SetKwFunction{FRecurs}{site}
-\Fn(\tcc*[h]{}){\FRecurs{T, R, W}}{
-$S\leftarrow \emptyset$\\
-$L\leftarrow \{R\}$\\
-$P\leftarrow \emptyset$\\
-\While{L n'est pas vide}{
-  
-}
-
-}
-\label{algo:generation_sites_largeur}
-\end{algorithm}
+Ces sous-graphes sont définis par le sous-graphe induit par les sommets parcourus avec d'un parcours en largeur limité à un certain nombre de sommets, que l'on notera W (typiquement entre 12 et 24), à partir de chaque sommet du graphe d'origine. Ils ont donc une racine qui est le sommet à partir duquel ils ont été générés.
 
 Ainsi un site est un graphe de flot ayant une racine (définition \ref{def-site}). Un site peut être un sous-graphe d'un graphe de flot (définition \ref{def-soussite}) comme dans l'exemple de la figure \ref{fig:ex-gf-site} : le sous-site est généré à partir du sommet $b$ en construisant le sous-graphe induit par les trois premiers sommets atteignables par un parcours en largeur.
 
@@ -211,6 +185,64 @@ On appelle sous-site d'un graphe de flot $T$ tout site étant un sous-graphe de 
 \label{fig:ex-gf-site}
 \end{figure}
 
+Générer les site de manière homogène, toujours à l'aide d'un parcours en largeur de taille fixe, permet d'obtenir automatiquement des signatures pour les programmes du corpus.
+Nous choisissons le parcours en largeur parce qu'il donne rapidement une structure au site construit tandis qu'un parcours en profondeur donne souvent de longs chemins sans branchements, par exemple.
+L'algorithme \ref{algo:generation_site_largeur} détermine, s'il existe, le site d'un graphe de flot généré par parcours en largeur à partir d'un sommet spécifié et limité à un certain nombre de sommets. L'algorithme \ref{algo:generation_sites_largeur} donne l'ensemble des sites d'un graphe de flot obtenus par parcours en largeur limité à un W sommets.
+
+\begin{algorithm}[h]
+\DontPrintSemicolon
+\caption{Site obtenu par parcours en largeur limité à partir d'un sommet particulier}
+\SetAlgoLined
+\KwData{Un graphe de flot T, un sommet R de T, un entier W}
+\KwResult{Le site, s'il existe, ayant W sommets construit par parcours en largeur à partir du sommet R de T}
+\SetKwProg{Fn}{}{}{}
+\SetKwFunction{FRecurs}{site}
+\Fn(){\FRecurs{T, R, W}}{
+$E\leftarrow \emptyset$  \tcc*{E contient les sommets du futur site}
+$M\leftarrow \emptyset$  \tcc*{Les sommets visités seront ajoutés à M}
+$L\leftarrow$ pile vide  \tcc*{L : file d'attente pour les sommets à visiter}
+L.empiler(R)             \\
+\While{$|E|<W$ et $L\ne \emptyset$}{
+  s $\leftarrow$ L.dépiler()  \\
+  $E\leftarrow E\cup {s}$      \\
+  $M\leftarrow M\cup {s}$      \\
+  \ForEach{f fils de s}{
+    \If{$f \notin M$}{
+      L.empiler(f)  \\
+      $M\leftarrow M\cup {f}$      \\
+    }
+  }
+}
+\eIf {$|E|=W$}{
+\Return{le sous-site de T induit par les sommets présents dans E, de racine R}
+}
+{
+\Return {FAIL}
+}
+}
+\label{algo:generation_site_largeur}
+\end{algorithm}
+
+\begin{algorithm}[h]
+\DontPrintSemicolon
+\caption{Sites obtenus par parcours en largeur limité}
+\SetAlgoLined
+\KwData{Un graphe de flot T, un entier W}
+\KwResult{L'ensemble de sites ayant W sommets construits par parcours en largeur à partir de chaque sommet de T}
+\SetKwProg{Fn}{}{}{}
+\SetKwFunction{FRecurs}{sites}
+\Fn(){\FRecurs{T, W}}{
+$E\leftarrow\emptyset$\\
+\ForEach {s sommet de T}{
+  $S \leftarrow site(T, s, W)$\\
+  \If{S $\ne$ FAIL}{
+    $E=E\cup\{S\}$
+  }
+  \Return{E}
+}
+}
+\label{algo:generation_sites_largeur}
+\end{algorithm}
 
 % \begin{defi}\label{def-site-incomplet}
 % Un site incomplet est un site dans lequel certains n\oe uds n'ont pas le bon nombre de fils mais ces fils sont tout de même ordonnés.

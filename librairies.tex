@@ -67,16 +67,17 @@ Version & Remarque & Sites communs \\
 
 \subsection{Correspondance fine entre instructions}
 Dans un second temps nous voulons être capables de marquer, dans le désassembleur, les instructions ainsi que les fonctions assembleur qui ont été reconnues.
-Nous avons utilisé les techniques précédentes pour qu'en plus de retourner une correspondance entre un site du graphe de motif P et un site du graphe de test T, nous ayons aussi l'information précise donnant la correspondance entre un sommet du sous-site de motif et
-un sommet du sous-site de test. Tous les algorithmes présentés au chapitre précédent fournissent cette information.
+Nous avons utilisé les techniques précédentes pour qu'en plus de retourner une correspondance entre un site du graphe de motif P et un site du graphe de test T, nous ayons aussi l'information précise donnant la correspondance entre un sommet du sous-site de motif et un sommet du sous-site de test. Tous les algorithmes présentés au chapitre précédent fournissent cette information.
+
+Nous supposons donc que l'on dispose de la fonction \emph{match} qui, à partir d'un sous-site $S_P$ de $P$ et d'un sous-site $S_T$ de $T$, renvoie une liste de couples de correspondance entre un sommet de $S_P$ et un sommet de $S_T$. Dans le cas où les deux sous-sites ne correspondent pas, elle renvoie $\emptyset$.
 
 Comme décrit dans l'algorithme \ref{algo:correspondance_fine}, nous considérons que plus la taille des sous-sites correspondants est grande, plus la correspondance entre les sommets sera précise.
-Nous cherchons en premier lieu le plus grand sous-site que l'on retrouve dans P et T et nous associons tous les sommets de P et de T  correspondants dans ce sous-site.
-Puis nous continuons avec un sous-site commun plus petit, en associant les sommets qui n'ont pas encore été associés, et ainsi de suite jusqu'à atteindre la taille initiale des sites choisis pour la détection, soit 24. 
+Nous cherchons en premier lieu le plus grand sous-site que l'on retrouve dans P et T et nous associons tous les sommets de P et de T  correspondants dans ce sous-site. Nous récupérons l'ensemble des sous-sites d'une certaine taille de $P$ et $T$ à l'aide de l'algorithme \ref{algo:generation_site_largeur} du chapitre précédent.
+Puis nous continuons avec un sous-site commun plus petit, en associant les sommets qui n'ont pas encore été associés, et ainsi de suite jusqu'à atteindre la taille initiale des sites choisis pour la détection, soit W. 
 
-\itodo{algo donnant la liste des sites}
 \begin{figure}[h]
 \begin{algorithm}[H]
+\DontPrintSemicolon
 \caption{Association des sommets de deux graphes de flot de contrôle}
 \SetAlgoLined
 \KwIn{Deux graphes de flot, P et T de taille respective $n_P$ et $n_T$, la taille minimale des sites recherchés, W}
@@ -87,22 +88,48 @@ Puis nous continuons avec un sous-site commun plus petit, en associant les somme
 % \tcc*[h]{C : matrice des associations possibles, i : numéro du prochain sommet de P à associer, F : liste des couples d'associations déjà faites}
 ){\FRecurs{P, $n_P$, T, $n_T$, W}}{
 $L\leftarrow \emptyset$\\
+$A_P, A_T \leftarrow (\emptyset, \emptyset)$ \tcc*{ensembles des sites de T et P associés}
 $m\leftarrow min(n_P, n_T)$\\
 \For {$W \leq i\leq m$} {
-  $S_P^i\leftarrow sites(P, i)$\\
-  $S_T^i\leftarrow sites(T, i)$
+  $S_{P, i}\leftarrow sites(P, i)$\\
+  $S_{T, i}\leftarrow sites(T, i)$
 }
 $k\leftarrow m$\\
 \While{$k\geq W$}{
-$C\leftarrow $\\
+\For{$S_P\in S_{P, k}$}
+{
+  \For{$S_T\in S_{T, k}$}
+  {
+    $C\leftarrow match(S_P, S_T)$\\
+    \For{$(s_P, s_T)\in C$}{
+      \If{$s_P\notin A_P$ et $s_T\notin A_T$}{
+	$L\leftarrow L\cup \{(s_P, s_T)\}$\\
+	$A_P\leftarrow A_P\cup \{s_P\}$\\
+	$A_T\leftarrow A_T\cup \{s_T\}$\\
+      }
+    }
+  }
+}
 $k\leftarrow k-1$
 }
+\Return{L}
 }
 \label{algo:correspondance_fine}
 \end{algorithm}
 \end{figure}
 
 \subsection{Implémentation et résultats}
+\paragraph{Correspondance entre sommets.}
+La fonction \emph{match} donnant les correspondances a été implémentée pour une variante de l'algorithme d'Ullmann et de l'algorithme par parcours présentés au chapitre précédent, variantes adaptées à la comparaison de sites de mêmes taille.
+Elle a également été implémentée dans la version d'origine du détecteur, fonctionnant par comparaison de graphes.
+Nous avons ajouté, dans le détecteur, une possibilité d'export de ces correspondances.
+
+\paragraph{Greffon IDA.}
+Un greffon (ou \emph{plugin}) a été développé pour le désassembleur interactif IDA, permettant, lorsque que deux instances du désassembleur sont lancées, une analysant chacun des deux programmes comparés, d'aligner le code comparé selon les correspondances trouvées.
+Le greffon surligne les instructions ayant trouvé un correspondant dans l'autre graphe de flot et donne également la correspondance entre les fonctions assembleur du premier programme et du second.
+
+\paragraph{Exemple.}
+
 
 \section{Limites}
 \itodo{crypto code}
