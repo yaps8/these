@@ -17,6 +17,7 @@ Les logiciels analysés ne présentent en général pas d'informations de compil
 \subsection{Waledac et OpenSSL}
 Waledac \cite{CRFLSGBA10}, apparu en 2008, est un botnet, c'est à dire un programme malveillant transformant les machines infectées en esclaves (ou \emph{zombies}) recevant des ordres d'un serveur de commande et contrôle (C\&C).
 Les machines du botnet communiquent entre elles sous la forme d'un réseau pair à pair et la charge finale principale du réseau est l'envoie de courrier électronique non sollicité (\emph{spam}).
+Il s'agit d'un programme dont les fonctionnalités étaient déjà bien connues et documentées lorsque l'on a commencé à travailler dessus. Notre objectif était alors de voir s'il était possible d'automatiser une partie de l'analyse, tout en étant capables de vérifier nos résultats avec les analyse manuelles existantes.
 
 Afin de savoir quelles méthodes de chiffrement il utilise, nous avons cherché des chaînes de caractères dans le binaire correspondant à quelques bibliothèques standard à l'aide du l'outil \emph{strings}.
 Par chance il était facile de trouver qu'il utilise la version 0.9.8e de OpenSSL:
@@ -128,8 +129,110 @@ Nous avons ajouté, dans le détecteur, une possibilité d'export de ces corresp
 Un greffon (ou \emph{plugin}) a été développé pour le désassembleur interactif IDA, permettant, lorsque que deux instances du désassembleur sont lancées, une analysant chacun des deux programmes comparés, d'aligner le code comparé selon les correspondances trouvées.
 Le greffon surligne les instructions ayant trouvé un correspondant dans l'autre graphe de flot et donne également la correspondance entre les fonctions assembleur du premier programme et du second.
 
-\paragraph{Exemple.}
+\paragraph{Exemple avec Waledac et OpenSSL.}
+La figure \ref{fig:plugin_subroutines} montre un extrait de la page de correspondances entre les fonctions assembleurs identifiée par IDA entre la DLL principale d'OpenSSL (\emph{libeay32-098e.dll}) et Waledac (\emph{Waledac48.int}). La première colonne indique les adresses des instructions d'OpenSSL correspondant aux instructions aux adresses de Waledac à la troisième colonne tandis que les deuxième et quatrième colonnes donnent le nom des fonctions assembleur auxquelles ces instructions appartiennent.
+OpenSSL ayant été compilé avec des options de débogage, le nom des fonctions est retrouvé par IDA, ce qui n'est pas le cas pour Waledac.
+Il est à noter que, puisqu'on a effectué des réductions avant de lancer la comparaison, la plupart des instructions, dont les instructions séquentielles, ne sont pas comparées : ce sont principalement les instructions modifiant le flot de contrôle qui ont été considérées.
 
+% \begin{figure}[h]
+% \begin{center}
+%  \includegraphics[width=0.8\textwidth]{supports/libs/WalSSLIDA2.png}
+% \end{center}
+% \caption{Fonctions correspondantes entre OpenSSL à gauche et Waledac à droite}
+% \label{fig:plugin_subroutines}
+% \end{figure}
+
+\begin{figure}[h]
+\begin{center}
+\begin{tabular}{|l|l|l|l|}
+\hline
+\multicolumn{2}{|c|}{OpenSSL (libeay32-098e.dll)} & \multicolumn{2}{c|}{Waledac (Waledac48.int)} \\
+\hline
+Adresse & Fonction & Adresse & Fonction \\
+\hline
+ 10002CDE & CRYPTO\_new\_ex\_data & 00455B5C & sub\_455B55 \\
+ 10002CD0 & CRYPTO\_new\_ex\_data & 00455B5E & sub\_455B55 \\
+ 10002D0A & CRYPTO\_new\_ex\_data & 00455B72 & sub\_455B55 \\
+ 10002D0C & CRYPTO\_new\_ex\_data & 00455B74 & sub\_455B55 \\
+\hline
+ 10021F6D & AES\_set\_encrypt\_key & 00452C1E & sub\_452C1B \\
+ 10021F7C & AES\_set\_encrypt\_key & 00452C2D & sub\_452C1B \\
+ 10021F88 & AES\_set\_encrypt\_key & 00452C39 & sub\_452C1B \\
+ 10021F99 & AES\_set\_encrypt\_key & 00452C4A & sub\_452C1B \\
+ 10021FA0 & AES\_set\_encrypt\_key & 00452C51 & sub\_452C1B \\
+ 10021FA7 & AES\_set\_encrypt\_key & 00452C58 & sub\_452C1B \\
+ 10021FB3 & AES\_set\_encrypt\_key & 00452C64 & sub\_452C1B \\
+ 10021FD9 & AES\_set\_encrypt\_key & 00452C8A & sub\_452C1B \\
+ 10021FEF & AES\_set\_encrypt\_key & 00452CA0 & sub\_452C1B \\
+ 100224D9 & AES\_set\_encrypt\_key & 0045317D & sub\_452C1B \\
+\hline
+ 100224E0 & AES\_set\_decrypt\_key & 00453184 & sub\_45317E \\
+ 100224F0 & AES\_set\_decrypt\_key & 00453194 & sub\_45317E \\
+ 100224FA & AES\_set\_decrypt\_key & 0045319E & sub\_45317E \\
+\hline
+\end{tabular}
+\end{center}
+\caption{Fonctions correspondantes entre OpenSSL et Waledac}
+\label{fig:plugin_subroutines}
+\end{figure}
+
+
+Nous avons ensuite vérifié, dans IDA grâce à la fonction d'alignement de code du greffon, que le code des instructions correspondantes était bien suffisamment similaire pour valider la méthode.
+Une telle correspondance est donnée en exemple à la figure \ref{fig:plugin_code_sync} pour la fonction \emph{AES\_set\_encrypt\_key}.
+L'image est constituée d'un bout du graphe de flot de contrôle d'OpenSSL à gauche et d'un bout du GFC de Waledac à droite.
+Les instructions surlignées en orange et alignées sont celles pour lesquelles on a trouvé une correspondance.
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=1.0\textwidth]{supports/libs/WalSSLIDAAESgraph.png}
+\caption{Capture d'écran d'IDA : Code correspondant entre OpenSSL à gauche et Waledac à droite} 
+\label{fig:plugin_code_sync}
+\end{center}
+\end{figure}
+
+Sur cet exemple nous n'avons pas trouvé de correspondances sommet à sommet qui n'étaient pas cohérentes mais certaines fonctions n'étaient pas couvertes par suffisamment de sommets pour que l'on soit assurés d'un correspondance.
+La figure \ref{fig:tab_fonctionnalites_waledac_openssl} donne un extrait des fonctions d'OpenSSL retrouvées dans Waledac et les fonctionnalités qu'elles fournissent.
+
+\begin{figure}[h]
+\begin{tabular}{|p{9cm}|l|}
+\hline
+Fonctions 							& Fonctionnalité 			\\
+\hline
+AES\_set\_encrypt\_key, AES\_set\_decrypt\_key 			& Chiffrement AES 			\\
+RSA\_free, DSA\_size, DSA\_new\_method 				& Chiffrement RSA / DSA 		\\
+ X509\_PUBKEY\_set, X509\_PUBKEY\_get 				& Certificats X509 			\\
+BN\_is\_prime\_fasttest\_ex, BN\_ctx\_new, BN\_mod\_inverse	& Gestion des grands entiers (BN)	\\
+CRYPTO\_lock, CRYPTO\_malloc 					& Fonctions génériques d'OpenSSL 	\\
+\hline
+\end{tabular}
+\caption{Fonctions d'OpenSSL retrouvées dans Waledac et fonctionnalités associées}
+\label{fig:tab_fonctionnalites_waledac_openssl}
+\end{figure}
+
+Il n'est pas surprenant que l'on retrouve ces fonctionnalités puisque Waledac utilise du chiffrement AES et RSA et gères de certifications X509. Notre contribution est que l'on est capable de le montrer sans réellement analyser le code assembleur.
 
 \section{Limites}
-\itodo{crypto code}
+On a vu qu'on retrouve certaines fonctions utilisées lors d'un chiffrement AES.
+Pourtant nous n'avons retrouvé les fonctions principales, servant à chiffrer et déchiffrer à l'aide de l'algorithme AES.
+La raison est que notre approche, par graphes de flot réduits, s'applique très mal aux fonctions de chiffrement qui sont en général très simple du point de vue de leur graphe de flot de contrôle.
+Un extrait de la fonction \emph{AES\_encrypt\_subroutine} vu par IDA est donné en figure \ref{fig:AES_encrypt_IDA} tandis qu'une vue simplifiée de son GFC est donnée en figure \ref{fig:AES_encrypt_CFG}.
+
+\begin{figure}[h]
+\begin{center}
+\subfigure[AES\_encrypt subroutine]{
+\includegraphics[width=0.4\textwidth]{supports/libs/WalSSLIDAAESencryptnotmatched.png}
+\label{fig:AES_encrypt_IDA}
+}
+\subfigure[Simplified AES\_encrypt CFG]{
+\includegraphics[width=0.4\textwidth]{supports/libs/AESsimpleCFG.pdf}
+\label{fig:AES_encrypt_CFG}
+}
+\end{center}
+\end{figure}
+
+Le GFC réduit est donc trop petit pour pouvoir être détecté par l'analyse morphologique, qui prend des graphes d'une taille 24 au minimum.
+En fait beaucoup d'algorithmes de chiffrement ont cette structure une fois réduits et elle n'est pas non plus spécifique aux algorithmes de chiffrement. De ce fait l'analyse morphologique est inadaptée à la détection de ce genre de fonctions.
+
+
+
+\section{Comparaison de Stuxnet et Duqu}
