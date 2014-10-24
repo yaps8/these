@@ -184,7 +184,7 @@ Les instructions surlignées en orange et alignées sont celles pour lesquelles 
 
 \begin{figure}[h]
 \begin{center}
-\includegraphics[width=1.0\textwidth]{supports/libs/WalSSLIDAAESgraph.png}
+% \includegraphics[width=1.0\textwidth]{supports/libs/WalSSLIDAAESgraph.png}
 \caption{Capture d'écran d'IDA : Code correspondant entre OpenSSL à gauche et Waledac à droite} 
 \label{fig:plugin_code_sync}
 \end{center}
@@ -220,11 +220,11 @@ Un extrait de la fonction \emph{AES\_encrypt\_subroutine} vu par IDA est donné 
 \begin{figure}[h]
 \begin{center}
 \subfigure[AES\_encrypt subroutine]{
-\includegraphics[width=0.4\textwidth]{supports/libs/WalSSLIDAAESencryptnotmatched.png}
+% \includegraphics[width=0.4\textwidth]{supports/libs/WalSSLIDAAESencryptnotmatched.png}
 \label{fig:AES_encrypt_IDA}
 }
 \subfigure[Simplified AES\_encrypt CFG]{
-\includegraphics[width=0.4\textwidth]{supports/libs/AESsimpleCFG.pdf}
+% \includegraphics[width=0.4\textwidth]{supports/libs/AESsimpleCFG.pdf}
 \label{fig:AES_encrypt_CFG}
 }
 \end{center}
@@ -232,7 +232,3 @@ Un extrait de la fonction \emph{AES\_encrypt\_subroutine} vu par IDA est donné 
 
 Le GFC réduit est donc trop petit pour pouvoir être détecté par l'analyse morphologique, qui prend des graphes d'une taille 24 au minimum.
 En fait beaucoup d'algorithmes de chiffrement ont cette structure une fois réduits et elle n'est pas non plus spécifique aux algorithmes de chiffrement. De ce fait l'analyse morphologique est inadaptée à la détection de ce genre de fonctions.
-
-
-
-\section{Comparaison de Stuxnet et Duqu}
