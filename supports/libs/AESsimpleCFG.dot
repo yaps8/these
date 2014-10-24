@@ -1,0 +1,9 @@
+Digraph G{
+"1" [label="Initial round"]
+"2" [label="Rounds"]
+"3" [label="Final Round"]
+"1" -> "3"
+"1" -> "2"
+"2" -> "2"
+"2" -> "3"
+}
