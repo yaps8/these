@@ -11,13 +11,14 @@ En particulier nous montrons comment le pilote de \duqu\ modifié aurait permis 
 Ces travaux ont fait l'objet d'une publication à Malware \cite{mal13} ainsi qu'à SSTIC \cite{sstic13}.
 
 
-\section{\duqu\ et Stuxnet}
-\paragraph{\stux.}
+\section{Duqu et Stuxnet}
+% \paragraph{\stux.}
 \stux, découvert en juin 2010, est capable de cibler et de reprogrammer des systèmes industriels.
 Sans que cela ait été prouvé, il a été avancé qu'il visait le programme nucléaire iranien. 
 Symantec \cite{SymantecStux2011} indique que la plupart des systèmes infectés sont en Iran et que la cible pourrait être un système de contrôle de centrifugeuses.
+\\
 
-\paragraph{\duqu.}
+% \paragraph{\duqu.}
 \duqu, découvert en premier par Crysys \cite{CrysysDuquStuxnet} en septembre 2011, laboratoire de sécurité et de cryptographie de l'université de Budapest, a directement été détecté comme apparenté à \stux\ parce qu'ils utilisent des techniques d'infection et de propagation similaires.
 \duqu\ est un outil offensif utilisé pour le vol d'informations. Symantec \cite{SymantecDuqu2011} a identifié, parmi ses fonctionnalités, des enregistreurs de frappes (\emph{keyloggers}), de l'écran, de l'activité réseau, ainsi que des outils de détection de machines sur le réseau.
 Il est maintenu à jour via des serveurs de commande et de contrôle (C\&C) et dispose d'une possibilité d'auto-destruction après, typiquement, 36 jours sans nouvelles du C\&C.
@@ -40,14 +41,295 @@ Nous avons alors cherché à documenter la méthode d'infection de \duqu\ afin d
 \section{Détection d'une infection par Duqu}
 \subsection{Déroulement d'une infection}
 L'infection détectée par Crysys utilise un document Microsoft Word piégé, incluant \duqu.
-Dans un premier temps il exploite une faille jusque là inconnue (\emph{0-day} sur les polices d'écriture TrueType \cite{CVETrueType}) du noyau Windows afin d'installer trois composants :
+Dans un premier temps il exploite une faille jusque là inconnue (\emph{0-day} sur les polices d'écriture TrueType \cite{CVETrueType}) du noyau Windows afin d'installer trois composants sur le système :
 \begin{itemize}
- \item Un pilote (\emph{driver}) : 
+ \item Un pilote : \driver
+ \item Une DLL chiffrée : \netpDLL
+ \item Un fichier de configuration chiffré : \netpCONF
 \end{itemize}
 
+Au redémarrage de la machine, le pilote surveille le chargement des processus par le système d'exploitation et injecte la DLL principale de \duqu, une fois déchiffrée, dans un processus spécifié par le fichier de configuration, typiquement \services.
+
+Enfin le pilote modifie \services\ afin qu'il exécuté la charge finale, qui est inclue dans la DLL.
+
+Une fois installé sur une première cible, \duqu\ reçoit des ordres d'attaques et de propagation d'un serveur C\&C.
+Chaque machine infectée peut être configurée pour se connecter à l'attaquant, pas directement mais par la machine qui l'a infectée, créant une sorte de tunnel de routage pour des machines non accessibles directement depuis l'extérieur.
+
+\itodo{illustration}
+
+\paragraph{Difficulté de la détection.}
+L'obstacle principal à la détection est que seul le pilote est présent déchiffré sur le disque.
+La DLL est chiffrée et empaquetée avec UPX, elle n'apparaît déchiffrée qu'en mémoire, lorsqu'elle est injectée dans \services.
+
+\paragraph{Angle d'attaque pour une détection.}
+L'attaque peut être détectée au moment du déchiffrement de la DLL principale et de son injection.
+Elle doit prendre place après le déchiffrement mais avant que la charge finale ne soit exécutée.
+Nous aurons pour cela besoin de suivre les processus lancés et de pouvoir analyser les DLL qu'ils exécutent.
+Étant donné que le pilote de \duqu\ réalise cette opération, nous avons choisi de le modifier de telle sorte qu'il puisse s'interfacer avec le détecteur par analyse morphologique.
+Pour mettre ce plan en \oe uvre, nous avons
+\begin{itemize}
+ \item Reconstitué, par rétroingénierie, le code source du pile de \duqu\ à partir de son binaire.
+ \item Modifié sont code pour qu'il surveille le chargement des processus sans provoquer d'injection.
+ \item Interfacé le nouveau pilote avec notre outil de détection.
+\end{itemize}
 
 \subsection{Reconstruction du code du pilote}
+Nous savions donc que les DLL principales de \duqu\ et \stux\ partagent du code.
+Le pilote de \stux\ a été décompilé par Amr Thabet \cite{ThabetDriver}.
+Nous avons voulu suivre la même route et désassembler le pilote de \duqu\ afin de le documenter.
+Nous avions à notre disposition la souche du pilote découverte en octobre 2011 en Europe : \driver.
 
-\subsection{Analyse fonctionnelle à partir du code source}
+Nous avons donc travaillé sur la rétroingénierie de cette version spécifique du driver afin d’en documenter les fonctionnalités. 
+Notre objectif est d’obtenir un code compréhensible, qui compile, et dont la version compilée soit au plus proche du binaire d'origine.
 
-\subsection{Réalisation d'une version défensive}
+\subsubsection{Décompilation avec IDA}
+Nous avons utilisé le module de décompilation "Hex-Rays Decompiler", intégré à IDA sous la forme d’un greffon \cite{IDADecompiler}.
+Il permet de générer un pseudo-code C à partir du fichier binaire en cours d’analyse.
+Il produit non seulement du code source mais facilite également sa réécriture directement à l’intérieur de l’interface graphique du greffon. 
+Malheureusement le code en sortie n’est, dans notre cas, pas exploitable directement. 
+D’une part le code n’est pas compilable parce que des types de variables n’ont pas été correctement reconnus et certaines conventions d’appel ne sont pas standard (non reconnues par le décompilateur). 
+De plus le code généré est difficilement lisible, en partie parce que certaines structures n’ont pas été identifiées.
+Nous détaillerons dans les paragraphes suivants ces difficultés et des moyens de résolution.
+
+Nous avons procédé de manière incrémentale afin de reconstruire le code petit à petit en vérifiant à chaque étape que le code compile et qu'une fois compilé il est équivalent à celui du binaire \driver\ original. 
+Cela a consisté à :
+\begin{itemize}
+ \item Commenter tout le pseudo-code sauf la fonction du point d'entrée du pilote (\emph{DriverEntry}) et les variables globales s'y rapportant
+ \item Régler chaque erreur une par une
+ \item Comparer le code compilé au binaire original, modifier le code pour s'en rapprocher
+ \item Ajouter du code auparavant commenté et revenir à l'étape de correction d'erreurs.
+\end{itemize}
+
+\subsubsection{Identification des structures et des types}
+La figure \ref{fig:ParsePEInitial} montre les premières lignes du code C reconstruit par le décompilateur pour une des fonctions du pilote.
+Beaucoup d'informations manquent. Par exemple la plupart des types sont décrits comme des entiers : il n'est pas possible de savoir quel type de données cette fonction manipule.
+Nous allons détailler sur cet exemple quelques techniques permettant de récupérer ces informations.
+
+\begin{figure}[h]
+\begin{lstlisting}[language={C}]
+signed int __cdecl sub_12F36(int a1, int a2, int a3)
+{
+  int v4; // eax@3
+  unsigned __int16 v5; // cx@4
+  int v6; // ecx@7
+
+  v4 = a2 + *(_DWORD *)(a2 + 60);
+  if (*(_DWORD *)v4 ^ 0xF750F284 != 0xF750B7D4)
+    return 1;
+\end{lstlisting}
+\caption{Première lignes de la fonction ParsePE décompilée par IDA\label{fig:ParsePEInitial}}
+\end{figure}
+
+Certaines constantes peuvent nous aider : par exemple $0xF750F284\ XOR\ 0xF750B7D4 = 0x00004550$ , qui représente la chaîne de caractères 'PE$\backslash$0$\backslash$0' en ASCII. Le texte était obscurcis à l'aide d'une opération de ou exclusif (\emph{XOR}).
+
+Nous soupçonnons alors que cette fonction est utilisée pour le traitement de fichiers binaires au format PE.
+La documentation officielle de Microsoft Visual C++ détaille la structure PIMAGE\_NT\_HEADERS dont le premier champ, \emph{Signature}, vaut \PEzz\ pour les binaires Windows.
+Ainsi la variable \texttt{v4}, qui est comparée à \PEzz, est probablement du type PIMAGE\_NT\_HEADERS.
+Nous forçons cette type pour cette variable au sein d'IDA, à la place du type \texttt{int} et IDA trouve automatiquement le nom champs des autres variables à partir de leur décalage (\emph{offset}) en mémoire.
+Lorsque les structures sont spécifiques au binaire analysé, il est possible de les définir manuellement dans le décompilateur.
+Nous avons retrouvé les types des autres variables de manière similaire.
+
+La figure \ref{fig:ParsePEFinal} donne les premières lignes de la fonction retouchée.
+Elle est lisible par un développeur C : on peut voir que la fonction vérifie si un fichier est binaire PE.
+Le reste de la fonction parcourt le binaire PE passé en entrée et remplit une structure spécifique avec quelques informations (son point d'entrée, ses sections, etc.).
+De plus le code compilé de cette fonction est très similaire au binaire d'origine.
+Nous avons réalisé ce type d'analyse sur l'ensemble du pilote afin d'en reconstruire une version compréhensible et cohérente du code source du pilote.
+
+\begin{figure}[h]
+\begin{lstlisting}[language={C}]
+NTSTATUS __cdecl ParsePE(__out PEDataPtr pPEData, 
+    __in PIMAGE_DOS_HEADER BaseAddress, __in int flag){
+PVOID infosPE;
+PIMAGE_DOS_HEADER pDosHeader;
+PIMAGE_NT_HEADERS pNtHeader;
+
+pNtHeader = (DWORD)infosPE + infosPE->e_lfanew;
+if ((pNtHeader->Signature ^ 0xF750F284) 
+      != (IMAGE_NT_SIGNATURE ^ 0xF750F284)) 
+    return STATUS_WAIT_1; 
+\end{lstlisting}
+\caption{Première lignes de la fonction ParsePE reconstruite\label{fig:ParsePEFinal}}
+\end{figure}
+
+\subsubsection{Conventions d'appel}
+
+Pour chaque routine, IDA cherche à déterminer la convention d'appel utilisée à partir des registres qui sont lus avant d'être écrits (paramêtres) et ceux écrits sans être lus après (valeur de retour). Si ces registres correspondent à un appel classique, il l'annote dans le code C pour que le compilateur respecte la convention. Les conventions d'appel de Microsoft Visual C++ sont données Figure \ref{fig:callingconvention}, l'appel par défaut étant \emph{thiscall}. Dans le cas où il ne détermine pas la convention, il annote les registres d'entrée et de sortie en notant qu'il s'agit d'un appel non conventionnel (\emph{usercall}) et met la définition de la fonction en commentaire (ici les arguments sont passés dans les registres \texttt{edi} et \texttt{esi}) :
+\begin{small}
+\begin{lstlisting}[language={C}, escapechar=!]
+!//! int __usercall SearchForCodeInSystem<eax>(int *a1<edi>, int a2<esi>);
+\end{lstlisting}
+\end{small}
+
+Une convention d'appel non standard est détectée dans le cas où une partie de la fonction a été écrite directement en assembleur ou à la suite d'une optimisation faite par le compilateur. On doit alors réécrire, en partie en assembleur la fonction sans passer par le décompilateur ou choisir une convention d'appel soi-même.
+
+\begin{figure}[h]
+\begin{center}
+\begin{tabular}{|l|c|c|c|c|}
+\hline 
+Convention & Arguments & \emph{this} (C++) & Retour & Nettoie la pile\\
+\hline
+C (\_\_cdelcl) & pile & (argument) & eax & appelant\\
+Standard (\_\_stdcall) & pile & (argument) & eax & appelé\\
+Thiscall (\_\_thiscall) & pile & ecx & eax & appelé\\
+Fastcall (\_\_fastcall) & ecx, edx, pile & (argument) & eax & appelé\\
+\hline
+\end{tabular}
+\end{center}
+\caption{Conventions d'appel dans leur version Visual C++}
+\label{fig:callingconvention}
+\end{figure}
+
+
+\section{Analyse fonctionnelle du pilote de Duqu à partir du code source}
+Une fois le code du pilote reconstitué, nous l'avons donc analysé.
+Il y a deux phases principales, la première consiste en la mise en place du pilote : il demande au système à être notifié en cas de chargement de binaires et initialise ses mécanismes de furtivité.
+La seconde phase est lancée lorsqu'une notification est signalée au chargement d'un des binaires ciblés : le pilote infecte alors le binaire en y injectant la DLL du \duqu\ puis celle-ci active la charge finale.
+
+\subsection{Initialisation du pilote lors du démarrage du système}
+Sous Windows l'ordre de démarrage des pilotes est déterminée par leur clé de registre \texttt{Group}.
+Le pilote \driver\ de \duqu, appartenant au groupe ``network'', est activé avant même que la couche d'abstraction matérielle (HAL) ne soit chargée en mémoire.
+
+Le pilote, une fois démarré, commence par allouer un emplacement mémoire de 512 octets destiné à contenir un tableau de pointeurs de fonctions partagées entre les différentes routines de rappel (\emph{callback}) qui seront définies par la suite.
+Il passe ensuite au déchiffrement de quelques paramètres internes, révélant le nom et le l'emplacement de la clé de registre utilisée pour la configuration de l'injection.
+
+Si le déchiffrement s'est correctement déroulé, vient alors la vérification du mode d'exécution : soit le système s'avère être en mode sans échec ou en mode débogage, dans ce cas le pilote termine prématurément son exécution ; soit il est en mode normal et il crée alors un \emph{device}, \texttt{\{624409B3-4CEF-41c0-8B81-7634279A41E5\}}, et définit la liste des commandes de contrôle qu'il sera amené à traiter.
+
+Cette étape réalisée, le driver enregistre deux fonctions de rappel auprès gestionnaire d'événements interne du noyau.
+La première est requise par le système : elle est utilisée pour créer un point d'accès ($\backslash$\texttt{Device}$\backslash$\texttt{Gpd0}) et un lien ($\backslash$\texttt{DosDevices}$\backslash$\texttt{GpdDev}) vers le pilot, ainsi que pour définir un pile mémoire pour le \emph{device}.
+La seconde fonction sera appelée lorsque le pilote sera initialisé ou ré-initialisé. 
+
+
+Cette seconde fonction attend que le noyau Windows soit complètement chargé en vérifiant si la DLL \texttt{hal.dll} est chargée en mémoire. Lorsque le système est prêt, un point d'accès, $\backslash$\texttt{Device}$\backslash$\texttt{Gpd1}, est créé et lié à une routine de traitement des requêtes. 
+À ce stade le pilote est prêt à réaliser l'injection.
+
+\subsubsection{Techniques de furtivité}
+Le pilote agit désormais furtivement (on parle de \emph{rootkit}) parce qu'il évite d'utiliser directement des appels systèmes connus pour être sensibles, utilisés par des logiciels malveillants, et probablement surveillés par un éventuel antivirus.
+La fonction \ZwA\ peut être utilisée pour allouer de la mémoire au sein d'un processus au choix, pour y injecter du code arbitraire par exemple.
+De plus, afin de détourner le point d'entrée d'un binaire (\emph{hook}), \duqu\ voudrait également utiliser la fonction \ZwP\ que Microsoft a délibérément omise de la liste des fonctions accessibles en dehors du noyau. Cette fonction permet de modifier les permissions d'une page mémoire et peut être utilisée pour rendre une partie de code accessible en écriture ou rendre une section de données exécutable.
+
+Ces deux fonctions sont implémentée dans le noyau Windows, dans les fichiers \texttt{Ntoskrnl.exe} ou \texttt{ntkrnlpa.exe} selon les versions. 
+Le pilote inspecte chaque module, DLL et exécutables, chargés par le système lors du démarrage à la recherche d'un de ces deux fichiers.
+
+Un fois le fichier cible trouvé, le pilote utilise la fonction \texttt{ParsePE} pour l'examiner et y retrouver l'adresse de \ZwP.
+Pour cela il dispose d'un motif à reconnaître.
+Il est à la recherche d'un appel vers \ZwA, dont l'adresse est connue parce qu'elle est présente dans la table d'exports du noyaux, suivi par l'instruction \texttt{push 0x104} et par une instruction \texttt{call}.
+Si ce motif, représenté en figure \ref{CallZwProtect}, alors l'adresse cible de ce \texttt{call} est considérée comme étant \ZwP.
+À partir de cet instant, le pilote connaît les adresses mémoire de ces deux fonctions.
+
+\begin{figure*}
+\scriptsize
+\begin{lstlisting}[language={[x86masm]Assembler}, escapechar=~]
+(01) PAGE:004ED1AD                  loc_4ED1AD: [...]                      
+(02) PAGE:004ED1BC 50               push    eax             ; BaseAddress
+(03) PAGE:004ED1BD 57               push    edi             ; ProcessHandle
+(04) PAGE:004ED1BE E8 19 8C F1 FF   ~\textcolor{red}{\texttt{call    DS:ZwAllocateVirtualMemory}}~
+(05) PAGE:004ED1C3 3B C3            cmp     eax, ebx
+(06) PAGE:004ED1C5 8B 4D FC         mov     ecx, [ebp+BaseAddress]
+(07) PAGE:004ED1C8 89 4E 0C         mov     [esi+0Ch], ecx
+(08) PAGE:004ED1CB 7C 2E            jl      short loc_4ED1FB
+(09) PAGE:004ED1CD 38 5D 0B         cmp     byte ptr [ebp+ProcessHandle+3], bl
+(10) PAGE:004ED1D0 74 27            jz      short loc_4ED1F9
+(11) PAGE:004ED1D2 8B 45 D0         mov     eax, [ebp+var_30]
+(12) PAGE:004ED1D5 89 45 F8         mov     [ebp+ProtectSize], eax
+(13) PAGE:004ED1D8 8D 45 F4         lea     eax, [ebp+OldProtect]
+(14) PAGE:004ED1DB 50               push    eax             ; OldProtect
+(15) PAGE:004ED1DC 68 04 01 00 00   ~\textcolor{red}{\texttt{push    104h}}~
+(16) PAGE:004ED1E1 8D 45 F8         lea     eax, [ebp+ProtectSize]
+(17) PAGE:004ED1E4 50               push    eax             ; ProtectSize
+(18) PAGE:004ED1E5 8D 45 FC         lea     eax, [ebp+BaseAddress]
+(19) PAGE:004ED1E8 50               push    eax             ; BaseAddress
+(20) PAGE:004ED1E9 57               push    edi             ; ProcessHandle
+(21) PAGE:004ED1EA E8 93 96 F1 FF   ~\textcolor{red}{\texttt{call    loc\_406882}}~ ; ZwProtectVirtualMemory
+(22) PAGE:004ED1EF 3B C3            cmp     eax, ebx
+\end{lstlisting}
+% \end{framed}
+\caption{Fonction faisant appel à \ZwP\label{fig:CallZwProtect}}
+\end{figure*}
+
+\paragraph{Vérification d'intégrité.}
+Le pilote cherche à détecter si les fonction \ZwA\ ou \ZwP\ ont été la cible d'un détournement défensif par un antivirus cherchant à les surveiller.
+Il vérifie dans un premier temps que les deux fonctions sont présentes dans l'espace mémoire du noyau et non en espace utilisateur.
+Dans un second temps il leur applique un masque d'intégrité vérifiant la valeur d'un partie des 32 premières adresses mémoires sur lesquelles les deux fonction sont codées. Le masque est le même pour les deux fonction et est donné en figure \ref{fig:masque_integrite}.
+Si les fonctions passent le test, leurs adresses sont considérées valides et son gardées pour une future utilisation discrète.
+
+\begin{figure}
+\begin{center}
+ \includegraphics[width=0.48\textwidth]{supports/duqu/octetsmasque.png}\\
+ \includegraphics[width=0.48\textwidth]{supports/duqu/masqueZwAllocate.png}
+ \includegraphics[width=0.48\textwidth]{supports/duqu/masqueZwProtect.png}
+\end{center}
+\caption{Masque d'intégrité appliqué à \ZwA\ et \ZwP. Les valeurs colorées sont celles qui sont vérifiées.}
+\label{fig:masque_integrite}
+\end{figure}
+
+\subsubsection{Initialisation de la mémoire partagée}
+Une mémoire partagée est allouée et utilisée comme lien entre les routines de rappel du pilote et le noyau.
+Elle contiendra, entre autres, les paramètres pour l'infection déchiffrées depuis les données d'une clé de registre et une table d'imports donnant accès à la DLL \texttt{kernel.dll} et aux fonctions du noyau.
+Cette table d'imports sera utilisée à la fois par le code que \duqu\ va injecter dans \services\ et par la charge finale.
+
+La phase d'initialisation prend fin en mettant en place une notification système dès qu'un module (DLL ou exécutable) est chargé en mémoire, via l'appel système \texttt{PsSetLoadImageNotifyRoutine}.
+
+\subsection{Injection de code}
+\subsubsection{Traitement de la première notification}
+\paragraph{Préparation à l'injection.}
+Le pilote est notifié à chaque fois qu'un module (DLL ou exécutable) est chargé en mémoire.
+À chaque fois le pilote tente de localiser l'emplacement mémoire du module.
+Pour cela il utilise l'identifiant du processus que lui fournit le système d'exploitation lors de la notification.
+Il lit l'adresse de base du fichier directement à partir des informations accessibles dans la structure PEB (\emph{Process Environment Block}) et la compare à celle passé en paramètre par le système.
+Il vérifie que le fichier de configuration est bien déchiffré dans la mémoire partagée et lit le champ donnant la cible de l'injection.
+Comme expliqué dans le document de Crysys \cite{CrysysDuquStuxnet}, la cible est \services\ donc nous nous focaliserons sur ce processus et l'injection dont il sera victime.
+
+\paragraph{Injection de la charge finale.}
+Le pilote de \duqu\ va maintenant injecter du code malveillant dans \services\ de telle manière que la charge finale soit exécutée par \services\ avant que son code légitime ne soit à son tour exécuté.
+
+Une fois que \services\ est chargé, le pilote détermine son point d'entrée et alloue de la mémoire dans sa section \pdata\ à l'aide de la fonction \ZwA.
+Deux fichiers PE dont les entêtes ont été altérés, à des fins de furtivité, sont injectés.
+Ensuite certaines constantes ('\texttt{MZ}', '\texttt{IMAGE\_NT\_SIGNATURE}', '\texttt{IMAGE\_PE\_i386\_MACHINE}, et '\texttt{IMAGE\_PE32\_MAGIC}') du premier code injecté sont restaurées.
+Certaines adresses sont recalculées : les adresses cibles de sauts qui étaient codées en dur doivent être recalculées
+Enfin le pilote modifie les permissions du point d'entrée de \services\ de \texttt{RX} (\texttt{PAGE\_EXECUTE\_READ}) à \texttt{RWX} (\texttt{PAGE\_EXECUTE\_WRITECOPY}) en utilisant la fonction \ZwP.
+
+Le pilote \driver\ alloue alors de la mémoire dans le processus \services\ de la taille de la DLL déchiffrée \netpDLL\ augmentée de 57 octets.
+Ensuite un gestionnaire d’événements (\emph{handler}) est ouvert sur le pilote et est sauvegardé dans la mémoire partagée afin de pouvoir être utilisé par le code injecté.
+
+\subsubsection{Traitement de la seconde notification}
+Le pilote n'est pas uniquement notifié quand le module principal (\services) est chargé mais également lorsque des DLLs liées à ce module sont également chargées.
+En particulier lorsque la DLL \texttt{kernel32.dll} est chargée, le pilote cherche les adresses de 10 de ses fonctions exportées qui seront utilisées par la charge finale.
+Toujours dans une optique de furtivité la recherche consiste à comparer un haché (\emph{hash}) cryptographique au nom de chacun des fonctions exportées par la DLL.
+Cette étape se termine par une sauvegarde des 12 premiers octets présents au point d'entrée de \services\ et leur remplacement par un saut vers le premier code injecté et restauré.
+Les premières instructions du point d'entrée sont changées en l'instruction \texttt{mov eax, @AdresseInjection} suivie de \texttt{call eax}.
+
+Le processus \services\ a ainsi été altéré et est prêt à lancer la charge finale.
+
+\subsubsection{Lancement de la charge finale}
+Le système d'exploitation termine l'initialisation de \services\ et procède à son exécution en passant le contrôle au point d'entrée modifié, c'est à dire au premier code injecté par \duqu.
+
+Sa première tâche consiste à déterminer sa propre adresse en mémoire afin de pouvoir recalculer les adresses de certaines cibles de saut.
+Cette opération peut être effectuée à l'aide de deux instructions : un \texttt{call +5} vers l'instruction suivante suivi d'un \texttt{pop eax} a pour effet de placer l'adresse de retour (celle de \texttt{pop eax}) en haut de la pile, puis de la dépiler dans \eax qui contient alors cette même adresse.
+Il modifie alors les adresses à partir du nouveau point d'entrée déterminé.
+
+Il restaure ensuite les entêtes du second PE injecté afin de le rendre valide et remplie, dans une structure partagée, une table d'import à partir des 10 fonctions trouvées précédemment de \texttt{kernel32.dll}.
+Il crée ensuite un gestionnaire d’événements sur la DLL \texttt{ntdll.dll} qui est enregistrée dans une structure partagée.
+Il transfert ensuite le contrôle au point d'entrée sur second code injecté.
+
+Ce module additionnel ajoute les données de son propre entête (adresse du module, nombre de sections, adresse de la table d'exports) dans la mémoire partagée.
+Enfin ces informations sont utilisées pour charger ce PE manuellement en mémoire : les espaces mémoire sont alloués, l'entête est copié, les sections et les DLL liées sont chargées en mémoire, une table d'imports est crée, les adresses sont recalculées à partir de son point d'entrée.
+Puis la DLL principale de \duqu, \netpDLL, est chargée et liée à ce PE et son point d'entrée est appelé.
+La figure \ref{ServiceMem} donne l'état du processus \services\ et de la mémoire à cette étape de l'injection.
+
+\begin{figure}[h]
+\begin{center}
+% \includegraphics[width=0.4\textwidth]{img/injectionDuquMalware.pdf} 
+% \missingfigure
+\itodo{figure}
+\end{center}
+\caption{Mémoire de \services\ et de \duqu\ une fois que l'injection est complète}
+\label{fig:ServiceMem}
+\end{figure}
+
+La charge finale contenue dans la DLL est maintenant en place et exécutée.
+Une fois qu'elle a fini, elle envoie une requête au pilote via le point d'accès créé précédemment, \texttt{\{624409B3-4CEF-41c0-8B81-7634279A41E5\}}, afin qu'il restaure les 12 premiers octets du point d'entrée de \services.
+Une seconde requête est envoyée pour restaurer les droits d'accès du point d'entrée de \services.
+
+L'attaque ayant été réalisée, le contrôle est maintenant passé à \services, qui a été restauré et s'exécute cette fois normalement.
+
+\section{Réalisation d'une version défensive}
