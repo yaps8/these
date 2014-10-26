@@ -1,33 +1,51 @@
-Dans ce chapitre nous présentons nos travaux sur deux programmes malveillants particuliers, Duqu et Stuxnet.
-Lorsque nous avons commencé ces travaux Stuxnet était déjà documenté et détecté et Duqu venait d'être découvert.
-Il a rapidement été dit qu'ils étaient semblables et nous avons donc cherché à détecter Duqu connaissant Stuxnet.
+Dans ce chapitre nous présentons nos travaux sur deux programmes malveillants particuliers, \duqu\ et \stux.
+Lorsque nous avons commencé ces travaux \stux\ était déjà documenté et détecté et \duqu\ venait d'être découvert.
+Il a rapidement été dit qu'ils étaient semblables et nous avons donc cherché à détecter \duqu\ connaissant \stux.
 Dans un premier temps nous appliquons les travaux présentés au chapitre précédent sur ces exemples \cite{REAT12,mal12}.
 
-Dans un second temps nous cherchons à détecter Duqu avant qu'il puisse infecter une machine cible.
-Nous avons pour cela étudié un composant spécifique de Duqu, son pilote (\emph{driver}) qui permet de charger discrètement, le code malveillant en mémoire.
+Dans un second temps nous cherchons à détecter \duqu\ avant qu'il puisse infecter une machine cible.
+Nous avons pour cela étudié un composant spécifique de \duqu, son pilote (\emph{driver}) qui permet de charger discrètement, le code malveillant en mémoire.
 Notre contribution consiste en la rétroingénierie de ce composant, en la reconstitution de son code source et en une analyse de son fonctionnement.
 Nous avons ensuite détourné le pilote pour en faire une version défensive capable de détecter d'éventuelles attaques similaires.
-En particulier nous montrons comment le pilote de Duqu modifié aurait permis de détecter Duqu.
+En particulier nous montrons comment le pilote de \duqu\ modifié aurait permis de détecter \duqu.
 Ces travaux ont fait l'objet d'une publication à Malware \cite{mal13} ainsi qu'à SSTIC \cite{sstic13}.
 
 
-\section{Duqu et Stuxnet}
-\paragraph{Stuxnet.}
-Stuxnet, découvert en juin 2010, est capable de cibler et de reprogrammer des systèmes industriels.
+\section{\duqu\ et Stuxnet}
+\paragraph{\stux.}
+\stux, découvert en juin 2010, est capable de cibler et de reprogrammer des systèmes industriels.
 Sans que cela ait été prouvé, il a été avancé qu'il visait le programme nucléaire iranien. 
 Symantec \cite{SymantecStux2011} indique que la plupart des systèmes infectés sont en Iran et que la cible pourrait être un système de contrôle de centrifugeuses.
 
-\paragraph{Duqu.}
-Duqu, découvert en premier par Crysys \cite{CrysysDuquStuxnet} en septembre 2011, laboratoire de sécurité et de cryptographie de l'université de Budapest, a directement été détecté comme apparenté à Stuxnet parce qu'ils utilisent des techniques d'infection et de propagation similaires.
-Duqu est un outil offensif utilisé pour le vol d'informations. Symantec \cite{SymantecDuqu2011} a identifié, parmi ses fonctionnalités, des enregistreurs de frappes (\emph{keyloggers}), de l'écran, de l'activité réseau, ainsi que des outils de détection de machines sur le réseau.
+\paragraph{\duqu.}
+\duqu, découvert en premier par Crysys \cite{CrysysDuquStuxnet} en septembre 2011, laboratoire de sécurité et de cryptographie de l'université de Budapest, a directement été détecté comme apparenté à \stux\ parce qu'ils utilisent des techniques d'infection et de propagation similaires.
+\duqu\ est un outil offensif utilisé pour le vol d'informations. Symantec \cite{SymantecDuqu2011} a identifié, parmi ses fonctionnalités, des enregistreurs de frappes (\emph{keyloggers}), de l'écran, de l'activité réseau, ainsi que des outils de détection de machines sur le réseau.
 Il est maintenu à jour via des serveurs de commande et de contrôle (C\&C) et dispose d'une possibilité d'auto-destruction après, typiquement, 36 jours sans nouvelles du C\&C.
 
-Les attaques semblent réussies puisque le programme malveillant n'a pas été détecté à chaud alors que certaines opérations ont duré plusieurs mois, mais seulement post-mortem. De nombreuses souches de Duqu ont été trouvées dans la natures, chacune avec des binaire différents mais similaire. Kaspersky a publié un historique des versions \cite{KaspDuqu10}, la dernière souche détectée date de février 2012, bien après que les première attaques ne soient détectées et documentées.
+Les attaques semblent réussies puisque le programme malveillant n'a pas été détecté à chaud alors que certaines opérations ont duré plusieurs mois, mais seulement post-mortem. De nombreuses souches de \duqu\ ont été trouvées dans la natures, chacune avec des binaire différents mais similaire. Kaspersky a publié un historique des versions \cite{KaspDuqu10}, la dernière souche détectée date de février 2012, bien après que les première attaques ne soient détectées et documentées.
 
 \section{Analyse des similarités}
+Nous avons effectué une analyse similaire à celle décrite au chapitre précédent pour trouver les similarités entre \stux\ et \duqu\ afin de trouver les parties de \stux\ que l'on retrouve dans \duqu.
+Pour ces deux programmes malveillants, nous avons analysé la bibliothèque (DLL) de code principale dépaquetée.
+Dans les deux cas l'infection est cherche à exploiter une faille de Windows permettant d'installer plusieurs composants qui auront été déchiffrés au préalable.
+Nous avons extrait les graphes de flot réduits de \duqu\ et \stux.
+Nous avons trouvé 846 sites communs entre \duqu\ et \stux\ : 26.5\% des sites de \duqu\ proviennent de \stux.
+Lorsque l'on regarde les sommets correspondants dans les graphes réduits, on s'aperçoit que ces sites contiennent 2215 sommets dans les graphes de flot réduits : 60.3\% des sommets du graphe de flot réduit de \duqu\ correspondent à des sommets  présents dans \stux.
 
-\section{Détection d'une infection}
-\itodo{intro}
+Forts de ces résultats indiquant que \duqu\ et \stux\ partagent beaucoup de code, nous considérons donc qu'un détecteur de programmes malveillant fonctionnant avec la technique d'analyse morphologique connaissant \stux\ serait capable de détecter \duqu.
+
+La seconde difficulté qu'aurait à résoudre un détecteur est que le programme provocant l'infection de \duqu\ ne ressemble pas à \stux\ ni à aucun autre programme malveillant connu. Ce n'est que lorsque des composants connus de \duqu\ sont déchiffrés et installés que l'on peut les détecter.
+Nous avons alors cherché à documenter la méthode d'infection de \duqu\ afin de pouvoir détecter une attaque.
+
+\section{Détection d'une infection par Duqu}
+\subsection{Déroulement d'une infection}
+L'infection détectée par Crysys utilise un document Microsoft Word piégé, incluant \duqu.
+Dans un premier temps il exploite une faille jusque là inconnue (\emph{0-day} sur les polices d'écriture TrueType \cite{CVETrueType}) du noyau Windows afin d'installer trois composants :
+\begin{itemize}
+ \item Un pilote (\emph{driver}) : 
+\end{itemize}
+
+
 \subsection{Reconstruction du code du pilote}
 
 \subsection{Analyse fonctionnelle à partir du code source}
