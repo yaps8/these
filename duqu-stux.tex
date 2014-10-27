@@ -53,9 +53,16 @@ Au redémarrage de la machine, le pilote surveille le chargement des processus p
 Enfin le pilote modifie \services\ afin qu'il exécuté la charge finale, qui est inclue dans la DLL.
 
 Une fois installé sur une première cible, \duqu\ reçoit des ordres d'attaques et de propagation d'un serveur C\&C.
-Chaque machine infectée peut être configurée pour se connecter à l'attaquant, pas directement mais par la machine qui l'a infectée, créant une sorte de tunnel de routage pour des machines non accessibles directement depuis l'extérieur.
+Chaque machine infectée peut être configurée pour se connecter à l'attaquant, pas directement mais par la machine qui l'a infectée, créant une sorte de tunnel de routage pour des machines non accessibles directement depuis l'extérieur. Une illustration de ce mécanisme est donnée en figure \ref{fig:propagationDuqu}.
 
-\itodo{illustration}
+\begin{figure}[h]
+\begin{center}
+ \includegraphics[width=0.8\textwidth]{supports/duqu/propagationDuqu.pdf}
+ % graph11.eps: 0x0 pixel, 300dpi, 0.00x0.00 cm, bb=0 0 384 336
+\end{center}
+\caption{Schéma de propagation en profondeur de Duqu}
+\label{fig:propagationDuqu}
+\end{figure}
 
 \paragraph{Difficulté de la détection.}
 L'obstacle principal à la détection est que seul le pilote est présent déchiffré sur le disque.
@@ -249,25 +256,69 @@ Si ce motif, représenté en figure \ref{CallZwProtect}, alors l'adresse cible d
 \paragraph{Vérification d'intégrité.}
 Le pilote cherche à détecter si les fonction \ZwA\ ou \ZwP\ ont été la cible d'un détournement défensif par un antivirus cherchant à les surveiller.
 Il vérifie dans un premier temps que les deux fonctions sont présentes dans l'espace mémoire du noyau et non en espace utilisateur.
-Dans un second temps il leur applique un masque d'intégrité vérifiant la valeur d'un partie des 32 premières adresses mémoires sur lesquelles les deux fonction sont codées. Le masque est le même pour les deux fonction et est donné en figure \ref{fig:masque_integrite}.
+Dans un second temps il leur applique un masque d'intégrité vérifiant la valeur d'un partie des 20 premières adresses mémoires sur lesquelles les deux fonction sont codées. Le masque est le même pour les deux fonction et est donné en figure \ref{fig:masque_integrite}.
 Si les fonctions passent le test, leurs adresses sont considérées valides et son gardées pour une future utilisation discrète.
 
-\begin{figure}
+
+\begin{figure}[h]
 \begin{center}
- \includegraphics[width=0.48\textwidth]{supports/duqu/octetsmasque.png}\\
- \includegraphics[width=0.48\textwidth]{supports/duqu/masqueZwAllocate.png}
- \includegraphics[width=0.48\textwidth]{supports/duqu/masqueZwProtect.png}
+% Masque d'intégrité :\\
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|}
+\hline
+b8\cgris & ~~ & ~~ & ~~ & ~~ & 8d\cgris & 54\cgris & 24\cgris & 04\cgris & 9c\cgris \\
+\hline
+6a\cgris & 08\cgris & e8\cgris & ~~ & ~~ & ~~ & ~~ & c2\cgris & 14\cgris & ~~\\
+\hline
+\end{tabular}
 \end{center}
-\caption{Masque d'intégrité appliqué à \ZwA\ et \ZwP. Les valeurs colorées sont celles qui sont vérifiées.}
+
+\begin{center}
+\ZwA:\\
+\begin{tabular}{|l|c|c|c|c|c|l|}
+\hline
+\adr{0x405ddc} & b8\cgris & 11 & 00 & 00 & 00 & mov eax, 0x11 \\
+\hline
+\adr{0x405de1} & 8d\cgris & 54\cgris & 24\cgris & 04\cgris & ~~ & lea edx, [esp+ProcessHandle] \\
+\hline
+\adr{0x405de5} & 9c\cgris & ~~ & ~~ & ~~ & ~~ & pushf \\
+\hline
+\adr{0x405de6} & 6a\cgris & 08\cgris & ~~ & ~~ & ~~ & push 8 \\
+\hline
+\adr{0x405de8} & e8\cgris & b9 & 20 & 00 & 00 & call +0x20be (sub\_407ea6) \\
+\hline
+\adr{0x405ded} & c2\cgris & 14\cgris & 00 & ~~ & ~~ & ret 0x14 \\
+\hline
+\end{tabular}
+~\\~\\
+\ZwP:\\
+\begin{tabular}{|l|c|c|c|c|c|l|}
+\hline
+\adr{0x406882} & b8\cgris & 89 & 00 & 00 & 00 & mov eax, 0x89 \\
+\hline
+\adr{0x406887} & 8d\cgris & 54\cgris & 24\cgris & 04\cgris & ~~ & lea edx, [esp+ProcessHandle] \\
+\hline
+\adr{0x40688b} & 9c\cgris & ~~ & ~~ & ~~ & ~~ & pushf \\
+\hline
+\adr{0x40688c} & 6a\cgris & 08\cgris & ~~ & ~~ & ~~ & push 8 \\
+\hline
+\adr{0x40688e} & e8\cgris & 13 & 16 & 00 & 00 & call +0x1618 (sub\_407ea6) \\
+\hline
+\adr{0x406893} & c2\cgris & 14\cgris & 00 & ~~ & ~~ & ret 0x14 \\
+\hline
+\end{tabular}
+\end{center}
+
+\caption{Masque d'intégrité appliqué à \ZwA\ et \ZwP. Les valeurs grisées sont celles qui sont vérifiées.}
 \label{fig:masque_integrite}
 \end{figure}
+
 
 \subsubsection{Initialisation de la mémoire partagée}
 Une mémoire partagée est allouée et utilisée comme lien entre les routines de rappel du pilote et le noyau.
 Elle contiendra, entre autres, les paramètres pour l'infection déchiffrées depuis les données d'une clé de registre et une table d'imports donnant accès à la DLL \texttt{kernel.dll} et aux fonctions du noyau.
 Cette table d'imports sera utilisée à la fois par le code que \duqu\ va injecter dans \services\ et par la charge finale.
 
-La phase d'initialisation prend fin en mettant en place une notification système dès qu'un module (DLL ou exécutable) est chargé en mémoire, via l'appel système \texttt{PsSetLoadImageNotifyRoutine}.
+La phase d'initialisation prend fin en mettant en place une notification système dès qu'un module (DLL ou exécutable) est chargé en mémoire, via l'appel système~\texttt{PsSetLoadImageNotifyRoutine}dddd.
 
 \subsection{Injection de code}
 \subsubsection{Traitement de la première notification}
