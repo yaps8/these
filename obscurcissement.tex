@@ -542,7 +542,7 @@ Un programmeur cherchant à protéger son binaire va se tourner vers les techniq
 En pratique les auteurs des logiciels malveillants utilisent des logiciels existants pour protéger leurs binaires.
 Ces logiciels de protection s'appliquent à l'ensemble du programme malveillant sans avoir à définir des atouts particuliers à protéger. On appelle ces programmes des empaqueteurs (\emph{packers}) : un empaqueteur prend un binaire en entrée et produit en sortie un binaire empaqueté, protégé. Une technique couramment utilisée est de cacher le binaire d'origine dans les données du binaire empaqueté, par exemple chiffré ou compressé (voir figure \ref{fig:packer}). Lors de l'exécution du binaire protégé une première phase consiste à restaurer le binaire d'origine en mémoire puis à effectuer un saut vers le point d'entrée du code restauré, provoquant ainsi l'exécution du binaire d'origine.
 
-\begin{figure}
+\begin{figure}[h]
 \begin{center}
 \scalebox{1}{
 \begin{tikzpicture}[->,scale=1,>=stealth',thick]

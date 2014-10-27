@@ -86,7 +86,7 @@ Le pilote de \stux\ a été décompilé par Amr Thabet \cite{ThabetDriver}.
 Nous avons voulu suivre la même route et désassembler le pilote de \duqu\ afin de le documenter.
 Nous avions à notre disposition la souche du pilote découverte en octobre 2011 en Europe : \driver.
 
-Nous avons donc travaillé sur la rétroingénierie de cette version spécifique du driver afin d’en documenter les fonctionnalités. 
+Nous avons donc travaillé sur la rétroingénierie de cette version spécifique du pilote afin d’en documenter les fonctionnalités. 
 Notre objectif est d’obtenir un code compréhensible, qui compile, et dont la version compilée soit au plus proche du binaire d'origine.
 
 \subsubsection{Décompilation avec IDA}
@@ -127,7 +127,7 @@ signed int __cdecl sub_12F36(int a1, int a2, int a3)
 \caption{Première lignes de la fonction ParsePE décompilée par IDA\label{fig:ParsePEInitial}}
 \end{figure}
 
-Certaines constantes peuvent nous aider : par exemple $0xF750F284\ XOR\ 0xF750B7D4 = 0x00004550$ , qui représente la chaîne de caractères 'PE$\backslash$0$\backslash$0' en ASCII. Le texte était obscurcis à l'aide d'une opération de ou exclusif (\emph{XOR}).
+Certaines constantes peuvent nous aider : par exemple \texttt{0xF750F284 XOR 0xF750B7D4 = 0x00004550} , qui représente la chaîne de caractères 'PE$\backslash$0$\backslash$0' en ASCII. Le texte était obscurcis à l'aide d'une opération de ou exclusif (\emph{XOR}).
 
 Nous soupçonnons alors que cette fonction est utilisée pour le traitement de fichiers binaires au format PE.
 La documentation officielle de Microsoft Visual C++ détaille la structure PIMAGE\_NT\_HEADERS dont le premier champ, \emph{Signature}, vaut \PEzz\ pour les binaires Windows.
@@ -201,7 +201,7 @@ Il passe ensuite au déchiffrement de quelques paramètres internes, révélant 
 
 Si le déchiffrement s'est correctement déroulé, vient alors la vérification du mode d'exécution : soit le système s'avère être en mode sans échec ou en mode débogage, dans ce cas le pilote termine prématurément son exécution ; soit il est en mode normal et il crée alors un \emph{device}, \texttt{\{624409B3-4CEF-41c0-8B81-7634279A41E5\}}, et définit la liste des commandes de contrôle qu'il sera amené à traiter.
 
-Cette étape réalisée, le driver enregistre deux fonctions de rappel auprès gestionnaire d'événements interne du noyau.
+Cette étape réalisée, le pilote enregistre deux fonctions de rappel auprès gestionnaire d'événements interne du noyau.
 La première est requise par le système : elle est utilisée pour créer un point d'accès ($\backslash$\texttt{Device}$\backslash$\texttt{Gpd0}) et un lien ($\backslash$\texttt{DosDevices}$\backslash$\texttt{GpdDev}) vers le pilot, ainsi que pour définir un pile mémoire pour le \emph{device}.
 La seconde fonction sera appelée lorsque le pilote sera initialisé ou ré-initialisé. 
 
@@ -214,13 +214,13 @@ Le pilote agit désormais furtivement (on parle de \emph{rootkit}) parce qu'il �
 La fonction \ZwA\ peut être utilisée pour allouer de la mémoire au sein d'un processus au choix, pour y injecter du code arbitraire par exemple.
 De plus, afin de détourner le point d'entrée d'un binaire (\emph{hook}), \duqu\ voudrait également utiliser la fonction \ZwP\ que Microsoft a délibérément omise de la liste des fonctions accessibles en dehors du noyau. Cette fonction permet de modifier les permissions d'une page mémoire et peut être utilisée pour rendre une partie de code accessible en écriture ou rendre une section de données exécutable.
 
-Ces deux fonctions sont implémentée dans le noyau Windows, dans les fichiers \texttt{Ntoskrnl.exe} ou \texttt{ntkrnlpa.exe} selon les versions. 
+Ces deux fonctions sont implémentée dans le noyau Windows, dans les fichiers \path{Ntoskrnl.exe} ou \path{ntkrnlpa.exe} selon les versions. 
 Le pilote inspecte chaque module, DLL et exécutables, chargés par le système lors du démarrage à la recherche d'un de ces deux fichiers.
 
-Un fois le fichier cible trouvé, le pilote utilise la fonction \texttt{ParsePE} pour l'examiner et y retrouver l'adresse de \ZwP.
+Un fois le fichier cible trouvé, le pilote utilise la fonction \textbf{ParsePE} pour l'examiner et y retrouver l'adresse de \ZwP.
 Pour cela il dispose d'un motif à reconnaître.
 Il est à la recherche d'un appel vers \ZwA, dont l'adresse est connue parce qu'elle est présente dans la table d'exports du noyaux, suivi par l'instruction \texttt{push 0x104} et par une instruction \texttt{call}.
-Si ce motif, représenté en figure \ref{CallZwProtect}, alors l'adresse cible de ce \texttt{call} est considérée comme étant \ZwP.
+Si ce motif, représenté en figure \ref{fig:CallZwProtect}, alors l'adresse cible de ce \texttt{call} est considérée comme étant \ZwP.
 À partir de cet instant, le pilote connaît les adresses mémoire de ces deux fonctions.
 
 \begin{figure*}
@@ -254,7 +254,7 @@ Si ce motif, représenté en figure \ref{CallZwProtect}, alors l'adresse cible d
 \end{figure*}
 
 \paragraph{Vérification d'intégrité.}
-Le pilote cherche à détecter si les fonction \ZwA\ ou \ZwP\ ont été la cible d'un détournement défensif par un antivirus cherchant à les surveiller.
+Le pilote cherche à détecter si les fonctions \ZwA\ et \ZwP\ ont été la cible d'un détournement défensif par un antivirus cherchant à les surveiller.
 Il vérifie dans un premier temps que les deux fonctions sont présentes dans l'espace mémoire du noyau et non en espace utilisateur.
 Dans un second temps il leur applique un masque d'intégrité vérifiant la valeur d'un partie des 20 premières adresses mémoires sur lesquelles les deux fonction sont codées. Le masque est le même pour les deux fonction et est donné en figure \ref{fig:masque_integrite}.
 Si les fonctions passent le test, leurs adresses sont considérées valides et son gardées pour une future utilisation discrète.
@@ -318,7 +318,7 @@ Une mémoire partagée est allouée et utilisée comme lien entre les routines d
 Elle contiendra, entre autres, les paramètres pour l'infection déchiffrées depuis les données d'une clé de registre et une table d'imports donnant accès à la DLL \texttt{kernel.dll} et aux fonctions du noyau.
 Cette table d'imports sera utilisée à la fois par le code que \duqu\ va injecter dans \services\ et par la charge finale.
 
-La phase d'initialisation prend fin en mettant en place une notification système dès qu'un module (DLL ou exécutable) est chargé en mémoire, via l'appel système~\texttt{PsSetLoadImageNotifyRoutine}dddd.
+La phase d'initialisation prend fin en mettant en place une notification système dès qu'un module (DLL ou exécutable) est chargé en mémoire, via l'appel système \textbf{PsSetLoadImageNotifyRoutine}.
 
 \subsection{Injection de code}
 \subsubsection{Traitement de la première notification}
@@ -365,14 +365,39 @@ Il transfert ensuite le contrôle au point d'entrée sur second code injecté.
 Ce module additionnel ajoute les données de son propre entête (adresse du module, nombre de sections, adresse de la table d'exports) dans la mémoire partagée.
 Enfin ces informations sont utilisées pour charger ce PE manuellement en mémoire : les espaces mémoire sont alloués, l'entête est copié, les sections et les DLL liées sont chargées en mémoire, une table d'imports est crée, les adresses sont recalculées à partir de son point d'entrée.
 Puis la DLL principale de \duqu, \netpDLL, est chargée et liée à ce PE et son point d'entrée est appelé.
-La figure \ref{ServiceMem} donne l'état du processus \services\ et de la mémoire à cette étape de l'injection.
+La figure \ref{fig:ServiceMem} donne l'état du processus \services\ et de la mémoire à cette étape de l'injection.
+
 
 \begin{figure}[h]
 \begin{center}
-\includegraphics[width=0.4\textwidth]{supports/duqu/injectionDuquMalware.pdf} 
+\scalebox{1}{
+\begin{tikzpicture}[->,scale=1,>=stealth',thick]
+\node[state, align=left, text width=6cm, minimum size=1cm] (EP){\small Point d'entrée altéré:\\\adr{01012475} \texttt{mov eax, 0x0a18bd}\\\adr{0101247a} \texttt{call eax}};
+\node[state, below=-0.05cm of EP.south, anchor=north, text width=6cm, minimum size=1cm] (TEXTP){...};
+\node [fit={($(EP.north west) + (0.0, 0.4)$) ($(TEXTP.south east) + (0.0, 0.0)$)}, draw, dash pattern=on \pgflinewidth off 2pt, label={[xshift=1.2cm,yshift=-0.55cm]north west:\small Code}](TEXT) {};
+
+\node[state, below=1cm of TEXTP.south, anchor=north, text width=6cm, minimum size=0.7cm] (PE1){PE injecté avec entêtes restaurés};
+\node[state, below=0.1cm of PE1.south, anchor=north, text width=6cm, minimum size=0.7cm] (PE2){PE injecté avec entêtes restaurés};
+\node [fit={($(PE1.north west) + (0.0, 0.4)$) ($(PE2.south east) + (0.0, 0.0)$)}, draw, dash pattern=on \pgflinewidth off 2pt, label={[xshift=1.7cm,yshift=-0.55cm]north west:\small Données}](DATA) {};
+
+\node[state, below=1cm of PE2.south, anchor=north, text width=6cm, minimum size=0.7cm] (DLL){DLL déchiffrée};
+% \node[state, below=0.1cm of PE1.south, anchor=north, text width=6cm, minimum size=0.7cm] (PE2){PE injecté avec entêtes restaurés};
+\node [fit={($(DLL.north west) + (0.0, 0.4)$) ($(DLL.south east) + (0.0, 0.0)$)}, draw, dash pattern=on \pgflinewidth off 2pt, label={[xshift=0.9cm,yshift=-0.55cm]north west:\small Tas}](TAS) {};
+\node [fit={($(TEXT.north west) + (0.0, 0.0)$) ($(TAS.south east) + (0.0, 0.0)$)}, draw, label=\services](SERVICES) {};
+
+\node[state, right=1cm of SERVICES.east, anchor=west, text width=6cm, minimum size=0.7cm] (DUQUPE){PE};
+\node[state, below=0.1cm of DUQUPE.south, anchor=north, text width=6cm, minimum size=0.7cm] (DUQUDLL){DLL};
+\node [fit={($(DUQUPE.north west) + (0.0, 0.0)$) ($(DUQUDLL.south east) + (0.0, 0.0)$)}, draw, label=Charge finale de \duqu](DUQU) {};
+
+% \node[state, text width=2cm, minimum size=3cm] (TEXT){Code};
+% \node[state, below = -3cm of TEXT.north, text width=2cm, minimum size=3cm, anchor=north] (DATA){Données};
+% \draw ($(BIN.east) + (0.5, 0) $) -- node[below]{\large Enpaquetage} ($(BIN.east) + (3cm, 0) $);
+% \node [fit={($(UNPACK.north west) + (-0.1, 0.1)$) ($(BINO.south east) + (0.1, -0.1)$)}, draw, label=Binaire empaqueté] {};
+\end{tikzpicture}
+}
 \end{center}
 \caption{Mémoire de \services\ et de \duqu\ une fois que l'injection est complète}
-\label{fig:ServiceMem}
+\label{fig:ServiceMem2}
 \end{figure}
 
 La charge finale contenue dans la DLL est maintenant en place et exécutée.
@@ -393,7 +418,7 @@ Nous terminerons ce chapitre par une présentation détaillée d'une exécution 
 \subsection{Phase d'initialisation}
 La phase d'initialisation d'origine a été grandement allégée pour notre pilote modifié.
 Nous avons gardé la création des points d'accès, enlevé la recherche de la fonction \ZwP, que nous n'utiliserons pas.
-Nous avons bien entendu conservé le système de notification des chargements de modules en mémoire et lui avons également demandé à recevoir une notification lorsque le système termine la création d'un processus (à l'aide de la fonction \texttt{PsSetCreateProcessNotifyRoutine}).
+Nous avons bien entendu conservé le système de notification des chargements de modules en mémoire et lui avons également demandé à recevoir une notification lorsque le système termine la création d'un processus (à l'aide de la fonction \textbf{PsSetCreateProcessNotifyRoutine}).
 
 \subsection{Phase de mémorisation}
 Nous avons vu que le point d'entrée n'est pas altéré lors de la première notification.
@@ -422,10 +447,10 @@ Pour faciliter la mise au point du pilote de détection, nous l'avons installé,
 Nous renommons la calculatrice Windows (\texttt{calc.exe}) en \services\ et observons comment deux pilotes réagissent à son lancement.
 
 Pour cette démonstration, nous avons utilisé deux machines virtuelles sous Windows XP SP3 connectées par un lien série.
-Une instance de WinDbg \cite{WinDBG}, débogueur fonctionnant sur le noyau Windows, tourne sur la première machine.
+Une instance de WinDbg \cite{WinDbg}, débogueur fonctionnant sur le noyau Windows, tourne sur la première machine.
 La seconde machine est lancée en mode ``débogage du noyau'' l'autorisant à dialoguer avec la première machine afin que celle-ci puisse déboguer les pilotes du noyau.
 
-Lors de ces tests nous avons réalisé que le driver \driver\ de \duqu\ vérifie si le système est en mode débogage ou en mode sans échec : nous l'avons alors modifié pour qu'il se lance tout de même en mode débogage.
+Lors de ces tests nous avons réalisé que le pilote \driver\ de \duqu\ vérifie si le système est en mode débogage ou en mode sans échec : nous l'avons alors modifié pour qu'il se lance tout de même en mode débogage.
 Nous avons également configuré les deux pilotes afin que l'on puisse les lancer sur demande (et non automatiquement au lancement de la machine).
 Cette configuration nous permet de choisir l'ordre de lancement des pilotes ainsi que de \services.
 
@@ -484,7 +509,7 @@ Dans le cas où on lance le pilote du \duqu\ puis le pilote défensif, la premi�
 Lors de la seconde notification, pour \texttt{kernel32.dll}, \duqu\ est injecté et le point d'entrée est modifié. Puis le pilote défensif est également notifié du chargement de \texttt{kernel32.dll} et détecte l'altération du point d'entrée, terminant cette fois aussi \services\ avant que la charge finale ne soit activée.
 
 Au final, quel que soit l'ordre de chargement des pilotes, le pilote défensif permet d'éviter l'infection.
-Il est à noter que ce comportement vient de l'utilisation par le driver de \duqu\ de deux notifications pour faire son injection : s'il l'effectuait dès la réception de la première notification, l'ordre de chargement des pilotes deviendrait cruciale et, si le pilote de \duqu\ est lancé en premier, nous ne serions pas capables d'empêcher l'infection.
+Il est à noter que ce comportement vient de l'utilisation par le pilote de \duqu\ de deux notifications pour faire son injection : s'il l'effectuait dès la réception de la première notification, l'ordre de chargement des pilotes deviendrait cruciale et, si le pilote de \duqu\ est lancé en premier, nous ne serions pas capables d'empêcher l'infection.
 
 \section{Travaux inachevés}
 Nous sommes donc capables de détecter l'injection de d'empêcher le chargement de \services\ afin d'éviter l'attaque.

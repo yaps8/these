@@ -1,7 +1,6 @@
 L'analyse morphologique et la recherche de similarités dans les graphes de flot de contrôles de plusieurs binaires peut également être utilisée pour détecter l'utilisation de fonctionnalités similaires entre ces programmes et faire correspondre précisément des morceaux de code assembleur de l'un et de l'autre.
 
 Dans ce chapitre nous présentons des travaux réalisés en ce sens sur un logiciel malveillant, Waledac, qui utilise une bibliothèque connue de chiffrement, OpenSSL.
-\itodo{duqu/stux?}
 Ces travaux ont fait l'objet d'une communication orale à REcon en 2012 \cite{REAT12} et d'une publication à Malware \cite{mal12}.
 
 % \section{Problème : accélérer l'analyse}
@@ -215,20 +214,22 @@ Il n'est pas surprenant que l'on retrouve ces fonctionnalités puisque Waledac u
 On a vu qu'on retrouve certaines fonctions utilisées lors d'un chiffrement AES.
 Pourtant nous n'avons retrouvé les fonctions principales, servant à chiffrer et déchiffrer à l'aide de l'algorithme AES.
 La raison est que notre approche, par graphes de flot réduits, s'applique très mal aux fonctions de chiffrement qui sont en général très simple du point de vue de leur graphe de flot de contrôle.
-Un extrait de la fonction \emph{AES\_encrypt\_subroutine} vu par IDA est donné en figure \ref{fig:AES_encrypt_IDA} tandis qu'une vue simplifiée de son GFC est donnée en figure \ref{fig:AES_encrypt_CFG}.
+Une vue simplifiée du GFC de la fonction \emph{AES\_encrypt} est donnée en figure \ref{fig:AES_encrypt_CFG}.
 
 \begin{figure}[h]
 \begin{center}
-\subfigure[AES\_encrypt subroutine]{
-\includegraphics[width=0.4\textwidth]{supports/libs/WalSSLIDAAESencryptnotmatched.png}
-\label{fig:AES_encrypt_IDA}
-}
-\subfigure[Simplified AES\_encrypt CFG]{
-\includegraphics[width=0.4\textwidth]{supports/libs/AESsimpleCFG.pdf}
-\label{fig:AES_encrypt_CFG}
-}
+% \subfigure[AES\_encrypt subroutine]{
+% \includegraphics[width=0.4\textwidth]{supports/libs/WalSSLIDAAESencryptnotmatched.png}
+% \label{fig:AES_encrypt_IDA}
+% }
+% \subfigure[]{
+\includegraphics[width=0.25\textwidth]{supports/libs/AESsimpleCFG_cropped0.pdf}
+
+% }
 \end{center}
+\caption{GFC simplifié de la fonction AES\_encrypt}
+\label{fig:AES_encrypt_CFG}
 \end{figure}
 
-Le GFC réduit est donc trop petit pour pouvoir être détecté par l'analyse morphologique, qui prend des graphes d'une taille 24 au minimum.
+Le GFC réduit est trop petit pour pouvoir être détecté par l'analyse morphologique, qui prend des graphes d'une taille 24 au minimum.
 En fait beaucoup d'algorithmes de chiffrement ont cette structure une fois réduits et elle n'est pas non plus spécifique aux algorithmes de chiffrement. De ce fait l'analyse morphologique est inadaptée à la détection de ce genre de fonctions.
