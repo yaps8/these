@@ -7,7 +7,7 @@ Dans un second temps nous cherchons à détecter \duqu\ avant qu'il puisse infec
 Nous avons pour cela étudié un composant spécifique de \duqu, son pilote (\emph{driver}) qui permet de charger discrètement, le code malveillant en mémoire.
 Notre contribution consiste en la rétroingénierie de ce composant, en la reconstitution de son code source et en une analyse de son fonctionnement.
 Nous avons ensuite détourné le pilote pour en faire une version défensive capable de détecter d'éventuelles attaques similaires.
-En particulier nous montrons comment le pilote de \duqu\ modifié aurait permis de détecter \duqu.
+En particulier nous montrons comment le pilote de \duqu\ modifié aurait permis d'empêcher une attaque par \duqu.
 Ces travaux ont fait l'objet d'une publication à Malware \cite{mal13} ainsi qu'à SSTIC \cite{sstic13}.
 
 
@@ -318,9 +318,7 @@ La figure \ref{ServiceMem} donne l'état du processus \services\ et de la mémoi
 
 \begin{figure}[h]
 \begin{center}
-% \includegraphics[width=0.4\textwidth]{img/injectionDuquMalware.pdf} 
-% \missingfigure
-\itodo{figure}
+\includegraphics[width=0.4\textwidth]{supports/duqu/injectionDuquMalware.pdf} 
 \end{center}
 \caption{Mémoire de \services\ et de \duqu\ une fois que l'injection est complète}
 \label{fig:ServiceMem}
@@ -365,7 +363,7 @@ Si le module est une DLL, le point d'entrée recherché est celui de l'exécutab
 Nous avons donc ajouté une vérification de la somme de contrôle.
 
 Cette somme de contrôle est comparée à celle calculée en premier lieu.
-Si elles diffèrent, nous considérons qu'une injection a eu lieu sur \services\ entre les deux notifications et, puisque le point d'entrée a été altéré, le processus \services\ est suspect et soumis à l'analyse morphologique.
+Si elles diffèrent, nous considérons qu'une injection a eu lieu sur \services\ entre les deux notifications et, puisque son point d'entrée a été altéré, le processus \services\ est considéré comme suspect.
 
 
 \subsection{Démonstration}
@@ -380,6 +378,7 @@ Lors de ces tests nous avons réalisé que le driver \driver\ de \duqu\ vérifie
 Nous avons également configuré les deux pilotes afin que l'on puisse les lancer sur demande (et non automatiquement au lancement de la machine).
 Cette configuration nous permet de choisir l'ordre de lancement des pilotes ainsi que de \services.
 
+\paragraph{Lancement du pilote défensif en premier.}
 Nous lançons en premier le pilote défensif, puis celui de \duqu\ et enfin \services.
 La sortie du débogueur est donnée en figure \ref{fig:Breakpoint1} : on voit le chargement de \services.
 Le système notifie le pilote défensif qui enregistre l'identifiant, l'adresse du point d'entrée et les la signature des premiers octets du point d'entrée de \services.
@@ -422,11 +421,28 @@ LoadImageNotifyRoutine: ImageBaseAddress=0x7c800000 ProcessId=0x914
 LoadImageNotifyRoutine: ImageBaseAddress=0x7c9d0000 ProcessId=0x914 
 -> Verify services.exe process:
    Entrypoint at 0x01012475: 0xb8 0xbd 0x18 0x0a 0x00 0xff 0xd0 0xe8
--> Checksum error !!!!
+-> Checksum error !
 -> Terminating services.exe
 \end{lstlisting}
 \end{center}
 \caption{Détection de l'altération du point d'entrée (\adr{0x01012475}) de \services.\label{fig:Breakpoint2}}
 \end{figure}
 
+\paragraph{Lancement du pilote de \duqu\ en premier.}
+Dans le cas où on lance le pilote du \duqu\ puis le pilote défensif, la première notification ne provocant pas de modification par le pilote de \duqu, la version défensive calcule toujours la somme de contrôle d'origine de \services.
+Lors de la seconde notification, pour \texttt{kernel32.dll}, \duqu\ est injecté et le point d'entrée est modifié. Puis le pilote défensif est également notifié du chargement de \texttt{kernel32.dll} et détecte l'altération du point d'entrée, terminant cette fois aussi \services\ avant que la charge finale ne soit activée.
+
+Au final, quel que soit l'ordre de chargement des pilotes, le pilote défensif permet d'éviter l'infection.
+Il est à noter que ce comportement vient de l'utilisation par le driver de \duqu\ de deux notifications pour faire son injection : s'il l'effectuait dès la réception de la première notification, l'ordre de chargement des pilotes deviendrait cruciale et, si le pilote de \duqu\ est lancé en premier, nous ne serions pas capables d'empêcher l'infection.
+
+\section{Travaux inachevés}
+Nous sommes donc capables de détecter l'injection de d'empêcher le chargement de \services\ afin d'éviter l'attaque.
+Cela dit Windows ne peut pas fonctionner normalement sans \services, la machine ne sera donc pas infectée mais nécessitera une intervention humaine pouvant éventuellement détecter que le programme malveillant injecté est une variante de \stux.
+Deux contributions supplémentaires auraient pu être effectuées : d'une part nous voudrions analyser automatiquement la mémoire du processus infecté, \services, à la recherche de binaires connus pour être malveillants. 
+Nous n'avons pas implémenté cette analyse.
+D'autre part nous voudrions être capable de restaurer la version d'origine de \services\ afin que le système puisse non seulement éviter l'attaque mais également fonctionner dans un état normal.
+
 \section{Conclusion}
+Des similarités entre \duqu\ et \stux\ nous ont poussé à nous intéresser à une technique de détection permettant de stopper une attaque par \duqu.
+Nous avons décrit la technique d'infection ainsi que le fonctionnement du pilote de \duqu\ et ses méthodes pour rester furtif.
+Nous avons ensuite reconstruit le code source du pilote de \duqu\ et en avons fait une version défensive capable de détecter l'injection faite par le logiciel malveillant et de stopper le processus infecté.
