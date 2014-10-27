@@ -333,3 +333,100 @@ Une seconde requête est envoyée pour restaurer les droits d'accès du point d'
 L'attaque ayant été réalisée, le contrôle est maintenant passé à \services, qui a été restauré et s'exécute cette fois normalement.
 
 \section{Réalisation d'une version défensive}
+Nous avons précédemment décrit comment la DLL de \duqu\ est injectée dans \services.
+Certains des techniques décrites, telle la mise en place de notifications au lancement de chaque module, peuvent être utilisées à des fin défensives.
+
+Schématiquement, le pilote modifié va calculer des signatures sur les binaires chargés en mémoire.
+Lorsqu'un binaire est lancé, dans la cas où sa signature n'est pas reconnue, la mémoire lui étant allouée sera effectué, pouvant révéler la présente d'un code malveillant.
+Nous détaillons les phases d'initialisation, de mémorisation puis de détection implémentées dans le pilote modifié.
+Nous terminerons ce chapitre par une présentation détaillée d'une exécution du binaire modifié en situation d'attaque par \duqu.
+
+\subsection{Phase d'initialisation}
+La phase d'initialisation d'origine a été grandement allégée pour notre pilote modifié.
+Nous avons gardé la création des points d'accès, enlevé la recherche de la fonction \ZwP, que nous n'utiliserons pas.
+Nous avons bien entendu conservé le système de notification des chargements de modules en mémoire et lui avons également demandé à recevoir une notification lorsque le système termine la création d'un processus (à l'aide de la fonction \texttt{PsSetCreateProcessNotifyRoutine}).
+
+\subsection{Phase de mémorisation}
+Nous avons vu que le point d'entrée n'est pas altéré lors de la première notification.
+Ainsi si une somme de contrôle est calculée pour le point d'entrée de chaque module, la modification du point d'entrée pourra être détectée lorsque la seconde notification est déclenchée.
+Nous avons intégralement repris la fonction de hachage implémenté dans \duqu\ qui était à l'origine utilisée pour obscurcir le nom des fonctions appelées.
+
+Une première notification est reçu lorsque le processus est créé.
+Malheureusement Windows fournit uniquement l'identifiant du processus et son processus parent, mais pas d'informations sur l'emplacement en mémoire du processus.
+Nous récupérons la structure PEB (\emph{Process Environment Block}) associée à ce processus et l'utilisons pour récupérer l'adresse mémoire du module chargé.
+
+Afin de détecter \duqu\ nous nous focaliserons uniquement sur le processus \services\ ciblé.
+Si le nom du processus chargé est ``\services '', nous recherchons son point d'entrée, nous calculons une somme de contrôle sur ses huit premiers octets et l'enregistrons comme signature initiale.
+Le pilote défensif est maintenant prêt à détecter l'injection effectuée par \duqu.
+
+\subsection{Phase de détection}
+Lorsqu'un module est chargé, le système passe le contrôle au pilote défensif qui vérifie le point d'entrée du module.
+Si le module est une DLL, le point d'entrée recherché est celui de l'exécutable auquel la DLL est associée.
+Nous avons donc ajouté une vérification de la somme de contrôle.
+
+Cette somme de contrôle est comparée à celle calculée en premier lieu.
+Si elles diffèrent, nous considérons qu'une injection a eu lieu sur \services\ entre les deux notifications et, puisque le point d'entrée a été altéré, le processus \services\ est suspect et soumis à l'analyse morphologique.
+
+
+\subsection{Démonstration}
+Pour faciliter la mise au point du pilote de détection, nous l'avons installé, ainsi que celui de \duqu, sur une machine de test en suivant la démarche proposée par Sergei Shevchenko \cite{SShevchenko}.
+Nous renommons la calculatrice Windows (\texttt{calc.exe}) en \services\ et observons comment deux pilotes réagissent à son lancement.
+
+Pour cette démonstration, nous avons utilisé deux machines virtuelles sous Windows XP SP3 connectées par un lien série.
+Une instance de WinDbg \cite{WinDBG}, débogueur fonctionnant sur le noyau Windows, tourne sur la première machine.
+La seconde machine est lancée en mode ``débogage du noyau'' l'autorisant à dialoguer avec la première machine afin que celle-ci puisse déboguer les pilotes du noyau.
+
+Lors de ces tests nous avons réalisé que le driver \driver\ de \duqu\ vérifie si le système est en mode débogage ou en mode sans échec : nous l'avons alors modifié pour qu'il se lance tout de même en mode débogage.
+Nous avons également configuré les deux pilotes afin que l'on puisse les lancer sur demande (et non automatiquement au lancement de la machine).
+Cette configuration nous permet de choisir l'ordre de lancement des pilotes ainsi que de \services.
+
+Nous lançons en premier le pilote défensif, puis celui de \duqu\ et enfin \services.
+La sortie du débogueur est donnée en figure \ref{fig:Breakpoint1} : on voit le chargement de \services.
+Le système notifie le pilote défensif qui enregistre l'identifiant, l'adresse du point d'entrée et les la signature des premiers octets du point d'entrée de \services.
+
+\begin{figure}[h]
+\begin{center}
+\scriptsize
+\begin{lstlisting}[language={}]
+-----------------------+* Create process 0x914 *+------------------------
+ProcessImageInformation: PEB=0x7ffd6000, ImageBaseAddress=0x01000000,
+			 UniqueProcessId=0x914 
+Entrypoint bytes at 0x01012475: 0x6a 0x70 0x68 0xe0 0x15 0x00 0x01 0xe8
+ProcessImageName: Desktop\services.exe
+ProcessImageName: save processID=0x914
+CreateProcessNotify: ImageBaseAddress=0x01000000, EntryPoint=0x01012475,
+		     EntrypointChecksum=0x49af1bf2
+\end{lstlisting}
+\end{center}
+\caption{Sortie de WinDbg: Le processus \services\ est chargé : le pilote défensif enregistre son identifiant (\texttt{0x914}), sont point d'entrée (\adr{0x01012475}) et sa somme de contrôle (\texttt{0x49af1bf2}).\label{fig:Breakpoint1}}
+\end{figure}
+
+Lorsque la notification pour \texttt{kernel32.dll} est déclenchée, aucune modification n'a encore été faite puisque \duqu\ reçoit la notification après le pilote défensif, car nous avons lancé le pilote défensif en premier.
+La comparaison des sommes de contrôle ne détecte alors différence.
+Lorsque d'autres DLL liées à \services\ sont chargées, le pilote défensif vérifie à nouveau le point d'entrée qui a cette fois été altéré.
+Le traitement des notifications liées aux DLLs \texttt{kernel32.dll} et \texttt{shell32.dll} est montré en figure \ref{fig:Breakpoint2}.
+Ainsi l'altération du point d'entrée est détecté et le pilote défensif prend une décision pour protéger le système : le processus \services\ est stoppé, arrêtant la tentative d'infection de la machine.
+
+
+\begin{figure}[h]
+\begin{center}
+\scriptsize
+\begin{lstlisting}[language={}]
+----------* Loaded module \WINDOWS\system32\kernel32.dll *----------
+LoadImageNotifyRoutine: ImageBaseAddress=0x7c800000 ProcessId=0x914 
+-> Verify services.exe process: 
+   Entrypoint at 0x01012475: 0x6a 0x70 0x68 0xe0 0x15 0x00 0x01 0xe8
+-> OK!
+
+----------* Loaded module \WINDOWS\system32\shell32.dll *----------
+LoadImageNotifyRoutine: ImageBaseAddress=0x7c9d0000 ProcessId=0x914 
+-> Verify services.exe process:
+   Entrypoint at 0x01012475: 0xb8 0xbd 0x18 0x0a 0x00 0xff 0xd0 0xe8
+-> Checksum error !!!!
+-> Terminating services.exe
+\end{lstlisting}
+\end{center}
+\caption{Détection de l'altération du point d'entrée (\adr{0x01012475}) de \services.\label{fig:Breakpoint2}}
+\end{figure}
+
+\section{Conclusion}
