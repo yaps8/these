@@ -1,12 +1,12 @@
 digraph G{
 0 [shape=point]
-1 [label="JCC"]
-2 [label="CALL"]
-3 [label="JCC"]
-4 [label="INST"]
-5 [label="RET"]
-6 [label="INST"]
-7 [label="RET"]
+1 [label="1: JCC"]
+2 [label="2: CALL"]
+3 [label="6: JCC"]
+4 [label="3: INST"]
+5 [label="5: RET"]
+6 [label="7: INST"]
+7 [label="4: RET"]
 
 0 -> 1
 1 -> 2 [label="1"]
@@ -23,4 +23,3 @@ subgraph {
 rank = same; 4; 5; 
 } 
 }
-

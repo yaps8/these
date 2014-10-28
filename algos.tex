@@ -133,7 +133,7 @@ Le sous-graphe induit d'un graphe de flot $T=(V_T, L_T, l_T, E_T)$ à partir de 
 % Notre problème
 % consiste donc, à partir du graphe de flot T à analyser, à déterminer si un de ses sous-graphes est isomorphe à un des graphes de flot de la base.
 Notre problème consiste donc, à partir d'un graphe de flot P connu et d'un graphe de flot T à analyser, à déterminer si P est isomorphe à un sous-graphe de flot de T.
-Par exemple sur la figure \ref{fig:ex-gf-sous-gf}, le graphe P est isomorphe au sous-graphe induit par les sommets $\{d, e, a\}$ comme à celui formé induit par les sommets sommets $\{b, d, a\}$.
+Par exemple sur la figure \ref{fig:ex-gf-sous-gf}, le graphe P est isomorphe au sous-graphe de T induit par les sommets $\{d, e, a\}$ comme à celui formé induit par les sommets sommets $\{b, d, a\}$.
 
 
 \begin{figure}[ht]
@@ -141,11 +141,15 @@ Par exemple sur la figure \ref{fig:ex-gf-sous-gf}, le graphe P est isomorphe au 
   \subfigure[Graphe de flot T]{
 \label{fig:ex-gf}
 % \epsfig{figure=images/def-graphe2.pdf,height=3.5cm}}\quad
-\epsfig{figure=supports/algos/images/c_gTGF.pdf,height=3.5cm}}\quad
+% \epsfig{figure=supports/algos/gTGF_circo_cropped0.pdf,height=3.2cm}
+\includegraphics[width=0.4\textwidth]{supports/algos/gTGF_circo_cropped0.pdf}
+}\quad
   \subfigure[Graphe de flot P, isomorphe à un sous-graphe de T]{
 \label{fig:ex-sous-gf}
 % \epsfig{figure=images/def-graphe1.pdf,height=3cm}}\\
-\epsfig{figure=supports/algos/images/c_gPGF.pdf,height=3cm}}\\
+% \epsfig{figure=supports/algos/gPGF_circo_cropped0.pdf,height=2.5cm}
+\includegraphics[width=0.22\textwidth]{supports/algos/gPGF_circo_cropped0.pdf}
+}\\
 \end{center}
 \caption{Exemple de graphe de flot et d'un sous-graphe}
 \label{fig:ex-gf-sous-gf}
@@ -175,11 +179,15 @@ On appelle sous-site d'un graphe de flot $T$ tout site étant un sous-graphe de 
   \subfigure[Graphe de flot T]{
 \label{fig:ex-gf}
 % \epsfig{figure=images/def-graphe2.pdf,height=3.5cm}}\quad
-\epsfig{figure=supports/algos/images/c_gTGF.pdf,height=3.5cm}}\quad
+% \epsfig{figure=supports/algos/c_gTGF.pdf,height=3.5cm}
+\includegraphics[width=0.4\textwidth]{supports/algos/gTGF_circo_cropped0.pdf}
+}\quad
   \subfigure[Site P, de racine b, isomorphe à un sous-graphe de T]{
 \label{fig:ex-site}
 % \epsfig{figure=images/def-graphe1.pdf,height=3cm}}\\
-\epsfig{figure=supports/algos/images/c_gPsite.pdf,height=3cm}}\\
+% \epsfig{figure=supports/algos/c_gPsite.pdf,height=3cm}
+\includegraphics[width=0.3\textwidth]{supports/algos/gPsite_circo_cropped0.pdf}
+}\\
 \end{center}
 \caption{Exemple de graphe de flot et d'un sous-site}
 \label{fig:ex-gf-site}
@@ -272,17 +280,26 @@ On a alors trois problèmes successifs, de difficulté croissante et faisant int
 Dans le cas général, le problème \ref{pbisog} de l'isomorphisme de graphes est connu pour être NP sans que l'on sache s'il est NP complet \cite{Kob94}, tandis que le problème de l'isomorphisme de sous-graphes est NP complet \cite{W05}.
 Nous allons présenter quelques approches de ces problèmes et proposer des solutions tirant partie des spécificités des graphes de flot.
 
+Nous verrons que les problèmes de l'isomorphisme de graphes et de sous-graphes de flot sont polynomiaux.
+C'est l'utilisation de fils ordonnés pour chaque sommet qui permet de classer ces problèmes dans P.
+
+Nous introduirons dans les deux prochaines sections des approches générales au problème d'isomorphisme de graphes et de sous-graphes puis détaillerons par la suite deux techniques tirant partie des spécificités des graphes de flot et donnant donc une solution accessible en temps polynomial.
+
 \section{Représentation sous forme matricielle et recherche exhaustive}
 \begin{figure}[ht]
 \begin{center}
   \subfigure[Graphe T]{
 \label{fig:ex-graphe}
 % \epsfig{figure=images/def-graphe2.pdf,height=3.5cm}}\quad
-\epsfig{figure=supports/algos/images/c_gT.pdf,height=3.5cm}}\quad
+% \epsfig{figure=supports/algos/c_gT.pdf,height=3.5cm}
+\includegraphics[width=0.4\textwidth]{supports/algos/gT_circo_cropped0.pdf}
+}\quad
   \subfigure[Graphe P, isomorphe à un sous-graphe de T]{
 \label{fig:ex-sg}
 % \epsfig{figure=images/def-graphe1.pdf,height=3cm}}\\
-\epsfig{figure=supports/algos/images/c_gP.pdf,height=3cm}}\\
+% \epsfig{figure=supports/algos/c_gP.pdf,height=3cm}
+\includegraphics[width=0.2\textwidth]{supports/algos/gP_circo_cropped0.pdf}
+}\\
 \end{center}
 \caption{Exemple de graphe et d'un sous-graphe}
 \label{fig:ex-graphe-sg}
@@ -351,7 +368,7 @@ $M_{i, j} = \begin{array}{r|ccccc}  & a & b & c & d & e \\ \hline a & 0 & 0 & 0 
  \end{array}$}\quad
   \subfigure[$M_P$]{
 \label{fig:mat-adjP}
-$M_{i, j} = \begin{array}{r|ccc}  & a & b & c \\ \hline a & 0 & 0 & 0 \\ b & 1 & 0 & 1 \\ c & 1 & 0 & 0 \end{array}$}\\
+$M_{i, j} = \begin{array}{r|ccc}  & \alpha & \beta & \gamma \\ \hline \alpha & 0 & 0 & 0 \\ \beta & 1 & 0 & 1 \\ \gamma & 1 & 0 & 0 \end{array}$}\\
 \end{center}
 \caption{Matrices d'adjacence des graphes T et P}
 \label{fig:mat-adj}
@@ -984,29 +1001,66 @@ C'est une numérotation $\pi:V\rightarrow \llbracket 1, n \rrbracket$ de ses som
 
 Le parcours d'un site se fait à partir de sa racine (numérotée 1) et est bijectif (c'est possible car il a une racine).
 
-\paragraph{Exemple.}
+\paragraph{Exemples.}
 Le parcours en profondeur d'un site à partir d'un sommet est récursif. Il part de ce sommet (à l'origine la racine numérotée 1), numérote le site à partir du fils 1 du sommet, puis numérote le site à partir du fils 2... jusqu'au dernier site du sommet.
-\\
 Le parcours en largeur d'un site numérote la racine puis ses fils directs, puis les fils du premier fils, les fils du second, etc.
+Un exemple de parcours en profondeur d'un graphe de flot est donné en figure \ref{fig:ex_graphe_parcours}.
+
+\begin{figure}[h]
+\begin{center}
+\def\imagetop#1{\vtop{\null\hbox{#1}}}
+\begin{tabular}[t]{|c|c|c|}
+\hline
+Graphe de flot & Numérotation en profondeur & Numérotation en largeur\\
+\hline
+\imagetop{\includegraphics[width=0.25\textwidth]{supports/algos/g1_cropped5.pdf}}
+&
+\imagetop{\includegraphics[height=0.28\textheight]{supports/algos/g1_prof_cropped5.pdf}}
+&
+\imagetop{\includegraphics[height=0.28\textheight]{supports/algos/g1_larg_cropped5.pdf}}
 \\
-Un exemple de parcours en profondeur (respectivement en largeur) d'un graphe est donné ici à gauche (respectivement à droite) :% figure \ref{fig:graphe_profondeur}. 
-
-% \begin{figure}\label{fig:graphe_profondeur}
- \begin{center}
-\includegraphics[height=0.4\textheight]{supports/algos/images/g1prof.pdf}
-\includegraphics[height=0.4\textheight]{supports/algos/images/g1larg.pdf}
+\hline
+\end{tabular}
 \end{center}
-% \end{figure}
+\caption{Graphe de flot numéroté en profondeur et en largeur}
+\label{fig:ex_graphe_parcours}
+\end{figure}
 
-On peut représenter le parcours en profondeur de ce site de la manière suivante : On commence par la racine, que l'on numérote 1, c'est un JCC, puis le premier fils nous amène à un nouveau sommet, numéroté 2, c'est un CALL. Son premier fils nous amène à numéroter 3: INST et 4: RET. Une fois au $4^e$ sommet, on retourne au sommet 2 pour prendre le second fils que l'on numéroté 5: RET. On remonte au sommet 1, on numérote le second fils : c'est le sommet 6: JCC puis on prend son seul fils (fils 2) et on numéroté 7: INST. De là on prend le premier fils pour retourner sur le fils 2. Le parcours s'arrête puisque l'on a visité tous les arcs du site.\\
+On peut représenter le parcours en profondeur de ce site de la manière suivante : On commence par la racine, que l'on numérote 1, c'est un JCC, puis le premier fils nous amène à un nouveau sommet, numéroté 2, c'est un CALL. Son premier fils nous amène à numéroter 3: INST qui amène, par son premier fils, à 4: RET. Une fois au $4^e$ sommet, on retourne au sommet 2 pour prendre le second fils que l'on numérote 5: RET. On remonte au sommet 1, on numérote le second fils : c'est le sommet 6: JCC puis on prend son seul fils (fils 2) et on numérote 7: INST. De là on prend le premier fils pour retourner sur le fils 2. Le parcours s'arrête puisque l'on a visité tous les arcs du site.\\
 On peut noter le parcours ainsi (avec l'algorithme \ref{algo:codageProf}) :\\
-$1: JCC\xrightarrow{1} 2: CALL \xrightarrow{1} 3: INST \xrightarrow{1} 4: RET \xrightarrow{R} 2 \xrightarrow{2} 5: RET \xrightarrow{R} 1 \xrightarrow{2} 6: JCC \xrightarrow{2} 7:INST \xrightarrow{1} 2$.\\
+$1: JCC\xrightarrow{1} 2: CALL \xrightarrow{1} 3: INST \xrightarrow{1} 4: RET \xrightarrow{R} 2 \xrightarrow{2} 5: RET \xrightarrow{R} 1 \xrightarrow{2} 6: JCC \xrightarrow{2}~7:INST \xrightarrow{1} 2$.\\
 En fait, décrit de cette manière, le parcours définit un site unique que l'on peut reconstruire puisque l'on sait quels sont les labels de chaque sommet, tous les arcs entre les sommets et le choix des fils choisi lors du parcours (ici en profondeur).\\
 De même, le parcours en largeur du site peut être décrit ainsi (avec l'algorithme \ref{algo:codageLarg}) :\\
-$1: JCC\xrightarrow{1} 2: CALL\xrightarrow{R} 1\xrightarrow{2} 3: JCC\xrightarrow{R} 2\xrightarrow{1} 4: INST\xrightarrow{R} 2\xrightarrow{2} 5: RET\xrightarrow{R} 3\xrightarrow{2} 6: INST\xrightarrow{R} 4\xrightarrow{1} 7: RET$.\\
+$1: JCC\xrightarrow{1} 2: CALL\xrightarrow{R} 1\xrightarrow{2} 3: JCC\xrightarrow{R} 2\xrightarrow{1} 4: INST\xrightarrow{R} 2\xrightarrow{2} 5: RET \xrightarrow{R} 3 \xrightarrow{2}~6:~INST \xrightarrow{R} 4\xrightarrow{1} 7: RET$.\\
 % \overset{def}
 
+\paragraph{Cas des cycles.}
+La présence d'un cycle dans le graphe de flot n'est pas un obstacle à cette approche puisque chaque arête n'est représentée qu'une seule fois.
+La figure \ref{fig:gf_cycle} donne un exemple de graphe de flot et de sa numérotation en largeur et en profondeur.
+On peut noter le parcours en profondeur ainsi :\\
+$1: JCC\xrightarrow{1} 2: INST \xrightarrow{1} 3: JCC \xrightarrow{1} 1 \xrightarrow{R} 3 \xrightarrow{2} 4: RET \xrightarrow{R} 1 \xrightarrow{2} 5: INST$.\\
+Et le parcours en largeur de cette manière :\\
+$1: JCC\xrightarrow{1} 2: INST\xrightarrow{R} 1\xrightarrow{2} 3: INST\xrightarrow{R} 2\xrightarrow{1} 4: JCC\xrightarrow{R} 3\xrightarrow{1} 5: RET\xrightarrow{R} 4\xrightarrow{1} 1\xrightarrow{R} 4\xrightarrow{2} 5$.\\
 
+\begin{figure}[h]
+\begin{center}
+\def\imagetop#1{\vtop{\null\hbox{#1}}}
+\begin{tabular}[t]{|c|c|c|}
+\hline
+Graphe de flot & Numérotation en profondeur & Numérotation en largeur\\
+\hline
+\imagetop{\includegraphics[width=0.253\textwidth]{supports/algos/graph_cycle_cropped5.pdf}}
+&
+\imagetop{\includegraphics[width=0.3\textwidth]{supports/algos/graph_cycle_prof_cropped5.pdf}}
+&
+\imagetop{\includegraphics[width=0.3\textwidth]{supports/algos/graph_cycle_larg_cropped5.pdf}}
+\\
+\hline
+\end{tabular}
+\end{center}
+\caption{Graphe de flot présentant un cycle et sa numérotation en profondeur et en largeur}
+\label{fig:gf_cycle}
+\end{figure}
 
 \begin{algorithm}[h]
 \caption{Codage du parcours en profondeur d'un site}
@@ -1283,13 +1337,13 @@ L'arbre de décision créé à partir de ces trois codages est donné en figure 
 \begin{center}
 \subfigure[]{
 \label{fig:troisProf1}
-\includegraphics[height=0.4\textheight]{supports/algos/images/g1prof.pdf}}
+\includegraphics[height=0.4\textheight]{supports/algos/g1prof.pdf}}
 \subfigure[]{
 \label{fig:troisProf2}
-\includegraphics[height=0.4\textheight]{supports/algos/images/g2prof.pdf}}
+\includegraphics[height=0.4\textheight]{supports/algos/g2prof.pdf}}
 \subfigure[]{
 \label{fig:troisProf3}
-\includegraphics[height=0.4\textheight]{supports/algos/images/g3prof.pdf}}
+\includegraphics[height=0.4\textheight]{supports/algos/g3prof.pdf}}
 \end{center}
 \caption{Trois sites numérotés selon un parcours en profondeur}
 \label{fig:troisProf}
@@ -1453,9 +1507,8 @@ Pour régler le problème \ref{pbisosgbase} de détection d'un site dans une bas
 
 \subsection{Arbre de décision pour la détection de sites}
 Chaque site est généré par un parcours numérotant ses sommets, et chaque sommet a un nombre de fils bornés. On représente alors les sites sous forme matricielle : chaque ligne représente un sommet, le premier élément de la colonne est l'étiquette du sommet et les éléments suivants sont les numéros des fils de ce sommet (0 indique qu'il n'y a pas de sommet). La représentation des sites de la figure \ref{fig:troisProf} est donnée figure \ref{fig:troisProfMatRed}.
-On peut ensuite agréger tous les sites générés dans un arbre de décision (figure \ref{fig:arbreDecTarjan}).
 
-\begin{figure}
+\begin{figure}[h]
 \begin{center}
 \subfigure[]{
 \label{fig:troisProfMatRed1}
@@ -1501,7 +1554,11 @@ $\begin{array}{r|ccc} Sommet & Etiquette & Fils 1 & Fils 2 \\
 \label{fig:troisProfMatRed}
 \end{figure}
 
-\begin{figure}
+Un site généré par un parcours a une unique représentation sous cette forme parce que, d'une part, le parcours a numéroté ses sommets qui sont donc ordonnés ; d'autre part les fils de chaque sommet sont numérotés, enlevant toute ambiguïté sur l'ordre à donner aux fils dans la matrice générée.
+
+On peut ensuite agréger tous les sites générés dans un arbre de décision (figure \ref{fig:arbreDecTarjan}).
+
+\begin{figure}[h]
 \begin{center}
 \begin{tikzpicture}[
   tlabel/.style={pos=0.4,right=-1pt,font=\footnotesize\color{black!70!black} },

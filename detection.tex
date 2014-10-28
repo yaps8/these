@@ -1,5 +1,5 @@
 Le second objet d'étude de cette thèse est une technique de détection de logiciels malveillants fonctionnant par comparaison de leurs graphes de flot de contrôle (GFC).
-Cette partie est organisée comme suit. Nous présentons en premier lieu différentes approches de la détection de programme malveillants, puis nous détaillerons l'analyse morphologique fonctionnant par comparaison des graphes de flot de contrôle et expliquerons comme optimiser cette approche. Enfin nous donnerons des exemples d'études de codes malveillants basées sur cette approche.
+Cette partie est organisée comme suit. Nous présentons en premier lieu différentes approches de la détection de programme malveillants, puis nous détaillerons l'analyse morphologique fonctionnant par comparaison des graphes de flot de contrôle et expliquerons comment optimiser cette approche. Enfin nous donnerons des exemples d'études de codes malveillants basées sur cette approche.
 
 Dans ce chapitre nous présentons plusieurs techniques de détection de programmes malveillants et introduisons l'analyse morphologique.
 
@@ -17,8 +17,8 @@ Cette politique de sécurité décrit les différents flots de données autoris�
 Il n'existe pas de programme capable d'analyser tout programme binaire pour connaître à priori leur comportement de manière exacte : on ne peut déjà pas construire un analyseur déterminant si les programmes analysés lisent /etc/shadow.
 La raison est que le problème du désassemblage est déjà indécidable ; celui de la détection l'est également.
 
-Puisqu'il n'existe pas de méthode de détection parfaite mais que l'on est en pratique capable d'analyser des programmes à la main, nous disposons de corpus de programmes malveillants et légitimes.
-Certaines méthodes mesurent une distance entre le programme analysé et d'une part les programmes malveillants connus, d'autre part les programmes légitimes connus. Si le programme analysé est suffisamment proche d'un programme malveillant il sera considéré comme malveillant. S'il est identique ou très proche d'un programme légitime, il pourra être classifié comme légitime.
+Puisqu'il n'existe pas de méthode de détection parfaite mais que l'on est en pratique capable d'analyser des programmes à la main, nous disposons de corpus de programmes malveillants d'une part et d'un corpus de programmes légitimes d'autre part.
+Certaines méthodes mesurent une distance entre le programme analysé et les programmes malveillants connus, puis entre le programme analysé et les programmes légitimes connus. Si le programme analysé est suffisamment proche d'un programme malveillant il sera considéré comme malveillant. S'il est identique ou très proche d'un programme légitime, il pourra être classifié comme légitime.
 
 \paragraph{Programmes obscurcis et \sms.}
 La plupart des programmes malveillants utilisent de l'obscurcissement et sont \sms.
@@ -91,6 +91,9 @@ Son avantage est que, mise en \oe uvre correctement, elle génère très peu de 
 
 \paragraph{Approches comportementales.}
 Les méthodes de détection comportementales utilisent peuvent cherchent à connaître le comportement d'un programme et à le comparer, soit à une liste de comportements connus comme légitimes, soit à des comportements classés comme malveillants \cite{JDF08}.
+Il s'agit en général dans une premier temps de définir un certain nombre de comportements de haut niveau, comme l'utilisation de fichiers, de flux réseau ou de certaines fonctionnalités sensibles du système d'exploitation.
+Ensuite des scénarios de détection sont définis : il peut s'agir d'un enchaînement d'actions (lecture d'un fichier puis ouverture d'une connexion distante) ou simplement la définition d'un seuil (au delà d'un certain nombre d'actions sensibles effectuée).
+La réalisation d'un de ces scénarios par le programme analysé provoque sa classification comme logiciel malveillant.
 Certaines implémentations ont montré l'efficacité de l'approche, comme sur l'analyse d'extensions malveillantes pour Internet Explorer \cite{KKBVK06}.
 
 \paragraph{Mesure automatique de distance.}

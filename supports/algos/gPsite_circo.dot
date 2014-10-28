@@ -1,0 +1,10 @@
+digraph G {
+"0" [shape=point, label=""]
+"a" [label="&alpha;"]
+"b" [label="&beta;"]
+"c" [label="&gamma;"]
+"0" -> "b"
+"b" -> "a" [label="1"]
+"b" -> "c" [label="2"]
+"c" -> "a" [label="1"]
+}

@@ -53,6 +53,9 @@ obliterate: clean
 %_cropped10.pdf: %.pdf
 	pdfcrop --margin 10 $< $@	
 
+%circo.pdf: %circo.dot
+	circo -Tpdf $< -o $@
+
 %.pdf: %.dot
 	dot -Tpdf $< -o $@
 
