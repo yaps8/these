@@ -21,6 +21,7 @@
 % \title{}
 \todo[inline]{Perfs + FP/FN}
 \todo[inline]{Limitations : obfuscation du CFG}
+\itodo{Réorganiser le chapitre : 3 sections, + de sous-sections ?}
 
 Nous avons vu au chapitre précédent que l'analyse morphologique fonctionne par comparaison des graphes de flot de contrôles.
 Dans ce chapitre nous nous intéressons au problème de la détection d'isomorphismes de sous-graphes. Nous définissons ce qu'est un graphe de flot, notion plus spécifique à l'étude des graphes de flot de contrôles que la notion générale de graphe.
@@ -256,6 +257,88 @@ $E\leftarrow\emptyset$\\
 % Un site incomplet est un site dans lequel certains n\oe uds n'ont pas le bon nombre de fils mais ces fils sont tout de même ordonnés.
 % \end{defi}
 
+\section{Fonctionnement d'un détecteur morphologique \label{sec:detecteur_morphologique}}
+Nous avons à présent tous les éléments nécessaires à une définition précise de la méthode de détection par analyse morphologique.
+
+\subsection{Constitution des signatures et du corpus}
+Nous cherchons à construire un corpus contenant les signatures d'un programme malveillant.
+La signature d'un programme malveillant est un ensemble de sites extraits du graphe de flot de ce programme.
+Afin que les signatures soient extraites automatiquement nous cherchons donc à construire tous les sites de taille limitée, par parcours en largeur à partir de chaque sommet du graphe de flot.
+Un exemple de signature du graphe de flot précédent est donné en figure \ref{fig:gfc_gf_sites}. Nous avons pris, pour l'exemple, des sites de taille 3, bien qu'en réalité nous prenions des sites de taille 24.
+
+\begin{figure}[h]
+\begin{center}
+\def\imagetop#1{\vtop{\null\hbox{#1}}}
+\begin{tabular}[t]{|c|c|}
+\hline
+Graphe de flot & Signature : ensemble de sites\\
+% \hline
+\imagetop{\includegraphics[width=0.25\textwidth]{supports/algos/g1gf_cropped10.pdf}}
+&
+\imagetop{\includegraphics[width=0.6\textwidth]{supports/algos/g1_sites_cropped10.pdf}}
+% &
+% \imagetop{\includegraphics[width=0.2\textwidth]{supports/algos/g1_prof_cropped10.pdf}}
+\\
+\hline
+\end{tabular}
+\end{center}
+\caption{Graphe de flot d'un programme et sa signature dans le corpus}
+\label{fig:gfc_gf_sites}
+\end{figure}
+
+\begin{figure}[h]
+\begin{center}
+\scalebox{1}{
+\begin{tikzpicture}[->,scale=1,>=stealth',thick]%
+\node[state, text width=1.1cm, minimum size=1.2cm] (S11){Site 1};
+\node[state, right=0.05cm of S11.east, anchor=west, text width=1.1cm, minimum size=1.2cm] (S12){Site 2};
+\node[state, below=0.05cm of S11.south, anchor=north, text width=1.1cm, minimum size=1.2cm] (S13){Site 3};
+\node[state, right=0.05cm of S13.east, anchor=west,text width=1.1cm, minimum size=1.2cm] (S1p){...};
+\node [fit={($(S11.north west) + (0.0, 0.0)$) ($(S1p.south east) + (0.0, 0.0)$)}, draw, dash pattern=on \pgflinewidth off 2pt, label=Programme 1](M1) {};
+
+\node[state, right=1cm of S12.east, anchor=west, text width=1.1cm, minimum size=1.2cm] (S21){Site 1};
+\node[state, right=0.05cm of S21.east, anchor=west, text width=1.1cm, minimum size=1.2cm] (S22){Site 2};
+\node[state, below=0.05cm of S21.south, anchor=north, text width=1.1cm, minimum size=1.2cm] (S23){Site 3};
+\node[state, right=0.05cm of S23.east, anchor=west,text width=1.1cm, minimum size=1.2cm] (S2p){...};
+\node [fit={($(S21.north west) + (0.0, 0.0)$) ($(S2p.south east) + (0.0, 0.0)$)}, draw, dash pattern=on \pgflinewidth off 2pt, label=Programme 2](M2) {};
+
+\node[state, right=1cm of S22.east, anchor=west, text width=1.1cm, minimum size=1.2cm] (S31){Site 1};
+\node[state, right=0.05cm of S31.east, anchor=west, text width=1.1cm, minimum size=1.2cm] (S32){Site 2};
+\node[state, below=0.05cm of S31.south, anchor=north, text width=1.1cm, minimum size=1.2cm] (S33){Site 3};
+\node[state, right=0.05cm of S33.east, anchor=west,text width=1.1cm, minimum size=1.2cm] (S3p){...};
+\node [fit={($(S31.north west) + (0.0, 0.0)$) ($(S3p.south east) + (0.0, 0.0)$)}, draw, dash pattern=on \pgflinewidth off 2pt, label=Programme 3](M3) {};
+
+\node[right=1.5cm of S32.south east, anchor=west, text width=1.1cm, minimum size=1.2cm] (Mp){...};
+
+% \node[state, text width=2cm, minimum size=3cm] (TEXT){Code};
+% \node[state, below = -3cm of TEXT.north, text width=2cm, minimum size=3cm, anchor=north] (DATA){Données};
+% \draw ($(BIN.east) + (0.5, 0) $) -- node[below]{\large Enpaquetage} ($(BIN.east) + (3cm, 0) $);
+\node [fit={($(M1.north west) + (0.0, 0.6)$) ($(M3.south east) + (1.0, 0.0)$) ($(Mp.east) + (0.6, 0.0)$)}, draw, label=] {};
+\end{tikzpicture}
+}
+\end{center}
+\caption{Corpus pour l'analyse morphologique}
+\label{fig:corpus}
+\end{figure}
+
+
+
+\subsection{Détection}
+Supposons que l'on dispose du corpus comprenant la signature du programme précédent et du graphe de flot de test, provenant d'un programme à analyser.
+Le détecteur morphologique cherche à trouver tous les sites du corpus qui sont des sous-sites du graphe de flot de test et, selon les programmes dans lesquels ils étaient présents, à rapprocher le programme analysé de ceux du corpus.
+
+Prenons le programme de test de la figure \ref{fig:am_exemple_gf_test}.
+Le site 1 du corpus (figure \ref{fig:gfc_gf_sites}) est un sous-site de ce graphe de flot : en partant du premier sommet \emph{JCC}, dans les deux cas le fils numéroté 1 est un \emph{CALL} et le fils numéroté 2 est un \emph{JCC}.
+De même les sites 3 et 4 sont des sous-sites du graphe de flot de test. Par contre le site 2 n'est pas un sous-site : aucun sommet d'étiquette \emph{CALL} n'a pour fils numéroté 2 un sommet d'étiquette \emph{RET}.
+
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=0.25\textwidth]{supports/algos/g1p_cropped10.pdf}
+\end{center}
+\caption{Graphe de flot d'un programme à analyser}
+\label{fig:am_exemple_gf_test}
+\end{figure}
 \section{Problème de la détection des sites isomorphes}
 Le problème se pose alors de la manière suivante. On dispose d'une liste de sites et %provenant de multiples graphes de flot de contrôle différents.
 on veut déterminer, dans le graphe de flot de test T, les sites qui sont isomorphes à (au moins) un site présent dans la liste connue. 
@@ -1497,11 +1580,57 @@ On peut utiliser cet algorithme pour retrouver tous les sous-sites isomorphes en
 Dans le pire des cas il y a $n$ branches à l'arbre A qui partent de la racine où $n$ est le nombre de sites dans la base. Le parcours d'une branche avec au maximum un fils à chaque sommet, à partir de la racine se fait en $O(W)$ au vu de la récursion de l'algorithme \ref{algo:rechercheArbreTarjan}. Pour chercher les isomorphismes de sous-sites de $T$ il faut répéter l'opération pour chacun de ses sommets : la complexité totale dans le pire des cas pour résoudre le problème \ref{pbisosgbase} d'isomorphisme de sous-sites entre un graphe de flot et une base de sites est de $O(n.n_T.W)$. Ainsi on n'a pas amélioré la complexité dans le pire des cas par rapport à l'utilisation directe du parcours de Tarjan vu dans la section précédente, bien qu'en pratique l'algorithme soit plus rapide comme nous le verrons par la suite.
 
 \section{SIDT : Site Isomorphism Decision Tree}
-Le problème \ref{pbisosg} consiste à détecter un site P dans un graphe de flot T. En pratique le site P aura été généré à partir d'un graphe de flot G. Si P est un sous-site de T, puisque l'on a généré le site à partir d'un parcours dans un autre graphe de flot, on peut envisager que le même parcours appliqué à T est susceptible de générer le site P. Ce n'est pas vrai dans le cas général et en ce sens l'algorithme présenté ici n'est pas complet.\\
+Le problème \ref{pbisosg} consiste à détecter un site P dans un graphe de flot T. En pratique le site P aura été généré à partir d'un graphe de flot G. Si P est un sous-site de T, puisque l'on a généré le site à partir d'un parcours dans un autre graphe de flot, on peut envisager que le même parcours appliqué à T est susceptible de générer le site P. Ce n'est pas vrai dans le cas général et en ce sens l'algorithme présenté ici n'est pas complet.
 Inversement il est clair que si le même parcours appliqué à partir de sommets de T et G génèrent le même site P, alors P est bien un sous-site de T.
-\\
 
 On se propose donc, pour approcher la solution au problème \ref{pbisosg} de détection d'isomorphisme de sous-site entre un site P (généré par parcours avec un algorithme A à partir d'un sommet d'un graphe de flot G) et un graphe de flot T, de générer tous les sous-sites de T avec l'algorithme de parcours A et de regarder si P est dans cet ensemble.
+
+Nous reprenons l'exemple de fonctionnement du détecteur par analyse morphologique décrit à la section \ref{sec:detecteur_morphologique}.
+Le corpus est constitué du graphe de flot G et de sites P, donnés en figure \ref{fig:gfc_gf_P_sites}.
+Afin de détecter le graphe de flot donné à la figure \ref{fig:gfc_gf_T_sites}, au lieu de vérifier si les sites P sont isomorphes à des sous-sites de T, nous découpons T en sites en suivant la même méthode que pour déterminer les sites à ajouter au corpus.
+Nous comparons ensuite les sites générés à partir de T à ceux présents dans le corpus : il y a une correspondance si on trouve des sites identiques.
+Ici nous voyons que les sites 1 et $\alpha$ sont identiques, ainsi que les sites 4 et $\epsilon$ et sont donc détectés par cette approche.
+En revanche le site 3, pourtant sous-site de graphe T, n'est pas présent dans la liste des sites générés à partir de T par le parcours en largeur de taille limitée.
+
+\begin{figure}[h]
+\begin{center}
+\def\imagetop#1{\vtop{\null\hbox{#1}}}
+\begin{tabular}[t]{|c|c|}
+\hline
+Graphe de flot G & Signature : ensemble de sites P générés à partir de G\\
+% \hline
+\imagetop{\includegraphics[width=0.25\textwidth]{supports/algos/g1gf_cropped10.pdf}}
+&
+\imagetop{\includegraphics[width=0.6\textwidth]{supports/algos/g1_sites_cropped10.pdf}}
+% &
+% \imagetop{\includegraphics[width=0.2\textwidth]{supports/algos/g1_prof_cropped10.pdf}}
+\\
+\hline
+\end{tabular}
+\end{center}
+\caption{Graphe de flot d'un programme et sa signature dans le corpus}
+\label{fig:gfc_gf_P_sites}
+\end{figure}
+
+\begin{figure}[h]
+\begin{center}
+\def\imagetop#1{\vtop{\null\hbox{#1}}}
+\begin{tabular}[t]{|c|c|}
+\hline
+Graphe de flot de test T & Ensemble de sites générés à partir de T\\
+% \hline
+\imagetop{\includegraphics[width=0.25\textwidth]{supports/algos/g1p_cropped10.pdf}}
+&
+\imagetop{\includegraphics[width=0.7\textwidth]{supports/algos/g1p_sites_cropped10.pdf}}
+% &
+% \imagetop{\includegraphics[width=0.2\textwidth]{supports/algos/g1_prof_cropped10.pdf}}
+\\
+\hline
+\end{tabular}
+\end{center}
+\caption{Graphe de flot d'un programme de test et son découpage en sites}
+\label{fig:gfc_gf_T_sites}
+\end{figure}
 
 Pour régler le problème \ref{pbisosgbase} de détection d'un site dans une base de graphes de flot, on va créer un arbre de décision contenant tous les sites générés à partir du parcours par A des graphes de flot de la base.
 
