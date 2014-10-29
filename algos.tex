@@ -1640,7 +1640,7 @@ Graphe de flot de test T & Ensemble de sites générés à partir de T\\
 \label{fig:gfc_gf_T_sites}
 \end{figure}
 
-Pour régler le problème \ref{pbisosgbase} de détection d'un site dans une base de graphes de flot, on va créer un arbre de décision contenant tous les sites générés à partir du parcours par A des graphes de flot de la base.
+Pour régler le problème \ref{pbisosgbase} de détection d'un site dans une base de graphes de flot, on va créer un arbre de décision contenant tous les sites générés à partir du parcours en largeur des graphes de flot de la base.
 
 \subsection{Arbre de décision pour la détection de sites}
 Chaque site est généré par un parcours numérotant ses sommets, et chaque sommet a un nombre de fils bornés. On représente alors les sites sous forme matricielle : chaque ligne représente un sommet, le premier élément de la colonne est l'étiquette du sommet et les éléments suivants sont les numéros des fils de ce sommet (0 indique qu'il n'y a pas de sommet). La représentation des sites de la figure \ref{fig:troisProf} est donnée figure \ref{fig:troisProfMatRed}.
@@ -1795,47 +1795,60 @@ Nous calculons les complexités dans le pire des cas de l'ajout d'un graphe de f
 On dispose donc d'une part d'un corpus de programmes dont les graphes de flot ont été déterminés.
 Nous notons :
 \begin{itemize}
- \item $n$ le nombre de programmes du corpus.
- \item $n_G$ le nombre maximal de sommets des graphes de flot du corpus.
+ \item $m$ le nombre de programmes du corpus.
+ \item $n$ le nombre maximal de sommets des graphes de flot du corpus.
  \item $W$ le nombre de sommets des sites de la base (constante fixée typiquement entre 12 et 24).
 \end{itemize}
 D'autre part nous étudions deux opérations sur cette base.
-La première est l'ajout d'un graphe de flot P, à $n_P$ sommets, à cette base de reconnaissance.
+La première est l'ajout d'un graphe de flot G, à $n_G$ sommets, à cette base de reconnaissance.
 La seconde est l'analyse d'un graphe de flot T inconnu, comprenant $n_T$ sommets.
-Nous rappelons que, vue la méthode de génération des sites, les graphes de flot du corpus, le graphe de flot $P$ et le graphe de flot $T$ ont au plus $n_G$, $n_P$ et $n_T$ sites.
-En particulier il y au plus $n.n_G$ sites de taille $W$ dans la base.
+Nous rappelons que, vue la méthode de génération des sites, les graphes de flot du corpus, le graphe de flot $G$ et le graphe de flot $T$ ont au plus $n$, $n_G$ et $n_T$ sites.
+En particulier il y au plus $m.n$ sites de taille $W$ dans la base.
 Enfin nous rappelons que $P$ est une constante comprise entre 0 et 1, dépendant de la répartition des étiquettes, et évaluée à $0.33$.
 
 La complexité pour déterminer tous les sites d'un graphe de flot à $n_G$ sommets est $O(n_G.(k+1).W)$.
-Ainsi la complexité de l'ajout pour l'algorithme par parcours est $O(n_P.(k+1).W+n_G.W^2)$.
-De même l'analyse d'un graphe de flot a pour complexité $O(n_T.(k+1).W+n_T.n.n_G.n_T.W)$.
+Ainsi la complexité de l'ajout pour l'algorithme par parcours est $O(n_P.(k+1).W+n.W^2)$.
+De même l'analyse d'un graphe de flot a pour complexité $O(n_T.(k+1).W+n_T.m.n.n_T.W)$.
 
-La complexité de l'ajout pour SIDT est $O(n_P.(k+1).W+n_G.W^3)$ et celle pour l'analyse est $O(n_G.(k+1).W+n_T.W^3)$.
+La complexité de l'ajout pour SIDT est $O(n_P.(k+1).W+n.W^3)$ et celle pour l'analyse est $O(n.(k+1).W+n_T.W^3)$.
 
 \begin{center}
 \begin{tabular}{|c|c|c|}
  \hline
- Algorithme & Ajout d'un graphe de flot & Analyse d'un graphe de flot\\
+ Algorithme & Ajout d'un graphe de flot G & Analyse d'un graphe de flot T\\
  \hline
- Recherche exhaustive & (pas de base) & $O(n.n_G.n_T^3.n_T!)$\\
- Ullmann & (pas de base) & $O(n.n_G.(n_T.P)^W)$ \\
- Tarjan & $O(n_G.W^3)$ & $O(n.n_G.n_T^2.W)$\\
- SIDT & $O(n_P.W^3)$ & $O(n_T.W^3)$\\
+ Recherche exhaustive & (pas de base) & $O(m.n.n_T^3.n_T!)$\\
+ Ullmann & (pas de base) & $O(m.n.(n_T.P)^W)$ \\
+ Tarjan & $O(n.W^3)$ & $O(m.n.n_T^2.W)$\\
+ SIDT & $O(n_G.W^3)$ & $O(n_T.W^3)$\\
  \hline
 \end{tabular} 
 \end{center}
 
-Notons $n_M$=$n_G$=$n_T$=$n_P$.
+Notons $n$=max($n$, $n_G$, $n_T)$.
 
 \begin{center}
 \begin{tabular}{|c|c|c|}
  \hline
- Algorithme & Ajout d'un graphe de flot & Analyse d'un graphe de flot\\
+ Algorithme & Ajout d'un graphe de flot G & Analyse d'un graphe de flot T\\
  \hline
- Recherche exhaustive & (pas de base) & $O(n.n_M^4.n_M!)$\\
- Ullmann & (pas de base) & $O(n.n_M.(n_M.P)^W)$ \\
- Tarjan & $O(n_M.W^3)$ & $O(n.n_M^3.W)$\\
- SIDT & $O(n_M.W^3)$ & $O(n_M.W^3)$\\
+ Recherche exhaustive & (pas de base) & $O(m.n^4.n!)$\\
+ Ullmann & (pas de base) & $O(m.n.(n.P)^W)$ \\
+ Tarjan & $O(n.W^3)$ & $O(m.n^3.W)$\\
+ SIDT & $O(n.W^3)$ & $O(n.W^3)$\\
+ \hline
+\end{tabular} 
+\end{center}
+
+\begin{center}
+\begin{tabular}{|c|c|c|}
+ \hline
+ Algorithme & Ajout d'un graphe de flot G & Analyse d'un graphe de flot T\\
+ \hline
+ Recherche exhaustive & (pas de base) & $O(m.n^4.n!)$\\
+ Ullmann & (pas de base) & $O(m.n.n^W)$ \\
+ Tarjan & $O(n)$ & $O(m.n^3)$\\
+ SIDT & $O(n)$ & $O(n)$\\
  \hline
 \end{tabular} 
 \end{center}
