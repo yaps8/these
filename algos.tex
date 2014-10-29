@@ -19,9 +19,9 @@
 
 % %opening
 % \title{}
-\todo[inline]{Perfs + FP/FN}
-\todo[inline]{Limitations : obfuscation du CFG}
 \itodo{Réorganiser le chapitre : 3 sections, + de sous-sections ?}
+\itodo{Notations G, P, T ?? + refaire la complexité en conséquence}
+\itodo{justifier W=12..24 ?}
 
 Nous avons vu au chapitre précédent que l'analyse morphologique fonctionne par comparaison des graphes de flot de contrôles.
 Dans ce chapitre nous nous intéressons au problème de la détection d'isomorphismes de sous-graphes. Nous définissons ce qu'est un graphe de flot, notion plus spécifique à l'étude des graphes de flot de contrôles que la notion générale de graphe.
@@ -202,11 +202,11 @@ L'algorithme \ref{algo:generation_site_largeur} détermine, s'il existe, le site
 \DontPrintSemicolon
 \caption{Site obtenu par parcours en largeur limité à partir d'un sommet particulier}
 \SetAlgoLined
-\KwData{Un graphe de flot T, un sommet R de T, un entier W}
-\KwResult{Le site, s'il existe, ayant W sommets construit par parcours en largeur à partir du sommet R de T}
+\KwData{Un graphe de flot G, un sommet R de G, un entier W}
+\KwResult{Le site, s'il existe, ayant W sommets construit par parcours en largeur à partir du sommet R de G}
 \SetKwProg{Fn}{}{}{}
 \SetKwFunction{FRecurs}{site}
-\Fn(){\FRecurs{T, R, W}}{
+\Fn(){\FRecurs{G, R, W}}{
 $E\leftarrow \emptyset$  \tcc*{E contient les sommets du futur site}
 $M\leftarrow \emptyset$  \tcc*{Les sommets visités seront ajoutés à M}
 $L\leftarrow$ pile vide  \tcc*{L : file d'attente pour les sommets à visiter}
@@ -223,7 +223,7 @@ L.empiler(R)             \\
   }
 }
 \eIf {$|E|=W$}{
-\Return{le sous-site de T induit par les sommets présents dans E, de racine R}
+\Return{le sous-site de G induit par les sommets présents dans E, de racine R}
 }
 {
 \Return {FAIL}
@@ -236,14 +236,14 @@ L.empiler(R)             \\
 \DontPrintSemicolon
 \caption{Sites obtenus par parcours en largeur limité}
 \SetAlgoLined
-\KwData{Un graphe de flot T, un entier W}
-\KwResult{L'ensemble de sites ayant W sommets construits par parcours en largeur à partir de chaque sommet de T}
+\KwData{Un graphe de flot G, un entier W}
+\KwResult{L'ensemble de sites ayant W sommets construits par parcours en largeur à partir de chaque sommet de G}
 \SetKwProg{Fn}{}{}{}
 \SetKwFunction{FRecurs}{sites}
-\Fn(){\FRecurs{T, W}}{
+\Fn(){\FRecurs{G, W}}{
 $E\leftarrow\emptyset$\\
-\ForEach {s sommet de T}{
-  $S \leftarrow site(T, s, W)$\\
+\ForEach {s sommet de G}{
+  $S \leftarrow site(G, s, W)$\\
   \If{S $\ne$ FAIL}{
     $E=E\cup\{S\}$
   }
@@ -252,6 +252,14 @@ $E\leftarrow\emptyset$\\
 }
 \label{algo:generation_sites_largeur}
 \end{algorithm}
+
+\paragraph{Complexité.}
+Calculons la complexité de l'obtention d'un site par parcours en largeur limité à W sommets en prenant en compte le nombre d'opération de dépilement ou d'empilement dans la file L.
+Nous avons vu \todo{vrai?} que chaque sommet a au plus $k$ fils.
+De plus le parcours s'arrête dès que W sommets ont été ajoutés à l'ensemble E. Il peut arriver que les fils du $W^e$ sommet soient ajoutés à la liste d'attente (mais ils ne seront pas ajoutés à E).
+Dans le pire des cas on empile donc la racine puis $k$ fils pour $W$ sommets et on dépile $W$ sommets. La complexité de l'algorithme \ref{algo:generation_site_largeur} est donc $O((k+1).W)$.
+
+L'algorithme \ref{algo:generation_sites_largeur} itère l'opération précédente sur les $n_G$ sommets du graphe G : sa complexité est  $O(n_G.(k+1).W)$.
 
 % \begin{defi}\label{def-site-incomplet}
 % Un site incomplet est un site dans lequel certains n\oe uds n'ont pas le bon nombre de fils mais ces fils sont tout de même ordonnés.
@@ -1509,7 +1517,7 @@ child {node {}
 \end{figure}
 
 \paragraph{Complexité.}
-L'ajout d'un site à la base consiste à ajouter un codage de parcours dans l'arbre de décision, cette opération nécessite un nombre de comparaison en $W\times i$ où $i$ est le nombre de fils maximum de chaque sommet de l'arbre. Vue que les étiquettes des arcs de l'arbre sont de la forme $[\xrightarrow{\alpha}]i[:L]$, en notant $K$ le nombre de fils maximum de chaque sommet dans un site et $n_L$ le nombre d'étiquettes différentes pour les sommets des sites, $i\leq (K+2)\times W\times n_L$ soit $n=O(W)$ donc l'ajout d'un site à la base se fait en $O(W^2)$.
+L'ajout d'un site à la base consiste à ajouter un codage de parcours dans l'arbre de décision, cette opération nécessite un nombre de comparaison en $W\times i$ où $i$ est le nombre de fils maximum de chaque sommet de l'arbre. Vu que les étiquettes des arcs de l'arbre sont de la forme $[\xrightarrow{\alpha}]i[:L]$, en notant $K$ le nombre de fils maximum de chaque sommet dans un site et $n_L$ le nombre d'étiquettes différentes pour les sommets des sites, $i\leq (K+2)\times W\times n_L$ soit $n=O(W)$ donc l'ajout d'un site à la base se fait en $O(W^2)$.
 
 \subsubsection{Recherche d'un isomorphisme de sous-sites à partir de l'arbre de décision}
 Une fois l'arbre généré à partir de tous les codages des sites de $L_S$, on veut l'utiliser pour trouver tous les parcours de $L_S$ possibles dans le graphe de flot T. Pour compter le nombre de parcours de l'arbre que l'on peut réaliser à partir du sommet $r$ de $T$, on peut chercher à parcourir $T$ à partir de $r$ en parcourant les branches possibles dans l'arbre de décision. À chaque fois que l'on peut parcourir une branche jusqu'en bas c'est qu'un site isomorphe a été trouvé. L'algorithme \ref{algo:rechercheArbreTarjan} compte le nombre de ces branches possibles.
@@ -1759,24 +1767,80 @@ La complexité de la recherche d'un site dans l'arbre de décision est la même 
 
 \section{Comparaison des performances}
 \subsection{Complexité}
-On a donc quatre algorithmes à comparer : celui par recherche exhaustive avec les matrices d'adjacence, l'algorithme d'Ullmann, pris pour référence, l'algorithme de Tarjan avec arbre de décision et l'algorithme incomplet par arbre de décision (SIDT).
-Le tableau suivant donne les complexités dans le pire des cas de l'ajout d'un site dans la base et d'analyse d'un programme inconnu.
-Nous rappelons que $n$ représente le nombre de programmes du corpus, $W$ est le nombre de sommets des sites de la base (typiquement entre 12 et 24), $n_T$ le nombre de sommets du graphe de flot du programme à tester (typiquement quelques milliers de sommets), P dépend de la répartition des différentes étiquettes sur les sommets (P est compris entre 0 et 1, nous l'avons évalué à 0.33).
+
+% Nous rappelons que :
+% \begin{itemize}
+%  \item $n$ représente le nombre de programmes du corpus.
+%  \item $n_S$ représente le nombre de sites du corpus.
+%  \item $W$ est le nombre de sommets des sites de la base (typiquement entre 12 et 24).
+%  \item $n_T$ le nombre de sommets du graphe de flot du programme à tester (typiquement quelques milliers de sommets).
+%  \item P dépend de la répartition des différentes étiquettes sur les sommets (P est compris entre 0 et 1, nous l'avons évalué à 0.33).
+% \end{itemize}
+% 
+% \begin{center}
+% \begin{tabular}{|c|c|c|}
+%  \hline
+%  Algorithme & Ajout d'un site dans la base & Analyse\\
+%  \hline
+%  Recherche exhaustive & (pas de base) & $O(n.n_T^3.n_T!)$\\
+%  Ullmann & (pas de base) & $O(n.(n_T.P)^W)$ \\
+%  Tarjan avec arbre de décision & $O(W^2)$ & $O(n.n_T.W)$\\
+%  SIDT & $O(W^3)$ & $O(W^3)$\\
+%  \hline
+% \end{tabular} 
+% \end{center}
+
+On dispose donc de quatre algorithmes à comparer : celui par recherche exhaustive avec les matrices d'adjacence, l'algorithme d'Ullmann, pris pour référence, l'algorithme de Tarjan avec arbre de décision et l'algorithme incomplet par arbre de décision (SIDT).
+Nous calculons les complexités dans le pire des cas de l'ajout d'un graphe de flot dans la base et d'analyse d'un graphe de flot inconnu.
+On dispose donc d'une part d'un corpus de programmes dont les graphes de flot ont été déterminés.
+Nous notons :
+\begin{itemize}
+ \item $n$ le nombre de programmes du corpus.
+ \item $n_G$ le nombre maximal de sommets des graphes de flot du corpus.
+ \item $W$ le nombre de sommets des sites de la base (constante fixée typiquement entre 12 et 24).
+\end{itemize}
+D'autre part nous étudions deux opérations sur cette base.
+La première est l'ajout d'un graphe de flot P, à $n_P$ sommets, à cette base de reconnaissance.
+La seconde est l'analyse d'un graphe de flot T inconnu, comprenant $n_T$ sommets.
+Nous rappelons que, vue la méthode de génération des sites, les graphes de flot du corpus, le graphe de flot $P$ et le graphe de flot $T$ ont au plus $n_G$, $n_P$ et $n_T$ sites.
+En particulier il y au plus $n.n_G$ sites de taille $W$ dans la base.
+Enfin nous rappelons que $P$ est une constante comprise entre 0 et 1, dépendant de la répartition des étiquettes, et évaluée à $0.33$.
+
+La complexité pour déterminer tous les sites d'un graphe de flot à $n_G$ sommets est $O(n_G.(k+1).W)$.
+Ainsi la complexité de l'ajout pour l'algorithme par parcours est $O(n_P.(k+1).W+n_G.W^2)$.
+De même l'analyse d'un graphe de flot a pour complexité $O(n_T.(k+1).W+n_T.n.n_G.n_T.W)$.
+
+La complexité de l'ajout pour SIDT est $O(n_P.(k+1).W+n_G.W^3)$ et celle pour l'analyse est $O(n_G.(k+1).W+n_T.W^3)$.
 
 \begin{center}
 \begin{tabular}{|c|c|c|}
  \hline
- Algorithme & Ajout d'un site dans la base & Analyse\\
+ Algorithme & Ajout d'un graphe de flot & Analyse d'un graphe de flot\\
  \hline
- Recherche exhaustive & (pas de base) & $O(n.n_T^3.n_T!)$\\
- Ullmann & (pas de base) & $O(n.(n_T.P)^W)$ \\
- Tarjan avec arbre de décision & $O(W^2)$ & $O(n.n_T.W)$\\
- SIDT & $O(W^3)$ & $O(W^3)$\\
+ Recherche exhaustive & (pas de base) & $O(n.n_G.n_T^3.n_T!)$\\
+ Ullmann & (pas de base) & $O(n.n_G.(n_T.P)^W)$ \\
+ Tarjan & $O(n_G.W^3)$ & $O(n.n_G.n_T^2.W)$\\
+ SIDT & $O(n_P.W^3)$ & $O(n_T.W^3)$\\
  \hline
 \end{tabular} 
 \end{center}
 
-Du point de vue la complexité dans le pire des cas, il est clair que l'algorithme d'Ullmann est très inefficace et l'algorithme SIDT devrait s'avérer être le plus rapide avec une complexité constante lors de l'agrandissement de la base.
+Notons $n_M$=$n_G$=$n_T$=$n_P$.
+
+\begin{center}
+\begin{tabular}{|c|c|c|}
+ \hline
+ Algorithme & Ajout d'un graphe de flot & Analyse d'un graphe de flot\\
+ \hline
+ Recherche exhaustive & (pas de base) & $O(n.n_M^4.n_M!)$\\
+ Ullmann & (pas de base) & $O(n.n_M.(n_M.P)^W)$ \\
+ Tarjan & $O(n_M.W^3)$ & $O(n.n_M^3.W)$\\
+ SIDT & $O(n_M.W^3)$ & $O(n_M.W^3)$\\
+ \hline
+\end{tabular} 
+\end{center}
+
+Du point de vue de la complexité dans le pire des cas, il est clair que l'algorithme d'Ullmann est très inefficace et l'algorithme SIDT devrait s'avérer être le plus rapide avec une complexité constante lors de l'agrandissement de la base.
 
 \subsection{Détail des implémentations}
 Nous avons implémenté différents algorithmes de la manière suivante. Ils prennent en entrée un ou plusieurs graphes de flot à insérer dans la base de programmes connus et un ou plusieurs graphes de flot à tester.
