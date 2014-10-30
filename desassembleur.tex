@@ -32,7 +32,7 @@ sont présents dans la représentation d'origine du programme qu'en temps
 que données.
 Ainsi le désassemblage parfait d'un programme \sm\ ne prend en compte
 que les instructions exécutées avec un le niveau d'exécution 1
-(proposition \ref{def:desassemblage_parfait_sm}).
+(définition \ref{def:desassemblage_parfait_sm}).
 
 \begin{defi}
  Étant donné un programme P \sm\ et l'ensemble de ses traces d'exécution
@@ -41,7 +41,6 @@ instruction de niveau d'exécution 1 est exécutée dans au moins une
 trace, c'est à dire~$\{a, \exists\ T\in E_T, \exists\ (i, X, D)\in T, X=1,\ $\da{D}$=a\}$.
 \label{def:desassemblage_parfait_sm}
 \end{defi}
-
 
 \subsection{Graphe de flot de contrôle parfait}
 Le graphe de flot de contrôle ne peut plus se contenter de représenter
@@ -130,6 +129,57 @@ Le GFC parfait de ce programme est donné en figure \ref{fig:sm_cfg_parfait}. En
 
 
 Cette difficulté n'est pas intrinsèque aux programmes \sm\ et provient du fait même que le graphe de flot de contrôle est sur une \sura\ de l'ensemble des exécutions possibles. Il est cependant exacerbé dans le cas des programmes \sm\ puisque souvent les vagues successives n'ont que peu de code commun entre elles et il n'est pas cohérent de les mélanger dans le CFG.
+
+\FloatBarrier
+\subsection{Graphe de flot de contrôle incluant les vagues}
+
+\begin{figure}[h]
+\begin{center}
+\begin{tikzpicture}[
+%   tlabel/.style={pos=0.4,right=-1pt},
+%   every node/.style={color=black, circle, minimum size=10mm, draw=black, align=center},
+%   edge from parent/.style={->, draw=black},
+%   level 1/.style={sibling distance=30mm, level distance=15mm},
+  thick
+]
+\node (ROOT) {$S_1$}
+% \node (S11){Site 1};
+child {node (S2) {$S_2$}
+child{node (S3) {$S_3$}
+child {node (S4) {$S_7$}
+  child {node (S5) {$S_5$}}
+  child {node (S6) {$S_6$}}
+}
+}
+child{node (S7) {$S_7$}
+child {node (S8) {$S_8$}
+}
+}
+child {node (S9) {$S_9$}}
+};
+% \draw (S4) -> (S5);
+\path (ROOT) edge [->] (S2);
+\path (S2) edge [->] (S3);
+\path (S2) edge [->] (S7);
+\path (S2) edge [->] (S9);
+\path (S3) edge [->] (S4);
+\path (S4) edge [->] (S5);
+\path (S4) edge [->] (S6);
+\path (S7) edge [->] (S8);
+\path (S8) edge [->] (S6);
+\node[draw=none, left=2.5cm of ROOT.west, anchor=east, text width=4cm, minimum size=4cm] (V1){Niveau d'exécution 1};
+\node[draw=none, below=15mm of V1.north, text width=4cm, minimum size=4cm] (V2){Niveau d'exécution 2};
+\node[draw=none, below=15mm of V2.north, text width=4cm, minimum size=4cm] (V3){Niveau d'exécution 3};
+\node[draw=none, below=15mm of V3.north, text width=4cm, minimum size=4cm] (V4){Niveau d'exécution 4};
+\node[draw=none, below=15mm of V4.north, text width=4cm, minimum size=4cm] (V5){Niveau d'exécution 5};
+% \node[draw=none, left=4cm of ROOT.west, anchor=east, text width=1.1cm, minimum size=1.2cm] (V1){Vague 1};
+% \node[draw=none, left=4cm of ROOT.west, anchor=east, text width=1.1cm, minimum size=1.2cm] (V1){Vague 1};
+% \node[draw=none, left=4cm of ROOT.west, anchor=east, text width=1.1cm, minimum size=1.2cm] (V1){Vague 1};
+\end{tikzpicture}
+\end{center}
+\caption{Arbre représentant les différents instantanés, et leur niveau d'exécution, des traces d'exécution}
+\label{fig:arbre_vagues}
+\end{figure}
 
 \FloatBarrier
 \subsection{Graphe de flot de contrôle paramétré par une exécution}
