@@ -1,4 +1,4 @@
-L'analyse morphologique et la recherche de similarités dans les graphes de flot de contrôles de plusieurs binaires peut également être utilisée pour détecter l'utilisation de fonctionnalités similaires entre ces programmes et faire correspondre précisément des morceaux de code assembleur de l'un et de l'autre.
+L'analyse morphologique entre les graphes de flot de contrôles de plusieurs binaires peut également être utilisée pour détecter l'utilisation de fonctionnalités similaires entre ces programmes et faire correspondre précisément des morceaux de code assembleur de l'un et de l'autre.
 
 Dans ce chapitre nous présentons des travaux réalisés en ce sens sur un logiciel malveillant, Waledac, qui utilise une bibliothèque connue de chiffrement, OpenSSL.
 Ces travaux ont fait l'objet d'une communication orale à REcon en 2012 \cite{REAT12} et d'une publication à Malware \cite{mal12}.
@@ -26,7 +26,7 @@ $ strings "Waledac v48 unpacked.exe" | grep OpenSSL
    ECDSA part of OpenSSL 0.9.8e 23 Feb 2007
 \end{verbatim}
 
-OpenSSL \cite{openssl} est une bibliothèque libre et documentée, elle ne devrait pas faire partie de l'analyse du binaire. Nous voulons ensuite connaître précisément les fonctions utilisées ainsi que parties de code communes.
+OpenSSL \cite{openssl} est une bibliothèque libre et documentée, elle ne devrait nécessiter une analyse de son code binaire ici inclut dans Waledac. Nous voulons également connaître précisément les fonctions utilisées ainsi que parties de code communes.
 
 \section{Analyse morphologique}
 % \subsection{Trouver des sites communs}
@@ -90,6 +90,7 @@ Puis nous continuons avec un sous-site commun plus petit, en associant les somme
 $L\leftarrow \emptyset$\\
 $A_P, A_T \leftarrow (\emptyset, \emptyset)$ \tcc*{ensembles des sites de T et P associés}
 $m\leftarrow min(n_P, n_T)$\\
+\tcc{On extrait tous les sites :}
 \For {$W \leq i\leq m$} {
   $S_{P, i}\leftarrow sites(P, i)$\\
   $S_{T, i}\leftarrow sites(T, i)$
@@ -100,7 +101,8 @@ $k\leftarrow m$\\
 {
   \For{$S_T\in S_{T, k}$}
   {
-    $C\leftarrow match(S_P, S_T)$\\
+    \tcc{On place dans C les couples de sommets correspondants :}
+    $C\leftarrow match(S_P, S_T)$ 
     \For{$(s_P, s_T)\in C$}{
       \If{$s_P\notin A_P$ et $s_T\notin A_T$}{
 	$L\leftarrow L\cup \{(s_P, s_T)\}$\\
@@ -129,7 +131,7 @@ Un greffon (ou \emph{plugin}) a été développé pour le désassembleur interac
 Le greffon surligne les instructions ayant trouvé un correspondant dans l'autre graphe de flot et donne également la correspondance entre les fonctions assembleur du premier programme et du second.
 
 \paragraph{Exemple avec Waledac et OpenSSL.}
-La figure \ref{fig:plugin_subroutines} montre un extrait de la page de correspondances entre les fonctions assembleurs identifiée par IDA entre la DLL principale d'OpenSSL (\emph{libeay32-098e.dll}) et Waledac (\emph{Waledac48.int}). La première colonne indique les adresses des instructions d'OpenSSL correspondant aux instructions présentes aux adresses de Waledac à la troisième colonne. Les deuxième et quatrième colonnes donnent le nom des fonctions assembleur auxquelles ces instructions appartiennent.
+La figure \ref{fig:plugin_subroutines} montre un extrait de la page de correspondances entre les fonctions assembleurs identifiées par IDA entre la DLL principale d'OpenSSL (\emph{libeay32-098e.dll}) et Waledac (\emph{Waledac48.int}). La première colonne indique les adresses des instructions d'OpenSSL correspondant aux instructions présentes aux adresses de Waledac à la troisième colonne. Les deuxième et quatrième colonnes donnent le nom des fonctions assembleur auxquelles ces instructions appartiennent.
 OpenSSL ayant été compilé avec des options de débogage, le nom des fonctions est retrouvé par IDA, ce qui n'est pas le cas pour Waledac.
 Il est à noter que, puisqu'on a effectué des réductions avant de lancer la comparaison, la plupart des instructions, dont les instructions séquentielles, ne sont pas comparées : ce sont principalement les instructions modifiant le flot de contrôle qui ont été considérées.
 

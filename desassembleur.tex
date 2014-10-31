@@ -42,19 +42,19 @@ trace, c'est à dire~$\{a, \exists\ T\in E_T, \exists\ (i, X, D)\in T, X=1,\ $\d
 \label{def:desassemblage_parfait_sm}
 \end{defi}
 
-\subsection{Graphe de flot de contrôle parfait}
+\subsection{Graphe de flot de contrôle naïf}
 Le graphe de flot de contrôle ne peut plus se contenter de représenter
 une instruction par son adresse puisque plusieurs instructions
 différentes peuvent être présentes à la même adresse.
-Le graphe de flot de contrôle parfait est alors le graphe dont les
+Le graphe de flot de contrôle naïf, extension du GFC parfait défini pour les programmes \nsms, est alors le graphe dont les
 sommets sont des couples $(a, I)$ où \adr{a} est une adresse et $I$ une
 instruction assembleur. Il y a un arc entre deux sommets si le second
 suit directement le premier dans une trace d'exécution (définition
-\ref{def:cfg_parfait_sm}).
+\ref{def:cfg_naif_sm}).
 
 \begin{defi}
  Étant donné un programme \sm\ P et l'ensemble de ses traces d'exécution
-$E_T$, le graphe de flot de contrôle parfait de P est le graphe orienté
+$E_T$, le graphe de flot de contrôle naïf de P est le graphe orienté
 $G=(V, E)$ tel que :
  \begin{itemize}
   \item $V=\{(\mda{D}, \mdi{D}),  (i, X, D)\in E_T\}$
@@ -63,7 +63,7 @@ I_1)\ et\ (a_2, I_2)\ se\ suivent\ dans\ une\ trace\ : \exists T\in
 E_T,\ i\in \BN, (i, X_1, D_1)\ et\ (i+1, X_2, D_2)\in T\ avec\
 $\da{D_1}$=a_1,\ $\di{D_1}$=I_1,$~\da{D_2}$=a_2,\ $\di{D_2}$=I_2$.
  \end{itemize}
-\label{def:cfg_parfait_sm}
+\label{def:cfg_naif_sm}
 \end{defi}
 
 Le problème de cette définition d'un GFC pour un programme \sm\ est qu'%e souvent les vagues se suivent et ont peu de rapport les unes avec les autres.
@@ -116,13 +116,13 @@ Cette seconde branche a pour effet de modifier les instructions aux adresses \ad
 
 Ainsi toutes les exécutions possibles, paramétrées par la valeur initiale d'\eax, bouclent sur la branche conditionnelle un nombre fini, qui peut être nul, de fois et exécutent la seconde branche, qui met la valeur 1 dans \edi, provoque une auto-modification, incrémente \edi\ deux fois puis quitte la fonction. Dans toutes les exécutions possibles la valeur finale de \edi\ est toujours 3.
 
-Le GFC parfait de ce programme est donné en figure \ref{fig:sm_cfg_parfait}. En raison du mélange des instructions à différents niveaux d'exécution, il n'est pas possible de distinguer les vagues d'exécution et un analyseur statique simple approxime la valeur de \edi\ à 2 ou 3.
+Le GFC naïf de ce programme est donné en figure \ref{fig:sm_cfg_parfait}. En raison du mélange des instructions à différents niveaux d'exécution, il n'est pas possible de distinguer les vagues d'exécution et un analyseur statique simple approxime la valeur de \edi\ à 2 ou 3.
 
 \begin{figure}[h]
 \begin{center}
   \includegraphics[width=0.7\textwidth]{supports/disas_sm/ex2_parfait.pdf}
 \end{center}
-\caption{GFC parfait}
+\caption{GFC naïf}
 \label{fig:sm_cfg_parfait}
 \end{figure}
 
@@ -131,7 +131,19 @@ Le GFC parfait de ce programme est donné en figure \ref{fig:sm_cfg_parfait}. En
 Cette difficulté n'est pas intrinsèque aux programmes \sm\ et provient du fait même que le graphe de flot de contrôle est sur une \sura\ de l'ensemble des exécutions possibles. Il est cependant exacerbé dans le cas des programmes \sm\ puisque souvent les vagues successives n'ont que peu de code commun entre elles et il n'est pas cohérent de les mélanger dans le CFG.
 
 \FloatBarrier
-\subsection{Graphe de flot de contrôle incluant les vagues}
+\subsection{Graphe de flot de contrôle parfait\label{sec:gfc_parfait}}
+
+Chaque trace est constituée d'une suite d'instructions et d'un enchaînement d'instantanés de la mémoire, chacun représentant un niveau d'exécution.
+Il est possible que les instantanés d'une même trace soient deux à deux distincts comme il est possible que des instantanés soient identiques à des niveaux d'exécution différents, en raison de la définition strictement croissante des niveaux d'exécution.
+De même plusieurs traces différentes peuvent converger vers les mêmes instantanés.
+
+Prenons les quatre enchaînements de niveaux d'exécution et leurs instantanés respectifs suivants :
+$T_1 = s_1, s_2, s_1, s_5, s_6$ ; 
+$T_2 = s_1, s_2, s_3, s_5, s_6$ ; 
+$T_3 = s_1, s_2, s_3, s_4$ ; 
+$T_4 = s_1, s_2, s_4$.
+
+On peut représenter (figure \ref{fig:arbre_vagues}) ces enchaînements sous la forme d'un graphe acyclique ayant une racine qui est l'instantané au premier niveau d'exécution : il s'agit toujours de la représentation initiale du binaire.
 
 \begin{figure}[h]
 \begin{center}
@@ -142,20 +154,19 @@ Cette difficulté n'est pas intrinsèque aux programmes \sm\ et provient du fait
 %   level 1/.style={sibling distance=30mm, level distance=15mm},
   thick
 ]
-\node (ROOT) {$S_1$}
+\node (ROOT) {$s_1$}
 % \node (S11){Site 1};
-child {node (S2) {$S_2$}
-child{node (S3) {$S_3$}
-child {node (S4) {$S_7$}
-  child {node (S5) {$S_5$}}
-  child {node (S6) {$S_6$}}
+child {node (S2) {$s_2$}
+child{node (S3) {$s_1$}
+child {node (S4) {$s_5$}
+  child {node (S6) {$s_6$}}
 }
 }
-child{node (S7) {$S_7$}
-child {node (S8) {$S_8$}
+child{node (S7) {$s_3$}
+child {node (S8) {$s_4$}
 }
 }
-child {node (S9) {$S_9$}}
+child {node (S9) {$s_4$}}
 };
 % \draw (S4) -> (S5);
 \path (ROOT) edge [->] (S2);
@@ -163,42 +174,84 @@ child {node (S9) {$S_9$}}
 \path (S2) edge [->] (S7);
 \path (S2) edge [->] (S9);
 \path (S3) edge [->] (S4);
-\path (S4) edge [->] (S5);
 \path (S4) edge [->] (S6);
 \path (S7) edge [->] (S8);
-\path (S8) edge [->] (S6);
-\node[draw=none, left=2.5cm of ROOT.west, anchor=east, text width=4cm, minimum size=4cm] (V1){Niveau d'exécution 1};
-\node[draw=none, below=15mm of V1.north, text width=4cm, minimum size=4cm] (V2){Niveau d'exécution 2};
-\node[draw=none, below=15mm of V2.north, text width=4cm, minimum size=4cm] (V3){Niveau d'exécution 3};
-\node[draw=none, below=15mm of V3.north, text width=4cm, minimum size=4cm] (V4){Niveau d'exécution 4};
-\node[draw=none, below=15mm of V4.north, text width=4cm, minimum size=4cm] (V5){Niveau d'exécution 5};
+\path (S7) edge [->] (S4);
+\node[draw=none, left=2.5cm of ROOT.west, anchor=east, text width=5cm, minimum size=5cm] (V1){Niveau d'exécution (X) 1};
+\node[draw=none, below=15mm of V1.north, text width=5cm, minimum size=5cm] (V2){Niveau d'exécution (X) 2};
+\node[draw=none, below=15mm of V2.north, text width=5cm, minimum size=5cm] (V3){Niveau d'exécution (X) 3};
+\node[draw=none, below=15mm of V3.north, text width=5cm, minimum size=5cm] (V4){Niveau d'exécution (X) 4};
+\node[draw=none, below=15mm of V4.north, text width=5cm, minimum size=5cm] (V5){Niveau d'exécution (X) 5};
 % \node[draw=none, left=4cm of ROOT.west, anchor=east, text width=1.1cm, minimum size=1.2cm] (V1){Vague 1};
 % \node[draw=none, left=4cm of ROOT.west, anchor=east, text width=1.1cm, minimum size=1.2cm] (V1){Vague 1};
 % \node[draw=none, left=4cm of ROOT.west, anchor=east, text width=1.1cm, minimum size=1.2cm] (V1){Vague 1};
 \end{tikzpicture}
 \end{center}
-\caption{Arbre représentant les différents instantanés, et leur niveau d'exécution, des traces d'exécution}
+\caption{Différents instantanés des traces d'exécution et leur niveau d'exécution}
 \label{fig:arbre_vagues}
 \end{figure}
 
-\FloatBarrier
-\subsection{Graphe de flot de contrôle paramétré par une exécution}
-Nous proposons une représentation du GFC basée sur une exécution particulière et son découpage en différents niveaux d'exécution.
-Nous donnons la définition d'une exécution (définition \ref{def:execution}), issue du résultat de l'analyse dynamique définie au chapitre précédent. L'exécution d'un programme sur une entrée I est caractérisée, via l'algorithme \ref{algo:analyse_dyn_vagues}, par le couple $(T, S)$ où $T$ est une trace et $S$ une liste d'instantanés d'exécution, un pour chaque niveau d'exécution.
+Nous considérons que mélanger dans le GFC les instructions atteignables à des niveaux d'exécution différents ne permet pas au GFC d'être une bonne représentation des exécutions possibles puisqu'on perd la notion d'enchaînement des vagues.
+Ainsi chaque sommet du graphe est caractérisé par le niveau d'exécution de l'instruction, l'instantané dans lequel elle a été analysée, l'adresse de l'instruction et enfin l'instruction.
+Cette représentation permet d'isoler chaque couple (niveau d'exécution, instantané) dans une sous partie du GFC qui sera le désassemblage parfait, \nsm, de l'instantané, c'est à dire la vague.
+Un exemple de cette représentation est donnée en figure \ref{fig:sm_cfg_parfait_sm} où le point d'entrée est coloré en orange : il est présent au niveau d'exécution 1 dans l'instantané $s_1$ tandis que les points de sortie sont colorés en bleu clair.
+
+\begin{figure}[h]
+\begin{center}
+  \includegraphics[width=1.0\textwidth]{supports/disas_sm/plus_que_parfait_cropped0.pdf}
+\end{center}
+\caption{GFC parfait pour un programme \sm}
+\label{fig:sm_cfg_parfait_sm}
+\end{figure}
+
+Nous donnons la définition d'une exécution (définition \ref{def:execution2}), issue du résultat de l'analyse dynamique définie au chapitre précédent. L'exécution d'un programme sur une entrée I est caractérisée, via l'algorithme \ref{algo:analyse_dyn_vagues}, par le couple $(T, S)$ où $T$ est une trace et $S$ une liste d'instantanés d'exécution, un pour chaque niveau d'exécution.
 
 \begin{defi}
  Soit un programme P prenant une entrée et ayant pour point d'entrée $ep$.
  $(T, S)$ est une exécution de P si et seulement si il existe une entrée I telle que (T, S)=\texttt{exécution(P, I, ep)}.
- 
+
  On note $E_X$ l'ensemble des exécutions de P : $E_X=\bigcup_I\{\texttt{exécution(P, I, ep)}\}$.
-\label{def:execution}
+\label{def:execution2}
 \end{defi}
 
-L'exécution choisie, dite de référence, consiste donc en une trace et un enchaînement d'instantanés de chaque niveau d'exécution.
-Chaque instantané est pris comme un programme ayant pour point d'entrée la première instruction de la trace ayant le niveau d'exécution correspondant et un point de sortie étant la dernière instruction ayant ce même niveau d'exécution.
+% Le GFC paramétré (définition \ref{def:cfg_param_sm}) représente chaque instruction contenue dans une trace dont l'exécution est compatible avec l'exécution de référence comme un sommet en prenant en compte son niveau d'exécution, son adresse et l'instruction assembleur. Deux sommets sont reliés par un arc si, dans une trace d'une exécution compatible, leurs deux instructions se suivent immédiatement.
 
-Nous appelons GFC paramétré par cette exécution l'union des GFC parfaits de chaque de ces instantanés dans lequel les sommets sont caractérisés par le niveau d'exécution de l'instantané, une adresse et une instruction assembleur.
-Formellement cette définition est possible si l'on se restreint à vouloir construire le GFC des seules exécutions dont les instantanés sont identiques à ceux de l'exécution de référence, on dit alors que ces exécutions sont compatibles (définition \ref{def:executions_compatibles}).
+Formellement le GFC parfait (définition \ref{def:cfg_parfait_sm2}) est est constitué de toutes les instructions présentes dans une trace, représentées par leur niveau d'exécution, leur instantané, leur adresse et l'instruction ; deux sommets sont liés si et seulement si ils se suivent dans une trace d'exécution.
+
+\begin{defi}
+ Étant donné un programme P \sm et $E_X$ l'ensemble des exécutions de P.
+ Nous appelons GFC parfait le graphe $G=(V, E)$ tel que :
+ \begin{itemize}
+  \item $V=\{(X,\ S[X],\ $\da{D}$,\ $\di{D}$), (T, S)\in E_X, (i, X, D)\in T\}$%\in E_C, \exists\ (i, X, D)\in T',\
+%$\da{D}$=a,\ $\di{D}$=I\}$
+  \item $((X_1, s_1, a_1, I_1), (X_2, s_2, a_2, I_2))\in E$ si et seulement si $(X_1, s_1, a_1,
+I_1)$ et $(X_2, s_2, a_2, I_2)$ se suivent dans une trace : $\exists (T, S)\in
+E_X,\ i\in \BN, (i, X_1, D_1)\ et\ (i+1, X_2, D_2)\in T$ avec \da{D_1}$=a_1,\ $\di{D_1}$=I_1,$~\da{D_2}$=a_2,\ $\di{D_2}$=I_2$, $s_1=S[X_1]$ et $s_2=S[X_2]$.
+ \end{itemize}
+\label{def:cfg_parfait_sm2}
+\end{defi}
+
+\FloatBarrier
+\subsection{Revue de littérature}
+Anckaert, Madou et Bosschere \cite{AMB06} proposent d'introduire la représentation sous forme d'octets de chaque instruction au sein du graphe de flot de contrôle et d'ajouter aux arcs les conditions sur les octets en mémoire. Sur l'exemple précédent, leur GFC, présenté en figure \ref{fig:sm_cfg_parfait_amb}, est identique au GFC naïf mais il est alors possible de différencier les chemins selon l'état de la mémoire et donc plus précis pour une analyse automatique.
+En fait le graphe qu'ils représentent est un automate, permettant de compléter la notion d'automate de flot de contrôle introduit comme extension au graphe de flot de contrôle \cite{HJMS02} pour des programmes \sms.
+
+\begin{figure}[h]
+\begin{center}
+  \includegraphics[width=0.8\textwidth]{supports/disas_sm/ex2_parfait_amb.pdf}
+\end{center}
+\caption{GFC naïf augmenté des octets et des conditions de transition}
+\label{fig:sm_cfg_parfait_amb}
+\end{figure}
+
+\section{Graphe de flot de contrôle paramétré par une exécution}
+Nous proposons une représentation du GFC basée sur une exécution particulière et son découpage en différents niveaux d'exécution.
+Cette représentation nous donne une approximation de graphe de flot parfait présenté en section \ref{sec:gfc_parfait}.
+L'exécution choisie, dite de référence, consiste en une trace et un enchaînement d'instantanés de chaque niveau d'exécution.
+% Chaque instantané est pris comme un programme ayant pour point d'entrée la première instruction de la trace ayant le niveau d'exécution correspondant et un point de sortie étant la dernière instruction ayant ce même niveau d'exécution.
+
+Nous appelons GFC paramétré par cette exécution le GFC parfait du même programme dont l'ensemble de exécutions serait réduit à cette seule exécution choisie.
+Cette définition nous permet en fait de construire le GFC des seules exécutions dont les instantanés sont identiques à ceux de l'exécution de référence, on dit alors que ces exécutions sont compatibles (définition \ref{def:executions_compatibles}).
 
 \begin{defi}
  Soit un programme P et $(T, S)$ et $(T', S')$ deux exécutions de P.
@@ -254,18 +307,6 @@ Un tel GFC pour le programme \sm\ précédent est donné en figure \ref{fig:sm_c
 
 L'idée consiste donc à obtenir une exécution particulière d'un programme puis à augmenter la couverture de code à l'aide d'une analyse statique sur chaque instantané de l'exécution. Nous discuterons de la pertinence de cette approche.
 
-\FloatBarrier
-\subsection{Revue de littérature}
-Anckaert, Madou et Bosschere \cite{AMB06} proposent d'introduire la représentation sous forme d'octets de chaque instruction au sein du graphe de flot de contrôle et d'ajouter aux arcs les conditions sur les octets en mémoire. Sur l'exemple précédent, leur GFC, présenté en figure \ref{fig:sm_cfg_parfait_amb}, est identique au GFC parfait mais il est alors possible de différencier les chemins selon l'état de la mémoire et donc plus précis pour une analyse automatique.
-En fait le graphe qu'ils représentent est un automate, permettant de compléter la notion d'automate de flot de contrôle introduit comme extension au graphe de flot de contrôle \cite{HJMS02} pour des programmes \sms.
-
-\begin{figure}[h]
-\begin{center}
-  \includegraphics[width=0.8\textwidth]{supports/disas_sm/ex2_parfait_amb.pdf}
-\end{center}
-\caption{GFC parfait augmenté des octets et des conditions de transition}
-\label{fig:sm_cfg_parfait_amb}
-\end{figure}
 
 \FloatBarrier
 \section{Approche hybride}
@@ -341,9 +382,61 @@ D'autre part la plupart des logiciels malveillants sont compilés sans comportem
 Dans ce cas il est fréquent \cite{Calvet2013} que la charge utile, c'est à dire le binaire d'origine, ne soit activé qu'à la dernière vague de l'exécution.
 Par conséquent c'est principalement le logiciel de protection qui peut empêcher l'exécution de référence d'être représentative en détectant que le programme est instrumenté, débogué ou émulé et en détournant l'exécution dans ce cas.
 
+Dans beaucoup de cas le programme de protection essaye de détecter qu'une analyse est en cours et oriente le programme vers un arrêt n'exécutant par la charge finale.
+La difficulté est donc d'obtenir une des deux exécutions activant la charge finale présente à l'instantané $s_6$, comme illustré sur la figure \ref{fig:arbre_vagues2} reprenant l'arbre des traces possibles présenté lors de la définition du désassemblage parfait (section \ref{sec:gfc_parfait}) : les deux points de sortie présents dans l'instantané $s_4$ ne sont activés que parce que la protection a détecté que le programme était analysé et celui-ci n'a donc pas activé la charge finale.
+
+
+\begin{figure}[h]
+\begin{center}
+\begin{tikzpicture}[->,
+%   tlabel/.style={pos=0.4,right=-1pt},
+%   every node/.style={color=black, circle, minimum size=10mm, draw=black, align=center},
+%   edge from parent/.style={->, draw=black},
+%   level 1/.style={sibling distance=30mm, level distance=15mm},
+  thick
+]
+\node [shape=rectangle, draw] (ROOT) {$s_1$}
+% \node (S11){Site 1};
+child {node [shape=rectangle, draw] (S2) {$s_2$}
+child{node [shape=rectangle, draw] (S3) {$s_1$}
+child {node [shape=rectangle, draw] (S4) {$s_5$}
+  child {node [shape=rectangle, draw] (S6) {$s_6$}}
+}
+}
+child{node (S7) {$s_3$}
+child {node (S8) {$s_4$}
+}
+}
+child {node (S9) {$s_4$}}
+};
+% \draw (S4) -> (S5);
+\path (ROOT) edge (S2);
+\path (S2) edge (S3);
+\path (S2) edge (S7);
+\path (S2) edge (S9);
+\path (S3) edge (S4);
+\path (S4) edge (S6);
+\path (S7) edge (S8);
+\path (S7) edge (S4);
+\node[draw=none, left=2.5cm of ROOT.west, anchor=east, text width=5cm, minimum size=5cm] (V1){Niveau d'exécution (X) 1};
+\node[draw=none, below=15mm of V1.north, text width=5cm, minimum size=5cm] (V2){Niveau d'exécution (X) 2};
+\node[draw=none, below=15mm of V2.north, text width=5cm, minimum size=5cm] (V3){Niveau d'exécution (X) 3};
+\node[draw=none, below=15mm of V3.north, text width=5cm, minimum size=5cm] (V4){Niveau d'exécution (X) 4};
+\node[draw=none, below=15mm of V4.north, text width=5cm, minimum size=5cm] (V5){Niveau d'exécution (X) 5};
+% \node[draw=none, left=4cm of ROOT.west, anchor=east, text width=1.1cm, minimum size=1.2cm] (V1){Vague 1};
+% \node[draw=none, left=4cm of ROOT.west, anchor=east, text width=1.1cm, minimum size=1.2cm] (V1){Vague 1};
+% \node[draw=none, left=4cm of ROOT.west, anchor=east, text width=1.1cm, minimum size=1.2cm] (V1){Vague 1};
+\end{tikzpicture}
+\end{center}
+\caption{Différents instantanés des traces d'exécution et trace privilégiée}
+\label{fig:arbre_vagues2}
+\end{figure}
+
+
 \itodo{citer des cas de détection}
 
 % \subsection{Obtention des traces et des vagues}
+\FloatBarrier
 \subsection{Analyse statique de chaque instantané}
 Pour l'analyse statique nous disposons de la trace et des instantanés munis de leurs points d'entrée et sortie respectifs.
 Nous cherchons, à partir de la trace et d'un instantané, à reconstruire la vague correspondante, c'est à dire le désassemblage parfait de l'instantané.

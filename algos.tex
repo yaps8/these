@@ -836,7 +836,7 @@ backtrack($C^0$, 1, $\emptyset$)\\
 
 
 
-\subsection{Complexité}
+\subsection{Complexité \label{sec:ullmann_complexite}}
 On peut étudier la complexité temporelle dans le pire des cas de l'algorithme d'Ullmann en gardant les notations prises précédemment.
 Le pire des cas se présente lorsque toutes les associations sont possibles \cite{MessPhd} ($C^0$ n'est composée que de 1), c'est à dire que les deux graphes sont entièrement connectés. La complexité de l'algorithme d'Ullmann avec vérification à priori est donnée à la proposition \ref{prop:complexite-ullmann}.
 Nous verrons par la suite qu'elle peut se réduire dans le cas des graphes de flot.
@@ -1768,28 +1768,6 @@ La complexité de la recherche d'un site dans l'arbre de décision est la même 
 \section{Comparaison des performances}
 \subsection{Complexité}
 
-% Nous rappelons que :
-% \begin{itemize}
-%  \item $n$ représente le nombre de programmes du corpus.
-%  \item $n_S$ représente le nombre de sites du corpus.
-%  \item $W$ est le nombre de sommets des sites de la base (typiquement entre 12 et 24).
-%  \item $n_T$ le nombre de sommets du graphe de flot du programme à tester (typiquement quelques milliers de sommets).
-%  \item P dépend de la répartition des différentes étiquettes sur les sommets (P est compris entre 0 et 1, nous l'avons évalué à 0.33).
-% \end{itemize}
-% 
-% \begin{center}
-% \begin{tabular}{|c|c|c|}
-%  \hline
-%  Algorithme & Ajout d'un site dans la base & Analyse\\
-%  \hline
-%  Recherche exhaustive & (pas de base) & $O(n.n_T^3.n_T!)$\\
-%  Ullmann & (pas de base) & $O(n.(n_T.P)^W)$ \\
-%  Tarjan avec arbre de décision & $O(W^2)$ & $O(n.n_T.W)$\\
-%  SIDT & $O(W^3)$ & $O(W^3)$\\
-%  \hline
-% \end{tabular} 
-% \end{center}
-
 On dispose donc de quatre algorithmes à comparer : celui par recherche exhaustive avec les matrices d'adjacence, l'algorithme d'Ullmann, pris pour référence, l'algorithme de Tarjan avec arbre de décision et l'algorithme incomplet par arbre de décision (SIDT).
 Nous calculons les complexités dans le pire des cas de l'ajout d'un graphe de flot dans la base et d'analyse d'un graphe de flot inconnu.
 On dispose donc d'une part d'un corpus de programmes dont les graphes de flot ont été déterminés.
@@ -1805,9 +1783,10 @@ D'autre part nous étudions deux opérations sur cette base.
 La première est l'ajout d'un graphe de flot, à $n$ sommets, à cette base de reconnaissance.
 La seconde est l'analyse d'un graphe de flot inconnu, comprenant $n$ sommets.
 Il y donc $S$ sites de taille $W$ dans la base.
-Nous rappelons que $P$ est une constante comprise entre 0 et 1, dépendant de la répartition des étiquettes, et évaluée à $0.33$.
+Nous rappelons que $p$ est une constante introduite à la section \ref{sec:ullmann_complexite} sur l'algorithme d'Ullmann, comprise entre 0 et 1, dépendant de la répartition des étiquettes, et évaluée à $0.33$.
+De même on a noté $k$ la valence maximale dans les graphes de flot de contrôle, c'est à dire le nombre maximum de fils qu'un sommet peut avoir, et $k=2$.
 
-La complexité pour déterminer tous les sites d'un graphe de flot à $n$ sommets est $O(n.(k+1).W)$ avec $k=2$.
+La complexité pour déterminer tous les sites d'un graphe de flot à $n$ sommets est $O(n.(k+1).W)$.
 Ainsi la complexité de l'ajout pour l'algorithme par parcours est $O(n.(k+1).W+n.W^2)$, soit $O(n)$.
 De même l'analyse d'un graphe de flot a pour complexité $O(n.(k+1).W+S.n.W)$, soit $O(S.n)$
 
@@ -1824,7 +1803,7 @@ Les deux premiers algorithmes ne rangent les pas sites dans une base spécifique
  Algorithme & Ajout d'un graphe de flot & Analyse d'un graphe de flot\\
  \hline
  Recherche exhaustive & $O(n.W)$ & $O(S.n^3.n!)$\\
- Ullmann & $O(n.W)$ & $O(S.(n.P)^W)$ \\
+ Ullmann & $O(n.W)$ & $O(S.(n.p)^W)$ \\
  Parcours & $O(n.W^3)$ & $O(S.n.W)$\\
  SIDT & $O(n.W^3)$ & $O(n.W^3)$\\
  \hline
@@ -1861,27 +1840,9 @@ Ce tableau nous indique que, bien que l'on ait grandement réduit la complexité
 
 Les deux autres algorithmes ont eux une complexité augmentant linéairement avec la taille du graphe à ajouter ou à analyser.
 
-\paragraph{Complexité à taille des graphes considérés constants.}
-Si l'on considère maintenant que la taille des graphes de flot ajoutés ou analysés est constante, on observe alors la complexité de ces deux opérations par rapport au nombre de sites dans la base, $S$, donnée en figure \ref{fig:complexite_3}.
-
-\begin{figure}[h]
-\begin{center}
-\begin{tabular}{|c|c|c|}
- \hline
- Algorithme & Ajout d'un graphe de flot & Analyse d'un graphe de flot\\
- \hline
- Recherche exhaustive & $O(1)$ & $O(S)$\\
- Ullmann & $O(1)$ & $O(S)$ \\
- Parcours & $O(1)$ & $O(S)$\\
- SIDT & $O(1)$ & $O(1)$\\
- \hline
-\end{tabular} 
-\end{center}
-\caption{Complexité à $W$, $P$ et $n$ fixés}
-\label{fig:complexite_3}
-\end{figure}
-
-Il apparaît que l'algorithme SIDT est le seul pour lequel le temps de l'analyse ne dépend pas du nombre de sites dans la base, ce qui le rend à même de mieux gérer un corpus de grande taille.
+\paragraph{Influence de la taille de la base.}
+Les trois premiers algorithmes ont, pour l'analyse de graphe de flot inconnu, une complexité linéaire en le nombre de site de la base, $S$.
+L'algorithme SIDT est le seul pour lequel le temps de l'analyse ne dépend pas du nombre de sites dans la base, ce qui le rend à même de mieux gérer un corpus de grande taille.
 
 % \begin{center}
 % \begin{tabular}{|c|c|c|}
