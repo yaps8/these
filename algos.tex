@@ -19,14 +19,17 @@
 
 % %opening
 % \title{}
-\itodo{Réorganiser le chapitre : 3 sections, + de sous-sections ?}
-\itodo{Notations G, P, T ?? + refaire la complexité en conséquence}
+\itodo{sg induit -> sg engendré ?}
+\itodo{Notations G, p, T ?? + refaire la complexité en conséquence}
 \itodo{justifier W=12..24 ?}
 
 Nous avons vu au chapitre précédent que l'analyse morphologique fonctionne par comparaison des graphes de flot de contrôles.
-Dans ce chapitre nous nous intéressons au problème de la détection d'isomorphismes de sous-graphes. Nous définissons ce qu'est un graphe de flot, notion plus spécifique à l'étude des graphes de flot de contrôles que la notion générale de graphe.
+Dans ce chapitre nous formalisons le fonctionnement du détecteur par analyse morphologique et nous nous intéressons au problème de la détection d'isomorphismes de sous-graphes. 
+Nous définissons ce qu'est un graphe de flot, notion plus spécifique que la notion générale de graphe, au sein duquel les fils d'un sommet sont ordonnés.
+Cette restriction rend le problème de la recherche d'isomorphisme de sous-graphes de flot résoluble \todo{typo?} en temps polynômial alors qu'il est NP complet \todo{typo?} dans le cas général.
 
-\section{Graphes de flot}
+\section{Analyse d'un détecteur par analyse morphologique}
+\subsection{Graphes de flot}
 Nous avons vu que les graphes de flot de contrôle sur lesquels nous travaillons sont étiquetés (définition \ref{def:graphe-oriente}) et, une fois réduits, les étiquettes possibles sont les suivantes : $INST$, $JMP$, $JCC$, $CALL$, $RET$, $HLT$ et $UNDEF$.
 Le nombre de fils d'un sommet est sa valence (définition \ref{def:valence}) ; à chaque étiquette est associée une valence maximale. Par exemple les instructions de saut conditionnel $JCC$ ont au maximum deux successeurs.
 
@@ -106,9 +109,7 @@ Un graphe de flot est un graphe orienté et étiqueté vérifiant :
 % Le point 1 force à expliciter les fils ; par exemple un \emph{JCC} a nécessairement deux successeurs, selon que la condition vérifiée est satisfaite ou non. Les sites incomplets sont une extension autorisant que certains fils ne soit pas connus (on peut les omettre dans la représentation ou ajouter un fils artificiel $\bot$).
 % Le point 2 est une restriction forte utilisée pour rendre la détection possible en un temps raisonnable.
 
-\section{Isomorphisme de graphes et de sous-graphes de flot}
-
-
+\subsection{Isomorphisme de graphes et de sous-graphes de flot}
 Deux graphes de flot sont isomorphes s'ils vérifient les
 propriétés de la définition \ref{def:iso-go}, c'est à dire s'il existe une permutation des sommets de l'un tel que le graphes modifié soit structurellement identique au second.
 
@@ -156,7 +157,7 @@ Par exemple sur la figure \ref{fig:ex-gf-sous-gf}, le graphe P est isomorphe au 
 \label{fig:ex-gf-sous-gf}
 \end{figure}
 
-\section{Sites}
+\subsection{Sites}
 L'analyse morphologique \cite{BKM08} ne cherche pas directement à savoir si un programme malveillant est un sous-graphe du programme analysé ou inversement. 
 Cette approche est vouée à l'échec puisqu'une modification mineure de l'un des deux conduirait à une non détection.
 Au contraire on va découper les graphes de flot du corpus en sous-graphes tout en gardant le graphe de test T intact.
@@ -265,10 +266,10 @@ L'algorithme \ref{algo:generation_sites_largeur} itère l'opération précédent
 % Un site incomplet est un site dans lequel certains n\oe uds n'ont pas le bon nombre de fils mais ces fils sont tout de même ordonnés.
 % \end{defi}
 
-\section{Fonctionnement d'un détecteur morphologique \label{sec:detecteur_morphologique}}
+\subsection{Fonctionnement d'un détecteur morphologique \label{sec:detecteur_morphologique}}
 Nous avons à présent tous les éléments nécessaires à une définition précise de la méthode de détection par analyse morphologique.
 
-\subsection{Constitution des signatures et du corpus}
+\subsubsection{Constitution des signatures et du corpus}
 Nous cherchons à construire un corpus contenant les signatures d'un programme malveillant.
 La signature d'un programme malveillant est un ensemble de sites extraits du graphe de flot de ce programme.
 Afin que les signatures soient extraites automatiquement nous cherchons donc à construire tous les sites de taille limitée, par parcours en largeur à partir de chaque sommet du graphe de flot.
@@ -331,7 +332,7 @@ Graphe de flot & Signature : ensemble de sites\\
 
 
 
-\subsection{Détection}
+\subsubsection{Détection}
 Supposons que l'on dispose du corpus comprenant la signature du programme précédent et du graphe de flot de test, provenant d'un programme à analyser.
 Le détecteur morphologique cherche à trouver tous les sites du corpus qui sont des sous-sites du graphe de flot de test et, selon les programmes dans lesquels ils étaient présents, à rapprocher le programme analysé de ceux du corpus.
 
@@ -347,7 +348,9 @@ De même les sites 3 et 4 sont des sous-sites du graphe de flot de test. Par con
 \caption{Graphe de flot d'un programme à analyser}
 \label{fig:am_exemple_gf_test}
 \end{figure}
-\section{Problème de la détection des sites isomorphes}
+
+
+\subsection{Problème de la détection des sites isomorphes}
 Le problème se pose alors de la manière suivante. On dispose d'une liste de sites et %provenant de multiples graphes de flot de contrôle différents.
 on veut déterminer, dans le graphe de flot de test T, les sites qui sont isomorphes à (au moins) un site présent dans la liste connue. 
 % Dans une optique de détection, il est aussi nécessaire d'associer chaque site de la base connue au programme dont il est issu.
@@ -376,8 +379,12 @@ C'est l'utilisation de fils ordonnés pour chaque sommet qui permet de classer c
 
 Nous introduirons dans les deux prochaines sections des approches générales au problème d'isomorphisme de graphes et de sous-graphes puis détaillerons par la suite deux techniques tirant partie des spécificités des graphes de flot et donnant donc une solution accessible en temps polynomial.
 
-\section{Représentation sous forme matricielle et recherche exhaustive}
-\begin{figure}[ht]
+\section{Approches générales à l'isomorphisme de sous-graphes}
+Nous présentons deux méthodes générales pour la résolution du problème d'isomorphisme de sous-graphes : l'approche matricielle par recherche exhaustive et l'algorithme d'Ullmann. Nous tenterons d'adapter ce second algorithme au problème des graphes de flot.
+
+Dans cette section on traite donc le cas général de l'isomorphisme de graphes et de sous-graphes orientés l'illustre la figure \ref{fig:ex-graphe-sg}. En particulier ces graphes ne sont, sauf mention du contraire, pas étiquetés et les fils des sommets ne sont pas ordonnés.
+
+\begin{figure}[h]
 \begin{center}
   \subfigure[Graphe T]{
 \label{fig:ex-graphe}
@@ -396,8 +403,7 @@ Nous introduirons dans les deux prochaines sections des approches générales au
 \label{fig:ex-graphe-sg}
 \end{figure}
 
-Dans cette section et la suivante, on traite le cas général de l'isomorphisme de graphes et de sous-graphes orientés comme dans l'exemple de la figure \ref{fig:ex-graphe-sg}. En particulier ces graphes ne sont, sauf mention du contraire, pas étiquetés et les fils des sommets ne sont pas ordonnés.
-Nous redonnons les définitions précédentes de graphes orientés, de sous-graphe et sous-graphe induit ainsi que d'isomorphisme de graphes, dans le cas habituel des graphes orientés quelconques, aux définitions \ref{def:graphe}, \ref{def:sousgraphe}, \ref{def:sousgraphe-induit} et \ref{def:isog}, respectivement.
+Nous donnons les définitions précédentes de graphes orientés, de sous-graphe et sous-graphe induit ainsi que d'isomorphisme de graphes, dans le cas habituel des graphes orientés quelconques, aux définitions \ref{def:graphe}, \ref{def:sousgraphe}, \ref{def:sousgraphe-induit} et \ref{def:isog}, respectivement.
 
 \begin{defi}\label{def:graphe}
 Un graphe orienté $T=(V, E)$ est composé par les ensembles finis V et E.
@@ -416,6 +422,7 @@ Le sous-graphe induit d'un graphe orienté et étiqueté $T=(V_T, E_T)$ à parti
 Soit $T=(V_T, E_T)$ et $P=(V_P, E_P)$ deux graphes orientés. Ils sont dits isomorphes s'il existe une bijection $f:V_T\rightarrow V_P$ entre les sommets de T et ceux de P et si f préserve la structure d'adjacence des graphes, c'est à dire si : $\forall u, v \in V_T, (u, v) \in E_T \Leftrightarrow (f(u), f(v)) \in E_P$.
 \end{defi}
 
+\subsection{Représentation sous forme matricielle et recherche exhaustive}
 On peut représenter les graphes sous forme de matrices. On définit la matrice d'adjacence M d'un graphe T suivant les arcs qu'il contient si ses sommets sont ordonnés dans $V=\{v_1, v_2, ..., v_n\}$. Ensuite s'il y a un arc du sommet $v_i$ vers le sommet
 $v_j~\mbox{alors}~M_{i, j}=~1,~\mbox{sinon}~M_{i,~j}=~0$ (définition \ref{def-adjmatrice}).
 Pour un graphe donné dont les sommets ne sont pas ordonnés, on peut choisir arbitrairement un ordre à ses sommets et dans ce cas il y a autant de matrices d'adjacence possibles pour ce graphe qu'il y a de permutations de ses sommets. 
@@ -545,7 +552,7 @@ $\left( \begin{array}{ccccc}
 L'approche par force brute demande de parcourir toutes les matrice de permutations de taille $n_T$ : il y en a $n_P!$. Pour chaque matrice de permutation, une matrice transposée est déterminée et plusieurs multiplications matricielles sont faites sur des matrices de taille $n_T.n_T$, opération réalisable au pire en $n_T^3$. La complexité de cette approche dans le pire des cas est donc $O(n_T^3.n_T!)$.
 
 
-\section{Algorithme d'Ullmann}
+\subsection{Algorithme d'Ullmann}
 \idone{il s'appelle Ullmann}
 L'algorithme d'Ullmann est le plus connu pour résoudre le problème \ref{pbisosg} d'isomorphisme de sous-graphes \cite{Ull76} dans le cas général des graphes orientés. Il s'applique à un graphe de motif P à détecter et à un graphe T dans lequel faire la reconnaissance. Comme détaillé par la suite, sa complexité est exponentielle en le nombre de sommets maximal du graphe de motif P.
 
@@ -559,7 +566,7 @@ Nous présenterons d'abord l'algorithme d'Ullmann dans le cas de graphes orient�
 L'algorithme d'Ullmann repose sur le concept de retour sur traces (ou \emph{backtracking}) pour trouver successivement tous les sous-graphes isomorphes au graphe de motif. 
 Cette approche a ensuite été largement améliorée par Ullmann à l'aide de l'utilisation d'une technique de vérification à priori permettant d'éliminer de nombreux candidats sans avoir à les tester entièrement.
 
-\subsection{Backtracking simple}
+\subsubsection{Backtracking simple}
 Soit $T=(V_T, E_T)$ un graphe et $P=(V_P, E_P)$ un graphe dont on cherche à connaître les sous-graphes de T avec lesquels il est isomorphe.
 On note $n_T=Card(V_T)$ et $n_P=Card(V_P)$ les nombres de sommets de chaque graphe.
 L'idée consiste à partir d'un sommet de P, à l'associer à un sommet de T, de vérifier si l'association créée est bien un
@@ -690,7 +697,7 @@ backtrack($C^0$, 1, $\emptyset$)\\
 % \end{figure}
 
 % \FloatBarrier
-\subsection{Raffinement et vérification à priori}
+\subsubsection{Raffinement et vérification à priori}
 L'algorithme détaillé précédemment est une application directe du backtracking au problème d'isomorphisme de sous-graphes, et Ullmann propose un deuxième algorithme basé sur une vérification à priori, ou \emph{Forward Checking}. L'idée est, à chaque ajout d'une correspondance dans la transformation,
 de vérifier qu'il existe une correspondance supplémentaire possible. L'intérêt est d'éliminer des branches impossibles en les vérifiant à l'avance. La vérification est donc faite par la fonction \emph{forwardChecking} (algorithme \ref{algo:ullman-forwardch}) avant l'appel récursif à la nouvelle procédure \emph{backtrack} (algorithme \ref{algo:ullman-backforw}). 
 Cette vérification tient de la définition d'un isomorphisme en tant que graphe.
@@ -836,7 +843,7 @@ backtrack($C^0$, 1, $\emptyset$)\\
 
 
 
-\subsection{Complexité \label{sec:ullmann_complexite}}
+\subsubsection{Complexité \label{sec:ullmann_complexite}}
 On peut étudier la complexité temporelle dans le pire des cas de l'algorithme d'Ullmann en gardant les notations prises précédemment.
 Le pire des cas se présente lorsque toutes les associations sont possibles \cite{MessPhd} ($C^0$ n'est composée que de 1), c'est à dire que les deux graphes sont entièrement connectés. La complexité de l'algorithme d'Ullmann avec vérification à priori est donnée à la proposition \ref{prop:complexite-ullmann}.
 Nous verrons par la suite qu'elle peut se réduire dans le cas des graphes de flot.
@@ -943,7 +950,7 @@ Ainsi $C=O(n_T^{n_P+1})$.
 % , et polynomiale en fonction de la taille du graphe à tester. 
 
 
-\subsection{Optimisation dans le cas des graphes de flot\label{sec:ullmann_optimisation}}
+\subsubsection{Optimisation dans le cas des graphes de flot\label{sec:ullmann_optimisation}}
 \paragraph{Les sommets sont étiquetés.}
 Pour que deux sommets correspondent dans un isomorphisme entre deux graphes de flot, on rend nécessaire qu'ils aient la même étiquette.
 À partir d'un échantillon de 43 logiciels malveillants pris comme référence, on tente de voir le gain qu'une telle approche apporte dans le pire des cas avec l'algorithme d'Ullmann.
@@ -960,27 +967,27 @@ Voici la répartition de ces 48218 instructions, les valeurs numériques ont ét
 \end{itemize}
 
 Formellement, on suppose que l'on a $n$ différents types d'instructions (ici 5) dont les probabilités d'apparition sont $l_i$ avec $1\le i\le n$.
-Ce qui est modifié, c'est la matrice $C^0$ initiale, qui au lieu de n'être composée que de 1, vaut 0 si $L_i\ne L_j$ où $L_i$ est le label de i et $L_j$ celui de j. Si on note H la probabilité pour deux sommets pris au hasard d'avoir
+Ce qui est modifié, c'est la matrice $C^0$ initiale, qui au lieu de n'être composée que de 1, vaut 0 si $L_i\ne L_j$ où $L_i$ est le label de i et $L_j$ celui de j. Si on note h la probabilité pour deux sommets pris au hasard d'avoir
 le même label, à chaque fois que l'on veut faire correspondre un élément du graphe de motif au graphe à tester, il y a le nombre
-normal de possibilités divisé par H, dans l'hypothèse où $n_T$ est grand devant $n_P$ et donc à chaque étape la probabilité H reste
-constante. Ainsi dans le calcul de la complexité, il suffit de multiplier $n_T$ par H pour obtenir la complexité modifiée.
+normal de possibilités divisé par h, dans l'hypothèse où $n_T$ est grand devant $n_P$ et donc à chaque étape la probabilité h reste
+constante. Ainsi dans le calcul de la complexité, il suffit de multiplier $n_T$ par h pour obtenir la complexité modifiée.
 \\
 
 Supposons que les graphes P et T ont pour chaque label les même probabilités d'apparition et $n_T >> n_P.$
-On a alors. $$H=P(m^0_{i, j}=1)=P(L_i=L_j)=P(\cup_k(L_i=k \cap L_j=k)),$$
-$$H=\sum_kP(L_i=k\ \cap\ L_j=k) \mbox{ car les labels sont tous différents (événements disjoints),}$$
-$$H=\sum_kP(L_i=k).P(L_j=k) \mbox{ car ces événements sont indépendants,}$$
-$$H=\sum_kl_k^2.$$
+On a alors. $$h=P(m^0_{i, j}=1)=P(L_i=L_j)=P(\cup_k(L_i=k \cap L_j=k)),$$
+$$h=\sum_kP(L_i=k\ \cap\ L_j=k) \mbox{ car les labels sont tous différents (événements disjoints),}$$
+$$h=\sum_kP(L_i=k).P(L_j=k) \mbox{ car ces événements sont indépendants,}$$
+$$h=\sum_kl_k^2.$$
 
 Dans le cas que l'on traite les sous-sites P sont de petite taille (inférieure à 24 sommets) tandis que les graphes de flot T peuvent avoir plusieurs milliers de sommets.
 Comme $n_T >> n_P$, chaque choix de correspondance ne modifie pas la probabilité H que $C^0_{i, j}=1$ parmi les sommets restant
 malgré le fait que certaines correspondances
 aient déjà été choisies (leur nombre est très faible par rapport au nombre total de correspondances possibles).
 
-Dans notre exemple H=0.335, soit 33\%. Prendre en compte les types d'instructions est équivalent à diviser par 3 la taille du graphe à tester
+Dans notre exemple h=0.335, soit 34\%. Prendre en compte les types d'instructions est équivalent à diviser par 3 la taille du graphe à tester
 en terme de complexité temporelle dans le pire des cas.
 \\
-Ainsi, dans notre cas la complexité est $O((n_T/3)^{n_P+1})$ alors qu'elle serait, dans le cas général, de $O((n_T.H)^{n_P+1})$ avec $H=\sum_kl_k^2$.
+Ainsi, dans notre cas la complexité est $O((n_T/3)^{n_P+1})$ alors qu'elle serait, dans le cas général, de $O((n_T.h)^{n_P+1})$ avec $h=\sum_kl_k^2$.
 
 \paragraph{L'arité des étiquettes est bornée.}
 On sait qu'il existe une borne $k$ au nombre de fils de tous les sommets de nos graphes, avec $k=2$ : les instructions ayant le maximum de fils sont les sauts conditionnels et les appels de fonction.
@@ -1058,9 +1065,9 @@ Cette modification diminue grandement la complexité mais nous ne l'avons pas qu
 Une modification de l'algorithme d'Ullmann précédent permettant de l'optimiser a été utilisée. Dans la fonction \emph{forwardChecking}, il n'est pas utile de vérifier tous les éléments de F à chaque appel, mais seulement les derniers élements ajoutés (qui correspondent exactement à la dernière association ajoutée). Cette modification ne change pas le comportement ni les résultats de l'algorithme puisque les éléments précédents dans F ont déjà été vérifiés précédemment.
 
 \paragraph{Conclusion sur la complexité.} 
-Pour le cas d'un graphe de flot, la complexité a été ramenée à $O((n_T.P)^{n_P})$ avec $P=\sum_kl_k^2$ où les $l_i$ sont les probabilités d'apparition de chacun des labels.
+Pour le cas d'un graphe de flot, la complexité a été ramenée à $O((n_T.h)^{n_P})$ avec $h=\sum_kl_k^2\simeq 0.34$ où les $l_i$ sont les probabilités d'apparition de chacun des labels.
 
-\section{Revue de littérature}
+\subsection{Revue de littérature}
 \paragraph{Optimisation de l'algorithme d'Ullmann.}
 Foggia, Vento, Sansone et Cordella \cite{VF99} proposent des améliorations à l'algorithme d'Ullmann, appelé algorithme VF.
 Ils ajoutent des règles de vérification à priori permettant d'éliminer à nouveau de nombreuses vérifications lors de l'appel de la fonction de retour sur traces.
@@ -1078,7 +1085,8 @@ Ils montrent, en appliquant quelques optimisations, que l'on peut générer et s
 Le cas des graphes de flot est assez différent puisque l'on va chercher à comparer des petits graphes de motif (moins de 24 sommets) et dans graphes de test de grande taille (plusieurs milliers ou dizaines de milliers de sommets).
 L'algorithme d'Ullmann ainsi que les deux approches expliquées dans cette section ne sont pas adaptés pour ce problème. Nous avons alors cherché des approches prenant en comptes les spécificités des graphes de flot.
 
-\section{Approche inspirée de l'algorithme de Tarjan}
+\section{Approches spécifiques aux graphes de flot}
+\subsection{Approche inspirée de l'algorithme de Tarjan}
 Tarjan \cite{Tar71} propose un parcours en profondeur d'un graphe qui permet d'en simplifier la structure en construisant un arbre le recouvrant. 
 On peut adapter cette approche pour tester l'isomorphisme de sous-sites. 
 Tout d'abord on peut formaliser le parcours d'un graphe $T$ de taille $n$ à partir d'un sommet $s$ comme suit.
@@ -1519,7 +1527,7 @@ child {node {}
 \paragraph{Complexité.}
 L'ajout d'un site à la base consiste à ajouter un codage de parcours dans l'arbre de décision, cette opération nécessite un nombre de comparaison en $W\times i$ où $i$ est le nombre de fils maximum de chaque sommet de l'arbre. Vu que les étiquettes des arcs de l'arbre sont de la forme $[\xrightarrow{\alpha}]i[:L]$, en notant $K$ le nombre de fils maximum de chaque sommet dans un site et $n_L$ le nombre d'étiquettes différentes pour les sommets des sites, $i\leq (K+2)\times W\times n_L$ soit $n=O(W)$ donc l'ajout d'un site à la base se fait en $O(W^2)$.
 
-\subsubsection{Recherche d'un isomorphisme de sous-sites à partir de l'arbre de décision}
+\subsubsection{Recherche d'un isomorphisme de sous-sites à partir de l'arbre de décision.}
 Une fois l'arbre généré à partir de tous les codages des sites de $L_S$, on veut l'utiliser pour trouver tous les parcours de $L_S$ possibles dans le graphe de flot T. Pour compter le nombre de parcours de l'arbre que l'on peut réaliser à partir du sommet $r$ de $T$, on peut chercher à parcourir $T$ à partir de $r$ en parcourant les branches possibles dans l'arbre de décision. À chaque fois que l'on peut parcourir une branche jusqu'en bas c'est qu'un site isomorphe a été trouvé. L'algorithme \ref{algo:rechercheArbreTarjan} compte le nombre de ces branches possibles.
 
 On peut utiliser cet algorithme pour retrouver tous les sous-sites isomorphes en utilisant l'algorithme précédent à partir de chaque sommet de $T$.
@@ -1587,7 +1595,8 @@ On peut utiliser cet algorithme pour retrouver tous les sous-sites isomorphes en
 \paragraph{Complexité.}
 Dans le pire des cas il y a $n$ branches à l'arbre A qui partent de la racine où $n$ est le nombre de sites dans la base. Le parcours d'une branche avec au maximum un fils à chaque sommet, à partir de la racine se fait en $O(W)$ au vu de la récursion de l'algorithme \ref{algo:rechercheArbreTarjan}. Pour chercher les isomorphismes de sous-sites de $T$ il faut répéter l'opération pour chacun de ses sommets : la complexité totale dans le pire des cas pour résoudre le problème \ref{pbisosgbase} d'isomorphisme de sous-sites entre un graphe de flot et une base de sites est de $O(n.n_T.W)$. Ainsi on n'a pas amélioré la complexité dans le pire des cas par rapport à l'utilisation directe du parcours de Tarjan vu dans la section précédente, bien qu'en pratique l'algorithme soit plus rapide comme nous le verrons par la suite.
 
-\section{SIDT : Site Isomorphism Decision Tree}
+\FloatBarrier
+\subsection{SIDT : Site Isomorphism Decision Tree}
 Le problème \ref{pbisosg} consiste à détecter un site P dans un graphe de flot T. En pratique le site P aura été généré à partir d'un graphe de flot G. Si P est un sous-site de T, puisque l'on a généré le site à partir d'un parcours dans un autre graphe de flot, on peut envisager que le même parcours appliqué à T est susceptible de générer le site P. Ce n'est pas vrai dans le cas général et en ce sens l'algorithme présenté ici n'est pas complet.
 Inversement il est clair que si le même parcours appliqué à partir de sommets de T et G génèrent le même site P, alors P est bien un sous-site de T.
 
@@ -1642,7 +1651,7 @@ Graphe de flot de test T & Ensemble de sites générés à partir de T\\
 
 Pour régler le problème \ref{pbisosgbase} de détection d'un site dans une base de graphes de flot, on va créer un arbre de décision contenant tous les sites générés à partir du parcours en largeur des graphes de flot de la base.
 
-\subsection{Arbre de décision pour la détection de sites}
+\subsubsection{Arbre de décision pour la détection de sites}
 Chaque site est généré par un parcours numérotant ses sommets, et chaque sommet a un nombre de fils bornés. On représente alors les sites sous forme matricielle : chaque ligne représente un sommet, le premier élément de la colonne est l'étiquette du sommet et les éléments suivants sont les numéros des fils de ce sommet (0 indique qu'il n'y a pas de sommet). La représentation des sites de la figure \ref{fig:troisProf} est donnée figure \ref{fig:troisProfMatRed}.
 
 \begin{figure}[h]
@@ -1758,7 +1767,7 @@ child {node {}
 \paragraph{Complexité.}
 L'apprentissage d'un site nécessite le parcours d'au plus W éléments de l'arbre de décision. Chaque sommet de l'arbre de décision a au plus $n_L.W.W$ fils où $n_L$ est le nombre d'étiquettes possibles. L'apprentissage d'un site se fait donc en $O(W^3)$ où W est le nombre de sommets des sites à apprendre.
 
-\subsection{Recherche d'un isomorphismes de sous-sites}
+\subsubsection{Recherche d'un isomorphismes de sous-sites}
 Rechercher un isomorphisme de sous-sites à partir de l'arbre de décision ainsi créé revient à écrire le site sous forme matricielle et à faire une recherche dans l'arbre de décision.
 
 \paragraph{Complexité.}
@@ -1778,13 +1787,13 @@ Nous notons :
  \item $S$ le nombre de sites du corpus.
  \item $n$ le nombre de sommets du graphe de flot que l'on cherche à ajouter ou analyser.
  \item $W$ le nombre de sommets des sites de la base (constante fixée typiquement entre 12 et 24).
+ \item $h$ la constante introduite à la section \ref{sec:ullmann_complexite} sur l'algorithme d'Ullmann, comprise entre 0 et 1, dépendant de la répartition des étiquettes, et évaluée à $0.34$.
+ \item $k$ la valence maximale dans les graphes de flot de contrôle, c'est à dire le nombre maximum de fils qu'un sommet peut avoir ; $k=2$.
 \end{itemize}
 D'autre part nous étudions deux opérations sur cette base.
 La première est l'ajout d'un graphe de flot, à $n$ sommets, à cette base de reconnaissance.
 La seconde est l'analyse d'un graphe de flot inconnu, comprenant $n$ sommets.
 Il y donc $S$ sites de taille $W$ dans la base.
-Nous rappelons que $p$ est une constante introduite à la section \ref{sec:ullmann_complexite} sur l'algorithme d'Ullmann, comprise entre 0 et 1, dépendant de la répartition des étiquettes, et évaluée à $0.33$.
-De même on a noté $k$ la valence maximale dans les graphes de flot de contrôle, c'est à dire le nombre maximum de fils qu'un sommet peut avoir, et $k=2$.
 
 La complexité pour déterminer tous les sites d'un graphe de flot à $n$ sommets est $O(n.(k+1).W)$.
 Ainsi la complexité de l'ajout pour l'algorithme par parcours est $O(n.(k+1).W+n.W^2)$, soit $O(n)$.
@@ -1803,7 +1812,7 @@ Les deux premiers algorithmes ne rangent les pas sites dans une base spécifique
  Algorithme & Ajout d'un graphe de flot & Analyse d'un graphe de flot\\
  \hline
  Recherche exhaustive & $O(n.W)$ & $O(S.n^3.n!)$\\
- Ullmann & $O(n.W)$ & $O(S.(n.p)^W)$ \\
+ Ullmann & $O(n.W)$ & $O(S.(n.h)^W)$ \\
  Parcours & $O(n.W^3)$ & $O(S.n.W)$\\
  SIDT & $O(n.W^3)$ & $O(n.W^3)$\\
  \hline
@@ -1813,7 +1822,7 @@ Les deux premiers algorithmes ne rangent les pas sites dans une base spécifique
 \label{fig:complexite_1}
 \end{figure}
 
-Par la suite nous exploiterons le fait que $W$ et $P$ sont des constantes.
+Par la suite nous exploiterons le fait que $W$ et $h$ sont des constantes.
 
 \paragraph{Complexité à nombre de sites dans la base constant.}
 Nous fixons le nombre de site dans le base, $S$.
