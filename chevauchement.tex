@@ -67,12 +67,13 @@ De même ni Radare ni IDA ne détectent le second chemin d'exécution dans l'ext
 \end{lstlisting}
 
 \paragraph{Approches prenant en compte le chevauchement.}
-Les auteurs de la technique de chevauchement détaillée au chapitre \ref{chap:obscurcissement}, permettant d'encoder une séquence de code cachée dans une séquence \cite{JLH13}, proposent de détecter la protection qu'ils exposent. 
+Les auteurs de la technique de chevauchement détaillée au chapitre \ref{chap:obscurcissement}, permettant d'encoder une séquence de code cachée dans une séquence \cite{JLH13}, proposent de détecter \more{exemple?} la protection qu'ils exposent. 
 L'idée est qu'il est improbable qu'une longue séquence d'octets représente une séquence valide de code. 
 Si une telle séquence existe, c'est sûrement du code. Ainsi si deux longues séquences valides de code se chevauchent, il s'agit d'un obscurcissement délibéré et une des deux séquences contient du code caché. 
 Cette approche fonctionne pour la protection qu'ils exposent mais n'est pas applicable aux cas d'UPX par exemple car les séquences d'octets sur lesquels des instructions se chevauchent sont très courtes et il est plausible que le chevauchement soit accidentel et que le code en chevauchement ne soit pas atteignable.
 
 Dans sa thèse, Kinder \cite{Kinder10} indique que si la technique de désassemblage autorise que différentes instructions dans le graphe de flot de contrôle se chevauchent et réalise des désassemblages atomiques d'une seule instruction à la fois à partir de chaque adresse, alors on peut voir deux instructions qui se chevauchent comme indépendantes.
+Dans ce cas il n'y a pas besoin d'hypothèses spécifiques pour les instructions se chevauchant qui, de fait, coexistent dans le graphe de flot de contrôle.
 
 Effectivement les travaux présentés dans cet état de l'art ainsi que les désassembleurs existants prennent pour hypothèse que le code ne doit pas se chevaucher alors que nous avons représenté les chevauchements de \telock\ et UPX très simplement. 
 L'hypothèse d'alignement permet en général de simplifier les critères de désassemblage et est justifiée par la non occurrence de ce phénomène dans des programmes légitimes.
@@ -125,12 +126,13 @@ Octets & eb & ff & c9 & 7f & e6\\
 
 \subsection{Définitions\label{sec:chevauchement_analyse_definitions}}
 
-Formellement on définit une \layer\ comme un ensemble d'instructions qui ne se chevauchent pas (définition \ref{def:layer}).
+Pour une instruction $I$ on note l'intervalle d'adresses mémoire sur lesquelles elle est codée \dc{I}.
+Formellement on définit une \layer\ comme un ensemble d'instructions qui ne se chevauchent pas (définition \ref{def:layer})
 Par conséquent lors du désassemblage on cherche à effectuer un découpage cohérent des instructions inclues dans le graphe de flot de contrôle en différentes \layers\ (définition \ref{def:decoupage}).
 L'exemple précédent pour \telock\ est un découpage cohérent.
 
 \begin{defi}
- Une \layer\ de code $L$ est un ensemble d'instructions dynamiques qui ne se chevauchent pas : $\forall D_1, D_2\in L,\ $\dc{D_1}$\cap$\dc{D_2}$=\emptyset$.
+ Une \layer\ de code $L$ est un ensemble d'instructions dynamiques qui ne se chevauchent pas : $\forall D_1, D_2\in L,\ $\dc{I_1}$\cap$\dc{I_2}$=\emptyset$.
 \label{def:layer}
 \end{defi}
 
@@ -171,12 +173,12 @@ L'extension consiste à simplement à réaliser un découpage cohérent pour cha
 
 \paragraph{\Layers\ linéaires et désassemblage.}
 % Les \layers\ linéaires sont en fait une extension du désassemblage linéaire. Un programme non obscurcis peut être désassemblé avec un minimum d'erreurs par un parcours linéaire représenté.
-Le découpage en \layers\ linéaires n'est pas en soi un algorithme de désassemblage : il s'agit d'une analyse exhaustive de toutes les instructions codées dans le segment analysé, elle est donc par définition incorrecte.
+Le découpage en \layers\ linéaires n'est pas en soi un algorithme de désassemblage : il s'agit d'une analyse exhaustive de toutes les instructions codées dans le segment analysé et ne cherche pas à discriminer les instructions atteignables des autres.
 On peut voir ce découpage comme une caractéristique du binaire qui contient l'ensemble des instructions potentiellement exécutées (hors auto-modification) et qui dépend de leur agencement en mémoire.
 La première \layer\ correspond à un désassemblage linéaire depuis la première adresse du segment analysé, les \layers\ suivantes ne sont pas présents dans le désassemblage linéaire et ne sont utiles à un désassemblage qu'en cas de chevauchement réel de plusieurs instructions.
 
 \paragraph{Caractérisations des binaires obscurcis.}
-Considérons un programme désassemblé en son graphe de flot de contrôle parfait.
+Considérons le graphe de flot de contrôle parfait d'un programme.
 Si chaque instruction du graphe de flot de contrôle, présente dans le segment $s$, fait partie de la première \layer\ du découpage linéaire de $s$, il est clair qu'il n'y a pas de chevauchement de code possible.
 En pratique c'est le cas la plupart du temps avec des binaires non obscurcis\todo{vrai?}.
 L'inverse n'est par contre pas vrai puisque deux instructions peuvent ne pas être alignées à cause d'un ajout de code mort (voir chapitre \ref{chap:obscurcissement}) sans qu'il n'y ait de chevauchement de code dans le graphe de flot.

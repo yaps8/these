@@ -21,6 +21,7 @@
 % \title{}
 \itodo{sg induit -> sg engendré ?}
 \itodo{Notations G, p, T ?? + refaire la complexité en conséquence}
+\itodo{Les complexité en proposition, pas en paragraph}
 \itodo{justifier W=12..24 ?}
 
 Nous avons vu au chapitre précédent que l'analyse morphologique fonctionne par comparaison des graphes de flot de contrôles.
@@ -1404,7 +1405,7 @@ On en déduit que les sommets ajoutés sont toujours deux sommets correspondants
 
 L'intérêt de cet équivalence est qu'elle donne un algorithme simple et bien plus efficace que celui d'Ullmann pour résoudre le problème \ref{pbisosg} d'isomorphisme de sous-site entre un site de motif et un graphe de flot de test.
 
-\subsection{Application directe}
+\subsubsection{Application directe}
 \paragraph{Résolution des problèmes d'isomorphisme.}
 L'équivalence entre isomorphisme et parcours permet de résoudre le problème \ref{pbisog} de la manière suivante :
 Deux sites sont isomorphes si et seulement si leurs codages de parcours en profondeur\footnote{On peut substituer le parcours en profondeur par un parcours en largeur ou n'importe quel codage de parcours bien formé} sont identiques.
@@ -1422,8 +1423,8 @@ La résolution du problème de l'isomorphisme de sous-site avec cet algorithme s
  \item Si on a une base de $n$ sites $L_S$ de taille $W$, la complexité dans le pire des cas pour déterminer un site de la base est isomorphe à un sous-site de T est $O(n.n_T.W)$.
 \end{itemize}
 
-\subsection{Codages rangés dans un arbre de décision}
-\subsubsection{Création d'un arbre de décision des codages}
+\subsubsection{Codages rangés dans un arbre de décision}
+\paragraph{Création d'un arbre de décision des codages.}
 On peut générer les codages de parcours en profondeur de chaque site de la base puis les ranger dans un arbre de décision. Par exemple trois sites donnés en figure \ref{fig:troisProf}, dont les parcours en profondeur sont (dans l'ordre):
 \begin{itemize}
  \item $1: JCC\xrightarrow{1} 2: CALL \xrightarrow{1} 3: INST \xrightarrow{1} 4: RET \xrightarrow{R} 2 \xrightarrow{2} 5: RET \xrightarrow{R} 1 \xrightarrow{2} 6: JCC \xrightarrow{2} 7:INST \xrightarrow{1} 2$
@@ -1524,10 +1525,16 @@ child {node {}
 \label{fig:arbreDecTarjan}
 \end{figure}
 
-\paragraph{Complexité.}
-L'ajout d'un site à la base consiste à ajouter un codage de parcours dans l'arbre de décision, cette opération nécessite un nombre de comparaison en $W\times i$ où $i$ est le nombre de fils maximum de chaque sommet de l'arbre. Vu que les étiquettes des arcs de l'arbre sont de la forme $[\xrightarrow{\alpha}]i[:L]$, en notant $K$ le nombre de fils maximum de chaque sommet dans un site et $n_L$ le nombre d'étiquettes différentes pour les sommets des sites, $i\leq (K+2)\times W\times n_L$ soit $n=O(W)$ donc l'ajout d'un site à la base se fait en $O(W^2)$.
+% \paragraph{Complexité.}
+L'ajout d'un site à la base consiste à ajouter un codage de parcours dans l'arbre de décision, cette opération nécessite un nombre de comparaison en $W\times i$ où $i$ est le nombre de fils maximum de chaque sommet de l'arbre. Vu que les étiquettes des arcs de l'arbre sont de la forme $[\xrightarrow{\alpha}]i[:L]$, en notant $K$ le nombre de fils maximum de chaque sommet dans un site et $n_L$ le nombre d'étiquettes différentes pour les sommets des sites, $i\leq (K+2)\times W\times n_L$ soit $n=O(W)$ donc l'ajout d'un site à la base se fait en $O(W^2)$ (proposition \ref{prop:complexite_tarjan_ajout}).
 
-\subsubsection{Recherche d'un isomorphisme de sous-sites à partir de l'arbre de décision.}
+\begin{prop}
+ La complexité de l'ajout d'un d'un site de taille $W$ à la base se fait en $O(W^2)$.
+\label{prop:complexite_tarjan_ajout}
+\end{prop}
+
+
+\paragraph{Recherche d'un isomorphisme de sous-sites à partir de l'arbre de décision.}
 Une fois l'arbre généré à partir de tous les codages des sites de $L_S$, on veut l'utiliser pour trouver tous les parcours de $L_S$ possibles dans le graphe de flot T. Pour compter le nombre de parcours de l'arbre que l'on peut réaliser à partir du sommet $r$ de $T$, on peut chercher à parcourir $T$ à partir de $r$ en parcourant les branches possibles dans l'arbre de décision. À chaque fois que l'on peut parcourir une branche jusqu'en bas c'est qu'un site isomorphe a été trouvé. L'algorithme \ref{algo:rechercheArbreTarjan} compte le nombre de ces branches possibles.
 
 On peut utiliser cet algorithme pour retrouver tous les sous-sites isomorphes en utilisant l'algorithme précédent à partir de chaque sommet de $T$.
@@ -1592,8 +1599,14 @@ On peut utiliser cet algorithme pour retrouver tous les sous-sites isomorphes en
 \end{algorithm}
 \end{figure}
 
-\paragraph{Complexité.}
-Dans le pire des cas il y a $n$ branches à l'arbre A qui partent de la racine où $n$ est le nombre de sites dans la base. Le parcours d'une branche avec au maximum un fils à chaque sommet, à partir de la racine se fait en $O(W)$ au vu de la récursion de l'algorithme \ref{algo:rechercheArbreTarjan}. Pour chercher les isomorphismes de sous-sites de $T$ il faut répéter l'opération pour chacun de ses sommets : la complexité totale dans le pire des cas pour résoudre le problème \ref{pbisosgbase} d'isomorphisme de sous-sites entre un graphe de flot et une base de sites est de $O(n.n_T.W)$. Ainsi on n'a pas amélioré la complexité dans le pire des cas par rapport à l'utilisation directe du parcours de Tarjan vu dans la section précédente, bien qu'en pratique l'algorithme soit plus rapide comme nous le verrons par la suite.
+% \paragraph{Complexité.}
+Dans le pire des cas il y a $n$ branches à l'arbre A qui partent de la racine où $n$ est le nombre de sites dans la base. Le parcours d'une branche avec au maximum un fils à chaque sommet, à partir de la racine se fait en $O(W)$ au vu de la récursion de l'algorithme \ref{algo:rechercheArbreTarjan}. Pour chercher les isomorphismes de sous-sites de $T$ il faut répéter l'opération pour chacun de ses sommets : la complexité totale dans le pire des cas pour résoudre le problème \ref{pbisosgbase} d'isomorphisme de sous-sites entre un graphe de flot et une base de sites est de $O(n.n_T.W)$ (proposition \ref{prop:complexite_tarjan_recherche}). Ainsi on n'a pas amélioré la complexité dans le pire des cas par rapport à l'utilisation directe du parcours de Tarjan vu dans la section précédente, bien qu'en pratique l'algorithme soit plus rapide comme nous le verrons par la suite.
+
+\begin{prop}
+ La complexité de l'ajout d'un d'un site de taille $W$ à la base se fait en $O(n.n_T.W)$.
+\label{prop:complexite_tarjan_recherche}
+\end{prop}
+
 
 \FloatBarrier
 \subsection{SIDT : Site Isomorphism Decision Tree}
@@ -1898,3 +1911,9 @@ Développée en 1200 lignes de C, l’implémentation permet de créer une base 
 
 \subsection{Performance des implémentations}
 [à faire : avec un échantillon pour la base, un pour les tests, mesure de performances en temps mais aussi en précision entre SIDT et Tarjan/Ullmann]
+
+\section{Conclusion}
+Nous avons formalisé le problème de la détection d'isomorphismes de graphes et de sous-graphes adapté à l'analyse morphologique et proposé deux approches algorithmiques tirant partie des spécificités des graphes de flot et des sites.
+La première, cherchant à reproduire des parcours de sites au sein d'un graphe de flot, donne des résultats exacts tandis que la seconde, fonctionnant par comparaison simple des sites, n'est pas exacte mais est beaucoup plus rapide.
+
+Je tiens à remercier Guillaume Bonfante pour avoir implémenté, en python, l'algorithme par parcours.
