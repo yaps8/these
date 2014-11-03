@@ -263,7 +263,7 @@ La sémantique pour l'entrée comme la sortie de ces instructions n'est donc pas
 Ces appels sont omniprésents dans un programme réel puisque toutes la plupart interactions avec le système (lecture et écriture dans un fichier, connexion internet, allocation de mémoire via la fonction \emph{malloc} en C par exemple, etc.) passent par un appel système.
 
 \section{Revue de littérature des langages intermédiaires}
-\todo[inline]{Renovo : \\
+\imore{Renovo : \\
 LLVM : \\
 }
 
@@ -491,3 +491,8 @@ Nous sommes capables d'émuler l'exécution de programmes \sms\ simples mais les
 La sémantique d'un appel système dépendant largement du système d'exploitation sur lequel le programme est exécution, il s'agit d'une limite naturelle de toute méthode basée sur l'émulation.
 Notre implémentation n'est donc pas fonctionnelle pour des programmes réels qui utilisent de nombreux appels système.
 
+\section{Conclusion}
+Nous avons présenté les différents niveaux d'information qu'une sémantique du langage assembleur utilisé peut nous apporter et avons détaillé un langage intermédiaire fournissant une sémantique de niveau 3 et des exemples de code équivalent entre l'assembleur et ce langage intermédiaire.
+Ce langage intermédiaire permet de transcrire le comportement \sm\ de l'assembleur.
+Nous avons implémenté un émulateur partiel utilisant ce langage intermédiaire et avons utilisé une plateforme existante, BAP, que nous avons entendue à l'émulation de programmes \sms.
+Le chapitre suivant utilise ces notions afin de définir un méthode d'analyse adaptée aux programmes \sms.

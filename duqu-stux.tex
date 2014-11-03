@@ -1,42 +1,13 @@
-Dans ce chapitre nous présentons nos travaux sur deux programmes malveillants particuliers, \duqu\ et \stux.
-Lorsque nous avons commencé ces travaux \stux\ était déjà documenté et détecté, et \duqu\ venait d'être découvert.
-Il a rapidement été dit qu'ils étaient semblables et nous avons donc cherché à détecter \duqu\ connaissant \stux.
-Dans un premier temps nous appliquons les travaux présentés au chapitre précédent sur ces exemples \cite{REAT12,mal12}.
+Dans ce chapitre nous continuons nos travaux sur deux programmes malveillants particuliers, \duqu\ et \stux, dont nous avons montré qu'ils partageaient du code au chapitre précédent.
+Notre objectif était de pouvoir détecter une attaque par \duqu\ connaissant \stux.
+% cela nécessite un accès au code déchiffré et injecté par \duqu.
 
-Dans un second temps nous cherchons à détecter \duqu\ avant qu'il puisse infecter une machine ciblée.
+Nous cherchons donc à détecter \duqu\ avant qu'il puisse infecter une machine ciblée.
 Nous avons pour cela étudié un composant spécifique de \duqu, son pilote (\emph{driver}) qui permet de charger discrètement le code malveillant en mémoire.
 Notre contribution consiste en la rétroingénierie de ce composant, en la reconstitution de son code source et en une analyse de son fonctionnement.
 Nous avons ensuite détourné le pilote pour en faire une version défensive capable de détecter d'éventuelles attaques similaires.
 En particulier nous montrons comment le pilote de \duqu\ modifié aurait permis d'empêcher une attaque par \duqu.
 Ces travaux ont fait l'objet d'une publication à SSTIC \cite{sstic13} ainsi qu'à  Malware \cite{mal13}.
-
-
-\section{Duqu et Stuxnet}
-% \paragraph{\stux.}
-\stux, découvert en juin 2010, est capable de cibler et de reprogrammer des systèmes industriels.
-Sans que cela ait été prouvé, il a été avancé qu'il visait le programme nucléaire iranien. 
-Symantec \cite{SymantecStux2011} indique que la plupart des systèmes infectés sont en Iran et que la cible pourrait être un système de contrôle de centrifugeuses.
-\\
-
-% \paragraph{\duqu.}
-\duqu, découvert en premier par Crysys \cite{CrysysDuquStuxnet} en septembre 2011, laboratoire de sécurité et de cryptographie de l'université de Budapest, a directement été détecté comme apparenté à \stux\ parce qu'ils utilisent des techniques d'infection et de propagation similaires.
-\duqu\ est un outil offensif utilisé pour le vol d'informations. Symantec \cite{SymantecDuqu2011} a identifié, parmi ses fonctionnalités, des enregistreurs de frappes (\emph{keyloggers}), de l'écran, de l'activité réseau, ainsi que des outils de détection de machines sur le réseau.
-Il est maintenu à jour via des serveurs de commande et de contrôle (C\&C) et dispose d'une fonctionnalité d'auto-destruction après, typiquement, 36 jours sans nouvelles du C\&C.
-
-Les attaques semblent réussies puisque le programme malveillant n'a pas été détecté à chaud alors que certaines opérations ont duré plusieurs mois, mais seulement post-mortem. De nombreuses souches de \duqu\ ont été trouvées dans la natures, chacune avec des binaire différents mais similaire. Kaspersky a publié un historique des versions \cite{KaspDuqu10}, la dernière souche détectée date de février 2012, bien après que les première attaques ne soient détectées et documentées.
-
-\section{Analyse des similarités}
-Nous avons effectué une analyse similaire à celle décrite au chapitre précédent pour trouver les similarités entre \stux\ et \duqu\ afin de trouver les parties de \stux\ que l'on retrouve dans \duqu.
-Pour ces deux programmes malveillants, nous avons analysé la DLL (bibliothèque logicielle au format Windows, sigle pour \emph{Dynamic Link Library}) principale fois que celle-ci a été déchiffrée.
-% Dans les deux cas l'infection est cherche à exploiter une faille de Windows permettant d'installer plusieurs composants qui auront été déchiffrés au préalable.
-Nous avons extrait les graphes de flot réduits de \duqu\ et \stux.
-Nous avons trouvé 846 sites communs entre \duqu\ et \stux\ : 26.5\% des sites de \duqu\ proviennent de \stux.
-Lorsque l'on regarde les sommets correspondants dans les graphes réduits, on s'aperçoit que ces sites contiennent 2215 sommets dans les graphes de flot réduits : 60.3\% des sommets du graphe de flot réduit de \duqu\ correspondent à des sommets  présents dans \stux.
-
-Forts de ces résultats indiquant que \duqu\ et \stux\ partagent beaucoup de code, nous considérons donc qu'un détecteur de programmes malveillant fonctionnant avec la technique d'analyse morphologique connaissant \stux\ serait capable de détecter \duqu.
-
-La seconde difficulté qu'aurait à résoudre un détecteur est que le programme provocant l'infection de \duqu\ ne ressemble pas à \stux\ ni à aucun autre programme malveillant connu. Ce n'est que lorsque des composants connus de \duqu\ sont déchiffrés et installés que l'on peut les détecter.
-Nous avons alors cherché à documenter la méthode d'infection de \duqu\ afin de pouvoir détecter une attaque.
 
 \section{Détection d'une infection par Duqu}
 \subsection{Déroulement d'une infection}
@@ -214,7 +185,7 @@ Le pilote agit désormais furtivement (on parle de \emph{rootkit}) et évite d'u
 La fonction \ZwA\ peut être utilisée pour allouer de la mémoire au sein d'un processus au choix, pour y injecter du code arbitraire par exemple.
 De plus, afin de détourner le point d'entrée d'un binaire (\emph{hook}), \duqu\ voudrait également utiliser la fonction \ZwP\ que Microsoft a délibérément omise de la liste des fonctions accessibles en dehors du noyau. Cette fonction permet de modifier les permissions d'une page mémoire et peut être utilisée pour rendre une partie de code accessible en écriture ou rendre une section de données exécutable.
 
-Ces deux fonctions sont implémentée dans le noyau Windows, dans les fichiers \path{Ntoskrnl.exe} ou \path{ntkrnlpa.exe}, selon les versions. 
+Ces deux fonctions sont implémentées dans le noyau Windows, dans les fichiers \path{Ntoskrnl.exe} ou \path{ntkrnlpa.exe}, selon les versions. 
 Le pilote inspecte chaque module, DLL et exécutables, chargés par le système lors du démarrage à la recherche d'un de ces deux fichiers.
 
 Un fois le fichier cible trouvé, le pilote utilise la fonction \emph{ParsePE} pour l'examiner et y retrouver l'adresse de \ZwP.

@@ -1,38 +1,13 @@
-% \documentclass[a4paper,10pt]{article}
-% \usepackage[utf8]{inputenc}
-% \usepackage{fullpage}
-% \usepackage{graphicx} % pour insérer des images
-% \usepackage{epstopdf}
-% % Les N, Z..., math quoi
-% \usepackage{amsthm}
-% \usepackage{amsmath}
-% \usepackage{stmaryrd}
-% \usepackage{amsfonts}
-% \usepackage{tikz}
-% \usepackage{tikz-qtree}
-% % les figure imbriquées
-% \usepackage{epsfig}
-% \usepackage{subfigure}
-% \usepackage[francais]{babel}
-% \usepackage[algoruled,french,onelanguage]{algorithm2e}
-
-
-% %opening
-% \title{}
-\itodo{sg induit -> sg engendré ?}
-\itodo{Notations G, p, T ?? + refaire la complexité en conséquence}
-\itodo{Les complexité en proposition, pas en paragraph}
-\itodo{justifier W=12..24 ?}
-
 Nous avons vu au chapitre précédent que l'analyse morphologique fonctionne par comparaison des graphes de flot de contrôles.
 Dans ce chapitre nous formalisons le fonctionnement du détecteur par analyse morphologique et nous nous intéressons au problème de la détection d'isomorphismes de sous-graphes. 
 Nous définissons ce qu'est un graphe de flot, notion plus spécifique que la notion générale de graphe, au sein duquel les fils d'un sommet sont ordonnés.
-Cette restriction rend le problème de la recherche d'isomorphisme de sous-graphes de flot résoluble \todo{typo?} en temps polynômial alors qu'il est NP complet \todo{typo?} dans le cas général.
+Cette restriction rend le problème de la recherche d'isomorphisme de sous-graphes de flot solvable en temps polynômial alors qu'il est NP-complet dans le cas général.
 
 \section{Analyse d'un détecteur par analyse morphologique}
 \subsection{Graphes de flot}
 Nous avons vu que les graphes de flot de contrôle sur lesquels nous travaillons sont étiquetés (définition \ref{def:graphe-oriente}) et, une fois réduits, les étiquettes possibles sont les suivantes : $INST$, $JMP$, $JCC$, $CALL$, $RET$, $HLT$ et $UNDEF$.
 Le nombre de fils d'un sommet est sa valence (définition \ref{def:valence}) ; à chaque étiquette est associée une valence maximale. Par exemple les instructions de saut conditionnel $JCC$ ont au maximum deux successeurs.
+Nous notons $k$ la valence maximale quelle que soit l'étiquette. Les étiquettes ayant le plus de successeurs étant $JCC$ et $CALL$, $k=2$.
 
 \begin{defi}
 Un graphe orienté et étiqueté $T=(V, L, l, E)$ est composé par les ensembles finis V, L, E, et la fonction totale $l:V\rightarrow L$.
@@ -257,7 +232,7 @@ $E\leftarrow\emptyset$\\
 
 \paragraph{Complexité.}
 Calculons la complexité de l'obtention d'un site par parcours en largeur limité à W sommets en prenant en compte le nombre d'opération de dépilement ou d'empilement dans la file L.
-Nous avons vu \todo{vrai?} que chaque sommet a au plus $k$ fils.
+Nous avons vu que chaque sommet a au plus $k$ fils.
 De plus le parcours s'arrête dès que W sommets ont été ajoutés à l'ensemble E. Il peut arriver que les fils du $W^e$ sommet soient ajoutés à la liste d'attente (mais ils ne seront pas ajoutés à E).
 Dans le pire des cas on empile donc la racine puis $k$ fils pour $W$ sommets et on dépile $W$ sommets. La complexité de l'algorithme \ref{algo:generation_site_largeur} est donc $O((k+1).W)$.
 
@@ -274,7 +249,10 @@ Nous avons à présent tous les éléments nécessaires à une définition préc
 Nous cherchons à construire un corpus contenant les signatures d'un programme malveillant.
 La signature d'un programme malveillant est un ensemble de sites extraits du graphe de flot de ce programme.
 Afin que les signatures soient extraites automatiquement nous cherchons donc à construire tous les sites de taille limitée, par parcours en largeur à partir de chaque sommet du graphe de flot.
-Un exemple de signature du graphe de flot précédent est donné en figure \ref{fig:gfc_gf_sites}. Nous avons pris, pour l'exemple, des sites de taille 3, bien qu'en réalité nous prenions des sites de taille 24.
+Un exemple de signature du graphe de flot précédent est donné en figure \ref{fig:gfc_gf_sites}. Nous avons pris, pour l'exemple, des sites de taille 3, bien qu'en réalité nous prenions des sites de taille $W=24$.
+
+La taille des sites considérés influe sur la précision des correspondances que l'on pourra trouver : plus un site a de sommets, plus il est discriminatoire et moins il risque d'être retrouvé dans des graphes de flot ne présentant pas le même comportement.
+Il s'agit donc d'un compromis entre faux positifs (correspondances sur des graphes indépendants) et faux négatifs (graphes similaires mais non détectés) qui aboutit à une valeur pour W entre 12 et 24, choisie en pratique à 24.
 
 \begin{figure}[h]
 \begin{center}
@@ -372,7 +350,7 @@ On a alors trois problèmes successifs, de difficulté croissante et faisant int
  À partir d'un ensemble de sites $L_P$ et d'un graphe de flot $T$, comment déterminer l'ensemble des $P\in L_P$ tels que $P$ est un sous-site de $T$ ?
 \end{pb}
 
-Dans le cas général, le problème \ref{pbisog} de l'isomorphisme de graphes est connu pour être NP sans que l'on sache s'il est NP complet \cite{Kob94}, tandis que le problème de l'isomorphisme de sous-graphes est NP complet \cite{W05}.
+Dans le cas général, le problème \ref{pbisog} de l'isomorphisme de graphes est connu pour être NP sans que l'on sache s'il est NP-complet \cite{Kob94}, tandis que le problème de l'isomorphisme de sous-graphes est NP-complet \cite{W05}.
 Nous allons présenter quelques approches de ces problèmes et proposer des solutions tirant partie des spécificités des graphes de flot.
 
 Nous verrons que les problèmes de l'isomorphisme de graphes et de sous-graphes de flot sont polynomiaux.
@@ -549,8 +527,14 @@ $\left( \begin{array}{ccccc}
 
 %$I^{n, m}_{i, j}=1$ si $i=j$, $I^{n, m}_{i, j}=0$ 
 
-\paragraph{Complexité.}
-L'approche par force brute demande de parcourir toutes les matrice de permutations de taille $n_T$ : il y en a $n_P!$. Pour chaque matrice de permutation, une matrice transposée est déterminée et plusieurs multiplications matricielles sont faites sur des matrices de taille $n_T.n_T$, opération réalisable au pire en $n_T^3$. La complexité de cette approche dans le pire des cas est donc $O(n_T^3.n_T!)$.
+% \paragraph{Complexité.}
+L'approche par force brute demande de parcourir toutes les matrice de permutations de taille $n_T$ : il y en a $n_P!$. Pour chaque matrice de permutation, une matrice transposée est déterminée et plusieurs multiplications matricielles sont faites sur des matrices de taille $n_T.n_T$, opération réalisable au pire en $n_T^3$. La complexité de cette approche dans le pire des cas est donc $O(n_T^3.n_T!)$ (proposition \ref{prop:complexite_matrices}).
+
+\begin{prop}
+La complexité de la recherche exhaustive d'un sous-graphes de T (de taille $n_T$) isomorphe à P est de $O(n_T^3.n_T!)$.
+\label{prop:complexite_matrices}
+\end{prop}
+
 
 
 \subsection{Algorithme d'Ullmann}
@@ -1066,7 +1050,12 @@ Cette modification diminue grandement la complexité mais nous ne l'avons pas qu
 Une modification de l'algorithme d'Ullmann précédent permettant de l'optimiser a été utilisée. Dans la fonction \emph{forwardChecking}, il n'est pas utile de vérifier tous les éléments de F à chaque appel, mais seulement les derniers élements ajoutés (qui correspondent exactement à la dernière association ajoutée). Cette modification ne change pas le comportement ni les résultats de l'algorithme puisque les éléments précédents dans F ont déjà été vérifiés précédemment.
 
 \paragraph{Conclusion sur la complexité.} 
-Pour le cas d'un graphe de flot, la complexité a été ramenée à $O((n_T.h)^{n_P})$ avec $h=\sum_kl_k^2\simeq 0.34$ où les $l_i$ sont les probabilités d'apparition de chacun des labels.
+Pour le cas d'un graphe de flot, la complexité a été ramenée à $O((n_T.h)^{n_P})$ avec $h=\sum_kl_k^2\simeq 0.34$ où les $l_i$ sont les probabilités d'apparition de chacun des labels (proposition \ref{prop:complexite_ullmann}).
+
+\begin{prop}
+La complexité de la recherche d'un sous-graphes de T (de taille $n_T$) isomorphe à P (de taille $n_P$) avec l'algorithme d'Ullmann optimisé est de $O((n_T.h)^{n_P})$ avec $h\simeq 0.34$.
+\label{prop:complexite_ullmann}
+\end{prop}
 
 \subsection{Revue de littérature}
 \paragraph{Optimisation de l'algorithme d'Ullmann.}
@@ -1526,15 +1515,15 @@ child {node {}
 \end{figure}
 
 % \paragraph{Complexité.}
-L'ajout d'un site à la base consiste à ajouter un codage de parcours dans l'arbre de décision, cette opération nécessite un nombre de comparaison en $W\times i$ où $i$ est le nombre de fils maximum de chaque sommet de l'arbre. Vu que les étiquettes des arcs de l'arbre sont de la forme $[\xrightarrow{\alpha}]i[:L]$, en notant $K$ le nombre de fils maximum de chaque sommet dans un site et $n_L$ le nombre d'étiquettes différentes pour les sommets des sites, $i\leq (K+2)\times W\times n_L$ soit $n=O(W)$ donc l'ajout d'un site à la base se fait en $O(W^2)$ (proposition \ref{prop:complexite_tarjan_ajout}).
+L'ajout d'un site à la base consiste à ajouter un codage de parcours dans l'arbre de décision, cette opération nécessite un nombre de comparaison en $W\times i$ où $i$ est le nombre de fils maximum de chaque sommet de l'arbre. Vu que les étiquettes des arcs de l'arbre sont de la forme $[\xrightarrow{\alpha}]i[:L]$, en notant $k=2$ le nombre de fils maximum de chaque sommet dans un site et $l\leq 10$ le nombre d'étiquettes différentes pour les sommets des sites, $i\leq (k+2)\times W\times l$ soit $n=O(W)$ donc l'ajout d'un site à la base se fait en $O(W^2)$ (proposition \ref{prop:complexite_tarjan_ajout}).
 
 \begin{prop}
- La complexité de l'ajout d'un d'un site de taille $W$ à la base se fait en $O(W^2)$.
+ La complexité de l'ajout d'un site de taille $W$ à une base, pour l'algorithme par parcours, se fait en $O(W^2)$.
 \label{prop:complexite_tarjan_ajout}
 \end{prop}
 
 
-\paragraph{Recherche d'un isomorphisme de sous-sites à partir de l'arbre de décision.}
+\paragraph{Recherche des isomorphismes de sous-sites à partir de l'arbre de décision.}
 Une fois l'arbre généré à partir de tous les codages des sites de $L_S$, on veut l'utiliser pour trouver tous les parcours de $L_S$ possibles dans le graphe de flot T. Pour compter le nombre de parcours de l'arbre que l'on peut réaliser à partir du sommet $r$ de $T$, on peut chercher à parcourir $T$ à partir de $r$ en parcourant les branches possibles dans l'arbre de décision. À chaque fois que l'on peut parcourir une branche jusqu'en bas c'est qu'un site isomorphe a été trouvé. L'algorithme \ref{algo:rechercheArbreTarjan} compte le nombre de ces branches possibles.
 
 On peut utiliser cet algorithme pour retrouver tous les sous-sites isomorphes en utilisant l'algorithme précédent à partir de chaque sommet de $T$.
@@ -1600,10 +1589,10 @@ On peut utiliser cet algorithme pour retrouver tous les sous-sites isomorphes en
 \end{figure}
 
 % \paragraph{Complexité.}
-Dans le pire des cas il y a $n$ branches à l'arbre A qui partent de la racine où $n$ est le nombre de sites dans la base. Le parcours d'une branche avec au maximum un fils à chaque sommet, à partir de la racine se fait en $O(W)$ au vu de la récursion de l'algorithme \ref{algo:rechercheArbreTarjan}. Pour chercher les isomorphismes de sous-sites de $T$ il faut répéter l'opération pour chacun de ses sommets : la complexité totale dans le pire des cas pour résoudre le problème \ref{pbisosgbase} d'isomorphisme de sous-sites entre un graphe de flot et une base de sites est de $O(n.n_T.W)$ (proposition \ref{prop:complexite_tarjan_recherche}). Ainsi on n'a pas amélioré la complexité dans le pire des cas par rapport à l'utilisation directe du parcours de Tarjan vu dans la section précédente, bien qu'en pratique l'algorithme soit plus rapide comme nous le verrons par la suite.
+Dans le pire des cas il y a $S$ branches à l'arbre A qui partent de la racine où $S$ est le nombre de sites dans la base. Le parcours d'une branche avec au maximum un fils à chaque sommet, à partir de la racine se fait en $O(W)$ au vu de la récursion de l'algorithme \ref{algo:rechercheArbreTarjan}. Pour chercher les isomorphismes de sous-sites de $T$ il faut répéter l'opération pour chacun de ses sommets : la complexité totale dans le pire des cas pour résoudre le problème \ref{pbisosgbase} d'isomorphisme de sous-sites entre un graphe de flot et une base de sites est de $O(S.n_T.W)$ (proposition \ref{prop:complexite_tarjan_recherche}). Ainsi on n'a pas amélioré la complexité dans le pire des cas par rapport à l'utilisation directe du parcours de Tarjan vu dans la section précédente, bien qu'en pratique l'algorithme soit plus rapide comme nous le verrons par la suite.
 
 \begin{prop}
- La complexité de l'ajout d'un d'un site de taille $W$ à la base se fait en $O(n.n_T.W)$.
+ La complexité de la recherche des sites (de taille $W$) de la base, construite avec algorithme par parcours, au sein d'un graphe de flot T de taille $n_T$, se fait en $O(S.n_T.W)$.
 \label{prop:complexite_tarjan_recherche}
 \end{prop}
 
@@ -1777,15 +1766,24 @@ child {node {}
 \label{fig:arbreDecSIDT}
 \end{figure}
 
-\paragraph{Complexité.}
-L'apprentissage d'un site nécessite le parcours d'au plus W éléments de l'arbre de décision. Chaque sommet de l'arbre de décision a au plus $n_L.W.W$ fils où $n_L$ est le nombre d'étiquettes possibles. L'apprentissage d'un site se fait donc en $O(W^3)$ où W est le nombre de sommets des sites à apprendre.
+% \paragraph{Complexité.}
+L'apprentissage d'un site nécessite le parcours d'au plus W éléments de l'arbre de décision. Chaque sommet de l'arbre de décision a au plus $l.W.W$ fils où $l$ est le nombre d'étiquettes possibles. L'apprentissage d'un site se fait donc en $O(W^3)$ où W est le nombre de sommets des sites à apprendre (proposition \ref{prop:complexite_SIDT_ajout}).
+
+\begin{prop}
+ La complexité de l'ajout d'un site de taille $W$ à une base, pour SIDT, se fait en $O(W^3)$.
+\label{prop:complexite_SIDT_ajout}
+\end{prop}
 
 \subsubsection{Recherche d'un isomorphismes de sous-sites}
 Rechercher un isomorphisme de sous-sites à partir de l'arbre de décision ainsi créé revient à écrire le site sous forme matricielle et à faire une recherche dans l'arbre de décision.
 
-\paragraph{Complexité.}
-La complexité de la recherche d'un site dans l'arbre de décision est la même que pour l'ajout dans d'un site dans l'arbre et se fait en $O(W^3)$. 
+% \paragraph{Complexité.}
+La complexité de la recherche d'un site dans l'arbre de décision est la même que pour l'ajout dans d'un site dans l'arbre et se fait en $O(W^3)$ (proposition \ref{prop:complexite_SIDT_recherche}). 
 
+\begin{prop}
+ La complexité de la recherche d'un site (de taille $W$) de la base, construite avec algorithme par parcours se fait en $O(W^3)$.
+\label{prop:complexite_SIDT_recherche}
+\end{prop}
 
 \section{Comparaison des performances}
 \subsection{Complexité}

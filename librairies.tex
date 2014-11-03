@@ -236,6 +236,40 @@ Une vue simplifiée du GFC de la fonction \emph{AES\_encrypt} est donnée en fig
 Le GFC réduit est trop petit pour pouvoir être détecté par l'analyse morphologique, qui prend des graphes d'une taille 24 au minimum.
 En fait beaucoup d'algorithmes de chiffrement ont cette structure une fois réduits et elle n'est pas non plus spécifique aux algorithmes de chiffrement. De ce fait l'analyse morphologique est inadaptée à la détection de ce genre de fonctions.
 
+\section{Application à Duqu et Stuxnet}
+Dans cette section nous présentons nos travaux sur deux programmes malveillants particuliers, \duqu\ et \stux.
+Lorsque nous avons commencé ces travaux \stux\ était déjà documenté et détecté, et \duqu\ venait d'être découvert.
+Il a rapidement été dit qu'ils étaient semblables et nous avons donc cherché à détecter \duqu\ connaissant \stux.
+% Dans un premier temps nous appliquons les travaux présentés au chapitre précédent sur ces exemples \cite{REAT12,mal12}.
+
+\subsection{Duqu et Stuxnet}
+% \paragraph{\stux.}
+\stux, découvert en juin 2010, est capable de cibler et de reprogrammer des systèmes industriels.
+Sans que cela ait été prouvé, il a été avancé qu'il visait le programme nucléaire iranien. 
+Symantec \cite{SymantecStux2011} indique que la plupart des systèmes infectés sont en Iran et que la cible pourrait être un système de contrôle de centrifugeuses.
+\\
+
+% \paragraph{\duqu.}
+\duqu, découvert en premier par Crysys \cite{CrysysDuquStuxnet} en septembre 2011, laboratoire de sécurité et de cryptographie de l'université de Budapest, a directement été détecté comme apparenté à \stux\ parce qu'ils utilisent des techniques d'infection et de propagation similaires.
+\duqu\ est un outil offensif utilisé pour le vol d'informations. Symantec \cite{SymantecDuqu2011} a identifié, parmi ses fonctionnalités, des enregistreurs de frappes (\emph{keyloggers}), de l'écran, de l'activité réseau, ainsi que des outils de détection de machines sur le réseau.
+Il est maintenu à jour via des serveurs de commande et de contrôle (C\&C) et dispose d'une fonctionnalité d'auto-destruction après, typiquement, 36 jours sans nouvelles du C\&C.
+
+Les attaques semblent réussies puisque le programme malveillant n'a pas été détecté à chaud alors que certaines opérations ont duré plusieurs mois, mais seulement post-mortem. De nombreuses souches de \duqu\ ont été trouvées dans la natures, chacune avec des binaire différents mais similaire. Kaspersky a publié un historique des versions \cite{KaspDuqu10}, la dernière souche détectée date de février 2012, bien après que les première attaques ne soient détectées et documentées.
+
+\paragraph{Analyse des similarités.}
+Nous avons effectué une analyse similaire à celle décrite au chapitre précédent pour trouver les similarités entre \stux\ et \duqu\ afin de trouver les parties de \stux\ que l'on retrouve dans \duqu.
+Pour ces deux programmes malveillants, nous avons analysé la DLL (bibliothèque logicielle au format Windows, ou \emph{Dynamic Link Library}) principale fois que celle-ci a été déchiffrée.
+% Dans les deux cas l'infection est cherche à exploiter une faille de Windows permettant d'installer plusieurs composants qui auront été déchiffrés au préalable.
+Nous avons extrait les graphes de flot réduits de \duqu\ et \stux.
+Nous avons trouvé 846 sites communs entre \duqu\ et \stux\ : 26.5\% des sites de \duqu\ proviennent de \stux.
+Lorsque l'on regarde les sommets correspondants dans les graphes réduits, on s'aperçoit que ces sites contiennent 2215 sommets dans les graphes de flot réduits : 60.3\% des sommets du graphe de flot réduit de \duqu\ correspondent à des sommets  présents dans \stux.
+
+Forts de ces résultats indiquant que \duqu\ et \stux\ partagent beaucoup de code, nous considérons donc qu'un détecteur de programmes malveillant fonctionnant avec la technique d'analyse morphologique connaissant \stux\ serait capable de détecter \duqu.
+
+La principale difficulté qu'aurait à résoudre un détecteur est que le programme provocant l'infection de \duqu\ ne ressemble pas à \stux\ ni à aucun autre programme malveillant connu. Ce n'est que lorsque certains composants de \duqu\ sont déchiffrés et installés que l'on peut le détecter.
+Nous détaillerons, dans le chapitre suivant, la méthode d'infection de \duqu\ et le travail nécessaire afin de détecter une attaque.
+% Nous avons alors cherché à documenter la méthode d'infection de \duqu\ afin de pouvoir détecter une attaque.
+
 
 \section{Conclusion}
 Nous avons identifié des similarités entre Waledac et une version spécifique d'OpenSSL, nous avons pu reconstruire automatique des correspondances fines afin de déterminer quelles fonctions d'OpenSSL étaient utilisées par Waledac.
@@ -243,3 +277,4 @@ L'obstacle principal à une généralisation de cette méthode est qu'elle est s
 Cette technique n'est pas infaillible puisqu'elle n'est pas adaptée pour détecter certaines structures ou fonctions, telles des fonctions de chiffrement.
 
 Nous avons ensuite développé un greffon pour IDA permettant d'analyser les similarités trouvées afin de permettre à l'analyste de ne pas s'attarder sur du code déjà documenté.
+Cette approche, appliquée à \duqu\ et \stux\ nous a permis de mettre en lumière de nombreuses portions de code partagé entre ces deux logiciels malveillants.
