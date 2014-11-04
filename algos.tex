@@ -1089,11 +1089,14 @@ C'est une numérotation $\pi:V\rightarrow \llbracket 1, n \rrbracket$ de ses som
 \end{itemize}
 
 Le parcours d'un site se fait à partir de sa racine (numérotée 1) et est bijectif (c'est possible car il a une racine).
+% Nous exploitons le fait que les fils d'un graphe de flot son numérotés : comme nous l'expliciterons cette propriété rend possible la définition d'algorithmes de numérotation déterministes.
+
 
 \paragraph{Exemples.}
 Le parcours en profondeur d'un site à partir d'un sommet est récursif. Il part de ce sommet (à l'origine la racine numérotée 1), numérote le site à partir du fils 1 du sommet, puis numérote le site à partir du fils 2... jusqu'au dernier site du sommet.
 Le parcours en largeur d'un site numérote la racine puis ses fils directs, puis les fils du premier fils, les fils du second, etc.
 Un exemple de parcours en profondeur d'un graphe de flot est donné en figure \ref{fig:ex_graphe_parcours}.
+Nous exploitons donc le fait que les fils d'un graphe de flot sont numérotés.
 
 \begin{figure}[h]
 \begin{center}
