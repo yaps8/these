@@ -28,34 +28,38 @@ un niveau d'exécution strictement supérieur à 1, c'est à dire que ces
 octets ont été modifiés avant que l'instruction ne soit exécutée, ne
 sont présents dans la représentation d'origine du programme qu'en temps
 que données.
-Ainsi le désassemblage parfait d'un programme \sm\ ne prend en compte
+Ainsi le désassemblage, en tant qu'opération inverse de l'assembleur, d'un programme \sm\ ne prend en compte
 que les instructions exécutées avec un le niveau d'exécution 1
 (définition \ref{def:desassemblage_parfait_sm}).
 
 \begin{defi}
  Étant donné un programme P \sm\ et l'ensemble de ses traces d'exécution
-$E_T$, le désassemblage parfait de P est l'ensemble des adresses où une
+$E_T$, l'opération inverse de l'assemblage de P est la donnée de l'ensemble des adresses où une
 instruction de niveau d'exécution 1 est exécutée dans au moins une
 trace, c'est à dire~$\{a, \exists\ T\in E_T, \exists\ (i, X, D)\in T, X=1,\ $\da{D}$=a\}$.
 \label{def:desassemblage_parfait_sm}
 \end{defi}
 
-\subsection{Graphe de flot de contrôle naïf}
+Nous étendons cependant la notion de désassemblage parfait aux programmes \sms\ pour qu'elle inclue toutes les instructions exécutées (définition \ref{def:desassemblage_parfait_sm2}).
+
+\begin{defi}
+ Étant donné un programme P \sm\ et l'ensemble de ses traces d'exécution
+$E_T$, le désassemblage parfait de P est la donnée de l'ensemble des adresses exécutées dans une exécution du programme et de l'instruction alors exécutée, c'est à dire~$\{(\mda{D}, \mdi{D}), (i, X, D)\in T, T\in E_T\}$.
+\label{def:desassemblage_parfait_sm2}
+\end{defi}
+
+\subsection{Graphe de flot de contrôle simple}
 Le graphe de flot de contrôle ne peut plus se contenter de représenter
 une instruction par son adresse puisque plusieurs instructions
 différentes peuvent être présentes à la même adresse.
-Le graphe de flot de contrôle naïf, extension du GFC parfait défini pour les programmes \nsms, est alors le graphe dont les
-sommets sont des couples $(a, I)$ où \adr{a} est une adresse et $I$ une
-instruction assembleur. Il y a un arc entre deux sommets si le second
-suit directement le premier dans une trace d'exécution (définition
-\ref{def:cfg_naif_sm}).
+Le graphe de flot de contrôle simple, extension du GFC parfait défini pour les programmes \nsms, est le graphe dont les sommets sont des couples $(a, I)$ provenant du désassemblage parfait du programme. Il y a un arc entre deux sommets si le second suit directement le premier dans une trace d'exécution (définition \ref{def:cfg_naif_sm}).
 
 \begin{defi}
  Étant donné un programme \sm\ P et l'ensemble de ses traces d'exécution
-$E_T$, le graphe de flot de contrôle naïf de P est le graphe orienté
+$E_T$, le graphe de flot de contrôle simple de P est le graphe orienté
 $G=(V, E)$ tel que :
  \begin{itemize}
-  \item $V=\{(\mda{D}, \mdi{D}),  (i, X, D)\in E_T\}$
+  \item $V=\{(\mda{D}, \mdi{D}), (i, X, D)\in T, T\in E_T\}$
   \item $((a_1, I_1), (a_2, I_2))\in E\ si\ et\ seulement\ si\ (a_1,
 I_1)\ et\ (a_2, I_2)\ se\ suivent\ dans\ une\ trace\ : \exists T\in
 E_T,\ i\in \BN, (i, X_1, D_1)\ et\ (i+1, X_2, D_2)\in T\ avec\
@@ -65,7 +69,7 @@ $\da{D_1}$=a_1,\ $\di{D_1}$=I_1,$~\da{D_2}$=a_2,\ $\di{D_2}$=I_2$.
 \end{defi}
 
 Le problème de cette définition d'un GFC pour un programme \sm\ est qu'%e souvent les vagues se suivent et ont peu de rapport les unes avec les autres.
-elle ne permet pas de visualiser l'enchaînement des vagues et peut conduire à une interprêtation biaisée des exécutions possibles.
+elle ne permet pas de visualiser l'enchaînement des niveaux d'exécution et peut conduire à une interprêtation biaisée des exécutions possibles.
 
 \paragraph{Exemple.}
 Prenons le programme donné en figure \ref{fig:sm_asm} dont le graphe de flot de contrôle construit par analyse statique à l'aide d'un parcours récursif est en figure \ref{fig:sm_cfg_statique}.
@@ -114,13 +118,13 @@ Cette seconde branche a pour effet de modifier les instructions aux adresses \ad
 
 Ainsi toutes les exécutions possibles, paramétrées par la valeur initiale d'\eax, bouclent sur la branche conditionnelle un nombre fini, qui peut être nul, de fois et exécutent la seconde branche, qui met la valeur 1 dans \edi, provoque une auto-modification, incrémente \edi\ deux fois puis quitte la fonction. Dans toutes les exécutions possibles la valeur finale de \edi\ est toujours 3.
 
-Le GFC naïf de ce programme est donné en figure \ref{fig:sm_cfg_parfait}. En raison du mélange des instructions à différents niveaux d'exécution, il n'est pas possible de distinguer les vagues d'exécution et un analyseur statique simple approxime la valeur de \edi\ à 2 ou 3.
+Le GFC simple de ce programme est donné en figure \ref{fig:sm_cfg_parfait}. En raison du mélange des instructions à différents niveaux d'exécution, il n'est pas possible de distinguer les vagues d'exécution et un analyseur statique simple approxime la valeur de \edi\ à 2 ou 3.
 
 \begin{figure}[h]
 \begin{center}
   \includegraphics[width=0.7\textwidth]{supports/disas_sm/ex2_parfait.pdf}
 \end{center}
-\caption{GFC naïf}
+\caption{GFC simple}
 \label{fig:sm_cfg_parfait}
 \end{figure}
 
@@ -231,43 +235,55 @@ E_X,\ i\in \BN, (i, X_1, D_1)\ et\ (i+1, X_2, D_2)\in T$ avec \da{D_1}$=a_1,\ $\
 
 \FloatBarrier
 \subsection{Revue de littérature}
-Anckaert, Madou et Bosschere \cite{AMB06} proposent d'introduire la représentation sous forme d'octets de chaque instruction au sein du graphe de flot de contrôle et d'ajouter aux arcs les conditions sur les octets en mémoire. Sur l'exemple précédent, leur GFC, présenté en figure \ref{fig:sm_cfg_parfait_amb}, est identique au GFC naïf mais il est alors possible de différencier les chemins selon l'état de la mémoire et donc plus précis pour une analyse automatique.
+Anckaert, Madou et Bosschere \cite{AMB06} proposent d'introduire la représentation sous forme d'octets de chaque instruction au sein du graphe de flot de contrôle et d'ajouter aux arcs les conditions sur les octets en mémoire. Sur l'exemple précédent, leur GFC, présenté en figure \ref{fig:sm_cfg_parfait_amb}, est identique au GFC simple mais il est alors possible de différencier les chemins selon l'état de la mémoire et donc plus précis pour une analyse automatique.
 En fait le graphe qu'ils représentent est un automate, permettant de compléter la notion d'automate de flot de contrôle introduit comme extension au graphe de flot de contrôle \cite{HJMS02} pour des programmes \sms.
 
 \begin{figure}[h]
 \begin{center}
   \includegraphics[width=0.8\textwidth]{supports/disas_sm/ex2_parfait_amb.pdf}
 \end{center}
-\caption{GFC naïf augmenté des octets et des conditions de transition}
+\caption{GFC simple augmenté des octets et des conditions de transition}
 \label{fig:sm_cfg_parfait_amb}
 \end{figure}
 
 \section{Graphe de flot de contrôle paramétré par une exécution}
 Nous proposons une représentation du GFC basée sur une exécution particulière et son découpage en différents niveaux d'exécution.
-Cette représentation nous donne une approximation de graphe de flot parfait présenté en section \ref{sec:gfc_parfait}.
+Cette représentation nous donne une approximation du graphe de flot parfait présenté en section \ref{sec:gfc_parfait}.
 L'exécution choisie, dite de référence, consiste en une trace et un enchaînement d'instantanés de chaque niveau d'exécution.
 % Chaque instantané est pris comme un programme ayant pour point d'entrée la première instruction de la trace ayant le niveau d'exécution correspondant et un point de sortie étant la dernière instruction ayant ce même niveau d'exécution.
 
 Nous appelons GFC paramétré par cette exécution le GFC parfait du même programme dont l'ensemble de exécutions serait réduit à cette seule exécution choisie.
-Cette définition nous permet en fait de construire le GFC des seules exécutions dont les instantanés sont identiques à ceux de l'exécution de référence, on dit alors que ces exécutions sont compatibles (définition \ref{def:executions_compatibles}).
+% Cette définition nous permet en fait de construire le GFC des seules exécutions dont les instantanés sont identiques à ceux de l'exécution de référence, on dit alors que ces exécutions sont compatibles (définition \ref{def:executions_compatibles}).
+% 
+% \begin{defi}
+%  Soit un programme P et $(T, S)$ et $(T', S')$ deux exécutions de P.
+%  $(T, S)$ et $(T', S')$ sont dites compatibles si et seulement si $S=S'$.
+% \label{def:executions_compatibles}
+% \end{defi}
+
+Le GFC paramétré (définition \ref{def:cfg_param_sm}) représente chaque instruction contenue dans la trace comme un sommet en prenant en compte son niveau d'exécution, son adresse et l'instruction assembleur. Deux sommets sont reliés par un arc si, dans la trace, leurs deux instructions se suivent immédiatement.
+
+% \begin{defi}
+%  Étant donné un programme P \sm, $(T, S)$ une exécution de P et $E_C$ l'ensemble des exécutions de P compatibles avec $(T, S)$.
+%  Nous appelons GFC paramétré par $T$ le graphe $G=(V, E)$ tel que :
+%  \begin{itemize}
+%   \item $V=\{(X,\ $\da{D}$,\ $\di{D}$), (i, X, D)\in T',\ (T', S')\in E_C \}$%\in E_C, \exists\ (i, X, D)\in T',\
+% %$\da{D}$=a,\ $\di{D}$=I\}$
+%   \item $((X_1, a_1, I_1), (X_2, a_2, I_2))\in E$ si et seulement si $(X_1, a_1,
+% I_1)\ et\ (X_2, a_2, I_2)$ se suivent dans une trace : $\exists (T', S')\in
+% E_C,\ i\in \BN, (i, X_1, D_1)\ et\ (i+1, X_2, D_2)\in T$ avec \da{D_1}$=a_1,\ $\di{D_1}$=I_1,$~\da{D_2}$=a_2,\ $\di{D_2}$=I_2$.
+%  \end{itemize}
+% \label{def:cfg_param_sm}
+% \end{defi}
 
 \begin{defi}
- Soit un programme P et $(T, S)$ et $(T', S')$ deux exécutions de P.
- $(T, S)$ et $(T', S')$ sont dites compatibles si et seulement si $S=S'$.
-\label{def:executions_compatibles}
-\end{defi}
-
-Le GFC paramétré (définition \ref{def:cfg_param_sm}) représente chaque instruction contenue dans une trace dont l'exécution est compatible avec l'exécution de référence comme un sommet en prenant en compte son niveau d'exécution, son adresse et l'instruction assembleur. Deux sommets sont reliés par un arc si, dans une trace d'une exécution compatible, leurs deux instructions se suivent immédiatement.
-
-\begin{defi}
- Étant donné un programme P \sm, $(T, S)$ une exécution de P et $E_C$ l'ensemble des exécutions de P compatibles avec $(T, S)$.
+ Étant donné un programme P \sm\ et $(T, S)$ une exécution de P.
  Nous appelons GFC paramétré par $T$ le graphe $G=(V, E)$ tel que :
  \begin{itemize}
-  \item $V=\{(X,\ $\da{D}$,\ $\di{D}$), (i, X, D)\in T',\ (T', S')\in E_C \}$%\in E_C, \exists\ (i, X, D)\in T',\
+  \item $V=\{(X,\ $\da{D}$,\ $\di{D}$), (i, X, D)\in T\}$%\in E_C, \exists\ (i, X, D)\in T',\
 %$\da{D}$=a,\ $\di{D}$=I\}$
   \item $((X_1, a_1, I_1), (X_2, a_2, I_2))\in E$ si et seulement si $(X_1, a_1,
-I_1)\ et\ (X_2, a_2, I_2)$ se suivent dans une trace : $\exists (T', S')\in
-E_C,\ i\in \BN, (i, X_1, D_1)\ et\ (i+1, X_2, D_2)\in T$ avec \da{D_1}$=a_1,\ $\di{D_1}$=I_1,$~\da{D_2}$=a_2,\ $\di{D_2}$=I_2$.
+I_1)\ et\ (X_2, a_2, I_2)$ se suivent dans la trace : $(i, X_1, D_1)\ et\ (i+1, X_2, D_2)\in T$ avec \da{D_1}$=a_1,\ $\di{D_1}$=I_1,$~\da{D_2}$=a_2,\ $\di{D_2}$=I_2$.
  \end{itemize}
 \label{def:cfg_param_sm}
 \end{defi}
@@ -431,7 +447,7 @@ child {node (S9) {$s_4$}}
 \end{figure}
 
 
-\itodo{citer des cas de détection}
+\imore{citer des cas de détection}
 
 % \subsection{Obtention des traces et des vagues}
 \FloatBarrier
