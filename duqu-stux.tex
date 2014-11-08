@@ -484,7 +484,7 @@ Lors de la seconde notification, pour \texttt{kernel32.dll}, \duqu\ est injecté
 Au final, quel que soit l'ordre de chargement des pilotes, le pilote défensif permet d'éviter l'infection.
 Il est à noter que ce comportement vient de l'utilisation par le pilote de \duqu\ de deux notifications pour faire son injection : s'il l'effectuait dès la réception de la première notification, l'ordre de chargement des pilotes deviendrait crucial et, si le pilote de \duqu\ est lancé en premier, nous ne serions pas capables d'empêcher l'infection.
 
-\section{Travaux inachevés}
+\section{Perspectives}
 Nous sommes donc capables de détecter l'injection de d'empêcher le chargement de \services\ afin d'éviter l'attaque.
 Cela dit Windows ne peut pas fonctionner normalement sans \services, la machine ne sera donc pas infectée mais nécessitera une intervention humaine pouvant éventuellement détecter que le programme malveillant injecté est une variante de \stux.
 Deux contributions supplémentaires auraient pu être effectuées : d'une part nous voudrions analyser automatiquement la mémoire du processus infecté, \services, à la recherche de binaires connus pour être malveillants. 
