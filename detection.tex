@@ -32,8 +32,9 @@ La classification en logiciel légitime ou malveillant peut s'effectuer sur dive
  \item Des traces d'exécution
  \item Son code assembleur désassemblé
  \item Le code assembleur du programme dont on aurait enlevé les protections
- \item Son graphe de flot (GFC) de contrôle parfait
- \item Son graphe de flot (GFC) de contrôle paramétré par une exécution
+ \item Son graphe de flot (GFC) de contrôle
+%  \item Son graphe de flot (GFC) de contrôle parfait
+%  \item Son graphe de flot (GFC) de contrôle paramétré par une exécution
 \end{itemize}
 
 Ces caractéristiques et les techniques permettant de les déterminer ont été étudiées dans la première partie de ce document.
@@ -87,11 +88,11 @@ Une détection de comportements contient également une liste de comportements c
 L'approche traditionnelle pour la classification consiste en l'extraction, pour chaque logiciel malveillant du corpus, d'une chaîne de caractère présente dans sa représentation sous forme de fichier \cite{Szor05}.
 Elle peut être complétée pour gérer, pour chaque logiciel du corpus, une expression régulière plutôt qu'une chaîne exacte.
 Cette approche, purement syntaxique, nécessite qu'un analyste choisisse l'expression régulière à prendre en compte pour chaque logiciel du corpus : il s'agit en général d'une chaîne de données caractéristique (un numéro de version, une clé de chiffrement, un nom, etc.) ou de la représentation en octets de quelques instructions représentatives du programme.
-Son avantage est que, mise en \oe uvre correctement, elle génère très peu de faux positifs. Son premier inconvénient majeur est qu'elle est très sensible à une légère modification du programme malveillant : il suffit souvent de rajouter ou de réorganiser le code pour empêcher la détection \cite{CJ04}. Le second inconvénient de cette approche est qu'elle nécessite une analyse manuelle pour extraire la signature, opération d'autant plus contraignante si de nombreuses variantes du programme existe et qu'une nouvelle signature doit être générée pour chaque variante.
+Son avantage est que, mise en \oe uvre correctement, elle génère très peu de faux positifs. Son premier inconvénient majeur est qu'elle est très sensible à une légère modification du programme malveillant : il suffit souvent de rajouter ou de réorganiser le code pour empêcher la détection \cite{CJ04}. Le second inconvénient de cette approche est qu'elle nécessite une analyse manuelle pour extraire la signature, opération d'autant plus contraignante si de nombreuses variantes du programme existent et qu'une nouvelle signature doit être générée pour chaque variante.
 
 \paragraph{Approches comportementales.}
-Les méthodes de détection comportementales utilisent peuvent cherchent à connaître le comportement d'un programme et à le comparer, soit à une liste de comportements connus comme légitimes, soit à des comportements classés comme malveillants \cite{JDF08}.
-Il s'agit en général dans une premier temps de définir un certain nombre de comportements de haut niveau, comme l'utilisation de fichiers, de flux réseau ou de certaines fonctionnalités sensibles du système d'exploitation.
+Les méthodes de détection comportementales cherchent à connaître le comportement d'un programme et à le comparer, soit à une liste de comportements connus comme légitimes, soit à des comportements classés comme malveillants \cite{JDF08}.
+Il s'agit en général dans un premier temps de définir un certain nombre de comportements de haut niveau, comme l'utilisation de fichiers, de flux réseau ou de certaines fonctionnalités sensibles du système d'exploitation.
 Ensuite des scénarios de détection sont définis : il peut s'agir d'un enchaînement d'actions (lecture d'un fichier puis ouverture d'une connexion distante) ou simplement la définition d'un seuil (au delà d'un certain nombre d'actions sensibles effectuée).
 La réalisation d'un de ces scénarios par le programme analysé provoque sa classification comme logiciel malveillant.
 Certaines implémentations ont montré l'efficacité de l'approche, comme sur l'analyse d'extensions malveillantes pour Internet Explorer \cite{KKBVK06}.
@@ -99,7 +100,7 @@ Certaines implémentations ont montré l'efficacité de l'approche, comme sur l'
 \paragraph{Mesure automatique de distance.}
 Une technique générique de détection par signatures consiste à chercher des similarités entre deux programmes en définissant par exemple une distance entre eux. 
 Ensuite la classification se fait par mesure de la distance entre le programme analysé et les différents programmes du corpus.
-Une possibilité est de décomposer le code des programmes en n-grammes contenant $n$ instructions séquentielles d'un même bloc de base. La signature du programme est alors l'ensemble de ces groupes de $n$ instructions. Pour rendre les instructions plus génériques, JBV11 et Zhou~\cite{UZ13} ne prennent pas les instructions entière mais seulement leur mnémonique (\texttt{mov eax, 3} devient \mov).
+Une possibilité est de décomposer le code des programmes en n-grammes contenant $n$ instructions séquentielles d'un même bloc de base. La signature du programme est alors l'ensemble de ces groupes de $n$ instructions. Pour rendre les instructions plus génériques, Upchurch et Zhou~\cite{UZ13} ne prennent pas les instructions entières mais seulement leur mnémonique (\texttt{mov eax, 3} devient \mov).
 
 \paragraph{Familles de logiciels malveillants.}
 Jang, Brumley et Venkataraman \cite{JBV11} proposent un outil générique de classification des logiciels en familles, quelles que soient les caractéristiques et donc les mesures choisies. Ce type d'approches permettent d'aller plus loin que la simple classification en logiciel légitime ou malveillant et peut donner des informations sur ce qu'on peut attendre d'un logiciel en fonction de la famille à laquelle il appartient.
@@ -108,7 +109,7 @@ Jang, Brumley et Venkataraman \cite{JBV11} proposent un outil générique de cla
 L'analyse morphologique, introduite par Kaczmarek \cite{Kacz08}, Bonfante et Marion \cite{BKM08}, propose une détection 
 basée sur la comparaison des graphes de flot de contrôle. L'idée est de comparer la forme des graphes de flot de contrôle plutôt que les instructions exactes qui y sont présentes.
 Cette approche fonctionne donc par signatures, les signatures étant des graphes de flot de contrôle, et cherche à mesurer une distance automatique entre un programme et le corpus de programmes malveillants connus.
-Prenons le programme assembleur défini à la figure \ref{fig:am_prog}. La structure utile de son graphe de flot contrôle réside dans les instructions de sauts inconditionnels \jne\ aux adresses \adr{8048068} et \adr{8048076}. Ce sont ces deux instructions qui donnent sa forme au GFC : deux chemins principaux dont l'un est constitué d'une boucle.
+Prenons le programme assembleur défini à la figure \ref{fig:am_prog}. La structure utile de son graphe de flot contrôle réside dans les instructions de sauts inconditionnels \jne\ aux adresses \adr{8048068} et \adr{8048074}. Ce sont ces deux instructions qui donnent sa forme au GFC : deux chemins principaux dont l'un est constitué d'une boucle.
 
 \begin{figure}[h]
 % \def\imagetop#1{\vtop{\null\hbox{#1}}}
@@ -146,7 +147,7 @@ Adresse & Octets & Instruction\\
 \label{fig:am_prog_cfg}
 }
 \end{center}
-\caption{Programme et graphe de flot de contrôle extraits}
+\caption{Programme et son graphe de flot de contrôle}
 \label{fig:am_prog}
 \end{figure}
 
@@ -155,10 +156,10 @@ Adresse & Octets & Instruction\\
 
 \subsection{Comparaison des graphes de flot de contrôle}
 La technique consiste à rechercher des parties du graphe de flot de contrôle de programmes du corpus dans le programme analysé.
-Si une portion suffisante du graphe de flot de contrôle de programmes malveillants connus est présente dans le programme testé, on peut le classer comme indésirable. Formellement il s'agit de trouver des isomorphismes de sous-graphe entre les deux graphes de flot de contrôle. Nous définirons plus précisément le problème et détaillerons plusieurs algorithmes de résolution dans le chapitre suivant. Avant de comparer les GFC, ceux-ci sont mis dans une forme canonique à l'aide de réduction.
+Si une portion suffisante du graphe de flot de contrôle de programmes malveillants connus est présente dans le programme testé, on peut le classer comme indésirable. Formellement il s'agit de trouver des isomorphismes de sous-graphe entre les deux graphes de flot de contrôle. Nous définirons plus précisément le problème et détaillerons plusieurs algorithmes de résolution dans le chapitre suivant. Avant de comparer les GFC, ceux-ci sont mis dans une forme canonique à l'aide de réductions.
 
 \paragraph{Simplification des sommets.}
-Les sommets des GFC sont modifiés afin que chaque instruction soit d'un des types suivants : saut inconditionnel ($JMP$), saut conditionnel ($JCC$), appel de fonction ($CALL$), retour de fonction ($RET$), fin du programme ($HLT$), instruction séquentielle ($INST$) ou instruction inconnue ($UNDEF$). De même la distinction entre les arcs reliant deux instructions séquentielles, en noir dans GFC, et
+Les sommets des GFC sont modifiés afin que chaque instruction soit d'un des types suivants : saut inconditionnel ($JMP$), saut conditionnel ($JCC$), appel de fonction ($CALL$), retour de fonction ($RET$), instruction séquentielle ($INST$) ou instruction inconnue ($UNDEF$). De même la distinction entre les arcs reliant deux instructions séquentielles, en noir dans GFC, et ceux reliant une instruction de saut et la cible du saut, en rouge, est oubliée.
 Cette transformation permet aux signatures d'être plus génériques.
 
 \paragraph{Réduction des graphes de flot de contrôle.}
@@ -304,5 +305,5 @@ Certains travaux \cite{CKJKVM05} proposent des méthodes luttant spécifiquement
 Bruschi, Martignoni et Monga \cite{BMM06} proposent d'utiliser un panel de techniques d'analyse statique existantes pour définir une forme réduite, dite canonique, pour les binaires, puis de comparer les graphes de flots de contrôle résultants.
 
 \section{Conclusion}
-L'analyse morphologique, que nous présenterons en détail dans le prochain chapitre, est une approche de la détection par signatures.
+L'analyse morphologique, que nous présenterons en détail dans le prochain chapitre, est une approche la détection par signatures.
 Les signatures sont plus génériques que les signatures syntaxiques classiquement utilisées afin de détecter des structures similaires dans les différents graphes de flot de contrôle des programmes considérés.

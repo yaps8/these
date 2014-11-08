@@ -1,13 +1,11 @@
-% \newcommand{\xqq}{x862}
-
-Nous nous intéressons en premier lieu aux programmes malveillants fonctionnant sur des ordinateurs personnels et en particulier les programmes compilés, qui s'exécutent nativement dans le langage assembleur spécifique au processeur de la machine.
+Nous nous intéressons en premier lieu aux programmes malveillants fonctionnant sur des ordinateurs personnels et en particulier aux programmes compilés, qui s'exécutent nativement dans le langage assembleur spécifique au processeur de la machine.
 
 
 \section{Compilation et fichiers exécutables}
-Un exécutable est en général d'abord écrit dans un langage de haut niveau. Chacun de ses modules est ensuite compilé en un fichier objet (binaire) encodant le langage assembleur spécifique à la machine. La dernière étape est l'édition de liens qui consiste à regrouper tous les fichiers objets en un exécutable unique.
+Un exécutable est en général d'abord écrit dans un langage de haut niveau. Chacun de ses modules est ensuite compilé en un fichier \more{objet (binaire)} encodant le langage assembleur spécifique à la machine. La dernière étape est l'édition de liens qui consiste à regrouper tous ces fichiers compilés en un exécutable unique.
 
 Prenons l'exemple d'un simple \helloworld\ en C (Figure \ref{fig:helloword_c}). Il est uniquement composé d'un appel à la fonction \texttt{printf} permettant l'affichage, à l'exécution, de la chaîne de caractère ``Hello, world.''.
-Une implémentation possible en assembleur \nasm\ \xq\ pouvant tourner sous une distribution GNU/Linux est donnée en figure \ref{fig:helloword_asm}. Il est alors composé de deux appels système vers le noyau Linux : une première (sys$\_$write) permettant l'affichage de la chaîne et une seconde (sys$\_$exit) permettant de fermer le processus.
+Une implémentation possible en assembleur \nasm\ \xq\ pouvant tourner sous une distribution GNU/Linux est donnée en figure \ref{fig:helloword_asm}. Il est alors composé de deux appels système vers le noyau Linux : un premier (sys$\_$write) permettant l'affichage de la chaîne et un second (sys$\_$exit) permettant de fermer le processus.
 On peut déjà remarquer que le programme est séparé en une section de données (\pdata) contenant la chaîne de caractère à afficher et une section de code (\ptext) contenant le code assembleur à exécuter.
 \begin{figure}
 \begin{lstlisting}[language={C}]
@@ -48,7 +46,7 @@ int     0x80	    ; ~Appel au noyau~
 
 Le fichier binaire exécutable résultant de la compilation est un exécutable binaire pour Linux, sous format ELF.
 % Le format ELF est structuré de la manière suivante. 
-Comme indiqué sur la figure \ref{fig:structure_elf}, il contient des entêtes dans lesquels sont indiqués des informations générales sur le binaire telle que le point d'entrée du programme, les différentes sections du programme (leur taille, leurs adresses) et les différentes sections : ici une section \pdata\ (Figure \ref{fig:data_helloworld}) contient les données du programmes (dont la chaîne de caractères ``Hello World'') et une section \ptext\ (Figure \ref{fig:text_helloworld}) contenant le code assembleur à exécuter. L'entête de chargement (appelé officiellement \emph{program header table}) contient des informations supplémentaire pour un binaire amené à être chargé en mémoire à une adresse spécifique.
+Comme indiqué sur la figure \ref{fig:structure_elf}, il contient des entêtes dans lesquels sont indiqués des informations générales sur le binaire telle que le point d'entrée du programme, les différentes sections du programme (leur taille, leurs adresses) et les différentes sections : ici une section \pdata\ (Figure \ref{fig:data_helloworld}) contient les données du programmes (dont la chaîne de caractères ``Hello World'') et une section \ptext\ (Figure \ref{fig:text_helloworld}) contenant le code assembleur à exécuter. L'entête de chargement (ou \emph{program header table}) contient des informations supplémentaires pour un binaire amené à être chargé en mémoire à une adresse spécifique.
 À l'instar de la figure \ref{fig:structure_elf} donnant une structure simplifiée du format ELF pour Linux, la figure \ref{fig:structure_pe} donne un aperçu du format des fichiers exécutables pour un binaire \xq\ sous Windows (format PE).
 
 % \begin{figure}
@@ -144,7 +142,7 @@ Données des sections\\
 \end{figure}
 
 
-\begin{figure}
+\begin{figure}[h]
 \begin{center}
 \begin{tabular}{|c|c|l|l|}
 \hline
@@ -161,7 +159,7 @@ a0 & 80490b0 & 0a & Fin de chaîne       \\
 \label{fig:data_helloworld}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[h]
 \begin{center}
 \begin{tabular}{|c|c|l|l|}
 \hline
@@ -187,7 +185,7 @@ a0 & 80480a0 & cd 80          & int    0x80          \\
 % \x64
 \paragraph{Analyse de binaires}
 La principale difficulté lors de l'analyse d'un programme malveillant est que le code source n'est pas disponible à l'analyste qui doit se contenter du fichier binaire compilé.
-Un programme compilé se présente donc sous la forme d'un fichier binaire contenant le code machine devant être lancé à l'exécution du programme ainsi que des informations de chargement du binaire : la distinction de différentes sections, les adresses mémoires auxquelles le système devra les charger en mémoire ainsi que les librairies du système dont il a besoin et qui devront être chargées.
+Un programme compilé se présente donc sous la forme d'un fichier binaire contenant le code machine devant être lancé à l'exécution du programme ainsi que des informations de chargement du binaire : la distinction de différentes sections, les adresses mémoires auxquelles le système devra les charger en mémoire ainsi que les bibliothèques logicielles du système dont il a besoin et qui devront être chargées.
 
 La principale tâche de l'analyste est alors d'extraire du fichier binaires les informations utiles et surtout d'analyser les parties de code assembleur de l'exécutable. Nous détaillerons, dans la suite de ce chapitre, des spécificités du langage assembleur considéré, les difficultés rencontrées par l'analyste et certaines techniques de protection.
 
@@ -204,7 +202,7 @@ Ainsi le code exécutable était physiquement non modifiable et séparé des don
 % \paragraph{Architecture de Von Neumann.}
 L'architecture de Von Neumann, nommée en référence aux travaux de John von Neumann, John William Mauchly et John Eckert en 1945, acceptait la modification de la logique des programmes \cite{timsit}.
 Elle était cependant limitée à l'utilisation d'un seul bus de données entre le processeur et la mémoire.
-Cette restriction limite grandement les capacités de lecture et écriture mémoire d'une machine utilisant le modèle de Von Neumann.
+Cette restriction limite grandement les capacités de lecture et d'écriture mémoire d'une machine utilisant le modèle de Von Neumann.
 
 % \paragraph{Architecture actuelle.}
 L'architecture utilisée actuellement pour les ordinateurs personnels est un mélange des deux approches.
@@ -215,7 +213,7 @@ L'unité arithmétique et logique opère toute l'arithmétique du processeur et 
 Une addition provoque un débordement d'entier lorsque le résultat de l'addition ne peut être stocké dans un seul registre  dans ce cas le drapeau de dépassement d'entier (OF) est passé à 1.
 Une organisation simplifiée d'une machine utilisant ce modèle est donnée Figure \ref{fig:arch_harvard_mod}.
 
-\begin{figure}
+\begin{figure}[h]
 \begin{center}
 \scalebox{1}{
 \begin{tikzpicture}[->,scale=1,>=stealth',thick]
@@ -261,7 +259,7 @@ Les variables locales sont en général enregistrées sur la pile et, lors d'un 
 La dernière structure est le tas qui est géré par l'appel de fonctions d'allocations dynamiques (telles \texttt{malloc} en C) et est généralement utilisé pour entreposer les structures mémoire plus encombrantes telles que des tableaux ou des structures complexes.
 En pratique la mémoire d'un processus contient d'abord les sections de code, puis les sections de données, puis le tas qui est susceptible de s'étendre ainsi que la pile qui peut également s'étendre, dans le sens inverse (Figure \ref{fig:mem_process}).
 
-\begin{figure}
+\begin{figure}[h]
 \begin{center}
 \scalebox{1}{
 \begin{tikzpicture}[->,scale=1,>=stealth',thick]
@@ -282,12 +280,12 @@ En pratique la mémoire d'un processus contient d'abord les sections de code, pu
 
 \paragraph{Jeu d'instructions.}
 Les processeurs Intel \xq\ utilisent un jeu d'instruction complexe (CISC). La représentation d'une instruction en une suite d'octets inclut principalement un code d'opération et ses arguments. Des informations supplémentaire peuvent être codées dans l'instruction, comme des préfixes. Le format des instructions détaillé est donné figure \ref{fig:format_insts_x86}.
-L'instruction \texttt{mov ecx, 0x080490a4} de la figure \ref{fig:text_helloworld}, codée sur \texttt{b9 a4 90 04 08} est composée de l'opcode \texttt{b8+r} indiquant une opération de copie d'une valeur immédiate vers un registre. Ici r est égal à 1, ce qui indique que le registre concerné est ecx. La valeur à copier vers le registre est 0x080490a4 soient les octets \texttt{a4 90 04 08} codés en petit-boutistes (\emph{little endianness}), c'est à dire que les mots de poids faibles sont écrits en premiers, à l'inverse de l'écriture usuelle.
-Il s'agit d'une assignation immédiate et la valeur à copier vers \texttt{ecx} est la valeur immédiate.
+L'instruction \texttt{mov ecx, 0x080490a4} du programme précédent, codée sur \texttt{b9 a4 90 04 08} est composée de l'opcode \texttt{b8+r} indiquant une opération de copie d'une valeur immédiate vers un registre. Ici r est égal à 1, ce qui indique que le registre concerné est \ecx. La valeur à copier vers le registre est \texttt{0x080490a4} soient les octets \texttt{a4 90 04 08} codés en petit-boutistes (\emph{little endianness}), c'est à dire que les mots de poids faibles sont écrits en premiers, à l'inverse de l'écriture usuelle.
+% Il s'agit d'une assignation immédiate et la valeur à copier vers \texttt{ecx} est la valeur immédiate.
 Le décalage permet de modifier une instruction d'adressage indirect comme \texttt{mov ecx, [eax]}, écrivant le contenu en mémoire à l'adresse \texttt{eax} dans le registre \texttt{ecx} en \texttt{mov ebx, [eax+d]} où \texttt{d} est le décalage.
 Enfin les préfixes permettent par exemple de répéter plusieurs fois l'instruction jusqu'à ce qu'une condition sur un registre soit remplie.
 
-\begin{figure}
+\begin{figure}[h]
 \begin{center} 
 \begin{tabular}{l|l|l|l|l|l|}
 \cline{2-6}
@@ -317,14 +315,14 @@ Une seconde catégorie d'instructions permet de gérer les opérations arithmét
 Une instructions comme \texttt{add eax, ebx} ajoute la valeur de \ebx\ à celle de \eax\ et stocke le résultat de l'opération dans \eax.
 Ce type d'opération combine en fait une opération arithmétique et une assignation. 
 On peut y inclure l'instruction \cmp\ qui compare deux valeurs et met à jour les drapeaux de tests. 
-Ces drapeaux indiquent entre autres le signe du résultat d'une opération ainsi que si elle a provoqué un débordement d'entier (dans le cas où le résultat est trop grand pour être stocké sur un entier).
+Ces drapeaux indiquent entre autres le signe du résultat d'une opération ainsi que si elle a provoqué un débordement d'entier.
 % En fait les instructions arithmétiques comme \add\ provoquent aussi une mise à jour de ces drapeaux : il s'agit d'une assignation implicite.\jym{sens ? expliquer ce qu'on veut dire par explicite/implicite?}
 \imore{assignations implicites et explicites?}
 
 Les instructions précédemment décrites sont séquentielles et ne modifient pas l'ordre d'exécution d'une instruction. 
-Après l'exécution d'une instruction de type \mov\ à l'adresse $a$ codée sur $n$ octets, l'instruction située à l'adresse $a+n$.
-Le dernier type d'instruction modifie le flot de contrôle du programme et effectuent des sauts à des adresses spécifiées dans le programme.
-Ces sauts peuvent être inconditionnels comme un \texttt{jmp 8048085} qui provoque un saut à l'adresse \texttt{8048085} ou le saut dynamique \texttt{jmp eax} dont l'adresse cible du saut est la valeur de \eax.
+Après l'exécution d'une instruction de type \mov\ à l'adresse $a$ codée sur $n$ octets, l'instruction située à l'adresse $a+n$ sera exécutée.
+Le dernier type d'instruction modifie le flot de contrôle du programme : elles effectuent des sauts à des adresses spécifiées dans le programme.
+Ces sauts peuvent être inconditionnels comme un \texttt{jmp 8048085} qui provoque un saut à l'adresse \adr{8048085} ou le saut dynamique \texttt{jmp eax} dont l'adresse cible du saut est la valeur de \eax.
 Les sauts peuvent aussi être conditionnels : \texttt{je +10}, à l'adresse $a$ et de taille $n$, sera suivie de l'instruction à l'adresse $a+10$ si le registre ZF vaut 1 (en cas d'égalité) et de l'instruction à l'adresse $a+n$ dans le cas contraire.
 
 \imore{parler du multi-threading, de cores et de l'accès mémoire en cas de multi-threading}
@@ -348,7 +346,7 @@ On connaît le point d'entrée du binaire, qui est l'adresse \texttt{8048080} da
 Les instructions exécutées dans la section \ptext\ à la suite du point d'entrée sont séquentielles et ne peuvent détourner l'exécution vers la section \pdata. 
 Le code désassemblé dans cette section n'est donc pas atteignable. Dans ce cas on sait alors que la section \pdata\ ne contient pas de code et ne doit pas être désassemblée.
 
-\begin{figure}
+\begin{figure}[h]
 \begin{center}
 \begin{tabular}{|c|c|l|l|}
 \hline
@@ -538,9 +536,9 @@ Notons CODE le programme vérifiant, pour tout programme P et adresse \adr{a}, C
 Soit P un programme ne prenant pas d'entrée et ayant un unique point d'arrêt indiqué par l'instruction \halt\ à l'adresse $\alpha$.
 CODE(P, $\alpha$) = 1 si et seulement si P atteint l'adresse $\alpha$, c'est à dire si et seulement si P termine.
 
-Le désassemblage d'un programme auto-modifiant est plus difficile que le cas traité ci-dessus et donc le résoudre permettrait également de traiter le problème de l'arrêt.
 On en déduit donc que le désassemblage permet de résoudre le problème de l'arrêt qui est pourtant connu pour être indécidable ; c'est absurde.
 Ainsi le problème du désassemblage est indécidable.
+Le désassemblage d'un programme auto-modifiant est est cas plus difficile que celui traité ici : c'est également un problème indécidable.
 
 
 \subsection{Analyse statique et dynamique}
