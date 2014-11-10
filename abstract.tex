@@ -1,0 +1,8 @@
+This dissertation's main matter are malwares and some obfuscation techniques such as self-modification and code overlapping.
+Most malwares found in the wild use self-modification in order to hide their payload from an analyst.
+We propose an hybrid analysis which uses an execution trace derived from a dynamic analysis.
+This analysis cuts the self-modifying binary into several, non self-modifying, parts that we can examine through a static analysis using the trace as a guide.
+This second analysis circumvents more protection techniques such as code overlapping in order to recover the control flow graph of the studied binary.
+
+Moreover we review a morphological malware detector which compares the control flow graph of the studied binary against those of known malwares.
+We provide a formalization of this graph comparison problem along with efficient algorithms that solve it and a use case in the software similarity field.
