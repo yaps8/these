@@ -105,6 +105,17 @@ Un graphe de flot $P=(V_P, L_P, l_P, E_P)$ est un sous-graphe du graphe de flot 
 Le sous-graphe induit d'un graphe de flot $T=(V_T, L_T, l_T, E_T)$ à partir de l'ensemble de sommets $V_P \subset V_T$ est le graphe de flot $P=(V_P, L_P, l_P, E_P)$ tel que $E_P=\{(t, i, h)\in E_T / t, h \in V_P \}$, $L_P=L_T$, et $l_P=l_{T\vert V_P}$.
 \end{defi}
 
+\itodo{définition formelle de l'isomorphisme de sous-graphe!!! en gf + cas général}
+% \begin{defi}\label{def:iso-sgo}
+% Soit $T=(V_T, L_T, l_T, E_T)$ et $P=(V_P, L_P, l_P, E_P)$ deux graphes de flot. 
+% Il existe un isomorphisme de sous-graphe entre 
+% 
+% Ils sont dits isomorphes s'il existe une bijection $f:V_T\rightarrow V_P$ entre les sommets de T et ceux de P et
+% si f préserve la structure d'adjacence des graphes avec l'ordre des fils, c'est à dire si \\
+% $\forall u, v \in V_T$ et $i\in\mathbb{N} : (u, i, v) \in E_T \Leftrightarrow (f(u), i, f(v)) \in E_P$.
+% \end{defi}
+
+
 % il est
 % important de noter qu'un sous-graphe a des sommets pris arbitrairement au graphe de base mais que ses arcs sont exactement tous ceux
 % du graphe de base qui s'appliquent aux sommets choisis. 
