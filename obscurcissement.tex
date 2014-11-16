@@ -371,17 +371,17 @@ La procédure d'exécution du binaire protégé utilise un saut conditionnel pou
 % \scriptsize
 Octets à désassembler : \texttt{89 f9 79 07 0f b7 07 47 50 47 b9 57 48 f2 ae 55}
 \begin{lstlisting}[language={[x86masm]Assembler}, escapechar=~]
-    010059f0    89 f9            mov ecx, edi
-,=< 010059f2    79 07            jns +9
-|   010059f4    0f b7 07         movzx eax, word [edi]
-|   010059f7    47               inc edi
-|   010059f8    50               push eax
-|   010059f9    47               inc edi
-|   010059fa    b9 57 48 f2 ae   mov ecx, aef24857
-`->   010059fb     57            push edi
-      010059fc        48         dec eax
-      010059fd           f2 ae   repne scasb
-    010059ff    55               push ebp
+010059f0            89 f9           mov ecx, edi
+010059f2            79 07           jns +9 <suite>
+010059f4            0f b7 07        movzx eax, word [edi]
+010059f7            47              inc edi
+010059f8            50              push eax
+010059f9            47              inc edi
+010059fa            b9 57 48 f2 ae  mov ecx, aef24857
+  010059fb <suite>     57           push edi
+  010059fc                48        dec eax
+  010059fd                   f2 ae  repne scasb
+010059ff            55              push ebp
 \end{lstlisting}
 % \end{framed}
 \caption{Chevauchement de code dans UPX\label{fig:upx_obf_disas}}
@@ -493,13 +493,31 @@ La limite est que les instructions cachées ne peuvent excéder une taille de 4 
 % \label{fig:unevague_v0}
 % \end{figure}
 
-\begin{figure}
+Il a été expliqué dans la section \ref{section:assembleur} que, avec l'architecture de Von Neumann, le code n'est pas physiquement séparé des données lors de l'exécution sur une machine réelle.
+Un programme auto-modifiant est simplement un programme utilisant cette propriété pour modifier le code assembleur le définissant au cours même de son exécution.
+Ainsi on parle de comportement auto-modifiant lorsqu'une instruction du programme est codée sur au moins un octet qui a au préalable été modifié par ce programme.
+
+En pratique les processeurs récents implémentent une protection, appelée bit NX ou W\textasciicircum X (prononcé ``W xor X''), permettant d'empêcher qu'une page mémoire puisse être à la fois écrite et exécutée lors de l'exécution du programme.
+Cette protection a été ajoutée pour éviter des attaques résultant en l'exécution de code dans des données écrites par l'utilisateur du programme et non pour interdire l'auto-modification qui a des cas d'utilisation légitimes.
+De ce fait l'activation ou non de la protection est spécifiée lors de la compilation et si un programme n'est pas protégé il lui suffit d'utiliser un appel système (\texttt{mprotect} sous linux) pour autoriser l'exécution de code sur la pile.
+
+% Prenons le programme de la figure \ref{fig:unevague_v0_code}. Ce programme commence par autoriser l'accès en écriture à la section de code \ptext\ puis écrit sur la pile, modifie la valeur du registre \edi\ et termine par l'affichage de la valeur de \edi.
+% Si on ne prend pas en compte l'écriture sur la pile, il semble évident au vu du graphe de flot de contrôle (Figure \ref{fig:unevague_v0_cfg}), vu que la première instruction de saut provoque un saut vers l'instruction \texttt{mov edi,0x3} et que la seconde provoque l'affichage de \edi, que la valeur finale du registre est 3.
+% Pourtant les instructions \texttt{mov [eax],0xeb} et \texttt{mov [eax+1],0x07} aux l'adresse $0x8048086$ et $0x804808b$ remplacent le saut initial par un saut vers l'adresse $0x8048098$ où la valeur de \edi\ sera fixée à 2 avant l'affichage de celle-ci.
+
+Prenons le programme de la figure \ref{fig:easy_sm}. Ce programme commence par autoriser l'accès en écriture à la section de code \ptext\ : les droits d'accès de cette section deviennent RWX (lecture, écriture et exécution sont autorisées).
+Puis il place une adresse mémoire, \adr{8048076} dans \eax, puis l'instruction 2 écrit à l'adresse $eax+1$, provoquant la modification de l'instruction 4 en \texttt{mov edi, 2}, codée sur \texttt{bf 02 00 00 00}.
+Puis l'instruction 3 provoque une seconde auto-modification en transformant l'instruction 5 en \texttt{mov ebx, 2}, codée sur \texttt{bb 02 00 00 00}.
+Si on ne prend pas en compte les instructions auto-modifiantes la valeur finale, affichée, de \edi\ et \ebx\ est 1.
+Pourtant les instructions 2 et 3 modifie le code de telle sorte que la valeur finale de ces deux registres est 2 au moment de leur affichage.
+
+\begin{figure}[h]
 \begin{center}
 \begin{tabular}[b]{|l|l|l|l|}
 \hline
 i & Adresse & Octets & Instruction\\ 
 \hline
-0 &  (...)   &  (...)                  &  Pile -> RWX \\ 
+0 &  (...)   &  (...)                  &  \ptext\ -> RWX \\ 
 1 & 8048060  &  b8 6b 80 04 08         &  mov    eax, 0x8048076\\
 2 & 8048065  &  66 c7 40 01 02 00      &  mov    [eax+1], 2 \\
 3 & 804806b  &  66 c7 40 06 02 00      &  mov    [eax+6], 2 \\
@@ -513,24 +531,6 @@ i & Adresse & Octets & Instruction\\
 \caption{Programme auto-modifiant}
 \label{fig:easy_sm}
 \end{figure}
-
-
-Il a été expliqué dans la section \ref{section:assembleur} que, avec l'architecture de Von Neumann, le code n'est pas physiquement séparé des données lors de l'exécution sur une machine réelle.
-Un programme auto-modifiant est simplement un programme utilisant cette propriété pour modifier le code assembleur le définissant au cours même de son exécution.
-Ainsi on parle de comportement auto-modifiant lorsqu'une instruction du programme est codée sur au moins un octet qui a au préalable été modifié par ce programme.
-
-En pratique les processeurs récents implémentent une protection, appelée bit NX ou W\textasciicircum X (prononcé ``W xor X''), permettant d'empêcher qu'une page mémoire puisse être à la fois écrite et exécutée lors de l'exécution du programme.
-Cette protection a été ajoutée pour éviter des attaques résultant en l'exécution de code dans des données écrites par l'utilisateur du programme et non pour interdire l'auto-modification qui a des cas d'utilisation légitimes.
-De ce fait l'activation ou non de la protection est spécifiée lors de la compilation et si un programme n'est pas protégé il lui suffit d'utiliser un appel système (\texttt{mprotect} sous linux) pour autoriser l'exécution de code sur la pile.
-
-% Prenons le programme de la figure \ref{fig:unevague_v0_code}. Ce programme commence par autoriser l'accès en écriture à la section de code \ptext\ puis écrit sur la pile, modifie la valeur du registre \edi\ et termine par l'affichage de la valeur de \edi.
-% Si on ne prend pas en compte l'écriture sur la pile, il semble évident au vu du graphe de flot de contrôle (Figure \ref{fig:unevague_v0_cfg}), vu que la première instruction de saut provoque un saut vers l'instruction \texttt{mov edi,0x3} et que la seconde provoque l'affichage de \edi, que la valeur finale du registre est 3.
-% Pourtant les instructions \texttt{mov [eax],0xeb} et \texttt{mov [eax+1],0x07} aux l'adresse $0x8048086$ et $0x804808b$ remplacent le saut initial par un saut vers l'adresse $0x8048098$ où la valeur de \edi\ sera fixée à 2 avant l'affichage de celle-ci.
-
-Prenons le programme de la figure \ref{fig:easy_sm}. Ce programme commence par autoriser l'accès en écriture à la section de code \ptext\ puis place une adresse mémoire, \adr{8048076} dans \eax, puis l'instruction 2 écrit à l'adresse $eax+1$, provoquant la modification de l'instruction 4 en \texttt{mov edi, 2}, codée sur \texttt{bf 02 00 00 00}.
-Puis l'instruction 3 provoque une seconde auto-modification en transformant l'instruction 5 en \texttt{mov ebx, 2}, codée sur \texttt{bb 02 00 00 00}.
-Si on ne prend pas en compte les instructions auto-modifiantes la valeur finale, affichée, de \edi\ et \ebx\ est 1.
-Pourtant les instructions 2 et 3 modifie le code de telle sorte que la valeur finale de ces deux registres est 2 au moment de leur affichage.
 
 On constate ici que le programme se modifie au cours de son exécution et donc on ne peut pas se contenter de la représentation d'origine du programme pour l'analyser.
 De plus les instructions modifiées pourraient modifier le flot de contrôle du programme en rajoutant des instructions de saut conditionnel par exemple, donc le graphe de flot de contrôle initial peut être amené à évoluer au cours de l'exécution du programme.

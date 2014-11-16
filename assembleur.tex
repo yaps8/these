@@ -5,7 +5,7 @@ Nous nous intéressons en premier lieu aux programmes malveillants fonctionnant 
 Un exécutable est en général d'abord écrit dans un langage de haut niveau. Chacun de ses modules est ensuite compilé en un fichier \more{objet (binaire)} encodant le langage assembleur spécifique à la machine. La dernière étape est l'édition de liens qui consiste à regrouper tous ces fichiers compilés en un exécutable unique.
 
 Prenons l'exemple d'un simple \helloworld\ en C (Figure \ref{fig:helloword_c}). Il est uniquement composé d'un appel à la fonction \texttt{printf} permettant l'affichage, à l'exécution, de la chaîne de caractère ``Hello, world.''.
-Une implémentation possible en assembleur \nasm\ \xq\ pouvant tourner sous une distribution GNU/Linux est donnée en figure \ref{fig:helloword_asm}. Il est alors composé de deux appels système vers le noyau Linux : un premier (sys$\_$write) permettant l'affichage de la chaîne et un second (sys$\_$exit) permettant de fermer le processus.
+Une implémentation possible en assembleur \nasm\ \xq\ (32 bits) pouvant tourner sous une distribution GNU/Linux est donnée en figure \ref{fig:helloword_asm}. Il est alors composé de deux appels système vers le noyau Linux : un premier (sys$\_$write) permettant l'affichage de la chaîne et un second (sys$\_$exit) permettant de fermer le processus.
 On peut déjà remarquer que le programme est séparé en une section de données (\pdata) contenant la chaîne de caractère à afficher et une section de code (\ptext) contenant le code assembleur à exécuter.
 \begin{figure}
 \begin{lstlisting}[language={C}]
@@ -40,7 +40,7 @@ mov     eax, 1      ; ~Numéro d'appel système (sys$\_$exit)~
 mov	ebx, 0	    ; ~Premier argument : le code de retour (0 : normal)~
 int     0x80	    ; ~Appel au noyau~
 \end{lstlisting}
-\caption{Code assembleur \xq\ de \helloworld}
+\caption{Code assembleur \xq\ (32 bits) de \helloworld}
 \label{fig:helloword_asm}
 \end{figure}
 
@@ -132,6 +132,7 @@ Données des sections\\
 ~~~~de données\\
 % \hline
 ~~~~...\\
+~~~~\\
 \hline
 \end{tabular}
 \label{fig:structure_pe}
@@ -428,22 +429,101 @@ Adresse & Octets & Instruction\\
 Un désassemblage suivant un parcours linéaire désassemble, pour chaque section, la première instruction à l'adresse $a$ puis l'instruction à l'adresse $a+k$ où $k$ est le nombre d'octets sur lesquels l'instruction est codée.
 Ainsi pour une suite d'instructions séquentielles cette méthode suit le flot de contrôle mais si une instruction de type \jmp\ est rencontrée, le désassemblage s'intéressera à l'instruction qui suit en mémoire et non celle qui sera logiquement exécutée ensuite.
 La figure \ref{fig:asm_eax_code} donne un exemple de désassemblage linéaire d'une fonction assembleur.
+
+L'algorithme \ref{algo:parcours_lineaire} explicite le parcours linéaire d'un programme composé de plusieurs sections étant chacune un bloc d'octets présent à une adresse mémoire.
+Un désassemblage consiste en la donnée d'un ensemble de couples dont chaque couple représente une instruction assembleur : le premier élément du couple est l'adresse où l'instruction est présente et le second élément est l'instruction \xq\ ou \xs\ étant à cette adresse.
+Nous désassemblons entre la première et la dernière adresse mémoire de chaque section et supposons que l'on dispose de deux opérateurs supplémentaires $decode$ et $taille$.
+Le premier fournit, à partir d'une adresse et d'un programme, l'instruction présente à cette adresse dans le programme.
+Le second indique la taille d'une instruction, c'est à dire le nombre d'octets sur lesquels elle est codée.
+
+\begin{algorithm}[H] %or another one check
+\caption{Désassemblage linéaire d'un programme P composé de plusieurs sections}
+\SetAlgoLined
+\KwIn{Un programme P composé de plusieurs sections}
+\KwResult{Le désassemblage linéaire de P}
+\SetKwProg{Fn}{}{}{}
+\SetKwFunction{FRecurs}{desassemblageLineaire}
+\Fn(
+){\FRecurs{P}}{
+$D \leftarrow\ \emptyset$\\
+\For {toute section S de P}{
+\tcp*[h]{On désassemble section par section}\\
+  $D \leftarrow\ D\cup desassemblageSection(S, P)$\\
+}
+\Return $D$
+}
+~\\
+\SetKwFunction{FRecurs}{desassemblageSection}
+\Fn(
+){\FRecurs{S, P}}{
+  \tcp*[h]{On va désassembler entre la première et la dernière adresse mémoire où S est mappée}\\
+  $debut \leftarrow premiereAdresse(S)$  \\
+  $fin \leftarrow derniereAdresse(S)$    \\
+  $a \leftarrow debut$ \\
+  $D \leftarrow\ \emptyset$\\
+  \While{$a\leq fin$}{
+    \tcp*[h]{On récupère l'instruction de P présente à l'adresse a}\\
+    $I\leftarrow decode(a, P)$ \\
+    $D\leftarrow D\cup \{(a, I)\}$ \\
+    $a\leftarrow a+taille(I)$
+  }
+  \Return $D$
+}
+\label{algo:parcours_lineaire}
+\end{algorithm}
+
 L'avantage de cette technique réside dans sa simplicité et le fait qu'elle couvre l'ensemble de la mémoire.
 Pourtant, ne cherchant pas à suivre le flot de contrôle, elle ne permet pas de séparer le code exécutable des données et désassemble des instructions qui ne sont pas atteignables comme l'instruction \mov\ à l'adresse $804806e$ de la figure \ref{fig:asm_eax}.
 C'est l'approche utilisée par le désassembleur standard du projet GNU, objdump \cite{objdump}.
 La commande de désassemblage par défaut du désassembleur interactif libre Radare \cite{radare} fonctionne également par parcours linéaire.
 
+
+
 \subsection{Parcours récursif}
 À l'inverse du parcours linéaire, le parcours récursif suit le flot de contrôle et désassemble les instructions qui se suivent logiquement en partant du point d'entrée du programme. Le graphe de flot de contrôle peut être déduit du parcours récursif : la figure \ref{fig:asm_eax_cfg} donne celui de l'exemple précédent.
-Une telle approche est utilisée par le désassembleur commercial IDA \cite{IDA}.
-L'avantage de cette technique est qu'elle ne désassemble que des instructions dont on peut raisonnablement penser qu'elles sont atteignables.
 
+L'algorithme \ref{algo:parcours_recursif} détaille le parcours récursif d'un programme ayant un point d'entrée.
+Nous avons cette fois besoin de connaître les enchaînements possibles à la suite de l'exécution d'une instruction : nous ajoutons alors l'opérateur $fils$ qui, à partir d'une instruction $I$, renvoie l'ensemble des adresses des instructions pouvant être exécutées à la suite de $I$.
+Une instruction de saut conditionnel aura typiquement deux fils : une des adresse est atteinte si la condition est remplie et l'autre dans le cas contraire.
+
+\begin{algorithm}[H] %or another one check
+\caption{Désassemblage récursif d'un programme P}
+\SetAlgoLined
+\KwIn{Un programme P de point d'entrée $ep$}
+\KwResult{Le désassemblage récursif de P}
+\SetKwProg{Fn}{}{}{}
+\SetKwFunction{FRecurs}{desassemblageRecursif}
+\Fn(
+){\FRecurs{P}}{
+\tcp*[h]{On désassemble à partir du point d'entrée de P}\\
+\Return $desassemblage(ep, \emptyset, P)$
+}
+~\\
+\SetKwFunction{FRecurs}{desassemblage}
+\Fn(
+){\FRecurs{a, D, P}}{
+  $I\leftarrow decode(a, P)$ \\
+  $D\leftarrow D\cup \{(a, I)\}$ \\
+  \tcp*[h]{On désassemble récursivement tous les fils de I qui n'ont pas déjà été parcourus}\\
+  \For {$a'\in fils(I)$}
+  {
+  \If {$a'$ n'est pas présent dans D}{
+    $D\leftarrow D\cup desassemblage(a', D, P)$ \\
+  }
+  }
+  \Return $D$
+}
+\label{algo:parcours_recursif}
+\end{algorithm}
+
+L'avantage de cette technique est qu'elle ne désassemble que des instructions dont on peut raisonnablement penser qu'elles sont atteignables.
 Cependant certains chemins ne sont pas atteignables en raison de variables définies. 
 L'instruction à l'adresse \texttt{8048076} provoque un saut vers l'adresse \texttt{804807e} si la comparaison effectuée à l'instruction précédente est vraie, c'est à dire si $\eax=0$, et saute vers l'adresse \texttt{8048078} dans le cas contraire.
 Or la première instruction de la fonction donne à \eax\ la valeur 0. Dans tous les cas le saut se produira donc vers l'adresse \texttt{804807e} et l'autre branche n'est pas atteignable.
 
 D'autre part si des sauts dynamiques sont utilisés comme avec l'instruction \texttt{jmp eax}, le parcours récursif s'arrête alors qu'il est clair que d'autres instructions seront exécutées.
 La difficulté théorique vient du fait que déterminer l'ensemble des valeurs possibles pour \eax\ est dans certains cas un problème indécidable.
+Le désassembleur commercial IDA~\cite{IDA} fonctionne par parcours récursif.
 % \jym{déterminer eax peut être indécidable // le pb vient des embranchements et des prédicats opaques ?}
 
 
@@ -481,10 +561,11 @@ Les données sont les parties du programme qui peuvent être lues lors d'une ex�
 \end{tikzpicture}
 \end{center}
 
-Une définition formelle du désassemblage parfait d'un programme P (définition \ref{def:desassemblage_parfait_nsm}) est alors la détermination de l'ensemble des adresses atteignables de P.
+Une définition formelle du désassemblage parfait d'un programme P (définition \ref{def:desassemblage_parfait_nsm}) est alors la détermination de l'ensemble des instructions atteignables de P, munies de l'adresse à laquelle elles sont présentes dans P.
+Nous utilisons, comme précédemment, l'opérateur $decode$ qui, à partir d'une adresse et d'un programme, renvoie l'instruction présente à cette adresse dans le programme.
 
 \begin{defi}
- Étant donné un programme P \nsm\ prenant une entrée I, le désassemblage parfait de P est la donnée de l'ensemble des adresses $a$ de P pouvant être atteintes, soit $\bigcup_{I} \{a,\ P(I)\ atteint\ a\}$.
+ Étant donné un programme P \nsm\ prenant une entrée I, le désassemblage parfait de P est la donnée de $\bigcup_{I} \{(a, decode(a, P)),\ P(I)\ atteint\ a\}$.
 \label{def:desassemblage_parfait_nsm}
 \end{defi}
 
@@ -524,9 +605,9 @@ En pratique nous ne disposons pas de la liste exhaustive de tous les chemins d'e
 \imore{borne min ~ arrêt ?}
 % On a vu que le problème du désassemblage tient dans la difficulté de séparer les parties de code potentiel des parties de données.
 Si on cherche à séparer le code des données alors le but du désassemblage d'un programme P est de résoudre le problème suivant. On se limite dans un premier temps à un programme P non auto-modifiant.
-\begin{pb}
+\begin{pb*}
 Soit \adr{a} une adresse, existe-t-il une entrée I de P telle que P(I) atteint \adr{a} ?
-\end{pb}
+\end{pb*}
 
 Nous reprenons ici un argument tiré de la thèse de Joan Calvet \cite{Calvet2013} montrant le caractère indécidable de ce problème en réduisant le problème de l'arrêt à celui-ci.
 
@@ -537,8 +618,8 @@ Soit P un programme ne prenant pas d'entrée et ayant un unique point d'arrêt i
 CODE(P, $\alpha$) = 1 si et seulement si P atteint l'adresse $\alpha$, c'est à dire si et seulement si P termine.
 
 On en déduit donc que le désassemblage permet de résoudre le problème de l'arrêt qui est pourtant connu pour être indécidable ; c'est absurde.
-Ainsi le problème du désassemblage est indécidable.
-Le désassemblage d'un programme auto-modifiant est est cas plus difficile que celui traité ici : c'est également un problème indécidable.
+Ainsi le problème du désassemblage d'un programme \nsm\ est indécidable.
+Le désassemblage d'un programme \sm\ est un cas plus difficile que celui traité ici : il s'agit également un problème indécidable.
 
 
 \subsection{Analyse statique et dynamique}
@@ -556,6 +637,7 @@ En pratique le désassemblage est classiquement du domaine de l'analyse statique
 % \subsection{Décompilation}
 
 \section{Conclusion}
+\imore{Expliquer quelques différences entre \xq\ et \xs}
 Nous avons décrit les machines sur lesquelles les programmes que nous étudions s'exécutent : il s'agit des ordinateurs avec une architecture \xq\ ou \xs.
 Un programme assembleur a, généralement, été initialement écrit dans un langage de haut niveau puis compilé en binaire encodant les instructions dans le langage assembleur cible.
 

@@ -10,9 +10,10 @@ Certaines de ces actions peuvent être objectivement malveillantes comme c'est l
 Un logiciel malveillant visant à fournir à un attaquant un accès à distance ne diffère pas fondamentalement, en termes de fonctionnalités, d'un logiciel légitime utilisé par un administrateur.
 La différence entre les deux est que l'administrateur n'est pas au courant de l'installation du logiciel malveillant et ne peut pas le contrôler.
 Nous proposons donc la définition suivante pour un logiciel malveillant.
-\begin{defi}
-Un logiciel est dit malveillant s'il réalise volontairement des opérations allant à l'encontre de l'intérêt de l'utilisateur, et ce à l'insu de celui-ci.
-\end{defi}
+\\
+
+\textit{Un logiciel est dit malveillant s'il réalise volontairement des opérations allant à l'encontre de l'intérêt de l'utilisateur, et ce à l'insu de celui-ci.}
+\\ 
 
 Les actions malveillantes peuvent être de différentes natures. On parle d'atteinte à la confidentialité lorsque des données privées sont obtenues par l'attaquant, d'atteinte à l'intégrité lorsque de l'information présente sur le système attaqué est altérée par l'attaquant et d'atteinte à la disponibilité du système si l'attaquant rend le système inutilisable ou plus difficile à opérer.
 
@@ -42,10 +43,11 @@ Dans un premier temps nous exécutons le programme pour lui faire décompresser 
 \section*{Problèmes de recherche}
 La principale difficulté lors de l'analyse d'un logiciel malveillant est qu'il est auto-modifiant : un programme encapsulé se décompresse en réécrivant sur lui-même en mémoire. L'auto-modification complexifie grandement la sémantique du programme puisqu'une instruction peut-être amenée à être modifiée au cours de l'exécution de celui-ci.
 
-\begin{pb}
- Définir une sémantique et une technique d'analyse compatible avec l'auto-modification.
-\end{pb}
+% \begin{pb}
+%  Définir une sémantique et une technique d'analyse compatible avec l'auto-modification.
+% \end{pb}
 
+Afin de comprendre cette technique il est nécessaire d'utiliser une sémantique compatible avec l'auto-modification.
 Nous avons repris les sémantiques définies par Reynaud \cite{Reynaud2010} et Calvet \cite{Calvet2013} séparant l'exécution d'un programme auto-modifiant en vagues. Chacune des vagues représente une étape d'exécution dans laquelle le programme n'est pas modifié. Cette représentation permet d'analyser chaque vague indépendamment des autres et d'articuler l'analyse d'un programme autour d'une trace d'exécution particulière.
 Nous avons implémenté un émulateur de code \xq\ auto-modifiant : il est capable de reconstruire les vagues de la trace émulée.
 
@@ -53,9 +55,9 @@ Nous avons implémenté un émulateur de code \xq\ auto-modifiant : il est capab
 
 Nous avons ensuite cherché à désassembler un programme obscurci. Le but est de déterminer l'ensemble du code atteignable en étant à la fois correct (on doit couvrir tout le code potentiel) et précis (le code désassemblé doit pouvoir être exécuté). 
 
-\begin{pb}
+\begin{pbb}
  Désassembler et reconstruire le graphe de flot de contrôle d'un programme obscurci.
-\end{pb}
+\end{pbb}
 
 Puisque notre objectif est de comparer les graphes de programmes connus et inconnus, nous utilisons le désassemblage pour reconstruire un graphe de flot de contrôle du programme analysé.
 Notre contribution est la définition et l'implémentation d'un désassembleur hybride partant d'une trace d'exécution et permettant de reconstruire le graphe de flot de contrôle de chacune des vagues du binaire à l'aide d'une analyse statique.
@@ -63,9 +65,9 @@ Notre contribution est la définition et l'implémentation d'un désassembleur h
 Enfin la comparaison des graphes de flot de contrôle, ou analyse morphologique, consistait en la détection d'isomorphismes de graphes entre des parties des graphes de flot considérés. 
 L'algorithme utilisé à l'origine fonctionnait par reconnaissance d'arbres à l'aide d'un automate d'arbres. Il n'existait pas de cadre formel définissant les objets détectés par cette analyse. Sans cadre formel il était difficile de mesurer les performances des implémentations utilisées en termes de précision des résultats.
 
-\begin{pb}
+\begin{pbb}
  Formaliser et optimiser la reconnaissance de graphes dans l'optique de la détection de programmes malveillants.
-\end{pb}
+\end{pbb}
 
 Notre travail a permis de dégager la notion de site. Les sites sont des sous-graphes particuliers du graphe de flot de contrôle et sont l'entité atomique que nos algorithmes de détection d'isomorphismes cherchent à faire correspondre entre plusieurs programmes à analyser. Nous avons élaboré un algorithme correct et rapide pour des petites bases de logiciels malveillants ainsi qu'un algorithme sous-optimal mais donnant de bons résultats et dont le temps d'exécution ne dépend pas de la taille de la base.
 
@@ -74,3 +76,6 @@ Notre travail a permis de dégager la notion de site. Les sites sont des sous-gr
 Nous commencerons, dans une première partie, par définir les notions d'assembleur et de désassemblage qui seront utilisées dans la suite du manuscrit, puis détaillerons une technique d'analyse statique, puis dynamique de programmes obscurcis. Cette partie se terminera par la combinaison des deux approches et la présentation de notre outil de désassemblage.
 
 La seconde partie portera plus particulièrement sur l'analyse morphologique et les algorithmes de comparaison de graphes. Nous reviendrons sur les applications d'une telle méthode à la détection de programmes malveillants, à la détection de librairies logicielles et à l'analyse pratique de programmes malveillants avec l'exemple de \duqu\ et \stux.
+
+\section*{Résumé des résultats}
+\itodo{todo}
