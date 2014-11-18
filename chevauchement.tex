@@ -1,7 +1,9 @@
 Nous cherchons à parcourir le plus de code atteignable dans le but d'approximer le graphe de flot de contrôle parfait.
 Il faut alors pallier d'une part à l'incomplétude d'un parcours récursif du à la présence de sauts dynamiques, et d'autre part au manque de précision d'un parcours linéaire.
 Une des difficulté vient de l'obscurcissement par chevauchement de code. 
+
 Dans ce chapitre nous commençons par dresser un état de l'art de quelques techniques d'analyse statique et de leur approche du chevauchement de code, puis nous proposerons une caractérisation des binaires utilisant cette technique.
+Nous ne considérons que des programmes \nsms.
 % Nous cherchons donc des approches du désassemblage qui prennent en compte cette méthode de protection.
 
 
@@ -126,18 +128,18 @@ Octets & eb & ff & c9 & 7f & e6\\
 
 \subsection{Définitions\label{sec:chevauchement_analyse_definitions}}
 
-Pour une instruction $I$ on note l'intervalle d'adresses mémoire sur lesquelles elle est codée \dc{I}.
-Formellement on définit une \layer\ comme un ensemble d'instructions qui ne se chevauchent pas (définition \ref{def:layer})
+Pour une instruction dynamique $I$ on note l'intervalle d'adresses mémoire sur lesquelles elle est codée \dc{I}, comme indiqué à la définition \ref{def:ensembles_inst_dyn} du chapitre précédent.
+Formellement on définit une \layer\ comme un ensemble d'instructions qui ne se chevauchent pas (définition \ref{def:layer}).
 Par conséquent lors du désassemblage on cherche à effectuer un découpage cohérent des instructions inclues dans le graphe de flot de contrôle en différentes \layers\ (définition \ref{def:decoupage}).
 L'exemple précédent pour \telock\ est un découpage cohérent.
 
 \begin{defi}
- Une \layer\ de code $L$ est un ensemble d'instructions dynamiques qui ne se chevauchent pas : $\forall D_1, D_2\in L,\ $\dc{I_1}$\cap$\dc{I_2}$=\emptyset$.
+ Une \layer\ de code $L$ est un ensemble d'instructions dynamiques qui ne se chevauchent pas : $\forall D_1, D_2\in L,\ \mdc{I_1}\cap\mdc{I_2}=\emptyset$.
 \label{def:layer}
 \end{defi}
 
 \begin{defi}
- Étant donné le désassemblage d'un programme P, un découpage cohérent est un ensemble de \layers\ deux à deux disjointes et recouvrant l'ensemble des instructions désassemblées.
+ Étant donné un ensemble d'instructions dynamiques $E$, un découpage cohérent est un ensemble de \layers\ deux à deux disjointes et recouvrant l'ensemble des instructions de $E$.
 \label{def:decoupage}
 \end{defi}
 
@@ -166,6 +168,44 @@ Cette propriété n'est évidemment pas vérifiée si les instructions ont été
 Nous souhaitons obtenir un découpage cohérent des \layers\ sous forme d'ensembles deux à deux disjoints.
 Il suffit alors d'enlever des \layers\ les instructions existant déjà dans les \layers\ inférieures (colorées en gris sur la figure \ref{fig:telock-layers-linear}) et de ne garder que les \layers\ contenant des instructions valides.
 Au final il reste les deux \layers\ données précédemment à la figure \ref{fig:telock-layers-simple}, obtenus linéairement.
+L'algorithme \ref{algo:decoupage_lineaire} détaille le découpage cohérent en couches linéaires d'un programme composé d'un seul segment est donné.
+
+\begin{algorithm}[H]
+\caption{Découpage cohérent en couches linéaires}
+\SetAlgoLined
+\KwIn{Un programme P composé d'un unique segment}
+\KwResult{Un découpage cohérent en couches}
+\SetKwProg{Fn}{}{}{}
+\SetKwFunction{FRecurs}{decoupageLineaire}
+\Fn(
+){\FRecurs{P}}{
+$debut \leftarrow premiereAdresse(P)$    \\
+$fin \leftarrow derniereAdresse(P)$    \\
+$C \leftarrow\ \emptyset$\\
+\For {$a$ de $debut$ à $fin$}{
+\tcp*[h]{On cherche à construire une couche à partir de chaque adresse}\\
+  $C \leftarrow\ C,\ coucheLineaire(a, C, P, fin)$\\
+}
+\Return $C$
+}
+~\\
+\SetKwFunction{FRecurs}{coucheLineaire}
+\Fn(
+){\FRecurs{a, C, P, fin}}{
+  \tcp*[h]{On va désassembler linéairement de $a$ à la dernière adresse mémoire de $P$}\\
+  $c \leftarrow\ \emptyset$\\
+  \While{$a\leq fin$}{
+    \tcp*[h]{On récupère l'instruction de P présente à l'adresse a}\\
+    $D\leftarrow decode(a, P)$ \\
+    \If{$\forall c'\in C, D\notin c'$}{
+      $c\leftarrow D$\\
+    }
+    $a\leftarrow a+|\mdc{D}|$
+  }
+  \Return $c$
+}
+\label{algo:decoupage_lineaire}
+\end{algorithm}
 
 \paragraph{Binaire composé de plusieurs segments.}
 On peut étendre la définition précédente applicable à un segment d'octets à un binaire composé de plusieurs segments de code disjoints.
@@ -231,7 +271,7 @@ Octets & eb & ff & c9 & 7f & e6\\
 % \label{fig:upx-layers-recursive}
 % \end{figure}
 
-\subsection{\Layers\ désassemblées}
+\subsection{\Layers\ désassemblées par parcours récursif}
 Une autre approche consiste à construire des \layers\ de code au fur et à mesure du désassemblage du binaire.
 Un désassemblage parfait de l'extrait de \telock\ précédent (figure \ref{fig:telock-layers-simple}) à partir du point d'entrée \adr{0x1006e7d} contient exactement les trois instructions \texttt{jmp +1}, \texttt{dec ecx}, \texttt{jg 0x1006e68}. La première instruction va provoquer la création d'une première \layer, la seconde étant en chevauchement avec la première, elle ne peut être placée que dans une nouvelle \layer. La dernière instruction peut être placée dans n'importe laquelle des deux \layers\ existantes, on la placera, arbitrairement, dans la première \layer. Un tel découpage est donné en figure \ref{fig:telock-layers-rec}.
 
@@ -291,8 +331,8 @@ Ce découpage résulte en des \layers\ ayant au moins autant d'instructions que 
 \paragraph{Choix du découpage.}
 Dans la suite de cette thèse nous favorisons ce découpage pour la définition des \layers\ parce qu'il nous permet d'observer les difficultés qu'impliquent le chevauchement de code lors d'un désassemblage, quel que soit l'algorithme de désassemblage choisi.
 
-\subsection{Application à un désassemblage par parcours récursif\label{sec:layers_decoupage_recursif}}
-Nous appliquons la seconde méthode de découpage en \layers\ à un désassemblage fonctionnant par parcours récursif.
+\subsection{Parcours récursif\label{sec:layers_decoupage_recursif}}
+Nous appliquons la seconde méthode de découpage en \layers\ à un désassemblage fonctionnant par parcours récursif. L'algorithme \ref{algo:parcours_recursif} du chapitre \ref{chap:assembleur} explicite ce parcours.
 
 \paragraph{Non-unicité du découpage.}
 La technique de désassemblage que nous proposons est basée sur un parcours récursif. Il est à noter qu'avec ce type de parcours les \layers\ obtenus en applicant l'algorithme précédent dépendent de l'ordre dans lequel les fils de chaque sommet sont explorés.

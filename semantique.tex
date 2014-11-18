@@ -42,7 +42,7 @@ Nous verrons par la suite que pour certaines analyses une sémantique de niveau 
 \paragraph{Représentation de la mémoire et des registres.}
 On peut voir la mémoire comme un tableau contenant la pile et le tas, indexés sur les entiers. Les registres sont des variables distinctes de la mémoire et sont en nombre limité.
 L'assembleur distingue plusieurs modes d'adressage dont les deux principaux sont l'adressage direct et indirect : à l'exécution \eax\ prend la valeur du registre \eax\ (adressage direct) tandis que \texttt{[eax]} fait référence à la valeur en mémoire à l'adresse contenue dans \eax\ (adressage indirect).
-Ces éléments sont définis formellement à la définition \ref{def:sem_conc_var}.
+Ces éléments sont définis formellement à la définition \ref{def:sem_conc_var} : $\BA$ est l'ensemble des registres et $\BT$ représente la mémoire comme un tableau.
 
 % \begin{rem}
 %  Avec cette définition, une valeur en mémoire peut pointer vers un registre. De même un registre peut pointer vers un autre registre.
@@ -57,11 +57,13 @@ Ces éléments sont définis formellement à la définition \ref{def:sem_conc_va
 % \end{defi}
 
 \begin{defi}
-On définit un ensemble fini de registres $a\in\BA$ et un tableau de taille finie $\BT=\{T_n,\ n\in\textlbrackdbl 0,\ N\textrbrackdbl\}$. Les variables sont soit un registre soit dans le tableau : $\BV=\BA\cup\BT$.
+On définit un ensemble fini de registres $a\in\BA$ et un tableau de taille finie $\BT=\{T_n,\ n\in\textlbrackdbl 0,\ N\textrbrackdbl\}$. Les variables $v\in\BV=\BA\cup\BT$ sont soit un registre soit dans le tableau :\\
+$var:=$ $a\in\BA$ $|$ $T_n$ avec $n\in\BN$.\\
 % On définit un symbole $x\in\BX$ à partir d'une variable $v\in\BV$ comme étant soit une variable sous un mode d'adressage direct, représentée $v$, soit une variable sous un mode d'adressage indirect, notée $[v]$. On note $\BP$ l'ensemble des variables sous un adressage indirect : $\BX=\BV\cup\BP$.
 Les expressions $\BE$ sont de l'un des types suivants :\\
 % $empl:=$ $a\in\BA$ $|$ $T_n$ avec $n\in\BT$ $|$ $[v]$ avec $v\in\BA\cup\BT$ \\
-$expr:=$ $\bot$ $|$ $n\in\BN$ $|$ $a\in\BA$ $|$ $T_n$ avec $n\in\BN$ $|$ $[a]$ avec $a\in\BA$ $|$ $[T_n]$ avec $n\in\BN$
+% $expr:=$ $\bot$ $|$ $n\in\BN$ $|$ $a\in\BA$ $|$ $T_n$ avec $n\in\BN$ $|$ $[a]$ avec $a\in\BA$ $|$ $[T_n]$ avec $n\in\BN$
+$expr:=$ $v\in\BV$ $|$ $[v]\in\BV$ $|$ $\bot$ $|$ $n\in\BN$.% $|$ $[a]$ avec $a\in\BA$ $|$ $[T_n]$ avec $n\in\BN$.
 % Les valeurs possibles pour les variables sont dans $\BN$.
 \label{def:sem_conc_var}
 \end{defi}
@@ -80,8 +82,8 @@ Le second type d'instruction regroupe les sauts inconditionnels et conditionnels
 On distingue également l'instruction \texttt{end} forçant l'arrêt du programme.
 
 \begin{defi}
-Les instructions atomiques d'un programme sont de ce type, quelle que soit la fonction totale g de $\BN^m$ dans $\BN$ avec $x$, $x'$ et $x_i$ étant des expressions.\\
-$inst:=\ $\emph{$x\leftarrow g(x_1, ..., x_m)$ $|$ goto $x$ $|$ if $x$ then $goto\ x'$ $|$ end}
+Les instructions atomiques d'un programme sont de ce type, si l'on dispose d'un ensemble d'opérateurs g de $\BN^m$ dans $\BN$ avec $x_1, ..., x_m$, $x$ et $x'$ étant des expressions.\\
+$inst:=\ $\emph{$x\leftarrow g(x_1, ..., x_m)$ $|$ goto $x$ $|$ if $x$ then goto $x'$ $|$ end}
 \label{def:sem_instructions}
 \end{defi}
 
@@ -151,11 +153,11 @@ La définition \ref{def:sem_store_dynamique_pointeurs} étend la notion de store
 
 
 \begin{defi}
- Définissons une extension $\Theta_X$ d'un store $\Theta : \BV\rightarrow\BN\cup\{\bot\}$ à $\BE\rightarrow\BN\cup\{\bot\}$. Soit $x\in\BX$.
+ Définissons une extension $\Theta_X$ d'un store aux expressions, c'est à dire $\Theta_X:\BE\rightarrow\BN\cup\{\bot\}$. Soit $x\in\BE$.
  \begin{itemize}
-  \item Si $x=\bot$, $\Theta_X(x)=\bot$
-  \item Si $x\in\BN$, $\Theta_X(x)=n$
   \item Si $x\in\BV$ : $\Theta_X(x)=\Theta(x)$
+  \item Si $x=\bot$, $\Theta_X(x)=\bot$
+  \item Si $x\in\BN$, $\Theta_X(x)=x$
   \item Sinon, $x=\textlbrackdbl v\textrbrackdbl$ avec $v\in\BV$.
   \begin{itemize}
    \item Si $\Theta(v)=\bot$ alors $\Theta_X(x)=\bot$
@@ -213,20 +215,20 @@ L'état initial du store est : $\forall v\in\BV, \Theta_X(v)=\bot$ et l'on part 
 % \hline
 \textlangle$t:x\leftarrow g(x_1, ..., x_m), d_2..d_n;\ \Theta_X$\textrangle & $\longrightarrow$  & \textlangle$t:\bot;\ \Theta_X$\textrangle\  \\
  &   & ~~~si $\exists i, \Theta_X(x_i)=\bot$  \\
- & $\longrightarrow$  & \textlangle$t:d_2..d_n;\ \Theta_X[x\leftarrow g(\Theta_X(x_1),...,\ \Theta_X(x_m))]$\textrangle\    \\
+ & $\longrightarrow$  & \textlangle$t:d_2..d_n;\ \Theta_X[x\leftarrow [\![g]\!](\Theta_X(x_1),...,\ \Theta_X(x_m))]$\textrangle\    \\
   &   & ~~~sinon  \\
 % \hline
 & & \\
-\textlangle$t:goto\ x, d_2..d_n;\ \Theta_X$\textrangle & $\longrightarrow$ & \textlangle$\Theta_X(x);\ \Theta_X$\textrangle  \\
+\textlangle$t:$ goto $x, d_2..d_n;\ \Theta_X$\textrangle & $\longrightarrow$ & \textlangle$\Theta_X(x);\ \Theta_X$\textrangle  \\
 % \hline
 & & \\
-\textlangle$t:if\ x\ then\ goto\ x',\ \Theta_X$\textrangle\ & $\longrightarrow$ & \textlangle$\Theta_X(x'),\ \Theta_X$\textrangle\\\
+\textlangle$t:$ if $x$ then goto $x', d_2..d_n;\ \Theta_X$\textrangle\ & $\longrightarrow$ & \textlangle$\Theta_X(x'),\ \Theta_X$\textrangle\\\
   &   & ~~~si $\Theta_X(x)=1$  \\
  & $\longrightarrow$ & \textlangle$ t+D_S(t),\ \Theta_X$\textrangle\\
    &   & ~~~sinon  \\
 % \hline
 & & \\
-\textlangle$t:end, d_2..d_n;\ \Theta_X$\textrangle\ & $\longrightarrow$ & \textlangle$\bot;\ \Theta_X$\textrangle  \\
+\textlangle$t:$ end$, d_2..d_n;\ \Theta_X$\textrangle\ & $\longrightarrow$ & \textlangle$\bot;\ \Theta_X$\textrangle  \\
 % \hline
 & & \\
 \textlangle$t:\bot;\ \Theta_X$\textrangle\ & $\longrightarrow$ & \textlangle$\bot;\ \Theta_X$\textrangle  \\

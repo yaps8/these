@@ -15,12 +15,34 @@ Collberg et Nagra \cite{nagra2009surreptitious} définissent plusieurs propriét
 Une protection, ou obscurcissement, d'un programme P est une transformation $\mathcal{T}$ telle que le programme $\mathcal{T}(P)$ a le même comportement que P : quelle que soit l'entrée I de P, $\mathcal{T}(P)(I)=P(I)$.
 On souhaite également ne pas affecter de manière importante les performances du programme, que ce soit en termes de temps d'exécution ou de taille des binaires.
 
-Afin d'évaluer l'efficacité des protections il est nécessaire de définir les actifs que l'on cherche à protéger. 
-Il peut s'agir de quelques algorithmes centraux au programme, de clé de chiffrement, du nom des fonctions et des variables utilisées, etc.
-Il est également utile de masquer l'utilisation de techniques de protection qui pourraient attirer l'attention lors d'une analyse antivirale. De même si l'analyste se doute que le binaire emploi des protections, il n'est pas souhaitable qu'il lui soit aisé d'identifier quelles méthodes sont employées. Ainsi dans les modifications apportées au programme il est préférable que le programme final ressemble à un programme qui aurait pu être compilé, par exemple en évitant d'utiliser des instructions exotiques rarement utilisées en général.
+Deux formes d'obscurcissement formelles sont décrites dans la littérature \cite{BR13} :
+\begin{itemize}
+ \item L'obscurcissement de type boîte noire : $\mathcal{T}$ est un opérateur d'obscurcissement de type boîte noire si, quel que soit le programme $P$, l'analyse de $\mathcal{T}(P)$ ne fournit pas plus d'information que ce à quoi aurait accès un oracle pouvant simplement utiliser $P$ sur des entrées et en observer les sorties.
+ \item L'obscurcissement indistinguable : $\mathcal{T}$ est un opérateur d'obscurcissement indistinguable si, pour toute classe de programmes $P_1, P_2, ...$ équivalents fonctionnellement, les programmes obscurcis $\mathcal{T}(P_1)$, $\mathcal{T}(P_2)$, ... sont indistinguables, c'est à dire identiques dans le cas de programmes assembleur.
+\end{itemize}
 
 
-En pratique un auteur de logiciel malveillant masque les symboles utiles à l'analyse tels le nom des fonctions à la compilation. Il est utile que le vecteur de propagation réussisse à masquer qu'il est protégé, s'il l'est, pour éviter une détection prématurée par un antivirus. 
+
+% Prenons le cas d'une fonction point, c'est à dire une fonction renvoyant toujours la même valeur sauf en un point particulier : ce genre de fonction est typiquement utilisé pour vérifier un mot de passe. Nous prendrons la fonction qui renvoie 1 si l'entrée est ``motdepasse'' et 0 sinon. Le programme qui vérifie, caractère par caractère, que l'entrée est identique à ``motdepasse'' en commençant par ``m'' et en avançant est fonctionnellement équivalent à celui commençant par ``e'' puis en reculant.
+% Un obscurcissement indistinguable 
+
+L'obscurcissement indistinguable est plus faible que l'obscurcissement de type boîte noire.
+L'obscurcissement de type boîte noire a été prouvé possible pour les programmes implémentant une fonction point \cite{LPS04}, c'est à dire renvoyant toujours la même valeur sauf en un point particulier : c'est le cas des fonctions vérifiant des mots de passe. 
+Inversement il a été montré qu'il n'existe pas d'opérateur d'obscurcissement de type boîte noire fonctionnant pour n'importe quelle fonction de complexité polynomiale \cite{BGI12}.
+% Une implémentation de cet obscurcissement peut utiliser une fonction calculant un haché cryptographique.
+
+Garg, Gentry, Halevi, Raykova, Sahai et Waters \cite{GGH13} ont montré la possibilité de construire un opérateur d'obscurcissement indistinguable pour toute fonction de complexité polynomiale en utilisant le chiffrement homomorphe.
+\\
+
+% Afin d'évaluer l'efficacité des protections il est nécessaire de définir les actifs que l'on cherche à protéger. 
+% Il peut s'agir de quelques algorithmes centraux au programme, de clé de chiffrement, du nom des fonctions et des variables utilisées, etc.
+% Il est également utile de masquer l'utilisation de techniques de protection qui pourraient attirer l'attention lors d'une analyse antivirale. De même si l'analyste se doute que le binaire emploi des protections, il n'est pas souhaitable qu'il lui soit aisé d'identifier quelles méthodes sont employées. Ainsi dans les modifications apportées au programme il est préférable que le programme final ressemble à un programme qui aurait pu être compilé, par exemple en évitant d'utiliser des instructions exotiques rarement utilisées en général.
+
+
+% En pratique ces techniques avancées ne sont pas (encore) exploitées par les autr
+% un auteur de logiciels malveillants masque, à la compilation, les symboles utiles à l'analyse tels le nom des fonctions. Il est également utile que le vecteur de propagation réussisse à masquer qu'il est protégé, s'il l'est, pour éviter une détection prématurée par un antivirus. 
+
+% On appelle une obscurcissement de type
 % La charge finale et les éventuels mécanismes de communication sont eux protégés contre l'analyse.\todo{cite}
 
 \section{Exemples d'obscurcissement}
@@ -30,7 +52,7 @@ De nombreuses techniques d'obscurcissement sont utilisées en pratique, nous en 
 Insérer du code non atteignable (ou code mort) peut forcer un désassembleur par parcours linéaire à se désaligner avec le code réellement exécuté et à favoriser le code mort au détriment du code légitime.
 L'exemple donné en figure \ref{fig:junk_right} montre de l'assembleur avec deux octets de données placés à la suite d'une instruction \jmp. Ces deux octets aux adresses $0x08048062$ et $0x08048063$ ne sont pas atteignables. Pourtant un désassembleur linéaire (Figure \ref{fig:junk_fooled}) chercherait à les désassembler et serait alors incapable de voir une partie des instructions réellement exécutées.
 
-\begin{figure}
+\begin{figure}[H]
 \begin{lstlisting}[language={[x86masm]Assembler}, escapechar=~]
 jmp suite
 db    0a 05	; ~Octets non atteignables~
@@ -44,7 +66,7 @@ mov ebx, 0x2 ;  0x00000002
 \end{figure}
 
 
-\begin{figure}
+\begin{figure}[H]
 \begin{lstlisting}[language={[x86masm]Assembler}, escapechar=~]
 08048060    eb 02               jmp 0x8048064
 08048062    0a 05 83 f9 02 74   or al, [0x7402f983]
@@ -279,9 +301,7 @@ Il est à noter que, comme indiqué par Sikorski et Honig \cite{PMA}, il n'y a d
 \paragraph{Dans \telock.}
 Le code de la figure \ref{fig:telock_obf_disas} est extrait d'un programme protégé par \telock\ désassemblé à l'aide d'un parcours récursif à partir de l'adresse \adr{01006e7a}. Il y a une instruction \texttt{jmp +1} à l'adresse \adr{01006e7d} et codée sur les deux octets \texttt{eb ff}, qui saute vers l'adresse \adr{01006e7d+1} où est présenté l'instruction \texttt{dec ecx}, codée sur \texttt{ff c9} et qui partage donc l'octet \texttt{ff} à l'adresse \adr{01006e7d+1} avec l'instruction \jmp.
 
-Le code assembleur permettant d'être assemblé en ces octets est donné figure \ref{fig:telock_obf_asm} : la première instruction \jmp\ peut être présente dans le code tandis que l'instruction \dec\ la chevauchant est codée en dur grâce à l'octet \texttt{c9}.
-
-\begin{figure}
+\begin{figure}[H]
 % \scriptsize
 % 0x01006e73    00 0c 0b        add [ebx+ecx], cl
 % 0x01006e76    80 34 0b 67     xor byte [ebx+ecx], 0x67
@@ -298,7 +318,9 @@ Octets à désassembler : \texttt{fe 04 0b eb ff c9 7f e6 8b c1}
 \label{fig:telock_obf_disas}
 \end{figure}
 
-\begin{figure}
+Le code assembleur permettant d'être assemblé en ces octets est donné figure \ref{fig:telock_obf_asm} : la première instruction \jmp\ peut être présente dans le code tandis que l'instruction \dec\ la chevauchant est codée en dur grâce à l'octet \texttt{c9}.
+
+\begin{figure}[H]
 % \scriptsize
 % 0x01006e73    00 0c 0b        add [ebx+ecx], cl
 % 0x01006e76    80 34 0b 67     xor byte [ebx+ecx], 0x67
@@ -366,8 +388,8 @@ Le graphe de flot de contrôle correct pour ce code est donné sur la figure \re
 \paragraph{Dans UPX.}
 UPX \cite{UPX} cherche à optimiser la taille du binaire protégé.
 La procédure d'exécution du binaire protégé utilise un saut conditionnel pour séparer le contrôle de flot en deux blocs se chevauchants et finissant sur un bloc où ils se réalignent.
-\todo{expliquer les deux branches, rapidement en quoi elles sont utiles}
-\begin{figure}
+\more{expliquer les deux branches, rapidement en quoi elles sont utiles}
+\begin{figure}[H]
 % \scriptsize
 Octets à désassembler : \texttt{89 f9 79 07 0f b7 07 47 50 47 b9 57 48 f2 ae 55}
 \begin{lstlisting}[language={[x86masm]Assembler}, escapechar=~]
@@ -388,7 +410,7 @@ Octets à désassembler : \texttt{89 f9 79 07 0f b7 07 47 50 47 b9 57 48 f2 ae 5
 \end{figure}
 Le graphe de flot de contrôle pour ce chevauchement est donné en figure \ref{fig:upx_cfg}.
 
-\begin{figure}
+\begin{figure}[H]
 \begin{center}
 \includegraphics[width=0.4\textwidth]{supports/disasm/upx/upx.pdf}
 \end{center}

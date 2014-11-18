@@ -18,7 +18,7 @@ Dans le cas d'un programme \sm, cette définition n'est pas suffisante puisque l
 
 Nous considérons toujours que la donnée que l'analyste cherche à déterminer et représenter est l'ensemble des exécution possibles du programme : nous notons $E_T$ l'ensemble des traces d'exécution.
 En particulier une entrée spécifique provoque une exécution que nous observons sous la forme d'une trace.
-Cette trace peut être découpée en niveaux d'exécution et chaque vague est le désassemblage parfait de l'instantané.
+Cette trace peut être découpée en niveaux d'exécution et en autant d'instantanés de la mémoire (définition \ref{def:instantane}), enfin chaque vague est le désassemblage parfait de l'instantané.
 
 Le désassemblage, pris au sens de l'opération inverse de l'assemblage,
 consiste à déterminer les adresses contenant des instructions, les
@@ -218,10 +218,10 @@ Nous donnons la définition d'une exécution (définition \ref{def:execution2}),
 
 % Le GFC paramétré (définition \ref{def:cfg_param_sm}) représente chaque instruction contenue dans une trace dont l'exécution est compatible avec l'exécution de référence comme un sommet en prenant en compte son niveau d'exécution, son adresse et l'instruction assembleur. Deux sommets sont reliés par un arc si, dans une trace d'une exécution compatible, leurs deux instructions se suivent immédiatement.
 
-Formellement le GFC parfait (définition \ref{def:cfg_parfait_sm2}) est est constitué de toutes les instructions présentes dans une trace, représentées par leur niveau d'exécution, leur instantané, leur adresse et l'instruction ; deux sommets sont liés si et seulement si ils se suivent dans une trace d'exécution.
+Formellement le GFC parfait (définition \ref{def:cfg_parfait_sm2}) est constitué de toutes les instructions présentes dans une trace, représentées par leur niveau d'exécution, leur instantané, leur adresse et l'instruction ; deux sommets sont liés si et seulement si ils se suivent dans une trace d'exécution.
 
 \begin{defi}
- Étant donné un programme P \sm et $E_X$ l'ensemble des exécutions de P.
+ Étant donné un programme P \sm\ et $E_X$ l'ensemble des exécutions de P.
  Nous appelons GFC parfait le graphe $G=(V, E)$ tel que :
  \begin{itemize}
   \item $V=\{(X,\ S[X],\ $\da{D}$,\ $\di{D}$), (T, S)\in E_X, (i, X, D)\in T\}$%\in E_C, \exists\ (i, X, D)\in T',\
@@ -232,6 +232,9 @@ E_X,\ i\in \BN, (i, X_1, D_1)\ et\ (i+1, X_2, D_2)\in T$ avec \da{D_1}$=a_1,\ $\
  \end{itemize}
 \label{def:cfg_parfait_sm2}
 \end{defi}
+
+Il est à noter que les instructions représentées dans le graphe de flot de contrôle parfait sont exactement les mêmes que celles présentes dans le graphe de flot simple de la définition \ref{def:cfg_naif_sm}.
+La différence tient dans l'agencement des sommets dans le graphe : un sommet du GFC parfait prenant en compte le niveau d'exécution, une instruction dynamique peut être présente dans plusieurs sommets différents si elle est exécutées à différents niveaux d'exécution.
 
 \FloatBarrier
 \subsection{Revue de littérature}
@@ -506,9 +509,6 @@ Cette approche a montré son efficacité pour déterminer les cibles de sauts dy
 \section{Implémentation}
 
 \section{Résultats}
-\begin{tiny}
-\input{packers.table}
-\end{tiny}
 
 
 \section{Conclusion}
