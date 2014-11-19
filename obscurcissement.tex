@@ -104,12 +104,12 @@ Le programmeur sait que l'égalité est toujours vérifiée mais un analyseur st
 \paragraph{Aplatissement de graphe de flot de contrôle.}
 Nous avons vu que le but principal de l'analyse est la construction d'un graphe de flot de contrôle cohérent du binaire.
 Celui-ci peut être à la base d'une analyse automatique et, s'il est suffisamment lisible, permet à un analyste humain de gagner du temps dans la compréhension du programme.
-À partir d'un programme dont le CFG est facile à comprendre, le développeur de programmes malveillants à intérêt à appliquer des transformations permettant de le rendre plus opaque.
+À partir d'un programme dont le GFC est facile à comprendre, le développeur de programmes malveillants à intérêt à appliquer des transformations permettant de le rendre plus opaque.
 
-Une de ces techniques est l'aplatissement du CFG \cite{Wang2000}. Elle consiste à transformer les changements de flot de contrôle, par exemple les appels à différentes fonctions, en un seul bloc déterminant l'adresse du saut et y effectuant un saut dynamique à l'instar d'un bloc d'aiguillage (ou \emph{switch}).
+Une de ces techniques est l'aplatissement du GFC \cite{Wang2000}. Elle consiste à transformer les changements de flot de contrôle, par exemple les appels à différentes fonctions, en un seul bloc déterminant l'adresse du saut et y effectuant un saut dynamique à l'instar d'un bloc d'aiguillage (ou \emph{switch}).
 
 Prenons le programme \xq\ donné en figure \ref{fig:applatissement_asm_orig}, dont le graphe de flot de contrôle est donné à la figure \ref{fig:applatissement_cfg_orig}.
-Ce programme modifie la valeur de \edi\ selon la valeur d'origine de \ebx. Son CFG est simple et l'on peut par exemple déterminer facilement les valeur possibles de \edi\ en sortie (lorsque que l'instruction \ret\ est atteinte) : 1, 2 ou 3.
+Ce programme modifie la valeur de \edi\ selon la valeur d'origine de \ebx. Son GFC est simple et l'on peut par exemple déterminer facilement les valeur possibles de \edi\ en sortie (lorsque que l'instruction \ret\ est atteinte) : 1, 2 ou 3.
 
 % \begin{figure}[h]
 % \begin{center}
@@ -156,7 +156,7 @@ Adresse & Octets & Instruction\\
  804806b <D>  &  c3                     &  ret     \\
  804806c <E>  &  bf 01 00 00 00         &  mov    edi,0x1 \\
  8048071      &  83 fb 01               &  cmp    ebx,0x1 \\
- 8048074      &  74 00                  &  jne     804807a <C> \\
+ 8048074      &  74 00                  &  jne     804806 a <C> \\
  8048076 <F>  &  83 c7 02               &  add    edi,0x2 \\
  8048079      &  eb f0                  &  jmp    804806b <D> \\
 \hline
@@ -172,7 +172,7 @@ Adresse & Octets & Instruction\\
 \label{fig:applatissement_orig}
 \end{figure}
 
-Il est équivalent au programme aplati donné en figure \ref{fig:applatissement_asm_applati} dont le CFG est donné en figure \ref{fig:applatissement_cfg_applati_simple}. 
+Il est équivalent au programme aplati donné en figure \ref{fig:applatissement_asm_applati} dont le GFC est donné en figure \ref{fig:applatissement_cfg_applati_simple}. 
 Ce programme modifié est articulé autour de l'instruction de saut dynamique \texttt{jmp eax}.
 On a remplacé chaque saut par l'assignation de l'adresse du saut à \eax\ suivi d'un appel à l'instruction de saut dynamique. 
 
@@ -276,7 +276,7 @@ Adresse & Octets & Instruction\\
 \end{figure}
 
 
-Le graphe de flot de contrôle du programme obscurci ne peut pas être exploité en l'état pour connaître les valeurs possibles de \edi\ en sortie : il n'est pas possible de boucler sur le bloc C provoquant l'incrément de \edi\ mais il est nécessaire de vérifier les instructions du bloc que pour vérifier.
+Le graphe de flot de contrôle du programme obscurci ne peut pas être exploité en l'état pour connaître les valeurs possibles de \edi\ en sortie : l'enchaînement des blocs C, puis S, puis C n'est pas possible dans une exécution du programme mais l'observation du graphe de flot de contrôle de la figure \ref{fig:applatissement_cfg_applati_simple} ne permet pas de le conclure sans regarder en détail les instructions du programme.
 
 
 % \begin{figure}

@@ -291,7 +291,7 @@ L'algorithme de comparaison des graphes de flot de contrôle et de détection d'
 La classification d'un programme à analyser découpe son GFC réduit en sous-graphes de petite taille (typiquement entre 12 et 24 sommets), les transforme en arbres et détermine s'ils sont reconnus ou non par l'automate d'arbres.
 Un pourcentage de reconnaissance est extrait et selon sa valeur le programme est considéré malveillant ou légitime.
 
-% \FloatBarrier
+\FloatBarrier
 \subsection{Revue de littérature}
 Cesare et Xiang \cite{CX10} proposent une approche similaire cherchant également à classer de manière automatique un programme par comparaison de son GFC avec celui des programmes du corpus.
 Ils détectent les fonctions assembleur en utilisant des heuristiques et créent un GFC pour chacune de ces fonctions.
@@ -299,6 +299,10 @@ Ces GFC sont ensuite transformés dans un langage intermédiaire pour les simpli
 Deux graphes de flot de contrôle de deux fonctions correspondent s'ils sont exacts. 
 Une base de GFC est donc créée et les auteurs formalisent une mesure de distance entre un programme et cette base.
 La principale différence est donc que les auteurs cherchent à détecter des fonctions dans le programme assembleur tandis que nous construisons un GFC global que nous découpons seulement ensuite.
+
+Zynamics commercialise un outil de comparaison de binaires, BinDiff \cite{bindiff}, qui sépare également les binaires utilisés en fonctions assembleur.
+L'outil permet de trouver des fonctions identiques et de comparer des fonctions présentant certaines similarités \cite{DR05}.
+Il fonctionne par comparaison de critères sur les fonctions comme les appels de fonction, le nom des fonctions ou encore le nombre d'arcs en entrée et en sortie des sommets du GFC. Bien qu'il n'utilise pas à proprement parler de techniques d'isomorphismes de graphe, BinDiff fonctionne sur des graphes de flot de contrôles en utilisant certains critères qui leur sont spécifiques et va donc plus loin qu'une simple comparaison syntaxique des fonctions.
 
 L'application de techniques de réduction afin de rendre plus générique des codes malveillants et ainsi que les signatures soient plus efficaces est assez présente dans la littérature. 
 Certains travaux \cite{CKJKVM05} proposent des méthodes luttant spécifiquement contre certaines techniques d'obscurcissement comme la réorganisation de code ; c'est l'objectif des réductions proposées à la figure \ref{fig:am_reductions} dont le réalignement des sauts inconditionnels.

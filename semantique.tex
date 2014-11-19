@@ -265,10 +265,7 @@ La sémantique pour l'entrée comme la sortie de ces instructions n'est donc pas
 Ces appels sont omniprésents dans un programme réel puisque toutes la plupart interactions avec le système (lecture et écriture dans un fichier, connexion internet, allocation de mémoire via la fonction \emph{malloc} en C par exemple, etc.) passent par un appel système.
 
 \section{Revue de littérature des langages intermédiaires}
-\imore{Renovo : \\
-LLVM : \\
-}
-
+\imore{LLVM ?}
 
 \paragraph{BAP.} Parmis les projets de langages intermédiaires existants et fournissant d'une part une transcription depuis l'assembleur et d'autre part une sémantique concrète du langage considéré, nous nous sommes intéressés à BAP \cite{BAP11}. 
 BAP est le successeur du projet BitBlaze qui a défini et développé une plateforme d'analyse statique basée sur le langage intermédiaire Vine IL \cite{bitblaze08}. 
@@ -281,6 +278,18 @@ De même les fonctions entières sont explicitées et contiennent, entre autres,
 \paragraph{Jakstab.} Le projet Jakstab \cite{jakstab} ajoute un modèle de la mémoire pouvant gérer les allocations dynamiques de mémoire effectuée par l'appel système \emph{malloc} en incluant dans langage intermédiaire les instructions \emph{alloc} et \emph{free} \cite{jakstab-drivers}. 
 La mémoire est alors scindée en trois régions : la région globale contient le code et les variables globales du programme, une seconde région contient la pile, et la dernière région inclut le tas, c'est à dire la mémoire allouée dynamiquement par des \emph{malloc}. 
 Cette dernière région contient autant de blocs distincts qu'il y a eu d'allocations dynamiques.
+
+\paragraph{DBA.}
+Le langage intermédiaire DBA (\emph{Dynamic Bitvector Automata}) \cite{bincoa}, faisant partie du projet BinSec \cite{binsec}, intègre des permissions au sein de son modèle. À l'instar du comportement de Jakstab la mémoire est scindée en régions disjointes et chaque allocation dynamique crée une nouvelle région.
+Une région de mémoire peut être marquée comme accessible en lecture, en écriture, en exécution ou une combinaison de ces trois permissions.
+L'exécution d'une instruction provoquant un accès mémoire interdit est inclut dans la sémantique et provoque une erreur.
+Cette spécificité permet à DBA de mieux représenter la mémoire d'une machine réelle où le système d'exploitation gère ces droits d'accès.
+
+\paragraph{REIL.} Dullien et Porst \cite{reil} ont développé un langage intermédiaire adapté à l'analyse de la sécurité du programme ainsi qu'à la recherche de vulnérabilités, REIL (\emph{Reverse Engineering Intermediate Language}). Il est composé de 17 instructions permettant les opérations de calculs arithmétiques, de lecture et d'écriture des registres et de la mémoire, et de sauts conditionnels.
+Le langage intermédiaire REIL est un des composants inclus dans les logiciels d'analyse de binaires commercialisés par Zynamics \cite{binnavi,bindiff} : ils indiquent disposer d'une sémantique concrète utilisée pour l'analyse et d'implémentations de transformations depuis l'assembleur vers REIL mais n'ont pas publié sur ces résultats.
+
+
+
 
 \section{Langage intermédiaire et analyse de binaires}
 Un programme sous forme d'instructions dans un langage intermédiaire est plus facile à exploiter qu'un programme assembleur puisqu'on a une sémantique concrète clairement définie et assez compacte.

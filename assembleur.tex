@@ -341,7 +341,7 @@ En particulier les parties de données (comme la section \pdata) peuvent être e
 De même les sections de code peuvent contenir des informations destinées à être simplement lues ou modifiées mais jamais exécutées.
 La difficulté du désassemblage consiste donc à séparer les parties potentiellement exécutables des données.
 
-Ainsi un désassemblage à priori cohérent de \helloworld\ consisterait à considérer les deux sections comme contenant du code potentiellement exécutable. Ce désassemblage sera composé de la section \ptext\ d'origine (figure \ref{fig:text_helloworld}) et de la section \pdata\ (figure \ref{fig:data_exec_helloworld}).
+Ainsi un désassemblage a priori cohérent de \helloworld\ consisterait à considérer les deux sections comme contenant du code potentiellement exécutable. Ce désassemblage sera composé de la section \ptext\ d'origine (figure \ref{fig:text_helloworld}) et de la section \pdata\ (figure \ref{fig:data_exec_helloworld}).
 Ce désassemblage n'est pas correct et on peut le prédire. 
 On connaît le point d'entrée du binaire, qui est l'adresse \texttt{8048080} dans la section \ptext.
 Les instructions exécutées dans la section \ptext\ à la suite du point d'entrée sont séquentielles et ne peuvent détourner l'exécution vers la section \pdata. 
@@ -587,7 +587,7 @@ Cette définition d'un graphe de flot de contrôle parfait représente une instr
 \begin{defi}
  Étant donné un programme \nsm\ P prenant une entrée I, le graphe de flot de contrôle parfait de P est le graphe orienté $T=(V, E)$ tel que :
  \begin{itemize}
-  \item L'ensemble V des sommets de T est l'ensemble des adresses présentes dans le désassemblage parfait de T
+  \item L'ensemble V des sommets de T est l'ensemble de couples (adresse, instruction) présents dans le désassemblage parfait de T
   \item $E\subset V\times V$ est l'ensemble des arcs de T
   \item $(a, b)\in E$ si et seulement si il existe un chemin d'exécution de P au sein duquel l'adresse $b$ suit immédiatement l'adresse $a$ dans l'ordre d'exécution.
  \end{itemize}

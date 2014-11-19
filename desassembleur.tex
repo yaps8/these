@@ -490,9 +490,14 @@ Dans les exemples de GFC déjà vus précédemment, nous avons regroupé certain
 \end{itemize}
 
 \section{Revue de littérature}
-\subsection{Architecture globale}
+\subsection{Analyse dynamique}
 Une application directe de l'analyse des GFC faite dans ce chapitre est la reconstitution de l'original d'un binaire empaqueté.
-Renovo \cite{renovo} et PolyUnpack \cite{polyunpack} implémentent de tels systèmes d'extraction qui fonctionnent par analyse du code généré dynamiquement, notion similaire à nos instantanés d'exécution. Ils considèrent que le binaire d'origine est celui disponible dans le dernier instantané, c'est à dire qu'ils prennent la dernière vague.
+Renovo \cite{renovo} et PolyUnpack \cite{polyunpack} implémentent de tels systèmes d'extraction qui fonctionnent par analyse du code généré dynamiquement en utilisant des notions similaires à nos instantanés d'exécution. Ils considèrent que le binaire d'origine est celui disponible dans le dernier instantané, qui ne sera plus modifié dans la suite de l'exécution.
+Leur objectif étant de reconstruire le programme d'origine, dépaqueté, ces deux approches s'arrêtent à cette étape et n'effectuent pas d'analyse supplémentaire. 
+
+Pour l'évaluation les auteurs de PolyUnpack utilisent des programmes malveillants qu'ils analysent avec des antivirus existants (ClamAV et McAfee) et montrent que pour certains échantillons les programmes d'origine (empaquetés) ne sont pas détectés tandis que les programmes reconstruits par leur outil sont détectés.
+
+Les auteurs de Renovo utilisent des empaqueteurs pour protéger un binaire légitime, \texttt{notepad.exe}. Ils analysent ensuite les binaires protégés et montrent qu'ils arrivent à récupérer le programme d'analyse en comparant la section \ptext\ du \texttt{notepad.exe} d'origine avec celle du programme reconstruit.
 
 
 \subsection{Interprétation abstraite et analyse hybride}
