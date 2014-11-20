@@ -3,7 +3,7 @@
 % \itodo{pb 1: analyse du chevauchement de code}
 % \itodo{pb 2: analyse/désassemblage des programmes sms}
 
-Les programmes malveillants obscurcis sont notre objet d'étude principal.
+% Les programmes malveillants obscurcis sont notre objet d'étude principal.
 Notre objectif principal était le désassemblage et la reconstruction du graphe de flot de contrôle d'un programme malveillant obscurcis.
 Nous cherchions à contrer particulièrement deux méthode d'obscurcissement. 
 La première est l'auto-modification, technique permettant aux programmes de cacher leur charge utile et de ne la révéler que juste avant son exécution. La seconde est le chevauchement de code, permettant à plusieurs instructions d'être codées sur des adresses communes.
@@ -12,7 +12,7 @@ Nous avons proposé une méthode d'analyse hybride, se basant sur une trace d'ex
 La trace d'exécution est récupérée, comme dans les travaux de Reynaud \cite{Reynaud2010}, par une analyse dynamique qui découpe l'exécution en parties successives, non auto-modifiantes, du programme, ou vagues.
 La trace restreinte à une vague ne présente pas d'auto-modification, ce qui permet l'emploi de méthodes d'analyse statique sur chacune des vagues.
 Cette analyse statique fait une utilisation intensive des informations contenues dans la vague afin de guider son analyse.
-Elle reprend certaines détaillées par Krügel \cite{KruegelRVV04} mais fonctionne sur des binaires utilisant le chevauchement de code et permet d'en mesurer utilisation : nous avons proposé une sémantique pour le chevauchement de code rangeant les instructions dans des couches de code au sein desquelles il n'y a pas de chevauchement.
+Elle reprend certaines techniques détaillées par Krügel \cite{KruegelRVV04} mais fonctionne sur des binaires utilisant le chevauchement de code et permet d'en mesurer utilisation : nous avons proposé une sémantique pour le chevauchement de code rangeant les instructions dans des couches de code au sein desquelles il n'y a pas de chevauchement.
 
 Nous avons implémenté cette technique d'analyse hybride et validé des expériences précédentes, par Calvet notamment \cite{Calvet2013}, montrant l'utilisation presque systématique de l'auto-modification par les programmes malveillants.
 Nous avons mis en lumière l'utilisation occasionnelle du chevauchement de code par certains logiciels de protection de binaire et quelques familles de logiciels malveillants.
@@ -26,7 +26,7 @@ Nous avons alors réalisé un algorithme de détection dont le temps d'exécutio
 Nous avons également implémenté un algorithme incomplet mais donc le temps d'exécution est constant.
 \\
 
-Enfin nous avons cherché à appliquer cette approche à des cas concrets d'analyse de programme.
+Enfin nous avons cherché à appliquer cette approche à des cas concrets d'analyse de programmes.
 Une possibilité consiste à utiliser l'analyse morphologique pour la détection de similarités logicielles et en particulier l'utilisation de certaines bibliothèques logicielles.
 Nous avons illustré cette idée avec un logiciel malveillant, Waledac, et son emploi d'OpenSSL.
 
@@ -56,10 +56,10 @@ Notre approche ne permet donc pas de gérer les sauts dynamiques qui n'ont pas �
 Nous voudrions utiliser des techniques d’interprétation abstraite pour reconstruire plus précisément les vagues et éventuellement être capable de déterminer les potentielles vagues suivantes à partir de la vague courante.
 
 L'analyse morphologique produit des résultats prometteurs pour la détection de programmes malveillants et de similarités logicielles mais ne prend en compte dans les graphes de flot de contrôle que l'enchaînement des instructions. D'autre critères pourraient être intégrés dans ces graphes traduisant l'utilisation de certaines méthodes d'obscurcissement : on pourrait ajouter les arcs entre deux sommets illustrant un chevauchement de code.
-D'autre part nous avons vu que notre méthode réduit la complexité du problème à résoudre, le rendant polynomial, au prix d'une perte de flexibilité dans les résultats qu'elle produit. 
+D'autre part nous avons vu que notre méthode réduit la complexité du problème à résoudre, le rendant polynomial, au prix d'une perte de flexibilité dans les résultats qu'elle produit.
 En particulier l'inversion de certaines branches  dans un graphe conduit à une non détection, ce qui n'aurait pas été le cas si l'on avait gardé le problème d'isomorphisme de sous-graphes.
 Nous souhaitons développer et analyser des techniques de réduction et de détection des graphes de flot de contrôles plus résistantes à ces modifications, afin d'être capable de détecter plus de programmes similaires sans trop perdre en vitesse de détection.
-Nous souhaitons montrer que notre modèle, avec ces modifications, permet de construire un antivirus efficace en termes de précision de détection et de vitesse, capable de fonctionner sur l'ordinateur d'un utilisateur final.
+Nous souhaitons montrer que notre modèle, avec ces modifications, permet de construire un antivirus efficace en termes de précision et de vitesse de détection, capable de fonctionner sur l'ordinateur d'un utilisateur final.
 
 % \itodo{pb 3: prendre en compte + de choses dans les GFC : chevauchements, liens entre vagues, etc ?}
 

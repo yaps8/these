@@ -560,7 +560,7 @@ Nous présenterons d'abord l'algorithme d'Ullmann dans le cas de graphes orient�
 
 \paragraph{Backtracking.}
 L'algorithme d'Ullmann repose sur le concept de retour sur traces (ou \emph{backtracking}) pour trouver successivement tous les sous-graphes isomorphes au graphe de motif. 
-Cette approche a ensuite été largement améliorée par Ullmann à l'aide de l'utilisation d'une technique de vérification à priori permettant d'éliminer de nombreux candidats sans avoir à les tester entièrement.
+Cette approche a ensuite été largement améliorée par Ullmann à l'aide de l'utilisation d'une technique de vérification a priori permettant d'éliminer de nombreux candidats sans avoir à les tester entièrement.
 
 \subsubsection{Backtracking simple}
 Soit $T=(V_T, E_T)$ un graphe et $P=(V_P, E_P)$ un graphe dont on cherche à connaître les sous-graphes de T avec lesquels il est isomorphe.
@@ -693,8 +693,8 @@ backtrack($C^0$, 1, $\emptyset$)\\
 % \end{figure}
 
 % \FloatBarrier
-\subsubsection{Raffinement et vérification à priori}
-L'algorithme détaillé précédemment est une application directe du backtracking au problème d'isomorphisme de sous-graphes, et Ullmann propose un deuxième algorithme basé sur une vérification à priori, ou \emph{Forward Checking}. L'idée est, à chaque ajout d'une correspondance dans la transformation,
+\subsubsection{Raffinement et vérification a priori}
+L'algorithme détaillé précédemment est une application directe du backtracking au problème d'isomorphisme de sous-graphes, et Ullmann propose un deuxième algorithme basé sur une vérification a priori, ou \emph{Forward Checking}. L'idée est, à chaque ajout d'une correspondance dans la transformation,
 de vérifier qu'il existe une correspondance supplémentaire possible. L'intérêt est d'éliminer des branches impossibles en les vérifiant à l'avance. La vérification est donc faite par la fonction \emph{forwardChecking} (algorithme \ref{algo:ullman-forwardch}) avant l'appel récursif à la nouvelle procédure \emph{backtrack} (algorithme \ref{algo:ullman-backforw}). 
 Cette vérification tient de la définition d'un isomorphisme en tant que graphe.
 Pour qu'un sous-graphe $S_T$ de T choisi soit isomorphe au sous-graphe $S_P$ de P auquel il est associé, il est nécessaire que tous les arcs de $S_P$ soient présents dans $S_T$ : si deux sommets sont reliés par un arc dans $S_P$ alors leurs correspondants
@@ -717,11 +717,11 @@ possible cette association, sinon elle l'interdira. Enfin si plus aucune associa
 
 
 % Cet algorithme reste une référence dans la recherche d'isomorphismes de sous-graphe. Je vais maintenant présenter une variante de l'algorithme d'Ullmann allant plus loin dans
-% le processus de vérification à priori, puis un algorithme de recherche d'isomorphismes adapté à une utilisation sur de grandes bases de graphes déjà connus.
+% le processus de vérification a priori, puis un algorithme de recherche d'isomorphismes adapté à une utilisation sur de grandes bases de graphes déjà connus.
 
 \begin{figure}[h]
 \begin{algorithm}[H] %or another one check
-\caption{Vérification à priori}
+\caption{Vérification a priori}
 \SetAlgoLined
 \KwData{Les associations possibles dans C, le numéro courant i du sommet de P, les associations déjà réalisées dans F}
 \KwResult{Les associations mises à jour et vrai/faux selon si une future association est possible}
@@ -758,7 +758,7 @@ possible cette association, sinon elle l'interdira. Enfin si plus aucune associa
 
 \begin{figure}[h]
 \begin{algorithm}[H] %or another one check
-\caption{Retour sur traces avec vérification à priori}
+\caption{Retour sur traces avec vérification a priori}
 \SetAlgoLined
 \KwData{Deux graphes P (de taille $n_P$) et T (de taille $n_T$)}
 \KwResult{Les possibilités d'association donnant un isomorphisme de sous-graphe entre P et T}
@@ -841,7 +841,7 @@ backtrack($C^0$, 1, $\emptyset$)\\
 
 \subsubsection{Complexité \label{sec:ullmann_complexite}}
 On peut étudier la complexité temporelle dans le pire des cas de l'algorithme d'Ullmann en gardant les notations prises précédemment.
-Le pire des cas se présente lorsque toutes les associations sont possibles \cite{MessPhd} ($C^0$ n'est composée que de 1), c'est à dire que les deux graphes sont entièrement connectés. La complexité de l'algorithme d'Ullmann avec vérification à priori est donnée à la proposition \ref{prop:complexite-ullmann}.
+Le pire des cas se présente lorsque toutes les associations sont possibles \cite{MessPhd} ($C^0$ n'est composée que de 1), c'est à dire que les deux graphes sont entièrement connectés. La complexité de l'algorithme d'Ullmann avec vérification a priori est donnée à la proposition \ref{prop:complexite-ullmann}.
 Nous verrons par la suite qu'elle peut se réduire dans le cas des graphes de flot.
 
 \begin{prop}
@@ -995,7 +995,7 @@ multiple de $n_T$, soit $O(n_T^{n_P})$.
 \begin{figure}
 % \caption{Fonction de \emph{Forward Checking} pour les graphes de flot}
 \begin{algorithm}[H] %or another one check
-\caption{Vérification à priori pour graphes de flot}
+\caption{Vérification a priori pour graphes de flot}
 \SetAlgoLined
 % \Kw
 Par rapport à l'algorithme \ref{algo:ullman-forwardch}, on ne vérifie que le dernier élément de F s'il existe et on vérifie que les ordres des fils correspondent.\\
@@ -1057,7 +1057,7 @@ De plus on doit maintenant forcer les sommets correspondants entre P et T à êt
 La nouvelle fonction \emph{forwardChecking}, prenant en compte les optimisations discutées, est l'algorithme \ref{algo:ullman-forwardch-site}.
 Cette modification diminue grandement la complexité mais nous ne l'avons pas quantifiée.
 
-\paragraph{Optimisation de la vérification à priori.}
+\paragraph{Optimisation de la vérification a priori.}
 Une modification de l'algorithme d'Ullmann précédent permettant de l'optimiser a été utilisée. Dans la fonction \emph{forwardChecking}, il n'est pas utile de vérifier tous les éléments de F à chaque appel, mais seulement les derniers élements ajoutés (qui correspondent exactement à la dernière association ajoutée). Cette modification ne change pas le comportement ni les résultats de l'algorithme puisque les éléments précédents dans F ont déjà été vérifiés précédemment.
 
 \paragraph{Conclusion sur la complexité.} 
@@ -1071,7 +1071,7 @@ La complexité de la recherche d'un sous-graphes de T (de taille $n_T$) isomorph
 \subsection{Revue de littérature}
 \paragraph{Optimisation de l'algorithme d'Ullmann.}
 Foggia, Vento, Sansone et Cordella \cite{VF99} proposent des améliorations à l'algorithme d'Ullmann, appelé algorithme VF.
-Ils ajoutent des règles de vérification à priori permettant d'éliminer à nouveau de nombreuses vérifications lors de l'appel de la fonction de retour sur traces.
+Ils ajoutent des règles de vérification a priori permettant d'éliminer à nouveau de nombreuses vérifications lors de l'appel de la fonction de retour sur traces.
 Les améliorations en termes de complexité sont importantes : ils réussissent à diviser la complexité d'un facteur de $n_T^2$ par rapport à l'algorithme d'Ullmann.
 Ils comparent également en pratique plusieurs algorithmes \cite{FSV01} dont celui d'Ullmann, le leur et une version modifiée, VF2. Ils montrent la pertinence de leur approche sur différents graphes de grande taille (un millier de sommets).
 
