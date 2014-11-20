@@ -72,6 +72,13 @@ L'algorithme utilisé à l'origine fonctionnait par reconnaissance d'arbres à l
 Notre travail a permis de dégager la notion de site. Les sites sont des sous-graphes particuliers du graphe de flot de contrôle et sont l'entité atomique que nos algorithmes de détection d'isomorphismes cherchent à faire correspondre entre plusieurs programmes à analyser. Nous avons élaboré un algorithme correct et rapide pour des petites bases de logiciels malveillants ainsi qu'un algorithme sous-optimal mais donnant de bons résultats et dont le temps d'exécution ne dépend pas de la taille de la base.
 
 \section*{Contributions}
+Nous avons contribué à l'analyse de programmes obscurcis de deux manières.
+D'une part nous avons décrit un langage assembleur disposant d'une sémantique concrète compatible avec l'exécution de programmes auto-modifiants.
+Nous avons étendu BAP, une plateforme d'analyse de binaires existante, pour lui permettre d'évaluer des programmes auto-modifiants. Nous avons également formalisé le problème du chevauchement de code et étudié l'usage que les programmes obscurcis font de cette méthode de protection.
+D'autre part nous avons proposé une technique de désassemblage consistant à effectuer une analyse dynamique que l'on complète à l'aide de techniques d'analyse statique. Cette technique a pour objectif de reconstruire un graphe de flot de contrôle dont nous avons défini la forme idéale.
+
+Nous avons également contribué à l'analyse morphologique en formalisant le sous-problème d'isomorphisme de sous-graphes qu'elle cherche à résoudre. Nous avons développé et implémenté un algorithme correct et plus rapide que les approches précédentes pour résoudre ce problème ainsi qu'un algorithme incorrect mais de temps d'exécution constant.
+Nous avons enfin proposé une application de la technique d'analyse morphologique au domaine de la détection de similarités logicielles \cite{REAT12,mal13} et démontré la technique sur quelques logiciels malveillants spécifiques \cite{sstic13,mal13}.
 
 
 \section*{Organisation du document}
