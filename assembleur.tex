@@ -184,26 +184,26 @@ a0 & 80480a0 & cd 80          & int    0x80          \\
 
 
 % \x64
-\paragraph{Analyse de binaires}
+\paragraph{Analyse de binaires.}
 La principale difficulté lors de l'analyse d'un programme malveillant est que le code source n'est pas disponible à l'analyste qui doit se contenter du fichier binaire compilé.
 Un programme compilé se présente donc sous la forme d'un fichier binaire contenant le code machine devant être lancé à l'exécution du programme ainsi que des informations de chargement du binaire : la distinction de différentes sections, les adresses mémoires auxquelles le système devra les charger en mémoire ainsi que les bibliothèques logicielles du système dont il a besoin et qui devront être chargées.
 
-La principale tâche de l'analyste est alors d'extraire du fichier binaires les informations utiles et surtout d'analyser les parties de code assembleur de l'exécutable. Nous détaillerons, dans la suite de ce chapitre, des spécificités du langage assembleur considéré, les difficultés rencontrées par l'analyste et certaines techniques de protection.
+La principale tâche de l'analyste est alors d'extraire du fichier binaires les informations utiles et surtout d'analyser les parties de code assembleur de l'exécutable. Nous détaillerons, dans la suite de ce chapitre, des spécificités du langage assembleur considéré et les difficultés rencontrées par l'analyste.
 
 \label{section:assembleur}
 \section{Assembleur \xq\ et \xs}
 L'architecture la plus fréquente pour les processeurs des ordinateurs personnels est celle des processeurs Intel CISC avec le jeu d'instructions \xq\ pour les machines adressant la mémoire sur 32 bits, et le jeu d'instructions \xs\ pour celles adressant la mémoire sur 64 bits.
 
-\paragraph{Architecture de Harvard et de Von Neumann}
+\paragraph{Architecture de Harvard et de von Neumann.}
 Une des architectures possibles, l'architecture de Harvard \cite{ibm_mark1}, sépare le code exécutable des données en deux mémoires distinctes.
 La première implémentation de l'architecture de Harvard était L’ASCC (Automatic Sequence Controlled Calculator) d'IBM, également appelé le Mark I et considérée comme le premier calculateur universel, en 1944 . 
 Il lisait les instructions sur des cartes perforées et les données étaient entrées manuellement à l'aide d'interrupteurs. 
 Ainsi le code exécutable était physiquement non modifiable et séparé des données. 
 
 % \paragraph{Architecture de Von Neumann.}
-L'architecture de Von Neumann, nommée en référence aux travaux de John von Neumann, John William Mauchly et John Eckert en 1945, acceptait la modification de la logique des programmes \cite{timsit}.
+L'architecture de von Neumann, nommée en référence aux travaux de John von Neumann, John William Mauchly et John Eckert en 1945, acceptait la modification de la logique des programmes \cite{timsit}.
 Elle était cependant limitée à l'utilisation d'un seul bus de données entre le processeur et la mémoire.
-Cette restriction limite grandement les capacités de lecture et d'écriture mémoire d'une machine utilisant le modèle de Von Neumann.
+Cette restriction limite grandement les capacités de lecture et d'écriture mémoire d'une machine utilisant le modèle de von Neumann.
 
 % \paragraph{Architecture actuelle.}
 L'architecture utilisée actuellement pour les ordinateurs personnels est un mélange des deux approches.
@@ -211,7 +211,7 @@ Elle utilise plusieurs bus mémoire mais les instructions et les données sont s
 Dans ce modèle la machine est articulée autour du processeur et de son unité de contrôle chargée de synchroniser les autres composants, d'exécuter les instructions du binaire chargé en mémoire, de gérer les entrées et les sorties, de lire et d'écrire dans la mémoire et les registres.
 Les registres ne peuvent contenir que des entiers dans les intervalles $\textlbrackdbl -2^{31},\ 2^{31}-1\textrbrackdbl$ ou  $\textlbrackdbl -2^{63},\ 2^{63}-1\textrbrackdbl$ en assembleur \xq\ et \xs\ respectivement.
 L'unité arithmétique et logique opère toute l'arithmétique du processeur et modifie les drapeaux du registre d'état en conséquence selon les résultats des opérations effectuées. 
-Une addition provoque un débordement d'entier lorsque le résultat de l'addition ne peut être stocké dans un seul registre  dans ce cas le drapeau de dépassement d'entier (OF) est passé à 1.
+Par exemple une addition provoque un débordement d'entier lorsque le résultat de l'addition ne peut être stocké dans un seul registre :  dans ce cas le drapeau de dépassement d'entier (OF) est passé à 1.
 Une organisation simplifiée d'une machine utilisant ce modèle est donnée Figure \ref{fig:arch_harvard_mod}.
 
 \begin{figure}[h]
@@ -248,7 +248,7 @@ Une organisation simplifiée d'une machine utilisant ce modèle est donnée Figu
 La mémoire physique de la machine peut-être faite, entre autres, de supports volatiles (mémoire vive) et de supports amovibles (disques durs).
 Chacun de ces supports peut être vu comme une liste d'adresses mémoire où l'on peut stocker des données et le système d'exploitation gère ces supports comme il l'entend.
 En particulier un programme n'est pas nécessairement chargé sur une plage contiguë d'adresses mémoire.
-Pour éviter au programmeur de devoir gérer des adresses mémoires qui ne concernent pas son programme, un mécanisme de mémoire virtuelle a été mis en place : de son point de vue, le programme courant voit sa mémoire comme un intervalle d'adresses mémoire contiguës. C'est le système d'exploitation qui traduit les adresses virtuelles en adresses physiques lors de l'exécution du programme.
+Pour éviter au programmeur de devoir gérer des adresses mémoires qui ne concernent pas son programme, un mécanisme de mémoire virtuelle est mis en place : de son point de vue, le programme courant voit sa mémoire comme un intervalle d'adresses mémoire contiguës. C'est le système d'exploitation qui traduit les adresses virtuelles en adresses physiques lors de l'exécution du programme.
 Cette technique permet au système d'exploitation de choisir, de manière transparente pour le programme, un support différent pour certaines parties du programme. Elle lui permet aussi de gérer plus finement l'accès à la mémoire, tant pour interdire l'accès à certaines zones que pour partager des zones entre plusieurs processus.
 
 En pratique, lors de l'exécution d'un programme, des informations peuvent être stockées en plusieurs lieux. 
@@ -280,8 +280,8 @@ En pratique la mémoire d'un processus contient d'abord les sections de code, pu
 
 
 \paragraph{Jeu d'instructions.}
-Les processeurs Intel \xq\ utilisent un jeu d'instruction complexe (CISC). La représentation d'une instruction en une suite d'octets inclut principalement un code d'opération et ses arguments. Des informations supplémentaire peuvent être codées dans l'instruction, comme des préfixes. Le format des instructions détaillé est donné figure \ref{fig:format_insts_x86}.
-L'instruction \texttt{mov ecx, 0x080490a4} du programme précédent, codée sur \texttt{b9 a4 90 04 08} est composée de l'opcode \texttt{b8+r} indiquant une opération de copie d'une valeur immédiate vers un registre. Ici r est égal à 1, ce qui indique que le registre concerné est \ecx. La valeur à copier vers le registre est \texttt{0x080490a4} soient les octets \texttt{a4 90 04 08} codés en petit-boutistes (\emph{little endianness}), c'est à dire que les mots de poids faibles sont écrits en premiers, à l'inverse de l'écriture usuelle.
+Les processeurs Intel \xq\ utilisent un jeu d'instruction complexe (CISC). La représentation d'une instruction en une suite d'octets inclut principalement un code d'opération (ou \emph{opcode}) et ses arguments. Des informations supplémentaire peuvent être codées dans l'instruction, comme des préfixes. Le format des instructions détaillé est donné figure \ref{fig:format_insts_x86}.
+L'instruction \texttt{mov ecx, 0x080490a4} du programme précédent, codée sur les octets \texttt{b9 a4 90 04 08} est composée du code d'opération \texttt{b8+r} indiquant une opération de copie d'une valeur immédiate vers un registre. Ici r est égal à 1, ce qui indique que le registre concerné est \ecx. La valeur à copier vers le registre est \texttt{0x080490a4} soient les octets \texttt{a4 90 04 08} codés en petit-boutistes (\emph{little endianness}), c'est à dire que les mots de poids faibles sont écrits en premiers, à l'inverse de l'écriture usuelle.
 % Il s'agit d'une assignation immédiate et la valeur à copier vers \texttt{ecx} est la valeur immédiate.
 Le décalage permet de modifier une instruction d'adressage indirect comme \texttt{mov ecx, [eax]}, écrivant le contenu en mémoire à l'adresse \texttt{eax} dans le registre \texttt{ecx} en \texttt{mov ebx, [eax+d]} où \texttt{d} est le décalage.
 Enfin les préfixes permettent par exemple de répéter plusieurs fois l'instruction jusqu'à ce qu'une condition sur un registre soit remplie.
@@ -320,32 +320,28 @@ Ces drapeaux indiquent entre autres le signe du résultat d'une opération ainsi
 % En fait les instructions arithmétiques comme \add\ provoquent aussi une mise à jour de ces drapeaux : il s'agit d'une assignation implicite.\jym{sens ? expliquer ce qu'on veut dire par explicite/implicite?}
 \imore{assignations implicites et explicites?}
 
-Les instructions précédemment décrites sont séquentielles et ne modifient pas l'ordre d'exécution d'une instruction. 
+Les instructions précédemment décrites sont séquentielles et ne modifient pas l'ordre d'exécution des instructions. 
 Après l'exécution d'une instruction de type \mov\ à l'adresse $a$ codée sur $n$ octets, l'instruction située à l'adresse $a+n$ sera exécutée.
 Le dernier type d'instruction modifie le flot de contrôle du programme : elles effectuent des sauts à des adresses spécifiées dans le programme.
 Ces sauts peuvent être inconditionnels comme un \texttt{jmp 8048085} qui provoque un saut à l'adresse \adr{8048085} ou le saut dynamique \texttt{jmp eax} dont l'adresse cible du saut est la valeur de \eax.
-Les sauts peuvent aussi être conditionnels : \texttt{je +10}, à l'adresse $a$ et de taille $n$, sera suivie de l'instruction à l'adresse $a+10$ si le registre ZF vaut 1 (en cas d'égalité) et de l'instruction à l'adresse $a+n$ dans le cas contraire.
+Les sauts peuvent aussi être conditionnels : \texttt{je~+10}, à l'adresse $a$ et de taille $n$, sera suivie de l'instruction à l'adresse $a+10$ si le registre ZF vaut 1 et de l'instruction à l'adresse $a+n$ dans le cas contraire.
 
 \imore{parler du multi-threading, de cores et de l'accès mémoire en cas de multi-threading}
 
 
 \section{Désassemblage}
-L'analyse d'un programme sous forme binaire est en général plus difficile que d'analyse le code source du programme écrit dans un langage de haut niveau.
+Analyse un programme sous forme binaire est en général plus difficile que d'analyser le code source du programme écrit dans un langage de haut niveau.
 La compilation provoque une perte d'informations de haut niveau.
 Par exemple en assembleur il n'y a plus de noms ni de types pour les variables et les fonctions. 
 
 Le désassemblage est l'opération inverse de l'assemblage : il consiste à récupérer le code assembleur source du binaire.
 Cette tâche semble particulièrement simple puisque l'assemblage consiste à trouver les octets correspondants à chaque instruction à l'aide de la documentation officielle du processeur puis à mettre en forme le fichier binaire en remplissant correctement ses entêtes et ses sections.
-Pourtant on a vu que, dans le modèle de Von Neumann, les données et le code peuvent être mêlés. 
+Pourtant on a vu que, dans le modèle de von Neumann, les données et le code peuvent être mêlés. 
 En particulier les parties de données (comme la section \pdata) peuvent être exécutées. 
 De même les sections de code peuvent contenir des informations destinées à être simplement lues ou modifiées mais jamais exécutées.
 La difficulté du désassemblage consiste donc à séparer les parties potentiellement exécutables des données.
 
 Ainsi un désassemblage a priori cohérent de \helloworld\ consisterait à considérer les deux sections comme contenant du code potentiellement exécutable. Ce désassemblage sera composé de la section \ptext\ d'origine (figure \ref{fig:text_helloworld}) et de la section \pdata\ (figure \ref{fig:data_exec_helloworld}).
-Ce désassemblage n'est pas correct et on peut le prédire. 
-On connaît le point d'entrée du binaire, qui est l'adresse \texttt{8048080} dans la section \ptext.
-Les instructions exécutées dans la section \ptext\ à la suite du point d'entrée sont séquentielles et ne peuvent détourner l'exécution vers la section \pdata. 
-Le code désassemblé dans cette section n'est donc pas atteignable. Dans ce cas on sait alors que la section \pdata\ ne contient pas de code et ne doit pas être désassemblée.
 
 \begin{figure}[h]
 \begin{center}
@@ -371,15 +367,22 @@ a0 & 80490b0 & 0a    & .byte 0xa			\\
 \label{fig:data_exec_helloworld}
 \end{figure}
 
+Ce désassemblage n'est pas correct et on peut le prédire. 
+On connaît le point d'entrée du binaire, qui est l'adresse \texttt{8048080} dans la section \ptext.
+Les instructions exécutées dans la section \ptext\ à la suite du point d'entrée sont séquentielles et ne peuvent détourner l'exécution vers la section \pdata. 
+Le code désassemblé dans cette section n'est donc pas atteignable. Dans ce cas on sait alors que la section \pdata\ ne contient pas de code et ne doit pas être désassemblée.
+
+
+
 % \paragraph{Utilisation de sauts dynamiques.}
 En pratique un programme est constitué d'un grand nombre d'instructions de saut et notamment de sauts dynamiques de type \texttt{jmp eax}.
-Ce type d'instructions posent un souci lors de l'analyse : sans connaître précisément la ou les valeurs potentielles d'\eax, impossible de prédire la cible du saut et donc de savoir le code potentiellement exécuté à la suite de cette instruction.
+Ce type d'instructions posent un souci lors de l'analyse : sans connaître précisément la ou les valeurs potentielles d'\eax, il est impossible de prédire la cible du saut et donc de savoir le code potentiellement exécuté à la suite de cette instruction.
 Dans l'exemple du \helloworld, si une telle instruction est présente dans la section \ptext, il devient difficile d'exclure l'exécution possible de code dans la section \pdata.
-Une des principales difficultés réside dans l'utilisation de ces sauts dynamiques dont la cible ne peut être déterminée qu'en ayant une connaissance fine de la ou des valeurs possibles pour \eax.
+Une des principales difficultés lors du désassemblage réside dans l'utilisation de ces sauts dynamiques dont la cible ne peut être déterminée qu'en ayant une connaissance fine de la ou des valeurs possibles des différents registres.
 \\
 
-Dans cette partie nous nous intéressons au problème du désassemblage, tant d'un point de vue théorique en définissant ses objectifs et les obstacles, tant d'un point de vue pratique en expliquant les différentes techniques mises en \oe uvre pour l'effectuer.
-Nous avons précédemment décrit une architecture simplifiée pour les machines que nous étudions. En particulier les instructions et les données ne sont pas séparées dans la mémoire.
+Dans cette partie nous nous intéressons au problème du désassemblage, tant d'un point de vue théorique en définissant ses objectifs et les obstacles, que d'un point de vue pratique en expliquant les différentes techniques mises en \oe uvre pour l'effectuer.
+Nous utilisons les notions expliquées précédemment et l'architecture simplifiée que nous avons décrite. En particulier les instructions et les données ne sont pas séparées dans la mémoire.
 Certains programmes, dits \sms, utilisent ce fait pour modifier leur code au fur et à mesure de leur exécution, rendant leur analyse plus difficile. Un des objets de cette thèse est l'étude de ces programmes : nous détaillerons dans les chapitres suivants leur fonctionnement et certaines techniques d'analyse.
 
 Cependant, dans la suite de ce chapitre introductif, nous considérons que les programmes étudiés ne sont pas \sms. En conséquence l'intégralité du code de ces programmes est observable dès leur chargement en mémoire et ce code n'est pas amené à être modifié au cours de l'exécution.
@@ -390,11 +393,9 @@ Ce graphe représente les instructions sous forme de sommets et les sauts du flo
 Prenons le programme assembleur donné en figure \ref{fig:asm_eax_code}. Il ne fait que modifier le registre \eax, effectue des sauts selon la valeur d'\eax\ et se termine avec une valeur pour \eax\ à 1 ou 2. L'instruction \texttt{mov eax, 3} n'est pas atteignable puisqu'elle suit un saut inconditionnel et qu'aucune autre instruction ne provoque un saut vers elle.
 Ainsi le graphe de flot de contrôle de ce programme est celui donné en figure \ref{fig:asm_eax_cfg}.
 
-Le sommet coloré en orange est le point d'entrée du programme. Dans le cas où le flot de contrôle peut passer de l'instruction $a$ à l'instruction $b$, l'arc entre $a$ et $b$ est en noir si $b$ suit $a$ en mémoire et en rouge sinon, c'est à dire dans le cas où il s'agit d'un saut.
-
 % Un graphe de flot parfait inclut exactement l'ensemble des instructions atteignables dans le programme et un arc ne relie deux instructions que s'il existe au moins une exécution du programme dans laquelle les deux instructions sont exécutées consécutivement.
 
-\begin{figure}
+\begin{figure}[h]
 \begin{center}
 \subfigure[Code assembleur]{
 \begin{tabular}[b]{|l|l|l|}
@@ -415,7 +416,7 @@ Adresse & Octets & Instruction\\
 \label{fig:asm_eax_code}
 }
 \subfigure[Graphe de flot de contrôle]{
-\includegraphics[width=0.6\textwidth]{supports/eax-cfg/eax.pdf}
+\includegraphics[width=0.43\textwidth]{supports/eax-cfg/eax2_cropped0.pdf}
 % \input{supports/eax-cfg/eax.tex}
 \label{fig:asm_eax_cfg}
 }
@@ -424,11 +425,13 @@ Adresse & Octets & Instruction\\
 \label{fig:asm_eax}
 \end{figure}
 
+Le sommet coloré en orange est le point d'entrée du programme. Dans le cas où le flot de contrôle peut passer de l'instruction $a$ à l'instruction $b$, l'arc entre $a$ et $b$ est en noir si $b$ suit $a$ en mémoire et en rouge sinon, c'est à dire dans le cas où il s'agit d'un saut.
 
+\FloatBarrier
 \subsection{Parcours linéaire}
 Un désassemblage suivant un parcours linéaire désassemble, pour chaque section, la première instruction à l'adresse $a$ puis l'instruction à l'adresse $a+k$ où $k$ est le nombre d'octets sur lesquels l'instruction est codée.
 Ainsi pour une suite d'instructions séquentielles cette méthode suit le flot de contrôle mais si une instruction de type \jmp\ est rencontrée, le désassemblage s'intéressera à l'instruction qui suit en mémoire et non celle qui sera logiquement exécutée ensuite.
-La figure \ref{fig:asm_eax_code} donne un exemple de désassemblage linéaire d'une fonction assembleur.
+La figure \ref{fig:asm_eax_code}, donnée précédemment, est un exemple de désassemblage linéaire d'une fonction assembleur.
 
 L'algorithme \ref{algo:parcours_lineaire} explicite le parcours linéaire d'un programme composé de plusieurs sections étant chacune un bloc d'octets présent à une adresse mémoire.
 Un désassemblage consiste en la donnée d'un ensemble de couples dont chaque couple représente une instruction assembleur : le premier élément du couple est l'adresse où l'instruction est présente et le second élément est l'instruction \xq\ ou \xs\ étant à cette adresse.
@@ -473,7 +476,7 @@ $D \leftarrow\ \emptyset$\\
 \end{algorithm}
 
 L'avantage de cette technique réside dans sa simplicité et le fait qu'elle couvre l'ensemble de la mémoire.
-Pourtant, ne cherchant pas à suivre le flot de contrôle, elle ne permet pas de séparer le code exécutable des données et désassemble des instructions qui ne sont pas atteignables comme l'instruction \mov\ à l'adresse $804806e$ de la figure \ref{fig:asm_eax}.
+Pourtant, ne cherchant pas à suivre le flot de contrôle, elle ne permet pas de séparer le code exécutable des données et désassemble des instructions qui ne sont pas atteignables comme l'instruction \mov\ à l'adresse $804806e$ de la figure \ref{fig:asm_eax_code}.
 C'est l'approche utilisée par le désassembleur standard du projet GNU, objdump \cite{objdump}.
 La commande de désassemblage par défaut du désassembleur interactif libre Radare \cite{radare} fonctionne également par parcours linéaire.
 
@@ -582,7 +585,8 @@ La meilleure source pour l'analyse d'un programme serait cette connaissance de t
 
 À partir de cette donnée il est possible de parcourir l'ensemble des comportements possibles du programme, que ce soit la valeur des différents registres au cours de l'exécution, les interactions entre le programme et le système d'exploitation ou les enchaînements possibles entre différentes instructions.
 Nous nous intéressons en particulier au graphe de flot de contrôle parfait (définition \ref{def:cfg_parfait_nsm}) dans lequel les sommets seraient exactement les adresses de toutes les instructions atteignables et un arc relierait deux instructions si et seulement si il existe un chemin d'exécution dans lequel les deux instructions se suivent immédiatement.
-Cette définition d'un graphe de flot de contrôle parfait représente une instruction par son adresse en mémoire : il s'agit d'une simplification cohérente dans le cas d'un programme \nsm\ et nous verrons par la suite comment étendre la notion de graphe de flot de contrôle parfait à un programme qui se modifie lui-même.
+% Cette définition d'un graphe de flot de contrôle parfait représente une instruction par son adresse en mémoire : il s'agit d'une simplification cohérente dans le cas d'un programme \nsm\ et 
+Nous ne nous intéressons ici qu'aux programmes \nsms\ mais nous verrons par la suite comment étendre la notion de graphe de flot de contrôle parfait à un programme qui se modifie lui-même.
 
 \begin{defi}
  Étant donné un programme \nsm\ P prenant une entrée I, le graphe de flot de contrôle parfait de P est le graphe orienté $T=(V, E)$ tel que :
@@ -639,7 +643,7 @@ En pratique le désassemblage est classiquement du domaine de l'analyse statique
 \section{Conclusion}
 \imore{Expliquer quelques différences entre \xq\ et \xs}
 Nous avons décrit les machines sur lesquelles les programmes que nous étudions s'exécutent : il s'agit des ordinateurs avec une architecture \xq\ ou \xs.
-Un programme assembleur a, généralement, été initialement écrit dans un langage de haut niveau puis compilé en binaire encodant les instructions dans le langage assembleur cible.
+Un programme assembleur a, généralement, été initialement écrit dans un langage de haut niveau puis compilé en un binaire encodant les instructions dans le langage assembleur cible.
 
 Le principal problème du désassemblage réside dans la difficulté de séparer le code exécutable des données dans un fichier binaire : cette séparation est un problème indécidable.
 Le chapitre suivant présente plusieurs méthodes d'obscurcissement de code utilisées par les auteurs de logiciels malveillants pour compliquer davantage la tâche d'un analyste.
