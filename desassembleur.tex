@@ -332,7 +332,7 @@ L'idée consiste donc à obtenir une exécution particulière d'un programme pui
 % Nous décidons alors d'effectuer, pour chaque vague, un désassemblage par analyse statique en séparant le code en plusieurs \layers. Cette analyse est pertinente si les vagues ne présentent pas d'auto-modification. Nous discuterons ce point\todo{todo}.
 
 Notre objectif est donc de construire un GFC paramétré par une exécution représentative du programme à analyser.
-L'analyse dynamique du programme est faite selon l'algorithme \ref{algo:analyse_dyn_vagues} du chapitre précédent et fournit une trace d'exécution générale et un découpage de l'exécution en plusieurs instantanés de la mémoire.
+L'analyse dynamique du programme est faite selon l'algorithme \ref{algo:analyse_dyn_vagues} du chapitre \ref{chap:auto-modification} et fournit une trace d'exécution générale et un découpage de l'exécution en plusieurs instantanés de la mémoire.
 Nous obtenons les traces et les instantanés par instrumentation avec Pin comme indiqué au chapitre précédent.
 L'architecture générale du désassembleur est donnée par la figure \ref{fig:diag_codisasm}.
 
@@ -512,9 +512,63 @@ Cette approche a montré son efficacité pour déterminer les cibles de sauts dy
 
 
 \section{Implémentation}
+\paragraph{Analyse dynamique.}
+Nous avons implémenté l'analyse dynamique avec l'outil d'instrumentation d'Intel, Pin, comme expliqué au chapitre \ref{chap:auto-modification} traitant de l'auto-modification.
+L'implémentation permet de suivre les instructions exécutées dans la mémoire du processus instrumenté et gère les allocations dynamiques.
+Chaque instantané est enregistré sous la forme d'un fichier exécutable (PE sous Windows et ELF sous Linux) dans lequel les sections ont été mises à jour et des sections supplémentaires sont ajoutées dans le cas où le programme utilise des allocations dynamiques.
+
+\paragraph{Désassembleur.}
+Le désassembleur fonctionnant par analyse statique et récursive a été codé en 3500 lignes de C++. Il utilise l'outil XED d'Intel \cite{xed} fournissant les informations sémantiques suffisantes, comme détaillé au chapitre \ref{chap:semantique}.
 
 \section{Résultats}
+Afin de valider notre approche nous avons d'abord testé notre désassembleur sur une version protégée d'un binaire existant.
+Dans un second temps, afin d'obtenir des statistiques sur l'utilisation de certaines méthodes de protection, nous avons utilisé notre désassembleur pour analyser un grand nombre de programmes malveillants.
 
+\subsection{Expérience sur \hostname\ empaqueté}
+Nous avons utilisé des empaqueteurs existants pour protéger un programme standard présent sous Windows, \hostname, et avons cherché à analyser le programme protégé ainsi généré avec notre méthode hybride.
+L'analyse dynamique est réussie si le programme protégé instrumenté présente la même sortie que le programme d'origine, c'est à dire s'il affiche le nom de la machine. Sur les XX logiciels d'empaquetage que nous avons évalué, YY produisent un binaire protégé que nous n'avons pas réussi à instrumenter jusqu'à obtenir le nom de la machine.
+L'échec de l'instrumentation signifie que le logiciel de protection détecte l'utilisation d'une instrumentation et arrête prématurément l'exécution du programme.
+
+\paragraph{Difficultés.}
+Outre les quelques échantillons que nous n'avons pas réussi à instrumenter, l'empaqueteur \texttt{pespin} modifie en mémoire l'entête du fichier PE qui le représente. Ce n'était pas une possibilité que nous avions anticipé et puisqu'il ne s'agit pas d'une allocation d'une nouvelle zone mémoire nous ne sommes pas en mesure de prendre en compte cette modification dans les instantanés.
+Bien qu'il s'agisse d'un problème surmontable en enregistrant à part les entêtes modifiés, nous n'avons à ce jour par implémenté cette solution et donc certaines vagues de \texttt{pespin} présentent des erreurs lors du désassemblage.
+
+\paragraph{Métriques.}
+Nous avons analyse chaque niveau d'exécution et reconstruit des graphes de flot de contrôle partiels à pour chaque vague ainsi que le graphe de flot de contrôle paramétré par l'exécution. Nous avons retenu les informations suivantes.
+\begin{itemize}
+ \item Le nombre d'instructions à chaque niveau d'exécution, d'une part dans la trace d'exécution, d'autre part le nombre total d'instructions récupérées par le désassemblage.
+ \item Le nombre d'instructions étant en chevauchement avec une autre instruction, d'une pour les instructions de la trace, d'autre part pour toutes les instructions désassemblées.
+ \item Le nombre de \layers\ de code, d'une part en ne prenant en compte que les instructions de la trace, d'autre part en prenant toutes les instructions désassemblées, selon l'algorithme \ref{algo:ajout_inst_layers} du chapitre précédent.
+ \item Le nombre de sauts entre des \layers\ de code différent, d'une part en ne comptant que ceux provenant de la trace, d'autre part en comptant tous les sauts du graphe de flot de contrôle reconstruit par le désassembleur.
+%  \item Le nombre d'appels (\call) non standard
+ \item Le part du graphe de flot de contrôle du programme \hostname\ d'origine que l'on retrouve dans chaque vague : $100\%$ indique que l'intégralité du graphe de flot de contrôle de \hostname\ est retrouvé dans le graphe de flot de contrôle de la vague. Cette métrique sera formalisée dans la partie suivante de cette thèse.
+ \item Le statut : cette colonne indique si l'instrumentation a été un échec (\checkf), si le désassemblage est un succès complet (\checkv) ou si le désassemblage a rencontré des erreurs (``partiel'').
+\end{itemize}
+Les données résultant de cette expérience sont données en annexe \ref{annex:packers} et un extrait donnant le résultats sur le fichier d'origine, celui protégé par tElock99 et celui protégé par \upx\ est donné en figure \ref{fig:packers_extrait}.
+
+\begin{figure}[h]
+\begin{tiny}
+ \input{packers_extraits.table}
+\end{tiny}
+\caption{Extrait du résultat du désassemblage de \hostname\ protégé}
+\label{fig:packers_extrait}
+\end{figure}
+
+% \subsubsection{Interprétations}
+\paragraph{Vagues et binaire d'origine.}
+Nos expériences confirment un fait étudié précédemment \cite{Calvet2013,renovo,polyunpack} indiquant que la charge utile, cachée par l'empaqueteur, se trouve dans la dernière vague.
+Nous montrons que tous les cas de détection massive de \hostname\ au sein d'un binaire protégé se font dans la dernière vague.
+De plus nous validons également l'utilisation systématique de l'auto-modification comme technique de protection : le seul empaqueteur ne présentant pas d'auto-modification est vmprotect qui utilise une technnique d'émulation de code et n'exécute pas directement le code d'origine sur la machine.
+
+On peut distinguer deux cas différents de protection. UPX, comme d'autres empaqueteurs simples, présente le programme d'origine dans son intégralité et non modifié en dernière vague : les caractéristiques de la dernière vague d'UPX sont exactement les mêmes que celle de l'unique vague de \hostname. L'empaqueteur tElock99 présente le code de \hostname\ également en dernière vague mais il est mêlé à d'autre code : la dernière vague est également obscurcie.
+
+\paragraph{Utilisation du chevauchement de code et \layers.}
+De nombreux binaires protégés (YY sur XX) présentent, dans le graphe que nous reconstruisons, des chevauchements de code et donc plus d'une couche de code. Pourtant seuls ZZ de ces binaires ont utilisé des instructions en chevauchement lors de leur exécution : les autres binaires utilisent en fait des techniques d'obscurcissement qui conduisent notre désassembleur à considérer des instructions se chevauchant sans en faire un usage actif. 
+
+Ainsi seules les variantes de tElock, UPX et pespin (et..?) utilisent réellement le chevauchement de code et ils l'utilisent avec parcimonie : au plus une douzaine d'instructions sont en chevauchement dans la trace (sur plusieurs centaines) et il n'y a au plus que deux couches de code.
+
+
+\subsection{Expérience sur des logiciels malveillants}
 
 \section{Conclusion}
 Nous avons combiné les notions d'analyse statique et d'analyse dynamique vues aux chapitres précédents pour réaliser et implémenter un désassembleur capable de construire un graphe de flot de contrôle approchant le graphe de flot parfait d'un programme \sm, notion que nous avons définie.
