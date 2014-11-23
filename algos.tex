@@ -1416,14 +1416,14 @@ Deux sites sont isomorphes si et seulement si leurs codages de parcours en profo
 Le problème \ref{pbisosg} de l'existence d'un isomorphisme entre un site et un sous-site d'un site peut être résolu ainsi :
 Il existe un sous-site de T isomorphe au site P si et seulement si il existe un sommet de T à partir duquel le codage du parcours en profondeur\footnotemark[\value{footnote}] de P est possible.
 
-Une solution au problème \ref{pbisosgbase} de l'existence d'un site dans une base $L_S$ isomorphe à un sous-site d'un site T consiste à itérer la solution précédente de l'isomorphisme de sous-site à chaque site de la base $L_S$.
+Une solution au problème \ref{pbisosgbase} de l'existence, dans une base $L_S$, d'un site isomorphe à un sous-site d'un site T consiste à itérer la solution précédente de l'isomorphisme de sous-site à chaque site de la base $L_S$.
 
 \paragraph{Complexité.}
 La résolution du problème de l'isomorphisme de sous-site avec cet algorithme se réalise dans le pire des cas en $O(n_T.n_P)$ puisqu'elle nécessite :
 \begin{itemize}
  \item Un parcours en profondeur du site de motif P avec détermination du codage : $O(n_P)$
  \item Un parcours du graphe de flot T à partir de chacun de ses sommets : chaque parcours se fait en $O(n_P)$, cette étape peut alors se réaliser en $O(n_T.n_P)$
- \item Si on a une base de $n$ sites $L_S$ de taille $W$, la complexité dans le pire des cas pour déterminer un site de la base est isomorphe à un sous-site de T est $O(n.n_T.W)$.
+ \item Si on a une base $L_S$ contenant $S$ sites de taille $W$, la complexité dans le pire des cas pour déterminer un site de la base est isomorphe à un sous-site de T est $O(S.n_T.W)$.
 \end{itemize}
 
 \subsubsection{Codages rangés dans un arbre de décision}
