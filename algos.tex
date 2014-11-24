@@ -358,7 +358,7 @@ On a alors trois problèmes successifs, de difficulté croissante et faisant int
 
 \begin{pb}\label{pbisosgbase}
 %  À partir d'un ensemble de sites $L_P$ et d'un graphe de flot $T$, comment savoir s'il existe $P\in L_P$ tel que $P$ est un sous-site $T$ ?
- À partir d'un ensemble de sites $L_P$ et d'un graphe de flot $T$, comment déterminer l'ensemble des $P\in L_P$ tels que $P$ est un sous-site de $T$ ?
+ À partir d'un ensemble de sites $L_S$ et d'un graphe de flot $T$, comment déterminer l'ensemble des $P\in L_S$ tels que $P$ est un sous-site de $T$ ?
 \end{pb}
 
 Dans le cas général, le problème \ref{pbisog} de l'isomorphisme de graphes est connu pour être NP sans que l'on sache s'il est NP-complet \cite{Kob94}, tandis que le problème de l'isomorphisme de sous-graphes est NP-complet \cite{W05}.
@@ -1389,7 +1389,7 @@ On en déduit que les sommets ajoutés sont toujours deux sommets correspondants
 \end{pr}
 
 \begin{theo}
- Soit P un site et T un graphe de flot. Les deux propositions suivantes sont équivalents :
+ Soit P un site et T un graphe de flot. Les deux propositions suivantes sont équivalentes :
  \begin{itemize}
   \item P est isomorphe à un sous-site de T
   \item Il existe C un codage de parcours bien formé de P tel que le parcours de C est possible dans T
@@ -1550,8 +1550,8 @@ On peut utiliser cet algorithme pour retrouver tous les sous-sites isomorphes en
 \KwResult{Le nombre de parcours possibles}
 \SetKwProg{Fn}{}{}{}
 \SetKwFunction{FRecurs}{decompteSousSite}
+
 \Return decompteSousSite(A, racine(A), T, r)\\
-~\\
 
 \Fn{\FRecurs{A, a, T, R}}{
   \eIf{a n'a aucun fils dans A}{
@@ -1560,8 +1560,9 @@ On peut utiliser cet algorithme pour retrouver tous les sous-sites isomorphes en
   }
   {
     $somme\leftarrow 0$\\
-    \For{f fils d'étiquette e de a dans A}{
-	$(possible, s', T') \leftarrow etape(e, s, T)$\\
+    $s \leftarrow R$\\
+    \For{f fils de mot m de a dans A}{
+	$(possible, s', T') \leftarrow etape(m, s, T)$\\
 	\If{possible}{
 	  $somme\leftarrow somme+decompteSousSite(A, f, T', s')$
 	}
@@ -1571,13 +1572,13 @@ On peut utiliser cet algorithme pour retrouver tous les sous-sites isomorphes en
 
 \SetKwProg{Fn}{}{}{}
 \SetKwFunction{FRecurs}{etape}
-\Fn(\tcp*[h]{L'étiquette e est de la forme $[\xrightarrow{\alpha}]i[:L]$}){\FRecurs{e, s, T}}{
-  \eIf{e est de la forme $1:L$}{
+\Fn(\tcp*[h]{Le mot m est de la forme $[\xrightarrow{\alpha}]i[:L]$}){\FRecurs{m, s, T}}{
+  \eIf{m est de la forme $1:L$ et $s$ a pour étiquette $L$}{
     Numéroter le sommet s de T par 1.\\
     \Return (true, s, T)
   }
   {
-    \tcp{Dans ce cas e est de la forme $\xrightarrow{\alpha}i[:L]$}
+    \tcp{Dans ce cas m est de la forme $\xrightarrow{\alpha}i[:L]$}
     \eIf{$\alpha$ est un entier k}{
     \uIf{s a un fils s' d'ordre k non numéroté dans T, d'étiquette L, et aucun sommet n'est numéroté i}{
     On numérote s' par i dans T.\\
