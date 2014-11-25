@@ -1862,7 +1862,7 @@ La complexité de l'ajout et de l'analyse devient celle donnée en figure \ref{f
  \hline
  Recherche exhaustive & $O(n)$ & $O(n^3.n!)$\\
  Ullmann & $O(n)$ & $O(n^W)$ \\
- Parcours & $O(n)$ & $O(n)$\\
+ Parcours & $O(n)$ & $O(S.n)$\\
  SIDT & $O(n)$ & $O(n)$\\
  \hline
 \end{tabular} 
@@ -1916,15 +1916,61 @@ Les graphes de flot sont stockés dans des fichiers binaires ou des fichiers de 
 Développé en 2000 lignes C \cite{graphbinalgo}, l'implémentation offre les différentes options d'optimisation dont celles discutées précédemment à la section \ref{sec:ullmann_optimisation}.
 Elle est principalement constituée des deux fonction \emph{backtrack} et \emph{forwardChecking}.
 
-\paragraph{Arbre de décision avec algorithme de Tarjan.}
-Développée en 500 lignes de python, l'implémentation permet d'enregistrer la base dans un fichier pour effectuer l'analyse à partir d'une base existante.
+\paragraph{Arbre de décision sur l'algorithme par parcours.}
+Développée en 1000 lignes de C++, l'implémentation permet de créer une base à partir d'une liste de graphes de flot et de tester une liste de graphes de flot. Elle ne permet pas d'enregistrer la base dans un fichier.
 
 \paragraph{SIDT.}
-Développée en 1200 lignes de C \cite{SIDT}, l’implémentation permet de créer une base mais pas de l'enregistrer.
+Développée en 1200 lignes de C \cite{SIDT}, l'implémentation permet également de créer une base et de tester une liste de graphes de flot. Elle ne permet pas non plus d'enregistrer la base dans un fichier.
 
-\subsection{Performance des implémentations}
-[à faire : avec un échantillon pour la base, un pour les tests, mesure de performances en temps mais aussi en précision entre SIDT et Tarjan/Ullmann]
+% \subsection{Performances des implémentations}
 
+\subsection{Performances des implémentations}
+\paragraph{Machine de test.}
+Nous avons réalisé nos tests sur un ordinateur portable DELL Latitude E6510 doté d'un processeur Intel i5-560M à double c\oe ur fonctionnant à 2.66 GHz.
+
+\paragraph{Programmes d'empaquetage.}
+Nous avons utilisé l'analyse morphologique lors de l'expérience sur les programmes de protection du chapitre \ref{chap:desassembleur} et dont les résultats sont donnés en annexe \ref{annex:packers}.
+Nous avons cherché à détecter les sites extraits du GFC de \hostname\ que l'on retrouve dans des versions protégées de ce même binaire.
+
+Conformément à nos attentes les algorithmes d'Ullmann et l'algorithme par parcours nous donnent les mêmes résultats en termes de détection sur deux exemples choisis (tElock99 et UPX). L'algorithme d'Ullmann étant lent, nous n'avons pas mené à terme la détection sur tous les échantillons.
+SIDT donne des résultats rapides mais incomplets. Nous résumons ces résultats dans le tableau suivant.
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+ Algorithme & Apprentissage & Détection & Sites uniques détectés & Complet \\
+ \hline
+ Ullmann & $\infty$ & $\infty$ & (6491) & Oui\\
+ Parcours & < 1 seconde & 1.6 seconde & 6491 & Oui\\
+ SIDT & < 1 seconde & 70 secondes & 6045 & Non\\
+ \hline
+\end{tabular}
+\end{center}
+
+\paragraph{Apprentissage et détection d'un grand nombre de sites.}
+Nous voulons évaluer plus généralement les performances en 
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics{supports/plots/plotLearn.pdf}
+\end{center}
+\caption{Temps d'apprentissage en fonction du nombre de sites}
+\label{fig:apprentissage}
+\end{figure}
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics{supports/plots/plotScan.pdf}
+\end{center}
+\caption{Temps de détection de 5 programmes (18160 sites en tout) en fonction du nombre de sites dans la base}
+\label{fig:scan}
+\end{figure}
+
+\paragraph{Complétude.}
+
+
+
+% 
 \section{Conclusion}
 Nous avons formalisé le problème de la détection d'isomorphismes de graphes et de sous-graphes adapté à l'analyse morphologique et proposé deux approches algorithmiques tirant partie des spécificités des graphes de flot et des sites.
 La première, cherchant à reproduire des parcours de sites au sein d'un graphe de flot, donne des résultats exacts tandis que la seconde, fonctionnant par comparaison simple des sites, n'est pas exacte mais est beaucoup plus rapide.

@@ -1,36 +1,40 @@
-\begin{longtable}{|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+% 3 échantillons
+% 3 réussis
+% 2 avec couche dans trace
+% 2 avec couche dans disas
+\begin{longtable}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
 \hline
-Empaqueteur & Vague & \multicolumn{2}{c|}{Instructions} & \multicolumn{2}{c|}{Instructions} & \multicolumn{2}{c|}{Couches} & \multicolumn{2}{c|}{Sauts} & Sites & Statut \\
- &  & \multicolumn{2}{c|}{} & \multicolumn{2}{c|}{en chevauchement} & \multicolumn{2}{c|}{} & \multicolumn{2}{c|}{entre couches} & détectés &  \\
-  &   & Trace & Désas & Trace & Désas & Trace & Désas & Trace & Désas & (SIDT) &  \\
+Empaqueteur & Vague & \multicolumn{2}{c|}{Instructions} & \multicolumn{2}{c|}{Instructions} & \multicolumn{2}{c|}{Couches} & \multicolumn{2}{c|}{Sauts} & \multicolumn{2}{c|}{Sites de \hostname} & Statut \\
+ &  & \multicolumn{2}{c|}{} & \multicolumn{2}{c|}{en chevauchement} & \multicolumn{2}{c|}{} & \multicolumn{2}{c|}{entre couches} & \multicolumn{2}{c|}{détectés} &  \\
+  &   & Trace & Désas & Trace & Désas & Trace & Désas & Trace & Désas & Parcours & SIDT &  \\
 \hline
 \endhead
-\rowcolor{lightgray}(aucun) & / & 154 & 354 & / & / & / & / & / & / & 260 & \checkv \\
-  & 0 & 154 & 354 & 0 & 0 & 1 & 1 & 0 & 0 & 260 & \checkv \\
+\rowcolor{lightgray}(aucun) & / & 154 & 354 & / & / & / & / & / & / & 254 & 254 & \checkv \\
+  & 0 & 154 & 354 & 0 & 0 & 1 & 1 & 0 & 0 & 254 & 254 & \checkv \\
 \hline
 \hline
-\rowcolor{lightgray}tElock99 & / & 2044 & 3022 & / & / & / & / & / & / & 231 (89\%) & \checkv \\
-  & 0 & 46 & 130 & 0 & 42 & 1 & 3 & 0 & 16 & 0 (0\%) & \checkv \\
-  & 1 & 62 & 106 & 0 & 7 & 1 & 2 & 0 & 2 & 0 (0\%) & \checkv \\
-  & 2 & 19 & 20 & 2 & 2 & 2 & 2 & 2 & 2 & 0 (0\%) & \checkv \\
-  & 3 & 25 & 25 & 8 & 8 & 2 & 2 & 8 & 8 & 0 (0\%) & \checkv \\
-  & 4 & 402 & 624 & 0 & 173 & 1 & 3 & 0 & 73 & 0 (0\%) & \checkv \\
-  & 5 & 15 & 15 & 0 & 0 & 1 & 1 & 0 & 0 & 0 (0\%) & \checkv \\
-  & 6 & 15 & 15 & 0 & 0 & 1 & 1 & 0 & 0 & 0 (0\%) & \checkv \\
-  & 7 & 13 & 13 & 0 & 0 & 1 & 1 & 0 & 0 & 0 (0\%) & \checkv \\
-  & 8 & 16 & 16 & 0 & 0 & 1 & 1 & 0 & 0 & 0 (0\%) & \checkv \\
-  & 9 & 18 & 34 & 0 & 2 & 1 & 2 & 0 & 2 & 0 (0\%) & \checkv \\
-  & 10 & 15 & 15 & 0 & 0 & 1 & 1 & 0 & 0 & 0 (0\%) & \checkv \\
-  & 11 & 15 & 16 & 0 & 0 & 1 & 1 & 0 & 0 & 0 (0\%) & \checkv \\
-  & 12 & 76 & 80 & 0 & 5 & 1 & 2 & 0 & 2 & 0 (0\%) & \checkv \\
-  & 13 & 196 & 283 & 0 & 6 & 1 & 2 & 0 & 2 & 0 (0\%) & \checkv \\
-  & 14 & 183 & 401 & 0 & 37 & 1 & 2 & 0 & 17 & 0 (0\%) & \checkv \\
-  & 15 & 564 & 727 & 0 & 16 & 1 & 2 & 0 & 2 & 0 (0\%) & \checkv \\
-  & 16 & 138 & 178 & 0 & 0 & 1 & 1 & 0 & 0 & 0 (0\%) & \checkv \\
-  & 17 & 226 & 430 & 0 & 0 & 1 & 1 & 0 & 0 & 231 (89\%) & \checkv \\
+\rowcolor{lightgray}tElock99 & / & 2044 & 3022 & / & / & / & / & / & / & 254 (100\%) & 225 (89\%) & \checkv \\
+  & 0 & 46 & 130 & 0 & 42 & 1 & 3 & 0 & 16 & 0 (0\%) & 0 (0\%) & \checkv \\
+  & 1 & 62 & 106 & 0 & 7 & 1 & 2 & 0 & 2 & 0 (0\%) & 0 (0\%) & \checkv \\
+  & 2 & 19 & 20 & 2 & 2 & 2 & 2 & 2 & 2 & 0 (0\%) & 0 (0\%) & \checkv \\
+  & 3 & 25 & 25 & 8 & 8 & 2 & 2 & 8 & 8 & 0 (0\%) & 0 (0\%) & \checkv \\
+  & 4 & 402 & 624 & 0 & 173 & 1 & 3 & 0 & 73 & 0 (0\%) & 0 (0\%) & \checkv \\
+  & 5 & 15 & 15 & 0 & 0 & 1 & 1 & 0 & 0 & 0 (0\%) & 0 (0\%) & \checkv \\
+  & 6 & 15 & 15 & 0 & 0 & 1 & 1 & 0 & 0 & 0 (0\%) & 0 (0\%) & \checkv \\
+  & 7 & 13 & 13 & 0 & 0 & 1 & 1 & 0 & 0 & 0 (0\%) & 0 (0\%) & \checkv \\
+  & 8 & 16 & 16 & 0 & 0 & 1 & 1 & 0 & 0 & 0 (0\%) & 0 (0\%) & \checkv \\
+  & 9 & 18 & 34 & 0 & 2 & 1 & 2 & 0 & 2 & 0 (0\%) & 0 (0\%) & \checkv \\
+  & 10 & 15 & 15 & 0 & 0 & 1 & 1 & 0 & 0 & 0 (0\%) & 0 (0\%) & \checkv \\
+  & 11 & 15 & 16 & 0 & 0 & 1 & 1 & 0 & 0 & 0 (0\%) & 0 (0\%) & \checkv \\
+  & 12 & 76 & 80 & 0 & 5 & 1 & 2 & 0 & 2 & 0 (0\%) & 0 (0\%) & \checkv \\
+  & 13 & 196 & 283 & 0 & 6 & 1 & 2 & 0 & 2 & 0 (0\%) & 0 (0\%) & \checkv \\
+  & 14 & 183 & 401 & 0 & 37 & 1 & 2 & 0 & 17 & 0 (0\%) & 0 (0\%) & \checkv \\
+  & 15 & 564 & 727 & 0 & 16 & 1 & 2 & 0 & 2 & 0 (0\%) & 0 (0\%) & \checkv \\
+  & 16 & 138 & 178 & 0 & 0 & 1 & 1 & 0 & 0 & 0 (0\%) & 0 (0\%) & \checkv \\
+  & 17 & 226 & 430 & 0 & 0 & 1 & 1 & 0 & 0 & 254 (100\%) & 225 (89\%) & \checkv \\
 \hline
-\rowcolor{lightgray}upx & / & 322 & 523 & / & / & / & / & / & / & 260 (100\%) & \checkv \\
-  & 0 & 168 & 169 & 4 & 4 & 2 & 2 & 2 & 2 & 0 (0\%) & \checkv \\
-  & 1 & 154 & 354 & 0 & 0 & 1 & 1 & 0 & 0 & 260 (100\%) & \checkv \\
+\rowcolor{lightgray}upx & / & 322 & 523 & / & / & / & / & / & / & 254 (100\%) & 254 (100\%) & \checkv \\
+  & 0 & 168 & 169 & 4 & 4 & 2 & 2 & 2 & 2 & 0 (0\%) & 0 (0\%) & \checkv \\
+  & 1 & 154 & 354 & 0 & 0 & 1 & 1 & 0 & 0 & 254 (100\%) & 254 (100\%) & \checkv \\
 \hline
 \end{longtable}
