@@ -1,4 +1,5 @@
 digraph G {
+fontname=cmr10;
  {rank=same n1_1_1 n2_1_1 n3_1_1 n4_1_1}
  {rank=same n1_2_1 n2_2_1 n3_2_1 n4_2_1}
  {rank=same n1_3_1 n2_3_1 n3_3_1 n4_3_1}

@@ -1,4 +1,5 @@
 digraph G {
+fontname=cmr10;
 "a" [label="&alpha;"]
 "b" [label="&beta;"]
 "c" [label="&gamma;"]

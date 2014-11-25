@@ -1844,7 +1844,7 @@ Les deux premiers algorithmes ne rangent les pas sites dans une base spécifique
  \hline
 \end{tabular} 
 \end{center}
-\caption{Complexité totale}
+\caption{Complexité dans le pire des cas}
 \label{fig:complexite_1}
 \end{figure}
 
@@ -1947,8 +1947,18 @@ SIDT donne des résultats rapides mais incomplets. Nous résumons ces résultats
 \end{tabular}
 \end{center}
 
+\paragraph{Complétude.}
+Sur l'exemple de \hostname\ empaqueté 446 sites sur 6491 ne sont pas détectés par SIDT.
+Pourtant, avec l'empaqueteur pelock, on passe de 214 sites détectés à seulement 123.
+
+
+
 \paragraph{Apprentissage et détection d'un grand nombre de sites.}
-Nous voulons évaluer plus généralement les performances en 
+Nous voulons évaluer plus généralement les performances pour l'apprentissage et la détection de l'algorithme par parcours et de l'algorithme SIDT.
+Le but est principalement de valider les résultats théoriques indiquant que l'apprentissage de $S$ sites se fait dans les deux cas en $O(S)$ et que la détection d'un nombre fixé de sites dépend du nombre $S$ de sites dans la base et se fait en $O(S)$ pour l'algorithme par parcours mais ne dépend pas de $S$ dans le cas SIDT.
+
+La figure \ref{fig:apprentissage} donne le temps d'apprentissage en fonction du nombre de sites que l'on apprend.
+On observe bien la croissance linéaire attendue et on constate que SIDT est beaucoup plus rapide lors de l'apprentissage.
 
 \begin{figure}[h]
 \begin{center}
@@ -1958,6 +1968,10 @@ Nous voulons évaluer plus généralement les performances en
 \label{fig:apprentissage}
 \end{figure}
 
+La figure \ref{fig:scan} donne le temps de détection de 5 programmes (qui sont composés de 18160 sites en tout) en fonction du nombre de sites dans la base.
+Sur cette figure le temps de détection pour SIDT semble ne pas dépendre du nombre de sites dans la base tandis que pour l'algorithme par parcours il semble suivre une courbe logarithmique \todo{vrai?} en fonction du nombre de sites dans la base.
+Cette seconde observation peut sembler raisonnable si l'on prend en compte que la dépendance linéaire calculée dans la section précédente est la complexité dans le pire des cas et que l'ajout des parcours à un arbre de décision factorise en général certains parcours.
+
 \begin{figure}[h]
 \begin{center}
 \includegraphics{supports/plots/plotScan.pdf}
@@ -1966,13 +1980,10 @@ Nous voulons évaluer plus généralement les performances en
 \label{fig:scan}
 \end{figure}
 
-\paragraph{Complétude.}
 
 
 
-% 
 \section{Conclusion}
 Nous avons formalisé le problème de la détection d'isomorphismes de graphes et de sous-graphes adapté à l'analyse morphologique et proposé deux approches algorithmiques tirant partie des spécificités des graphes de flot et des sites.
 La première, cherchant à reproduire des parcours de sites au sein d'un graphe de flot, donne des résultats exacts tandis que la seconde, fonctionnant par comparaison simple des sites, n'est pas exacte mais est beaucoup plus rapide.
 
-Je tiens à remercier Guillaume Bonfante pour avoir implémenté, en python, l'algorithme par parcours.

@@ -1,4 +1,5 @@
 digraph G{
+fontname=cmr10;
 0 [shape=point]
 1 [label="1: JCC"]
 2 [label="2: CALL"]

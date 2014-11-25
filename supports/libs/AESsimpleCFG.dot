@@ -1,4 +1,5 @@
 Digraph G{
+fontname=cmr10;
 "1" [label="Première itération"]
 "2" [label="Itérations"]
 "3" [label="Dernière itération"]

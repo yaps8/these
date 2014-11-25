@@ -1,4 +1,5 @@
 digraph G {
+fontname=cmr10;
 labeljust=r
 "60v1" [labeljust=r,label="1, 0x8048060 xor edi, edi\l1, 0x8048062 inc eax\l", shape=box, style="filled", fillcolor=orange]
 "60v2" [labeljust=r,label="2, 0x8048060 inc edi\l2, 0x8048061 inc edi\l", shape=box, style="filled", fillcolor=orange]

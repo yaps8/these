@@ -1,4 +1,5 @@
 digraph G{
+fontname=cmr10;
 "60" [label="INST\l", style="filled,bold", fillcolor=orange]
 "68" [label="JCC\l"]
 "6a" [label="INST\l"]

@@ -1,4 +1,5 @@
 digraph G{
+fontname=cmr10;
 "8048060" [label="8048060: Pile -> RWX", style="filled,bold", fillcolor=orange]
 "804807c" [label="804807c: mov    edi,0x0"]
 "8048081" [label="8048081: mov    eax,0x8048091"]

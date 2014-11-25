@@ -1,4 +1,5 @@
 digraph G {
+fontname=cmr10;
 labeljust=r
 "0x4" [labeljust=r,label="0x01006e7e dec ecx\l"]
 "0x0" [label="0x01006e7a inc byte [ebx+ecx]\l", style="bold, filled", fillcolor="orange"]

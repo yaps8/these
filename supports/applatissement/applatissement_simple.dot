@@ -1,4 +1,5 @@
 digraph G {
+fontname=cmr10;
 labeljust=r
 "A" [labeljust=r,label="A", shape=box, style="filled", fillcolor=orange]
 "B" [labeljust=r,label="B", shape=box, style="filled", fillcolor=white]

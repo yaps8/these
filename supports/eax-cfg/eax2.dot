@@ -1,4 +1,5 @@
 digraph G{
+fontname=cmr10;
 "1" [label="8048067: mov eax, 0", style="filled,bold", fillcolor=orange]
 "2" [label="804806c: jmp 0x8048073"]
 "4" [label="8048073: cmp eax, 0"]

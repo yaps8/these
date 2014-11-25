@@ -1,4 +1,5 @@
 Digraph G{
+fontname=cmr10;
 "10" [label="cmp eax 0"]
 "1" [label="jne +7"]
 "2" [label="mov ecx eax"]
