@@ -97,7 +97,7 @@ signed int __cdecl sub_12F36(int a1, int a2, int a3)
 \caption{Première lignes de la fonction ParsePE décompilée par IDA\label{fig:ParsePEInitial}}
 \end{figure}
 
-Certaines constantes peuvent nous aider : par exemple \texttt{0xF750F284 XOR 0xF750B7D4 = 0x00004550} , qui représente la chaîne de caractères 'PE$\backslash$0$\backslash$0' en ASCII. Le texte était obscurcis à l'aide d'une opération de ou exclusif (\emph{XOR}).
+Certaines constantes peuvent nous aider : par exemple \texttt{0xF750F284 XOR 0xF750B7D4 = 0x00004550} , qui représente la chaîne de caractères 'PE$\backslash$0$\backslash$0' en ASCII. Le texte était obscurci à l'aide d'une opération de ou exclusif (\emph{XOR}).
 
 Nous soupçonnons alors que cette fonction est utilisée pour le traitement de fichiers binaires au format PE.
 La documentation officielle de Microsoft Visual C++ détaille la structure PIMAGE\_NT\_HEADERS dont le premier champ, \emph{Signature}, vaut \PEzz\ pour les binaires Windows.

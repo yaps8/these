@@ -4,7 +4,7 @@
 % \itodo{pb 2: analyse/désassemblage des programmes sms}
 
 % Les programmes malveillants obscurcis sont notre objet d'étude principal.
-Notre objectif principal était le désassemblage et la reconstruction du graphe de flot de contrôle d'un programme malveillant obscurcis.
+Notre objectif principal était le désassemblage et la reconstruction du graphe de flot de contrôle d'un programme malveillant obscurci.
 Nous cherchions à contrer particulièrement deux méthodes d'obscurcissement. 
 La première est l'auto-modification, technique permettant aux programmes de cacher leur charge utile et de ne la révéler que juste avant son exécution. La seconde est le chevauchement de code, permettant à plusieurs instructions d'être codées sur des adresses communes.
 
@@ -14,25 +14,26 @@ La trace restreinte à une vague ne présente pas d'auto-modification, ce qui pe
 Cette analyse statique fait une utilisation intensive des informations contenues dans la vague afin de guider son analyse.
 Elle reprend certaines techniques détaillées par Krügel \cite{KruegelRVV04} mais fonctionne sur des binaires utilisant le chevauchement de code et permet d'en mesurer utilisation : nous avons proposé une sémantique pour le chevauchement de code rangeant les instructions dans des couches de code au sein desquelles il n'y a pas de chevauchement.
 
-Nous avons implémenté cette technique d'analyse hybride et validé des expériences précédentes, par Calvet notamment \cite{Calvet2013}, montrant l'utilisation presque systématique de l'auto-modification par les programmes malveillants.
+Nous avons implémenté cette technique d'analyse hybride et validé des expériences précédentes, comme celles menées par Calvet  \cite{Calvet2013}, montrant l'utilisation presque systématique de l'auto-modification par les programmes malveillants.
 Nous avons mis en lumière l'utilisation occasionnelle du chevauchement de code par certains logiciels de protection de binaire et quelques familles de logiciels malveillants.
 \\
 
-La seconde partie de notre travail fut centrée sur la détection de programmes malveillants et la technique d'analyse morphologique \cite{BKM08} consistant à comparer les graphes de flot de contrôles de programmes connus pour être malveillants à celui du programme que l'on cherche à analyser.
+La seconde partie de notre travail fut centrée sur la détection de programmes malveillants et la technique d'analyse morphologique \cite{BKM08}, consistant à comparer les graphes de flot de contrôles de programmes connus pour être malveillants à celui du programme que l'on cherche à analyser.
 L'objectif était de comprendre les mécanismes permettant d'améliorer les performances du détecteur sachant qu'il cherchait à résoudre le problème NP-complet de l'isomorphisme de sous-graphes.
 
 Nous avons proposé une formalisation du problème exactement résolu par l'analyse morphologique : il s'agit d'un problème plus simple que l'isomorphisme de sous-graphes et pour lequel il existe des solutions en temps polynomial.
-Nous avons alors réalisé un algorithme de détection dont le temps d'exécution est linéaire en le nombre de programmes malveillants connus. Cet algorithme est complet : il résout exactement le problème posé par l'analyse morphologique.
-Nous avons également implémenté un algorithme incomplet mais donc le temps d'exécution est constant.
+Nous avons alors réalisé un algorithme de détection dont le temps d'exécution croît linéairement avec le nombre de programmes malveillants connus. Cet algorithme est complet : il résout exactement le problème posé par l'analyse morphologique.
+Nous avons également implémenté un algorithme incomplet mais dont le temps d'exécution ne dépend pas du nombre de programmes malveillants connus.
 \\
 
 Enfin nous avons cherché à appliquer cette approche à des cas concrets d'analyse de programmes.
-Une possibilité consiste à utiliser l'analyse morphologique pour la détection de similarités logicielles et en particulier l'utilisation de certaines bibliothèques logicielles.
+Une possibilité consiste à utiliser l'analyse morphologique pour la détection de similarités logicielles et en particulier l'utilisation de bibliothèques logicielles.
 Nous avons illustré cette idée avec un logiciel malveillant, Waledac, et son emploi d'OpenSSL.
+Ces travaux ont été publiés à REcon \cite{REAT12} et Malware \cite{mal12}.
 
-Cette idée a également été utilisée sur les programmes malveillants Duqu et Stuxnet dont nous avons montré qu'ils partageaient du code.
-Dans une optique de détection nous nous sommes alors interrogés sur la possibilité de détecter Duqu connaissant Stuxnet et avons montré qu'il était nécessaire de surveiller l'exécution de Duqu pour réagir à l'injection d'un code en mémoire, code que le détecteur morphologique était capable de relier à Stuxnet : nous avons implémenté une telle méthode de détection.
-Ces travaux ont fait l'objet de publications à Malware \cite{mal12,mal13}, REcon \cite{REAT12} et SSTIC \cite{sstic13}.
+Cette idée a également été utilisée sur les programmes malveillants Duqu et Stuxnet dont nous avons montré qu'ils ont du code en commun.
+Dans une optique de détection nous nous sommes alors interrogés sur la possibilité de détecter Duqu connaissant Stuxnet et avons montré qu'il était nécessaire de surveiller l'exécution de Duqu pour réagir à l'injection d'un code en mémoire, code que le détecteur morphologique était capable de relier à Stuxnet.
+Ces travaux ont fait l'objet de publications à Malware \cite{mal13} et SSTIC \cite{sstic13}.
 
 
 
@@ -50,14 +51,14 @@ Ces travaux ont fait l'objet de publications à Malware \cite{mal12,mal13}, REco
 
 \section*{Perspectives}
 % \itodo{pb 0/1/2: interprêtation abstraite pour récupérer les vagues, éventuellement prédire la vague suivante}
-L'analyse hybride que nous avons développée n'utilise que des techniques élémentaires d'analyse statique.
-En particulier elle ne cherche pas à interpréter les instructions trouvées à chaque vague. 
+L'analyse hybride que nous avons développée n'utilise que des techniques élémentaires d'analyse statique :
+elle ne cherche pas à interpréter les instructions trouvées à chaque vague. 
 Notre approche ne permet donc pas de gérer les sauts dynamiques qui n'ont pas été parcourus par l'exécution suivie lors de la phase d'analyse dynamique.
 Nous voudrions utiliser des techniques d’interprétation abstraite pour reconstruire plus précisément les vagues et éventuellement être capable de déterminer les potentielles vagues suivantes à partir de la vague courante.
 
 L'analyse morphologique produit des résultats prometteurs pour la détection de programmes malveillants et de similarités logicielles mais ne prend en compte dans les graphes de flot de contrôle que l'enchaînement des instructions. D'autre critères pourraient être intégrés dans ces graphes traduisant l'utilisation de certaines méthodes d'obscurcissement : on pourrait ajouter les arcs entre deux sommets illustrant un chevauchement de code.
 D'autre part nous avons vu que notre méthode réduit la complexité du problème à résoudre, le rendant polynomial, au prix d'une perte de flexibilité dans les résultats qu'elle produit.
-En particulier l'inversion de certaines branches  dans un graphe conduit à une non détection, ce qui n'aurait pas été le cas si l'on avait gardé le problème d'isomorphisme de sous-graphes.
+En particulier, l'inversion de certaines branches  dans un graphe conduit à une non détection, ce qui n'aurait pas été le cas si l'on avait gardé le problème d'isomorphisme de sous-graphes.
 Nous souhaitons développer et analyser des techniques de réduction et de détection des graphes de flot de contrôles plus résistantes à ces modifications, afin d'être capable de détecter plus de programmes similaires sans trop perdre en vitesse de détection.
 Nous souhaitons montrer que notre modèle, avec ces modifications, permet de construire un antivirus efficace en termes de précision et de vitesse de détection, capable de fonctionner sur l'ordinateur d'un utilisateur final.
 
