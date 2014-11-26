@@ -1797,8 +1797,70 @@ L'apprentissage d'un site nécessite le parcours d'au plus W éléments de l'arb
 \label{prop:complexite_SIDT_ajout}
 \end{prop}
 
+\FloatBarrier
 \subsubsection{Recherche d'un isomorphismes de sous-sites}
-Rechercher un isomorphisme de sous-sites à partir de l'arbre de décision ainsi créé revient à écrire le site sous forme matricielle et à faire une recherche dans l'arbre de décision.
+Rechercher un isomorphisme de sous-sites à partir de l'arbre de décision ainsi créé revient à écrire le site sous forme matricielle et à faire une recherche dans l'arbre de décision (algorithme \ref{algo:sidt}).
+
+\begin{figure}[h]
+\begin{algorithm}[H] %or another one check
+\caption{Décompte des sites d'un arbre de décision qui sont présents dans un graphe}
+\SetAlgoLined
+\KwData{Un arbre $A$ contenant les sites appris, un ensemble $M$ de sites sous forme matricielle}
+\KwResult{Le nombre de sites identiques}
+\SetKwProg{Fn}{}{}{}
+\SetKwFunction{FRecurs}{decompteSIDT}
+
+% \Return |decompteSIDT(A, racine(A), T, r)|\\
+
+\Fn{\FRecurs{A, T, S}}{
+  \eIf{a n'a aucun fils dans A}{
+    \tcp{Si a n'a aucun fils, on a exactement décrit un parcours}
+    \Return $\{a\}$
+  }
+  {
+    $(feuilles, s)\leftarrow (\emptyset, R)$\\
+%     $s \leftarrow R$\\
+    \For{f fils de mot m de a dans A}{
+	$(possible, s', T') \leftarrow etape(m, s, T)$\\
+	\If{possible}{
+% 	  $somme\leftarrow somme+decompteSousSite(A, f, T', s')$
+	  $feuilles\leftarrow feuilles\cup decompteSousSite(A, f, T', s')$
+	}
+    }
+    \Return $feuilles$
+  }
+}
+
+\SetKwProg{Fn}{}{}{}
+\SetKwFunction{FRecurs}{etape}
+\Fn(\tcp*[h]{Le mot m est de la forme $[\xrightarrow{\alpha}]i[:L]$}){\FRecurs{m, s, T}}{
+  \eIf(){m est de la forme $1:L$ et $s$ a pour étiquette $L$}{
+    Numéroter le sommet s de T par 1.\\
+    \Return (true, s, T)
+  }%(m est de la forme $\xrightarrow{\alpha}i[:L]$})
+  {
+    \eIf{$\alpha$ est un entier k}{
+    \uIf{s a un fils s' d'ordre k non numéroté dans T, d'étiquette L, et aucun sommet n'est numéroté i}{
+    On numérote s' par i dans T.\\
+    \Return $(true, s', T)$
+    }
+    \uElseIf{le sommet courant a un fils s' d'ordre k numéroté i}{
+    \Return $(true, s', T)$
+    }
+    \Else{
+    \tcp{Si un autre sommet est déjà numéroté i,  ou\\ si le sommet à numéroter a déjà une autre numérotation,  ou\\ si l'étiquette n'est pas la bonne, ou\\ s'il n'y a pas de fils k}
+    \Return $(false, s ,T)$
+    }
+    }($m\ est\ de\ la\ forme\ \xrightarrow{R}i$)
+    {
+      On note s' le sommet numéroté i dans T.\\
+      \Return $(true, s', T)$
+    }
+  }
+}
+\label{algo:sidt}
+\end{algorithm}
+\end{figure}
 
 % \paragraph{Complexité.}
 La complexité de la recherche d'un site dans l'arbre de décision est la même que pour l'ajout dans d'un site dans l'arbre et se fait en $O(W^2)$.
@@ -1963,10 +2025,11 @@ Sur l'exemple de \hostname\ empaqueté 446 sites sur 6491 ne sont pas détectés
 Pourtant, avec l'empaqueteur pelock, on passe de 214 sites détectés à seulement 123.
 
 
-
 \paragraph{Apprentissage et détection d'un grand nombre de sites.}
 Nous voulons évaluer plus généralement les performances pour l'apprentissage et la détection de l'algorithme par parcours et de l'algorithme SIDT.
-Le but est principalement de valider les résultats théoriques indiquant que l'apprentissage de $S$ sites se fait dans les deux cas en $O(S)$ et que la détection d'un nombre fixé de sites dépend du nombre $S$ de sites dans la base et se fait en $O(S)$ pour l'algorithme par parcours mais ne dépend pas de $S$ dans le cas SIDT.
+Le but est principalement de valider les résultats théoriques indiquant que l'apprentissage de $n$ sites se fait dans les deux cas en $O(n)$ et que la détection d'un nombre fixé de sites dépend du nombre $S$ de sites uniques dans la base et se fait en $O(S)$ pour l'algorithme par parcours mais ne dépend pas de $S$ dans le cas SIDT.
+
+La base d'apprentissage contient 100 programmes totalisant 167404 sites dont 72482 sont uniques. Lors de l'apprentissage on s'intéresse indifféremment à l'apprentissage de sites déjà présents comme de sites inédits. Par contre pour l'expérience sur la détection, on considère que $S$ est le nombre de sites uniques dans la base.
 
 La figure \ref{fig:apprentissage} donne le temps d'apprentissage en fonction du nombre de sites que l'on apprend.
 On observe bien la croissance linéaire attendue et on constate que SIDT est beaucoup plus rapide lors de l'apprentissage.
@@ -1980,7 +2043,7 @@ On observe bien la croissance linéaire attendue et on constate que SIDT est bea
 \end{figure}
 
 La figure \ref{fig:scan} donne le temps de détection de 5 programmes (qui sont composés de 18160 sites en tout) en fonction du nombre de sites dans la base.
-Sur cette figure le temps de détection pour SIDT semble ne pas dépendre du nombre de sites dans la base tandis que pour l'algorithme par parcours il semble suivre une courbe logarithmique \todo{vrai?} en fonction du nombre de sites dans la base.
+Sur cette figure le temps de détection pour SIDT semble ne pas dépendre du nombre de sites dans la base tandis que pour l'algorithme par parcours il semble suivre une courbe plus amortie qu'une courbe linéaire en fonction du nombre de sites dans la base.
 Cette seconde observation peut sembler raisonnable si l'on prend en compte que la dépendance linéaire calculée dans la section précédente est la complexité dans le pire des cas et que l'ajout des parcours à un arbre de décision factorise en général certains parcours.
 
 \begin{figure}[h]
