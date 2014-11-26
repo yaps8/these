@@ -542,7 +542,7 @@ $\left( \begin{array}{ccccc}
 L'approche par force brute demande de parcourir toutes les matrice de permutations de taille $n_T$ : il y en a $n_P!$. Pour chaque matrice de permutation, une matrice transposée est déterminée et plusieurs multiplications matricielles sont faites sur des matrices de taille $n_T.n_T$, opération réalisable au pire en $n_T^3$. La complexité de cette approche dans le pire des cas est donc $O(n_T^3.n_T!)$ (proposition \ref{prop:complexite_matrices}).
 
 \begin{prop}
-La complexité de la recherche exhaustive d'un sous-graphes de T (de taille $n_T$) isomorphe à P est de $O(n_T^3.n_T!)$.
+La complexité de la recherche exhaustive d'un sous-graphe de T (de taille $n_T$) isomorphe à P est de $O(n_T^3.n_T!)$.
 \label{prop:complexite_matrices}
 \end{prop}
 
@@ -992,7 +992,7 @@ multiple de $n_T$, soit $O(n_T^{n_P})$.
 % Bien que je sois convaincu que la complexité de l'algorithme est encore moindre avec les conditions de CFG simple, je n'ai pas réussi à le montrer.
 % \\
 
-\begin{figure}
+\begin{figure}[h]
 % \caption{Fonction de \emph{Forward Checking} pour les graphes de flot}
 \begin{algorithm}[H] %or another one check
 \caption{Vérification a priori pour graphes de flot}
@@ -1064,10 +1064,11 @@ Une modification de l'algorithme d'Ullmann précédent permettant de l'optimiser
 Pour le cas d'un graphe de flot, la complexité a été ramenée à $O((n_T.h)^{n_P})$ avec $h=\sum_kl_k^2\simeq 0.34$ où les $l_i$ sont les probabilités d'apparition de chacun des labels (proposition \ref{prop:complexite_ullmann}).
 
 \begin{prop}
-La complexité de la recherche d'un sous-graphes de T (de taille $n_T$) isomorphe à P (de taille $n_P$) avec l'algorithme d'Ullmann optimisé est de $O((n_T.h)^{n_P})$ avec $h\simeq 0.34$.
+La complexité de la recherche d'un sous-graphe de T (de taille $n_T$) isomorphe à P (de taille $n_P$) avec l'algorithme d'Ullmann optimisé est de $O((n_T.h)^{n_P})$ avec $h\simeq 0.34$.
 \label{prop:complexite_ullmann}
 \end{prop}
 
+% \FloatBarrier
 \subsection{Revue de littérature}
 \paragraph{Optimisation de l'algorithme d'Ullmann.}
 Foggia, Vento, Sansone et Cordella \cite{VF99} proposent des améliorations à l'algorithme d'Ullmann, appelé algorithme VF.
@@ -1165,7 +1166,8 @@ Graphe de flot & Numérotation en profondeur & Numérotation en largeur\\
 \label{fig:gf_cycle}
 \end{figure}
 
-\begin{algorithm}[h]
+\begin{figure}[h]
+\begin{algorithm}[H]
 \caption{Codage du parcours en profondeur d'un site}
 \SetAlgoLined
 \KwData{Un site de racine R}
@@ -1196,8 +1198,10 @@ Graphe de flot & Numérotation en profondeur & Numérotation en largeur\\
 parcoursProfondeur(R, 1, $\emptyset$, etiq, $\emptyset$)
 \label{algo:codageProf}
 \end{algorithm}
+\end{figure}
 
-\begin{algorithm}[h]
+\begin{figure}[h]
+\begin{algorithm}[H]
 \caption{Codage du parcours en largeur d'un site}
 \SetAlgoLined
 \KwData{Un site de racine R}
@@ -1246,9 +1250,10 @@ $E\leftarrow \{\}$\tcc*[H]{E est l'ensemble des sommets déjà visités.}
 \Return C
 \label{algo:codageLarg}
 \end{algorithm}
+\end{figure}
 
 \FloatBarrier
-On peut reconstuire le site à partir du codage précédent en procédant de manière incrémentale (algorithme \ref{algo:siteDepuisCodage}) si le codage est bien formé (définition \ref{def-codage-bien-forme}).
+On peut reconstruire le site à partir du codage précédent en procédant de manière incrémentale (algorithme \ref{algo:siteDepuisCodage}) si le codage est bien formé (définition \ref{def-codage-bien-forme}).
 Par la suite on ne parlera que de codages bien formés sans l'expliciter.
 
 \begin{defi}
@@ -1538,47 +1543,49 @@ L'ajout d'un site à la base consiste à ajouter un codage de parcours dans l'ar
 
 
 \paragraph{Recherche des isomorphismes de sous-sites à partir de l'arbre de décision.}
-Une fois l'arbre généré à partir de tous les codages des sites de $L_S$, on veut l'utiliser pour trouver tous les parcours de $L_S$ possibles dans le graphe de flot T. Pour compter le nombre de parcours de l'arbre que l'on peut réaliser à partir du sommet $r$ de $T$, on peut chercher à parcourir $T$ à partir de $r$ en parcourant les branches possibles dans l'arbre de décision. À chaque fois que l'on peut parcourir une branche jusqu'en bas c'est qu'un site isomorphe a été trouvé. L'algorithme \ref{algo:rechercheArbreTarjan} compte le nombre de ces branches possibles.
+Une fois l'arbre généré à partir de tous les codages des sites de $L_S$, on veut l'utiliser pour trouver tous les parcours de $L_S$ possibles dans le graphe de flot T. Pour compter le nombre de parcours de l'arbre que l'on peut réaliser à partir du sommet $r$ de $T$, on peut chercher à parcourir $T$ à partir de $r$ en parcourant les branches possibles dans l'arbre de décision. À chaque fois que l'on peut parcourir une branche jusqu'en bas c'est qu'un site isomorphe a été trouvé. On doit compter le nombre de feuilles uniques de l'arbre de décision que nous avons atteintes. Par exemple si T nous permet d'atteindre, en partant de ces différents sommets, les feuilles $[c, a, c]$, il y a deux feuilles uniques atteintes soit deux isomorphismes possibles.
 
-On peut utiliser cet algorithme pour retrouver tous les sous-sites isomorphes en utilisant l'algorithme précédent à partir de chaque sommet de $T$.
+L'algorithme \ref{algo:rechercheArbreTarjan} compte le nombre de ces feuilles.
+On peut l'utiliser pour retrouver le nombre de sous-sites isomorphes accessibles à partir de chaque sommet de $T$.
 
 \begin{figure}[h]
 \begin{algorithm}[H] %or another one check
-\caption{Décompte, au sein d'un arbre de parcours donné, des parcours possibles dans un graphe de flot, à partir d'un sommet donné}
+\caption{Décompte, au sein d'un arbre de parcours, des parcours possibles dans un graphe de flot, à partir d'un sommet}
 \SetAlgoLined
 \KwData{Un arbre A contenant les parcours de sites, un graphe de flot T, un sommet r de T}
 \KwResult{Le nombre de parcours possibles}
 \SetKwProg{Fn}{}{}{}
 \SetKwFunction{FRecurs}{decompteSousSite}
 
-\Return decompteSousSite(A, racine(A), T, r)\\
+\Return |decompteSousSite(A, racine(A), T, r)|\\
 
 \Fn{\FRecurs{A, a, T, R}}{
   \eIf{a n'a aucun fils dans A}{
     \tcp{Si a n'a aucun fils, on a exactement décrit un parcours}
-    \Return 1
+    \Return $\{a\}$
   }
   {
-    $somme\leftarrow 0$\\
-    $s \leftarrow R$\\
+    $(feuilles, s)\leftarrow (\emptyset, R)$\\
+%     $s \leftarrow R$\\
     \For{f fils de mot m de a dans A}{
 	$(possible, s', T') \leftarrow etape(m, s, T)$\\
 	\If{possible}{
-	  $somme\leftarrow somme+decompteSousSite(A, f, T', s')$
+% 	  $somme\leftarrow somme+decompteSousSite(A, f, T', s')$
+	  $feuilles\leftarrow feuilles\cup decompteSousSite(A, f, T', s')$
 	}
     }
+    \Return $feuilles$
   }
 }
 
 \SetKwProg{Fn}{}{}{}
 \SetKwFunction{FRecurs}{etape}
 \Fn(\tcp*[h]{Le mot m est de la forme $[\xrightarrow{\alpha}]i[:L]$}){\FRecurs{m, s, T}}{
-  \eIf{m est de la forme $1:L$ et $s$ a pour étiquette $L$}{
+  \eIf(){m est de la forme $1:L$ et $s$ a pour étiquette $L$}{
     Numéroter le sommet s de T par 1.\\
     \Return (true, s, T)
-  }
+  }%(m est de la forme $\xrightarrow{\alpha}i[:L]$})
   {
-    \tcp{Dans ce cas m est de la forme $\xrightarrow{\alpha}i[:L]$}
     \eIf{$\alpha$ est un entier k}{
     \uIf{s a un fils s' d'ordre k non numéroté dans T, d'étiquette L, et aucun sommet n'est numéroté i}{
     On numérote s' par i dans T.\\
@@ -1588,12 +1595,11 @@ On peut utiliser cet algorithme pour retrouver tous les sous-sites isomorphes en
     \Return $(true, s', T)$
     }
     \Else{
-    \tcp{Le parcours n'est pas possible si :\\ un autre sommet est déjà numéroté i,  ou\\ si le sommet à numéroter a déjà une autre numérotation,  ou\\ si l'étiquette n'est pas la bonne, ou\\ s'il n'y a pas de fils k}
+    \tcp{Si un autre sommet est déjà numéroté i,  ou\\ si le sommet à numéroter a déjà une autre numérotation,  ou\\ si l'étiquette n'est pas la bonne, ou\\ s'il n'y a pas de fils k}
     \Return $(false, s ,T)$
     }
-    }
+    }($m\ est\ de\ la\ forme\ \xrightarrow{R}i$)
     {
-      \tcp{Dans ce cas e est de la forme $\xrightarrow{R}i$}
       On note s' le sommet numéroté i dans T.\\
       \Return $(true, s', T)$
     }
@@ -1604,10 +1610,12 @@ On peut utiliser cet algorithme pour retrouver tous les sous-sites isomorphes en
 \end{figure}
 
 % \paragraph{Complexité.}
-Dans le pire des cas il y a $S$ branches à l'arbre A qui partent de la racine où $S$ est le nombre de sites dans la base. Le parcours d'une branche avec au maximum un fils à chaque sommet, à partir de la racine se fait en $O(W)$ au vu de la récursion de l'algorithme \ref{algo:rechercheArbreTarjan}. Pour chercher les isomorphismes de sous-sites de $T$ il faut répéter l'opération pour chacun de ses sommets : la complexité totale dans le pire des cas pour résoudre le problème \ref{pbisosgbase} d'isomorphisme de sous-sites entre un graphe de flot et une base de sites est de $O(S.n_T.W)$ (proposition \ref{prop:complexite_tarjan_recherche}). Ainsi on n'a pas amélioré la complexité dans le pire des cas par rapport à l'utilisation directe du parcours de Tarjan vu dans la section précédente, bien qu'en pratique l'algorithme soit plus rapide comme nous le verrons par la suite.
+Dans le pire des cas il y a $S$ branches à l'arbre A qui partent de la racine où $S$ est le nombre de sites dans la base. Le parcours d'une branche avec au maximum un fils à chaque sommet, à partir de la racine se fait en $O(W)$ au vu de la récursion de l'algorithme \ref{algo:rechercheArbreTarjan}.
+Parcourir toutes les branches a donc une complexité de $O(S.W)$.
+Pour chercher les isomorphismes de sous-sites de $T$ il faut répéter l'opération pour chacun de ses sommets et ajouter le résultat à un ensemble pour éviter les doublons : cet ensemble peut être implémenté par un arbre bicolore qui a une complexité à l'ajout d'un élément dans un arbre de taille $n$ de $O(log(n))$. La complexité totale dans le pire des cas pour résoudre le problème \ref{pbisosgbase} d'isomorphisme de sous-sites entre un graphe de flot et une base de sites est alors de $O(S.log(S).n_T.W)$ (proposition \ref{prop:complexite_tarjan_recherche}). Ainsi on n'a pas amélioré la complexité dans le pire des cas par rapport à l'utilisation directe du parcours de Tarjan vu dans la section précédente, bien qu'en pratique l'algorithme soit plus rapide comme nous le verrons par la suite.
 
 \begin{prop}
- La complexité de la recherche des sites (de taille $W$) de la base, construite avec algorithme par parcours, au sein d'un graphe de flot T de taille $n_T$, se fait en $O(S.n_T.W)$.
+ La complexité de la recherche des sites (de taille $W$) de la base, construite avec algorithme par parcours, au sein d'un graphe de flot T de taille $n_T$, se fait en $O(S.log(S).n_T.W)$.
 \label{prop:complexite_tarjan_recherche}
 \end{prop}
 
@@ -1782,10 +1790,10 @@ child {node {}
 \end{figure}
 
 % \paragraph{Complexité.}
-L'apprentissage d'un site nécessite le parcours d'au plus W éléments de l'arbre de décision. Chaque sommet de l'arbre de décision a au plus $l.W.W$ fils où $l$ est le nombre d'étiquettes possibles. L'apprentissage d'un site se fait donc en $O(W^3)$ où W est le nombre de sommets des sites à apprendre (proposition \ref{prop:complexite_SIDT_ajout}).
+L'apprentissage d'un site nécessite le parcours d'au plus W éléments de l'arbre de décision. Chaque sommet de l'arbre de décision a au plus $l.W.W$ fils où $l$ est le nombre d'étiquettes possibles. L'apprentissage d'un site se fait donc en $O(W^2)$ où W est le nombre de sommets des sites à apprendre (proposition \ref{prop:complexite_SIDT_ajout}).
 
 \begin{prop}
- La complexité de l'ajout d'un site de taille $W$ à une base, pour SIDT, se fait en $O(W^3)$.
+ La complexité de l'ajout d'un site de taille $W$ à une base, pour SIDT, se fait en $O(W^2)$.
 \label{prop:complexite_SIDT_ajout}
 \end{prop}
 
@@ -1793,10 +1801,13 @@ L'apprentissage d'un site nécessite le parcours d'au plus W éléments de l'arb
 Rechercher un isomorphisme de sous-sites à partir de l'arbre de décision ainsi créé revient à écrire le site sous forme matricielle et à faire une recherche dans l'arbre de décision.
 
 % \paragraph{Complexité.}
-La complexité de la recherche d'un site dans l'arbre de décision est la même que pour l'ajout dans d'un site dans l'arbre et se fait en $O(W^3)$ (proposition \ref{prop:complexite_SIDT_recherche}). 
+La complexité de la recherche d'un site dans l'arbre de décision est la même que pour l'ajout dans d'un site dans l'arbre et se fait en $O(W^2)$.
+Cependant pour résoudre le problème \ref{pbisosgbase} il est nécessaire de connaître les sites uniques qui sont atteints dans l'arbre : si les sites de T nous permettent d'atteindre les feuilles $[c, a, c]$, il y a deux feuilles uniques atteintes, $\{a, c\}$, soit deux sites uniques.
+On peut à nouveau implémenter cet ensemble à l'aide d'un arbre bicolore dans lequel l'insertion d'un élément, s'il y a $n$ éléments dans l'arbre, se fait en $O(log(n))$.
+Ainsi l'analyse de $n$ sites se fait en $O(n.log(S).W^2)$ (proposition \ref{prop:complexite_SIDT_recherche}). 
 
 \begin{prop}
- La complexité de la recherche d'un site (de taille $W$) de la base, construite avec algorithme par parcours se fait en $O(W^3)$.
+ La complexité de la recherche de $n$ sites (de taille $W$) de la base contenant $S$ sites, construite avec algorithme par parcours se fait en $O(n.log(S).W^2)$.
 \label{prop:complexite_SIDT_recherche}
 \end{prop}
 
@@ -1822,10 +1833,10 @@ La seconde est l'analyse d'un graphe de flot inconnu, comprenant $n$ sommets.
 Il y donc $S$ sites de taille $W$ dans la base.
 
 La complexité pour déterminer tous les sites d'un graphe de flot à $n$ sommets est $O(n.(k+1).W)$.
-Ainsi la complexité de l'ajout pour l'algorithme par parcours est $O(n.(k+1).W+n.W^2)$, soit $O(n)$.
-De même l'analyse d'un graphe de flot a pour complexité $O(n.(k+1).W+S.n.W)$, soit $O(S.n)$
+Ainsi la complexité de l'ajout pour l'algorithme par parcours est $O(n.(k+1).W+n.W^2)$, soit $O(n.W^2)$.
+De même l'analyse d'un graphe de flot a pour complexité $O(n.(k+1).W+S.log(S).n.W)$, soit $O(S.log(S).n.W)$
 
-La complexité de l'ajout pour SIDT est $O(n.(k+1).W+n.W^3)$=$O(n)$ et celle pour l'analyse est $O(n.(k+1).W+n.W^3)$=$O(n)$.
+La complexité de l'ajout pour SIDT est $O(n.(k+1).W+n.W^2)$=$O(n)$ et celle pour l'analyse est $O(n.(k+1).W+n.log(S).W^2)$=$O(n.log(S).W^2)$.
 
 \paragraph{Complexité totale.}
 Si l'on ne considère aucune variable comme constante, la complexité totale de chacun des algorithmes pour ces opérations est donnée par le tableau donné en figure \ref{fig:complexite_1}.
@@ -1839,8 +1850,8 @@ Les deux premiers algorithmes ne rangent les pas sites dans une base spécifique
  \hline
  Recherche exhaustive & $O(n.W)$ & $O(S.n^3.n!)$\\
  Ullmann & $O(n.W)$ & $O(S.(n.h)^W)$ \\
- Parcours & $O(n.W^3)$ & $O(S.n.W)$\\
- SIDT & $O(n.W^3)$ & $O(n.W^3)$\\
+ Parcours & $O(n.W^2)$ & $O(S.log(S).n.W)$\\
+ SIDT & $O(n.W^2)$ & $O(n.log(S).W^2)$\\
  \hline
 \end{tabular} 
 \end{center}
