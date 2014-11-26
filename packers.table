@@ -4,7 +4,7 @@
 % 22 avec couche dans disas
 \begin{longtable}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
 \hline
-Empaqueteur & Vague & \multicolumn{2}{c|}{Instructions} & \multicolumn{2}{c|}{Instructions} & \multicolumn{2}{c|}{Couches} & \multicolumn{2}{c|}{Sauts} & \multicolumn{2}{c|}{Sites de \texttt{hostname.exe}} & Statut \\
+Empaqueteur & Vague & \multicolumn{2}{c|}{Instructions} & \multicolumn{2}{c|}{Instructions} & \multicolumn{2}{c|}{Couches} & \multicolumn{2}{c|}{Sauts} & \multicolumn{2}{c|}{Sites de \hostname} & Statut \\
  &  & \multicolumn{2}{c|}{} & \multicolumn{2}{c|}{en chevauchement} & \multicolumn{2}{c|}{} & \multicolumn{2}{c|}{entre couches} & \multicolumn{2}{c|}{détectés} &  \\
   &   & Trace & Désas & Trace & Désas & Trace & Désas & Trace & Désas & Parcours & SIDT &  \\
 \hline
