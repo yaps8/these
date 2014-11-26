@@ -1555,9 +1555,9 @@ On peut l'utiliser pour retrouver le nombre de sous-sites isomorphes accessibles
 \KwData{Un arbre A contenant les parcours de sites, un graphe de flot T, un sommet r de T}
 \KwResult{Le nombre de parcours possibles}
 \SetKwProg{Fn}{}{}{}
-\SetKwFunction{FRecurs}{decompteSousSite}
+\SetKwFunction{FRecurs}{decompteParcours}
 
-\Return |decompteSousSite(A, racine(A), T, r)|\\
+\Return |decompteParcours(A, racine(A), T, r)|\\
 
 \Fn{\FRecurs{A, a, T, R}}{
   \eIf{a n'a aucun fils dans A}{
@@ -1565,16 +1565,16 @@ On peut l'utiliser pour retrouver le nombre de sous-sites isomorphes accessibles
     \Return $\{a\}$
   }
   {
-    $(feuilles, s)\leftarrow (\emptyset, R)$\\
+    $(feuilles, s)\leftarrow ([], R)$\\
 %     $s \leftarrow R$\\
     \For{f fils de mot m de a dans A}{
 	$(possible, s', T') \leftarrow etape(m, s, T)$\\
 	\If{possible}{
 % 	  $somme\leftarrow somme+decompteSousSite(A, f, T', s')$
-	  $feuilles\leftarrow feuilles\cup decompteSousSite(A, f, T', s')$
+	  $feuilles\leftarrow feuilles, decompteParcours(A, f, T', s')$
 	}
     }
-    \Return $feuilles$
+    \Return |$feuilles$|
   }
 }
 
@@ -1610,9 +1610,12 @@ On peut l'utiliser pour retrouver le nombre de sous-sites isomorphes accessibles
 \end{figure}
 
 % \paragraph{Complexité.}
-Dans le pire des cas il y a $S$ branches à l'arbre A qui partent de la racine où $S$ est le nombre de sites dans la base. Le parcours d'une branche avec au maximum un fils à chaque sommet, à partir de la racine se fait en $O(W)$ au vu de la récursion de l'algorithme \ref{algo:rechercheArbreTarjan}.
-Parcourir toutes les branches a donc une complexité de $O(S.W)$.
-Pour chercher les isomorphismes de sous-sites de $T$ il faut répéter l'opération pour chacun de ses sommets et ajouter le résultat à un ensemble pour éviter les doublons : cet ensemble peut être implémenté par un arbre bicolore qui a une complexité à l'ajout d'un élément dans un arbre de taille $n$ de $O(log(n))$. La complexité totale dans le pire des cas pour résoudre le problème \ref{pbisosgbase} d'isomorphisme de sous-sites entre un graphe de flot et une base de sites est alors de $O(S.log(S).n_T.W)$ (proposition \ref{prop:complexite_tarjan_recherche}). Ainsi on n'a pas amélioré la complexité dans le pire des cas par rapport à l'utilisation directe du parcours de Tarjan vu dans la section précédente, bien qu'en pratique l'algorithme soit plus rapide comme nous le verrons par la suite.
+Dans le pire des cas il y a $S$ branches à l'arbre A qui partent de la racine où $S$ est le nombre de sites dans la base. Le parcours d'une branche avec au maximum un fils à chaque sommet, à partir de la racine se fait en $O(W.log(S))$ au vu de la récursion de l'algorithme \ref{algo:rechercheArbreTarjan} car à chaque profondeur l'appel de la fonction étape se fait en $O(1)$ tandis que l'ajout à un ensemble de taille maximum $S$ se fait en $log(S)$ si on l'implémente avec un arbre bicolore par exemple.
+Parcourir toutes les branches a donc une complexité de $O(S.log(S).W)$.
+La complexité totale dans le pire des cas pour résoudre le problème \ref{pbisosgbase} d'isomorphisme de sous-sites entre un graphe de flot T de taille $n_T$ et une base de sites consiste à itérer cette recherche pour chaque sommet de $T$ et ensuite à faire l'union des ensembles résultant. On doit alors ajouter au maximum $n_T$ éléments 
+
+
+est alors de $O(n_T.S.log(S).W)$ (proposition \ref{prop:complexite_tarjan_recherche}). Ainsi on n'a pas amélioré la complexité dans le pire des cas par rapport à l'utilisation directe du parcours de Tarjan vu dans la section précédente, bien qu'en pratique l'algorithme soit plus rapide comme nous le verrons par la suite.
 
 \begin{prop}
  La complexité de la recherche des sites (de taille $W$) de la base, construite avec algorithme par parcours, au sein d'un graphe de flot T de taille $n_T$, se fait en $O(S.log(S).n_T.W)$.
@@ -1805,57 +1808,33 @@ Rechercher un isomorphisme de sous-sites à partir de l'arbre de décision ainsi
 \begin{algorithm}[H] %or another one check
 \caption{Décompte des sites d'un arbre de décision qui sont présents dans un graphe}
 \SetAlgoLined
-\KwData{Un arbre $A$ contenant les sites appris, un ensemble $M$ de sites sous forme matricielle}
-\KwResult{Le nombre de sites identiques}
+\KwData{Un arbre $A$ contenant les sites appris, de racine r, un ensemble $M$ de sites sous forme matricielle}
+\KwResult{Le nombre de sites uniques de la base égaux à un site de $M$}
 \SetKwProg{Fn}{}{}{}
 \SetKwFunction{FRecurs}{decompteSIDT}
-
-% \Return |decompteSIDT(A, racine(A), T, r)|\\
-
-\Fn{\FRecurs{A, T, S}}{
-  \eIf{a n'a aucun fils dans A}{
-    \tcp{Si a n'a aucun fils, on a exactement décrit un parcours}
-    \Return $\{a\}$
+\Fn{\FRecurs{A, r, M}}{
+  $feuilles$ $\leftarrow$ $\emptyset$\\
+  \For{site $m\in M$ sous forme matricielle}{
+    $feuilles$ $\leftarrow$ $feuilles\ \cup$ $trouver(A, r, m, 1)$
   }
-  {
-    $(feuilles, s)\leftarrow (\emptyset, R)$\\
-%     $s \leftarrow R$\\
-    \For{f fils de mot m de a dans A}{
-	$(possible, s', T') \leftarrow etape(m, s, T)$\\
-	\If{possible}{
-% 	  $somme\leftarrow somme+decompteSousSite(A, f, T', s')$
-	  $feuilles\leftarrow feuilles\cup decompteSousSite(A, f, T', s')$
-	}
-    }
-    \Return $feuilles$
-  }
+  \Return |$feuilles$|
 }
 
 \SetKwProg{Fn}{}{}{}
-\SetKwFunction{FRecurs}{etape}
-\Fn(\tcp*[h]{Le mot m est de la forme $[\xrightarrow{\alpha}]i[:L]$}){\FRecurs{m, s, T}}{
-  \eIf(){m est de la forme $1:L$ et $s$ a pour étiquette $L$}{
-    Numéroter le sommet s de T par 1.\\
-    \Return (true, s, T)
-  }%(m est de la forme $\xrightarrow{\alpha}i[:L]$})
+\SetKwFunction{FRecurs}{trouver}
+\Fn{\FRecurs{A, a, m, i}}{
+  \eIf{a n'a aucun fils dans A}{
+    \tcp{Si a n'a aucun fils, on a trouvé un site identique}
+    \Return $\{a\}$
+  }
   {
-    \eIf{$\alpha$ est un entier k}{
-    \uIf{s a un fils s' d'ordre k non numéroté dans T, d'étiquette L, et aucun sommet n'est numéroté i}{
-    On numérote s' par i dans T.\\
-    \Return $(true, s', T)$
+    \For{f fils de mot m de a dans A}{
+	\If{la $i^{e}$ ligne de m est égale à l'étiquette de f}{
+% 	  $somme\leftarrow somme+decompteSousSite(A, f, T', s')$
+	  \Return trouver($A$, $f$, $m$, $i+1$)
+	}
     }
-    \uElseIf{le sommet courant a un fils s' d'ordre k numéroté i}{
-    \Return $(true, s', T)$
-    }
-    \Else{
-    \tcp{Si un autre sommet est déjà numéroté i,  ou\\ si le sommet à numéroter a déjà une autre numérotation,  ou\\ si l'étiquette n'est pas la bonne, ou\\ s'il n'y a pas de fils k}
-    \Return $(false, s ,T)$
-    }
-    }($m\ est\ de\ la\ forme\ \xrightarrow{R}i$)
-    {
-      On note s' le sommet numéroté i dans T.\\
-      \Return $(true, s', T)$
-    }
+    \Return $\emptyset$
   }
 }
 \label{algo:sidt}
@@ -1866,10 +1845,10 @@ Rechercher un isomorphisme de sous-sites à partir de l'arbre de décision ainsi
 La complexité de la recherche d'un site dans l'arbre de décision est la même que pour l'ajout dans d'un site dans l'arbre et se fait en $O(W^2)$.
 Cependant pour résoudre le problème \ref{pbisosgbase} il est nécessaire de connaître les sites uniques qui sont atteints dans l'arbre : si les sites de T nous permettent d'atteindre les feuilles $[c, a, c]$, il y a deux feuilles uniques atteintes, $\{a, c\}$, soit deux sites uniques.
 On peut à nouveau implémenter cet ensemble à l'aide d'un arbre bicolore dans lequel l'insertion d'un élément, s'il y a $n$ éléments dans l'arbre, se fait en $O(log(n))$.
-Ainsi l'analyse de $n$ sites se fait en $O(n.log(S).W^2)$ (proposition \ref{prop:complexite_SIDT_recherche}). 
+Ainsi l'analyse de $n$ sites se fait en $O(n.(log(S)+W^2))$ (proposition \ref{prop:complexite_SIDT_recherche}). 
 
 \begin{prop}
- La complexité de la recherche de $n$ sites (de taille $W$) de la base contenant $S$ sites, construite avec algorithme par parcours se fait en $O(n.log(S).W^2)$.
+ La complexité de la recherche de $n$ sites (de taille $W$) de la base contenant $S$ sites, construite avec algorithme par parcours se fait en $O(n.(log(S)+W^2))$.
 \label{prop:complexite_SIDT_recherche}
 \end{prop}
 
