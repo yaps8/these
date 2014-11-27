@@ -1549,7 +1549,7 @@ L'ajout d'un site à la base consiste à ajouter un codage de parcours dans l'ar
 
 
 \paragraph{Recherche des isomorphismes de sous-sites à partir de l'arbre de décision.}
-Une fois l'arbre généré à partir de tous les codages des sites de $L_S$, on veut l'utiliser pour trouver tous les parcours de $L_S$ possibles dans le graphe de flot T. Pour compter le nombre de parcours de l'arbre que l'on peut réaliser à partir du sommet $r$ de $T$, on peut chercher à parcourir $T$ à partir de $r$ en parcourant les branches possibles dans l'arbre de décision. À chaque fois que l'on peut parcourir une branche jusqu'à un sommet final c'est qu'un site isomorphe a été trouvé. On doit compter le nombre de sommets finaux uniques de l'arbre de décision que nous avons atteints. Par exemple si T nous permet d'atteindre, en partant de ces différents sommets, les feuilles $[c, a, c]$, il y a deux feuilles uniques atteintes soit deux isomorphismes possibles.
+Une fois l'arbre généré à partir de tous les codages des sites de $L_S$, on veut l'utiliser pour trouver tous les parcours de $L_S$ possibles dans le graphe de flot T. Pour compter le nombre de parcours de l'arbre que l'on peut réaliser à partir du sommet $r$ de $T$, on peut chercher à parcourir $T$ à partir de $r$ en parcourant les branches possibles dans l'arbre de décision. À chaque fois que l'on peut parcourir une branche jusqu'à un sommet final c'est qu'un site isomorphe a été trouvé. On doit compter le nombre de sommets finaux uniques de l'arbre de décision que nous avons atteints. Par exemple si T nous permet d'atteindre, en partant de ces différents sommets, les sommets finaux $[c, a, c]$, il y a trois sommets finaux atteints soit deux isomorphismes possibles.
 
 L'algorithme \ref{algo:rechercheArbreTarjan} compte le nombre de ces feuilles.
 On peut l'utiliser pour retrouver le nombre de sous-sites isomorphes accessibles à partir de chaque sommet de $T$.
@@ -1613,8 +1613,9 @@ On peut l'utiliser pour retrouver le nombre de sous-sites isomorphes accessibles
 \end{figure}
 
 % \paragraph{Complexité.}
-Dans le pire des cas il y a $S$ branches à l'arbre A qui partent de la racine où $S$ est le nombre de sites dans la base. Le parcours d'une branche avec au maximum un fils à chaque sommet, à partir de la racine se fait en $O(W.log(S))$ au vu de la récursion de l'algorithme \ref{algo:rechercheArbreTarjan} car à chaque profondeur l'appel de la fonction étape se fait en $O(1)$ tandis que l'ajout à un ensemble de taille maximum $S$ se fait en $log(S)$ si on l'implémente avec un arbre bicolore par exemple.
-Parcourir toutes les branches a donc une complexité de $O(S.log(S).W)$.
+Dans le pire des cas il y a $S$ branches à l'arbre A qui partent de la racine où $S$ est le nombre de sites dans la base. Le parcours d'une branche avec au maximum un fils à chaque sommet, à partir de la racine se fait en $O(W)$ au vu de la récursion de l'algorithme \ref{algo:rechercheArbreTarjan} car à chaque profondeur l'appel de la fonction étape se fait en $O(1)$ et la concaténation de deux listes se fait en temps constant.
+Parcourir toutes les branches a donc une complexité de $O(S.W)$. 
+On obtient alors
 La complexité totale dans le pire des cas pour résoudre le problème \ref{pbisosgbase} d'isomorphisme de sous-sites entre un graphe de flot T de taille $n_T$ et une base de sites consiste à itérer cette recherche pour chaque sommet de $T$ et ensuite à faire l'union des ensembles résultant. On doit alors ajouter au maximum $n_T$ éléments 
 
 
@@ -1910,6 +1911,23 @@ Les deux premiers algorithmes ne rangent les pas sites dans une base spécifique
  \hline
  Recherche exhaustive & $O(n.W)$ & $O(S.n^3.n!)$\\
  Ullmann & $O(n.W)$ & $O(S.(n.h)^W)$ \\
+ Parcours & $O(n.W^2)$ & $O(S.n.W)$\\
+ SIDT & $O(n.W^2)$ & $O(n.W^2)$\\
+ \hline
+\end{tabular} 
+\end{center}
+\caption{Complexité dans le pire des cas sans tri}
+\label{fig:complexite_1}
+\end{figure}
+
+\begin{figure}[h]
+\begin{center}
+\begin{tabular}{|c|c|c|}
+ \hline
+ Algorithme & Ajout d'un graphe de flot & Analyse d'un graphe de flot\\
+ \hline
+ Recherche exhaustive & $O(n.W)$ & $O(S.n^3.n!)$\\
+ Ullmann & $O(n.W)$ & $O(S.(n.h)^W)$ \\
  Parcours & $O(n.W^2)$ & $O(S.log(S).n.W)$\\
  SIDT & $O(n.W^2)$ & $O(n.log(S).W^2)$\\
  \hline
@@ -1931,14 +1949,14 @@ La complexité de l'ajout et de l'analyse devient celle donnée en figure \ref{f
  \hline
  Algorithme & Ajout d'un graphe de flot & Analyse d'un graphe de flot\\
  \hline
- Recherche exhaustive & $O(n)$ & $O(n^3.n!)$\\
- Ullmann & $O(n)$ & $O(n^W)$ \\
+ Recherche exhaustive & $O(n)$ & $O(S.n^3.n!)$\\
+ Ullmann & $O(n)$ & $O(S.n^W)$ \\
  Parcours & $O(n)$ & $O(S.n)$\\
  SIDT & $O(n)$ & $O(n)$\\
  \hline
 \end{tabular} 
 \end{center}
-\caption{Complexité à $W$, $P$ et $S$ fixés}
+\caption{Complexité à $W$, $P$, $S$ et $h$ fixés}
 \label{fig:complexite_2}
 \end{figure}
 
