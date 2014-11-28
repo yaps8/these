@@ -1813,10 +1813,10 @@ child {node {}
 
 % \paragraph{Complexité.}
 On peut ensuite agréger tous les sites générés dans un arbre de décision (figure \ref{fig:arbreDecTarjan}).
-L'apprentissage d'un site nécessite le parcours d'au plus W éléments de l'arbre de décision. Chaque sommet de l'arbre de décision a au plus $l.W.W$ fils où $l$ est le nombre d'étiquettes possibles. L'apprentissage d'un site se fait donc en $O(W^2)$ où W est le nombre de sommets des sites à apprendre (proposition \ref{prop:complexite_SIDT_ajout}).
+L'apprentissage d'un site nécessite le parcours d'au plus W éléments de l'arbre de décision. Chaque sommet de l'arbre de décision a au plus $l.W.W$ fils où $l$ est le nombre d'étiquettes possibles. L'apprentissage d'un site se fait donc en $O(W^3)$ où W est le nombre de sommets des sites à apprendre (proposition \ref{prop:complexite_SIDT_ajout}).
 
 \begin{prop}
- La complexité de l'ajout d'un site de taille $W$ à une base, pour SIDT, se fait en $O(W^2)$.
+ La complexité de l'ajout d'un site de taille $W$ à une base, pour SIDT, se fait en $O(W^3)$.
 \label{prop:complexite_SIDT_ajout}
 \end{prop}
 
@@ -1905,16 +1905,38 @@ Tous les algorithmes étudiés précédemment ainsi que les complexité calculé
 Afin de pouvoir détecter des programmes malveillants nous préférons en général connaître l'ensemble des sites uniques qui sont isomorphes à un sous-site de T et sa taille.
 Par exemple si les sommets finaux atteints dans le graphe de décision de l'algorithme par parcours sont $[c, a, c, b]$, on cherche à récupérer l'ensemble $\{a, b, c\}$ contenant 3 éléments.
 
-Obtenir ces sites uniques nécessite d'ajouter les éléments récupérés à un ensemble que l'on peut par exemple implémenter à l'aide d'un arbre bicolore. L'ajout d'un élément dans un tel arbre contenant $m$ éléments se fait en $O(log(m))$.
+Obtenir ces sites uniques nécessite d'ajouter les éléments récupérés à un ensemble que l'on peut par exemple implémenter à l'aide d'un arbre bicolore. L'ajout d'un élément dans un tel arbre contenant $m$ éléments se fait en $O(log_2(m))$.
 
-L'algorithme par recherche exhaustive comme celui d'Ullmann cherchent pour chaque élément de $S$ un isomorphisme de sous-graphe entre l'élément de $S$ et $T$ puis ajoutent, si le résultat est positif, cet élément à l'ensemble : la complexité totale dans le pire des cas ajoutée par la récupération des sites uniques est celle d'un tri, c'est à dire $O(S.log(S))$.
+L'algorithme par recherche exhaustive comme celui d'Ullmann cherchent pour chaque élément de $S$ un isomorphisme de sous-graphe entre l'élément de $S$ et $T$ puis ajoutent, si le résultat est positif, cet élément à l'ensemble : la complexité totale dans le pire des cas ajoutée par la récupération des sites uniques est celle d'un tri, c'est à dire $O(S.log_2(S))$.
 
-L'algorithme par parcours détermine pour chaque sommet de $T$ une liste de parcours possibles de taille maximale $S$. Le nombre maximal d'éléments à insérer est dans l'ensemble est donc $n.S$ avec au plus $S$ éléments uniques : la complexité totale ajoutée est $O(n.S.log(S))$.
+L'algorithme par parcours détermine pour chaque sommet de $T$ une liste de parcours possibles de taille maximale $S$. Le nombre maximal d'éléments à insérer est dans l'ensemble est donc $n.S$ avec au plus $S$ éléments uniques : la complexité totale ajoutée est $O(n.S.log_2(S))$.
 
-SIDT détermine pour chaque sommet de $T$ au plus un site possible. On doit donc insérer $n$ éléments dans un ensemble de taille $S$ au maximum : la complexité totale ajoutée est $n.log(S)$.
+SIDT détermine pour chaque sommet de $T$ au plus un site possible. On doit donc insérer $n$ éléments dans un ensemble de taille $S$ au maximum : la complexité totale ajoutée est $n.log_2(S)$.
 
-\subsubsection{Complexité total}
-Si l'on ne considère aucune variable comme constante, la complexité totale de chacun des algorithmes pour ces opérations est donnée par le tableau donné en figure \ref{fig:complexite_1}.
+La complexité totale des opérations de détection permettant de récupérer les solutions uniques est donnée dans le tableau \ref{fig:complexite_unique}.
+
+\begin{figure}[h]
+\begin{center}
+\begin{tabular}{|c|c|c|}
+ \hline
+ Algorithme & Analyse d'un graphe de flot à $n$ sommets\\
+ \hline
+ Recherche exhaustive & $O(S.(n^3.n!+log_2(S)))$\\
+ Ullmann & $O(S.((n.h)^W+log_2(S)))$ \\
+ Parcours & $O(n.S.(W+log_2(S)))$\\
+ SIDT & $O(n.(W^2+log_2(S)))$\\
+ \hline
+\end{tabular} 
+\end{center}
+\caption{Complexité de la détection dans le pire des cas en récupérant les éléments uniques}
+\label{fig:complexite_unique}
+\end{figure}
+
+En pratique un programme contient typiquement 10000 sommets dans son graphe de flot réduit et on peut donc en extraire au maximum 10000 sites. Si la base contient un million de programmes, qui est une borne largement supérieure au nombre de programmes que l'on a en général dans nos bases de programmes malveillants, il y a au plus 10 milliards de sites et le logarithme en base 2 de 10 milliards vaut 43. Même dans le cas de cette borne supérieure le terme $log_2(S)$ est négligeable pour les algorithmes par recherche exhaustive et celui d'Ullmann. Il est de l'ordre de $W$ et nous considérons qu'il n'a pas d'influence significative sur le temps de calcul pour l'algorithme par parcours et SIDT.
+Dans la suite nous présentons les calculs de complexité sans ce terme logarithmique et évaluerons notre hypothèse de nos influence lors des expériences pratiques.
+
+\subsubsection{Complexité totale}
+Si l'on ne prend plus en compte le temps pour déterminer les solutions uniques, la complexité totale de chacun des algorithmes pour ces opérations est donnée par le tableau donné en figure \ref{fig:complexite_1}.
 Les deux premiers algorithmes ne rangent les pas sites dans une base spécifique ; on dispose simplement d'une liste de sites que l'on doit générer à partir du graphe de flot.
 
 \begin{figure}[h]
@@ -1926,28 +1948,11 @@ Les deux premiers algorithmes ne rangent les pas sites dans une base spécifique
  Recherche exhaustive & $O(n.W)$ & $O(S.n^3.n!)$\\
  Ullmann & $O(n.W)$ & $O(S.(n.h)^W)$ \\
  Parcours & $O(n.W^2)$ & $O(S.n.W)$\\
- SIDT & $O(n.W^2)$ & $O(n.W^2)$\\
+ SIDT & $O(n.W^3)$ & $O(n.W^2)$\\
  \hline
 \end{tabular} 
 \end{center}
-\caption{Complexité dans le pire des cas sans tri}
-\label{fig:complexite_1}
-\end{figure}
-
-\begin{figure}[h]
-\begin{center}
-\begin{tabular}{|c|c|c|}
- \hline
- Algorithme & Ajout d'un graphe de flot & Analyse d'un graphe de flot\\
- \hline
- Recherche exhaustive & $O(n.W)$ & $O(S.(n^3.n!+log(S)))$\\
- Ullmann & $O(n.W)$ & $O(S.((n.h)^W + log(S)))$ \\
- Parcours & $O(n.W^2)$ & $O(n.S.(W+log(S)))$\\
- SIDT & $O(n.W^2)$ & $O(n.(W^2+log(S)))$\\
- \hline
-\end{tabular} 
-\end{center}
-\caption{Complexité dans le pire des cas en récupérant les éléments uniques}
+\caption{Complexité dans le pire des cas}
 \label{fig:complexite_1}
 \end{figure}
 
@@ -2046,18 +2051,18 @@ SIDT donne des résultats rapides mais incomplets. Nous résumons ces résultats
  Algorithme & Apprentissage & Détection & Sites uniques détectés & Complet \\
  \hline
  Ullmann & $\infty$ & $\infty$ & (6491) & Oui\\
- Parcours & < 1 seconde & 1.6 seconde & 6491 & Oui\\
+ Parcours & < 1 seconde & 1.6 seconde & 6739 & Oui\\
  SIDT & < 1 seconde & 70 secondes & 6045 & Non\\
  \hline
 \end{tabular}
 \end{center}
 
 \paragraph{Complétude.}
-Sur l'exemple de \hostname\ empaqueté 446 sites sur 6491 ne sont pas détectés par SIDT.
-Pourtant, avec l'empaqueteur pelock, on passe de 214 sites détectés à seulement 123.
+Sur l'exemple de \hostname\ empaqueté 694 sites sur 6739 ne sont pas détectés par SIDT, c'est à dire environs $10\%$ de faux négatifs.
+Pourtant, avec l'empaqueteur pelock, on passe de 214 sites détectés à seulement 123 : dans certains cas il y a une différence flagrante de précision dans la détection.
 
 
-\paragraph{Apprentissage et détection d'un grand nombre de sites.}
+\paragraph{Apprentissage et détection de sites.}
 Nous voulons évaluer plus généralement les performances pour l'apprentissage et la détection de l'algorithme par parcours et de l'algorithme SIDT.
 Le but est principalement de valider les résultats théoriques indiquant que l'apprentissage de $n$ sites se fait dans les deux cas en $O(n)$ et que la détection d'un nombre fixé de sites dépend du nombre $S$ de sites uniques dans la base et se fait en $O(S)$ pour l'algorithme par parcours mais ne dépend pas de $S$ dans le cas SIDT.
 
@@ -2085,8 +2090,6 @@ Cette seconde observation peut sembler raisonnable si l'on prend en compte que l
 \caption{Temps de détection de 5 programmes (18160 sites en tout) en fonction du nombre de sites dans la base}
 \label{fig:scan}
 \end{figure}
-
-
 
 
 \section{Conclusion}

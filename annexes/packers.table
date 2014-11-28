@@ -1,4 +1,4 @@
-% 34 échantillons
+% 35 échantillons
 % 29 réussis
 % 9 avec couche dans trace
 % 22 avec couche dans disas
@@ -175,6 +175,8 @@ Empaqueteur & Vague & \multicolumn{2}{c|}{Instructions} & \multicolumn{2}{c|}{In
 \rowcolor{lightgray}rlpack & / & 464 & 804 & / & / & / & / & / & / & 254 (100\%) & 254 (100\%) & \checkv \\
   & 0 & 310 & 450 & 0 & 0 & 1 & 1 & 0 & 0 & 0 (0\%) & 0 (0\%) & \checkv \\
   & 1 & 154 & 354 & 0 & 0 & 1 & 1 & 0 & 0 & 254 (100\%) & 254 (100\%) & \checkv \\
+\hline
+\rowcolor{lightgray}Setisoft-271 & (0) & 0 & 0 & / & / & / & / & / & / & 0 (0\%) & 0 (0\%) & \checkf \\
 \hline
 \rowcolor{lightgray}svk143f & (27) & 9421 & 14090 & / & / & / & / & / & / & 0 (0\%) & 0 (0\%) & \checkf \\
 \hline

@@ -26,7 +26,7 @@ chap.pdf: *.tex chap.bib $(pdf_from_dot)
 	if [ -d ~/lectures ]; then cp chap.pdf ~/lectures/; fi
 
 #these.pdf: *.tex these.bbl $(pdf_from_dot)
-these.pdf: *.tex these.bib $(pdf_from_dot) *.table supports/plots/*.pdf
+these.pdf: *.tex these.bib $(pdf_from_dot) annexes/*.table supports/plots/*.pdf
 	$(TEXCOMP) these.tex
 	if [ -d ~/lectures ]; then cp these.pdf ~/lectures/; fi
 
