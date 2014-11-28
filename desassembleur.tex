@@ -520,11 +520,13 @@ Chaque instantané est enregistré sous la forme d'un fichier exécutable (PE so
 \paragraph{Désassembleur.}
 Le désassembleur fonctionnant par analyse statique et récursive a été codé en 3500 lignes de C++. Il utilise l'outil XED d'Intel \cite{xed} fournissant les informations sémantiques suffisantes, comme détaillé au chapitre \ref{chap:semantique}.
 
-\section{Résultats}
-Afin de valider notre approche nous avons d'abord testé notre désassembleur sur une version protégée d'un binaire existant.
-Dans un second temps, afin d'obtenir des statistiques sur l'utilisation de certaines méthodes de protection, nous avons utilisé notre désassembleur pour analyser un grand nombre de programmes malveillants.
+% \section{Résultats}
+\section{Expérience sur \hostname\ empaqueté}
+Afin de valider notre approche nous avons testé notre désassembleur sur une version protégée d'un binaire existant.
+Cette expérience permet de montrer que l'on arrive a récupérer les parties utiles du programme d'origine dans le binaire protégé.
+% Dans un second temps, afin d'obtenir des statistiques sur l'utilisation de certaines méthodes de protection, nous avons utilisé notre désassembleur pour analyser un grand nombre de programmes malveillants.
 
-\subsection{Expérience sur \hostname\ empaqueté}
+
 Nous avons utilisé des empaqueteurs existants pour protéger un programme standard présent sous Windows, \hostname, et avons cherché à analyser le programme protégé ainsi généré avec notre méthode hybride.
 L'analyse dynamique est réussie si le programme protégé instrumenté présente la même sortie que le programme d'origine, c'est à dire s'il affiche le nom de la machine. Sur les 34 logiciels d'empaquetage que nous avons évalué, 6 produisent un binaire protégé que nous n'avons pas réussi à instrumenter jusqu'à obtenir le nom de la machine.
 L'échec de l'instrumentation signifie que le logiciel de protection détecte l'utilisation d'une instrumentation et arrête prématurément l'exécution du programme.
@@ -569,11 +571,13 @@ Ainsi seules les variantes de tElock, UPX et pespin utilisent réellement le che
 
 Nous concluons que peu d'empaqueteurs utilisent le chevauchement de code lors de leur exécution mais la plupart obscurcissent le code de manière à amener le désassembleur à considérer des instructions en chevauchement.
 
-\subsection{Expérience sur des logiciels malveillants}
-\begin{rem}
- Les résultats présentés dans cette sous-section sur un grand nombre de programmes malveillants sont des résultats obtenus à l'aide d'une version préliminaire du désassembleur. Nous les mettrons à jour avant la soutenance.
-\end{rem}
+% \subsection{Expérience sur des logiciels malveillants}
+% \begin{rem}
+%  Les résultats présentés dans cette sous-section sur un grand nombre de programmes malveillants sont des résultats obtenus à l'aide d'une version préliminaire du désassembleur. Nous les mettrons à jour avant la soutenance.
+% \end{rem}
 
 
 \section{Conclusion}
 Nous avons combiné les notions d'analyse statique et d'analyse dynamique vues aux chapitres précédents pour réaliser et implémenter un désassembleur capable de construire un graphe de flot de contrôle approchant le graphe de flot parfait d'un programme \sm, notion que nous avons définie.
+
+L'expérience réalisée sur des version protégée de \hostname\ montre que nous sommes capables d'identifier le binaire d'origine au sein des versions protégées dans de nombreux cas. Nous constatons une utilisation systématique de l'auto-modification et un emploi fréquent du chevauchement de code pour gêner le travail du désassembleur bien que peu de programmes de protection exécutent réellement ces instructions en chevauchement.
