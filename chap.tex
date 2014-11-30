@@ -13,31 +13,34 @@
 % \chapter{Techniques d'obscurcissement de code}
 % \input{3-obscurcissement}
 
-\DontFrameThisInToc
-\chapter*{Introduction\label{chap:introduction}}
-\input{introduction}
+% \DontFrameThisInToc
+% \chapter*{Introduction\label{chap:introduction}}
+% \input{introduction}
+% 
+% % \WriteThisInToc
+% % \FrameThisInToc
+% % \NumberThisInToc
+% \part{Désassemblage et analyse de binaires}
+% 
+% % \NumberThisInToc
+% \DontFrameThisInToc
+% \chapter{Assembleur\label{chap:assembleur}}
+% \input{assembleur}
+% 
+% \part{Détection et analyse morphologique}
+% 
+% \DontFrameThisInToc
+% \chapter{Détection des logiciels malveillants\label{chap:detection}}
+% \input{detection}
+% 
+% 
+% \DontFrameThisInToc
+% \chapter*{Conclusion et perspectives\label{chap:conclusion}}
+% \input{conclusion}
 
-% \WriteThisInToc
-% \FrameThisInToc
-% \NumberThisInToc
-\part{Désassemblage et analyse de binaires}
-
-% \NumberThisInToc
-\DontFrameThisInToc
-\chapter{Assembleur\label{chap:assembleur}}
-\input{assembleur}
-
-\part{Détection et analyse morphologique}
-
-\DontFrameThisInToc
-\chapter{Détection des logiciels malveillants\label{chap:detection}}
-\input{detection}
-
-
-\DontFrameThisInToc
-\chapter*{Conclusion et perspectives\label{chap:conclusion}}
-\input{conclusion}
-
+\begin{tiny}
+ \input{annexes/packers_extraits.table}
+\end{tiny}
 
 % \onecolumn
 % La bibliographie (comme d'habitude)
@@ -45,31 +48,31 @@
 % \bibliographystyle{unsrt}
 % \bibliographystyle{named}
 % \bibliography{these}
-\printbibliography
-
-\NumberAbstractPages
-\NumberAbstractPages
-\begin{ThesisAbstract}
-\newpage
-  \begin{FrenchAbstract}
-    \input{resume}
-    \KeyWords{programmes malveillants, auto-modification, graphe de flot de contrôle, comparaison de graphes}
-  \end{FrenchAbstract}
-  \begin{EnglishAbstract}
-    \input{abstract}
-    \KeyWords{malwares, self-modification, control flow graph, graph comparison}
-  \end{EnglishAbstract}
-    
-\newpage
-  \begin{FrenchAbstract}
-    \input{resume-simple}
+% \printbibliography
+% 
+% \NumberAbstractPages
+% \NumberAbstractPages
+% \begin{ThesisAbstract}
+% \newpage
+%   \begin{FrenchAbstract}
+%     \input{resume}
 %     \KeyWords{programmes malveillants, auto-modification, graphe de flot de contrôle, comparaison de graphes}
-  \end{FrenchAbstract}
-  \begin{EnglishAbstract}
-    \input{abstract-simple}
+%   \end{FrenchAbstract}
+%   \begin{EnglishAbstract}
+%     \input{abstract}
 %     \KeyWords{malwares, self-modification, control flow graph, graph comparison}
-  \end{EnglishAbstract}
-\end{ThesisAbstract}
+%   \end{EnglishAbstract}
+%     
+% \newpage
+%   \begin{FrenchAbstract}
+%     \input{resume-simple}
+% %     \KeyWords{programmes malveillants, auto-modification, graphe de flot de contrôle, comparaison de graphes}
+%   \end{FrenchAbstract}
+%   \begin{EnglishAbstract}
+%     \input{abstract-simple}
+% %     \KeyWords{malwares, self-modification, control flow graph, graph comparison}
+%   \end{EnglishAbstract}
+% \end{ThesisAbstract}
 
 \end{document}
 
