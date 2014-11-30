@@ -151,39 +151,39 @@ Un exemple d'une suite de 15 octets définissant 15 \layer\ en utilisant des pr�
 \begin{figure}[h]
 \begin{center}
 \begin{longtable}{|l|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
-\hline
+\midrule
 Octets & 26 & 26 & 26 & 26 & 26 & 2e & 26 & 26 & 26 & 2e & e9 & 66 & 83 & eb & 40\\
-\hline
+\midrule
 Couche 1 &  \multicolumn{15}{|c|}{jmp 0x40eb8375}\\
-\hline
+\midrule
 Couche 2 & \multicolumn{1}{|c|}{\cnoir} &  \multicolumn{14}{|c|}{jmp 0x40eb8374}\\
-\hline
+\midrule
 Couche 3 & \multicolumn{2}{|c|}{\cnoir} &  \multicolumn{13}{|c|}{jmp 0x40eb8373}\\
-\hline
+\midrule
 Couche 4 & \multicolumn{3}{|c|}{\cnoir} &  \multicolumn{12}{|c|}{jmp 0x40eb8372}\\
-\hline
+\midrule
 Couche 5 & \multicolumn{4}{|c|}{\cnoir} &  \multicolumn{11}{|c|}{jmp 0x40eb8371}\\
-\hline
+\midrule
 Couche 6 & \multicolumn{5}{|c|}{\cnoir} &  \multicolumn{10}{|c|}{jmp 0x40eb8370}\\
-\hline
+\midrule
 Couche 7 & \multicolumn{6}{|c|}{\cnoir} &  \multicolumn{9}{|c|}{jmp 0x40eb836f}\\
-\hline
+\midrule
 Couche 8 & \multicolumn{7}{|c|}{\cnoir} &  \multicolumn{8}{|c|}{jmp 0x40eb836e}\\
-\hline
+\midrule
 Couche 9 & \multicolumn{8}{|c|}{\cnoir} &  \multicolumn{7}{|c|}{jmp 0x40eb836d}\\
-\hline
+\midrule
 Couche 10 & \multicolumn{9}{|c|}{\cnoir} &  \multicolumn{6}{|c|}{jmp 0x40eb836c}\\
-\hline
+\midrule
 Couche 11 & \multicolumn{10}{|c|}{\cnoir} &  \multicolumn{5}{|c|}{jmp 0x40eb836b}\\
-\hline
+\midrule
 Couche 12 & \multicolumn{11}{|c|}{\cnoir} &  \multicolumn{4}{|c|}{sub bx, 0x40}\\
-\hline
+\midrule
 Couche 13 & \multicolumn{12}{|c|}{\cnoir} &  \multicolumn{3}{|c|}{sub ebx, 0x40}\\
-\hline
+\midrule
 Couche 14 & \multicolumn{13}{|c|}{\cnoir} &  \multicolumn{2}{|c|}{jmp 0x42}\\
-\hline
+\midrule
 Couche 15 & \multicolumn{14}{|c|}{\cnoir} &  \multicolumn{1}{|c|}{inc eax}\\
-\hline
+\midrule
 \end{longtable}
 \end{center}
 \caption{Exemple de séquence d'octets définissant 15 \layers}
@@ -200,19 +200,45 @@ Les \layers\ suivantes seront construites également par parcours linéaire, à 
 Ainsi on peut construire une \layer\ de code à partir de chaque adresse du binaire.
 Un tel découpage pour \telock\ donne les layers indiqués en figure \ref{fig:telock-layers-linear}.
 
+\begin{figure}[h]
+\begin{center}
+\begin{tabular}{|l|c|c|c|c|c|}
+\midrule
+Adresses & 0x01006e7d & 0x01006e7e & 0x01006e7f & 0x01006e80 & 0x01006e81\\
+\midrule
+Octets & eb & ff & c9 & 7f & e6\\
+\midrule
+\Layer\ 1 & \multicolumn{2}{c|}{jmp +1} & leave & \multicolumn{2}{|c|}{jg 0x1006e68}\\
+\midrule
+\Layer\ 2 & \cnoir & \multicolumn{2}{c|}{dec ecx} & \multicolumn{2}{|c|}{jg 0x1006e68 \cgris} \\
+\midrule
+\Layer\ 3 & \multicolumn{2}{c|}{\cnoir} & leave \cgris & \multicolumn{2}{|c|}{jg 0x1006e68 \cgris} \\
+\midrule
+\Layer\ 4 & \multicolumn{3}{c|}{\cnoir} & \multicolumn{2}{|c|}{jg 0x1006e68 \cgris} \\
+\midrule
+\Layer\ 5 & \multicolumn{4}{|c|}{\cnoir} & (invalide) \\
+\midrule
+% \\
+\end{tabular}
+\end{center}
+\caption{\Layers\ linéaires de l'extrait de \telock}
+\label{fig:telock-layers-linear}
+\end{figure}
+
 Ce découpage est donc, par définition, basé sur l'alignement des instructions : au sein d'une \layer, les instructions sont alignées, c'est à dire qu'un désassemblage linéaire depuis la première instruction de la \layer\ parcourt toutes les autres instructions de la \layer. 
 Il est à noter qu'en assembleur \xq\ ou \xs\ les instructions ont tendance à se réaligner rapidement, 
 % il suffit en général d'au plus quatre \todo{cite, vrai?}instructions pour que ces deux parcours se confondent.
 cette propriété a pour conséquence que la plupart des \layers\ linéaires se réalignent, après quelques instructions, sur une \layer\ précédente, en général la première. Sur la figure \ref{fig:telock-layers-linear} les \layers\ 1 et 2 se réalignent et partagent l'instruction \texttt{jg 0x1006e68}.
-\imore{combien d'instructions pour se réaligner ? cite ?}
 Cette propriété n'est évidemment pas vérifiée si les instructions ont été spécialement choisie pour provoquer de longs chemins de chevauchement, comme avec l'obscurcissement précédemment cité \cite{JLH13}.
+\imore{combien d'instructions pour se réaligner ? cite ?}
 
 Nous souhaitons obtenir un découpage cohérent des \layers\ sous forme d'ensembles deux à deux disjoints.
 Il suffit alors d'enlever des \layers\ les instructions existant déjà dans les \layers\ inférieures (colorées en gris sur la figure \ref{fig:telock-layers-linear}) et de ne garder que les \layers\ contenant des instructions valides.
 Au final il reste les deux \layers\ données précédemment à la figure \ref{fig:telock-layers-simple}, obtenus linéairement.
 L'algorithme \ref{algo:decoupage_lineaire} détaille le découpage cohérent en couches linéaires d'un programme composé d'un seul segment est donné.
+% \\
 
-\begin{algorithm}[H]
+\begin{algorithm}[h]
 \caption{Découpage cohérent en couches linéaires}
 \SetAlgoLined
 \KwIn{Un programme P composé d'un unique segment}
@@ -268,31 +294,6 @@ L'inverse n'est par contre pas vrai puisque deux instructions peuvent ne pas êt
 Lors du désassemblage d'un binaire plusieurs métriques peuvent être observées.
 On peut d'une part observer combien de \layers\ différentes sont utilisées : chaque \layer, en dehors de la première de chaque segment, atteste du départ d'un chemin désaligné avec le chemin principal.
 D'autre part on peut compter le nombre de sauts d'une instruction d'une \layer\ vers une instruction désalignée d'une autre \layer. Dans le cas de \telock, le saut depuis l'instruction \texttt{dec ecx} à l'adresse \adr{0x01006e7e} vers l'instruction \texttt{jg 0x1006e68} à l'adresse \adr{0x01006e80}, bien qu'il provoque un changement de \layer, n'est pas désaligné. Le nombre de ces sauts de désalignement atteste de la prévalence des chemins représentés par chaque \layer.
-
-\begin{figure}[h]
-\begin{center}
-\begin{tabular}{|l|c|c|c|c|c|}
-\hline
-Adresses & 0x01006e7d & 0x01006e7e & 0x01006e7f & 0x01006e80 & 0x01006e81\\
-\hline
-Octets & eb & ff & c9 & 7f & e6\\
-\hline
-\Layer\ 1 @0x01006e7d & \multicolumn{2}{c|}{jmp +1} & leave & \multicolumn{2}{|c|}{jg 0x1006e68}\\
-\hline
-\Layer\ 2 @0x01006e7e & \cnoir & \multicolumn{2}{c|}{dec ecx} & \multicolumn{2}{|c|}{jg 0x1006e68 \cgris} \\
-\hline
-\Layer\ 3 @0x01006e7f & \multicolumn{2}{c|}{\cnoir} & leave \cgris & \multicolumn{2}{|c|}{jg 0x1006e68 \cgris} \\
-\hline
-\Layer\ 4 @0x01006e80 & \multicolumn{3}{c|}{\cnoir} & \multicolumn{2}{|c|}{jg 0x1006e68 \cgris} \\
-\hline
-\Layer\ 5 @0x01006e81 & \multicolumn{4}{|c|}{\cnoir} & (invalide) \\
-\hline
-% \\
-\end{tabular}
-\end{center}
-\caption{\Layers\ linéaires de l'extrait de \telock}
-\label{fig:telock-layers-linear}
-\end{figure}
 
 % \begin{figure}
 % \begin{center}
