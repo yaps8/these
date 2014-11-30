@@ -146,7 +146,49 @@ L'exemple précédent pour \telock\ est un découpage cohérent.
 \paragraph{Borne du nombre minimal de \layers.}
 Le nombre minimal de \layers\ permettant de former un découpage cohérent est borné par la taille maximale des instructions, c'est à dire 15 octets pour l'assembleur \xq.
 Pour s'en convaincre il suffit de définir le découpage cohérent suivant. Pour un segment d'octets à l'adresse \adr{a}, on place dans la \layer\ i, pour $1\leq i\leq 15$ toutes les instructions aux adresses congrues à $a+i-1 (mod\ 15)$. C'est à dire que la \layer\ 1 contient les instructions aux adresses \adr{a}, \adr{a+15}, \adr{a+30}, etc ; la \layer\ 2 celles aux adresses \adr{a+1}, \adr{a+16}, \adr{a+31}, etc. Puisque les instructions dans chaque \layer\ sont distantes de 15 octets, il ne peut pas y avoir de chevauchement au sein d'une \layer\ et les \layers\ sont disjointes ; il s'agit bien d'un découpage cohérent une fois qu'on enlève les \layers\ ne contenant pas d'instructions valides. Ce découpage contient au plus 15 \layers.
-\itodo{l'exemple qui donne 15 layers ?}
+Un exemple d'une suite de 15 octets définissant 15 \layer\ en utilisant des préfixes d'instruction est donné en figure \ref{fig:15-layers}.
+
+\begin{figure}[h]
+\begin{center}
+\begin{longtable}{|l|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+\hline
+Octets & 26 & 26 & 26 & 26 & 26 & 2e & 26 & 26 & 26 & 2e & e9 & 66 & 83 & eb & 40\\
+\hline
+Couche 1 &  \multicolumn{15}{|c|}{jmp 0x40eb8375}\\
+\hline
+Couche 2 & \multicolumn{1}{|c|}{\cnoir} &  \multicolumn{14}{|c|}{jmp 0x40eb8374}\\
+\hline
+Couche 3 & \multicolumn{2}{|c|}{\cnoir} &  \multicolumn{13}{|c|}{jmp 0x40eb8373}\\
+\hline
+Couche 4 & \multicolumn{3}{|c|}{\cnoir} &  \multicolumn{12}{|c|}{jmp 0x40eb8372}\\
+\hline
+Couche 5 & \multicolumn{4}{|c|}{\cnoir} &  \multicolumn{11}{|c|}{jmp 0x40eb8371}\\
+\hline
+Couche 6 & \multicolumn{5}{|c|}{\cnoir} &  \multicolumn{10}{|c|}{jmp 0x40eb8370}\\
+\hline
+Couche 7 & \multicolumn{6}{|c|}{\cnoir} &  \multicolumn{9}{|c|}{jmp 0x40eb836f}\\
+\hline
+Couche 8 & \multicolumn{7}{|c|}{\cnoir} &  \multicolumn{8}{|c|}{jmp 0x40eb836e}\\
+\hline
+Couche 9 & \multicolumn{8}{|c|}{\cnoir} &  \multicolumn{7}{|c|}{jmp 0x40eb836d}\\
+\hline
+Couche 10 & \multicolumn{9}{|c|}{\cnoir} &  \multicolumn{6}{|c|}{jmp 0x40eb836c}\\
+\hline
+Couche 11 & \multicolumn{10}{|c|}{\cnoir} &  \multicolumn{5}{|c|}{jmp 0x40eb836b}\\
+\hline
+Couche 12 & \multicolumn{11}{|c|}{\cnoir} &  \multicolumn{4}{|c|}{sub bx, 0x40}\\
+\hline
+Couche 13 & \multicolumn{12}{|c|}{\cnoir} &  \multicolumn{3}{|c|}{sub ebx, 0x40}\\
+\hline
+Couche 14 & \multicolumn{13}{|c|}{\cnoir} &  \multicolumn{2}{|c|}{jmp 0x42}\\
+\hline
+Couche 15 & \multicolumn{14}{|c|}{\cnoir} &  \multicolumn{1}{|c|}{inc eax}\\
+\hline
+\end{longtable}
+\end{center}
+\caption{Exemple de séquence d'octets définissant 15 \layers}
+\label{fig:15-layers}
+\end{figure}
 
 Nous définirons par la suite plusieurs découpages cohérents en \layers\ et discuterons de leur pertinence et de leurs implémentations.
 
@@ -227,7 +269,7 @@ Lors du désassemblage d'un binaire plusieurs métriques peuvent être observée
 On peut d'une part observer combien de \layers\ différentes sont utilisées : chaque \layer, en dehors de la première de chaque segment, atteste du départ d'un chemin désaligné avec le chemin principal.
 D'autre part on peut compter le nombre de sauts d'une instruction d'une \layer\ vers une instruction désalignée d'une autre \layer. Dans le cas de \telock, le saut depuis l'instruction \texttt{dec ecx} à l'adresse \adr{0x01006e7e} vers l'instruction \texttt{jg 0x1006e68} à l'adresse \adr{0x01006e80}, bien qu'il provoque un changement de \layer, n'est pas désaligné. Le nombre de ces sauts de désalignement atteste de la prévalence des chemins représentés par chaque \layer.
 
-\begin{figure}
+\begin{figure}[h]
 \begin{center}
 \begin{tabular}{|l|c|c|c|c|c|}
 \hline
