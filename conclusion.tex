@@ -4,7 +4,7 @@
 % \itodo{pb 2: analyse/désassemblage des programmes sms}
 
 % Les programmes malveillants obscurcis sont notre objet d'étude principal.
-Notre objectif principal était le désassemblage et la reconstruction du graphe de flot de contrôle d'un programme malveillant obscurci.
+Notre objectif principal a été le désassemblage et la reconstruction du graphe de flot de contrôle d'un programme malveillant obscurci.
 Nous cherchions à contrer particulièrement deux méthodes d'obscurcissement. 
 La première est l'auto-modification, technique permettant aux programmes de cacher leur charge utile et de ne la révéler que juste avant son exécution. La seconde est le chevauchement de code, permettant à plusieurs instructions d'être codées sur des adresses communes.
 
@@ -18,10 +18,10 @@ Nous avons implémenté cette technique d'analyse hybride et validé des expéri
 Nous avons mis en lumière l'utilisation occasionnelle du chevauchement de code par certains logiciels de protection de binaire et quelques familles de logiciels malveillants.
 \\
 
-La seconde partie de notre travail fut centrée sur la détection de programmes malveillants et la technique d'analyse morphologique \cite{BKM08}, consistant à comparer les graphes de flot de contrôles de programmes connus pour être malveillants à celui du programme que l'on cherche à analyser.
-L'objectif était de comprendre les mécanismes permettant d'améliorer les performances du détecteur sachant qu'il cherchait à résoudre le problème NP-complet de l'isomorphisme de sous-graphes.
+La seconde partie de notre travail a été centrée sur la détection de programmes malveillants et la technique d'analyse morphologique \cite{BKM08}, consistant à comparer les graphes de flot de contrôles de programmes connus pour être malveillants à celui du programme que l'on cherche à analyser.
+L'objectif a été de comprendre les mécanismes permettant d'améliorer les performances du détecteur sachant qu'il cherchait à résoudre un cas simplifié du problème NP-complet de l'isomorphisme de sous-graphes.
 
-Nous avons proposé une formalisation du problème exactement résolu par l'analyse morphologique : il s'agit d'un problème plus simple que l'isomorphisme de sous-graphes et pour lequel il existe des solutions en temps polynomial.
+Nous avons proposé une formalisation du problème exactement résolu par l'analyse morphologique : il s'agit d'un problème plus simple que celui de l'isomorphisme de sous-graphes et pour lequel il existe des solutions en temps polynomial.
 Nous avons alors réalisé un algorithme de détection dont le temps d'exécution croît linéairement avec le nombre de programmes malveillants connus. Cet algorithme est complet : il résout exactement le problème posé par l'analyse morphologique.
 Nous avons également implémenté un algorithme incomplet mais dont le temps d'exécution ne dépend pas du nombre de programmes malveillants connus.
 \\

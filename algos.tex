@@ -1933,7 +1933,7 @@ La complexité totale des opérations de détection permettant de récupérer le
 \end{figure}
 
 En pratique un programme contient typiquement 10000 sommets dans son graphe de flot réduit et on peut donc en extraire au maximum 10000 sites. Si la base contient un million de programmes, qui est une borne largement supérieure au nombre de programmes que l'on a en général dans nos bases de programmes malveillants, il y a au plus 10 milliards de sites et le logarithme en base 2 de 10 milliards vaut 43. Même dans le cas de cette borne supérieure le terme $log_2(S)$ est négligeable pour les algorithmes par recherche exhaustive et celui d'Ullmann. Il est de l'ordre de $W$ et nous considérons qu'il n'a pas d'influence significative sur le temps de calcul pour l'algorithme par parcours et SIDT.
-Dans la suite nous présentons les calculs de complexité sans ce terme logarithmique et évaluerons notre hypothèse de nos influence lors des expériences pratiques.
+Dans la suite nous présentons les calculs de complexité sans ce terme logarithmique et évaluerons notre hypothèse de non influence lors des expériences.
 
 \subsubsection{Complexité totale}
 Si l'on ne prend plus en compte le temps pour déterminer les solutions uniques, la complexité totale de chacun des algorithmes pour ces opérations est donnée par le tableau donné en figure \ref{fig:complexite_1}.
@@ -2020,14 +2020,14 @@ L'algorithme SIDT est le seul pour lequel le temps de l'analyse ne dépend pas d
 \subsection{Détail des implémentations}
 Nous avons implémenté différents algorithmes de la manière suivante. Ils prennent en entrée un ou plusieurs graphes de flot à insérer dans la base de programmes connus et un ou plusieurs graphes de flot à tester.
 Le programme donne en sortie, pour chaque graphe de flot à tester, les correspondances trouvées avec ceux ajoutés à la base.
-Les graphes de flot sont stockés dans des fichiers binaires ou des fichiers de graphes (\texttt{.dot}).
+Les graphes de flot sont stockés dans des fichier de format binaire ou des fichiers de graphes (\texttt{.dot}).
 
 \paragraph{Algorithme d'Ullmann.}
 Développé en 2000 lignes C \cite{graphbinalgo}, l'implémentation offre les différentes options d'optimisation dont celles discutées précédemment à la section \ref{sec:ullmann_optimisation}.
 Elle est principalement constituée des deux fonction \emph{backtrack} et \emph{forwardChecking}.
 
 \paragraph{Arbre de décision sur l'algorithme par parcours.}
-Développée en 1000 lignes de C++, l'implémentation permet de créer une base à partir d'une liste de graphes de flot et de tester une liste de graphes de flot. Elle ne permet pas d'enregistrer la base dans un fichier.
+Développée en 1000 lignes de C++ \cite{GTSI}, l'implémentation permet de créer une base à partir d'une liste de graphes de flot et de tester une liste de graphes de flot. Elle ne permet pas d'enregistrer la base dans un fichier.
 
 \paragraph{SIDT.}
 Développée en 1200 lignes de C \cite{SIDT}, l'implémentation permet également de créer une base et de tester une liste de graphes de flot. Elle ne permet pas non plus d'enregistrer la base dans un fichier.
@@ -2080,7 +2080,7 @@ On observe bien la croissance linéaire attendue et on constate que SIDT est bea
 \end{figure}
 
 La figure \ref{fig:scan} donne le temps de détection de 5 programmes (qui sont composés de 18160 sites en tout) en fonction du nombre de sites dans la base.
-Sur cette figure le temps de détection pour SIDT semble ne pas dépendre du nombre de sites dans la base tandis que pour l'algorithme par parcours il semble suivre une courbe plus amortie qu'une courbe linéaire en fonction du nombre de sites dans la base.
+Sur cette figure le temps de détection pour SIDT semble ne pas dépendre du nombre de sites dans la base tandis que pour l'algorithme par parcours il semble suivre une courbe à croissance plus lente qu'une courbe linéaire en fonction du nombre de sites dans la base.
 Cette seconde observation peut sembler raisonnable si l'on prend en compte que la dépendance linéaire calculée dans la section précédente est la complexité dans le pire des cas et que l'ajout des parcours à un arbre de décision factorise en général certains parcours.
 
 \begin{figure}[h]

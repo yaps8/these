@@ -1,7 +1,7 @@
 Le second objet d'étude de cette thèse est une technique de détection de logiciels malveillants fonctionnant par comparaison de leurs graphes de flot de contrôle (GFC).
 
 Cette partie est organisée comme suit.
-Nous présentons en premier lieu différentes approches de la détection de programme malveillants, puis nous détaillerons l'analyse morphologique fonctionnant par comparaison des graphes de flot de contrôle et expliquerons comment optimiser cette approche. Enfin nous donnerons une application de l'analyse morphologique à la détection de similarités logicielles et des exemples d'études de codes malveillants basées sur cette approche.
+Nous présentons en premier lieu différentes approches de la détection de programmes malveillants, puis nous détaillerons l'analyse morphologique fonctionnant par comparaison des graphes de flot de contrôle et expliquerons comment optimiser cette approche. Enfin nous donnerons une application de l'analyse morphologique à la détection de similarités logicielles et des exemples d'études de codes malveillants basées sur cette approche.
 
 Dans ce chapitre nous présentons plusieurs techniques de détection de programmes malveillants et introduisons l'analyse morphologique.
 
@@ -308,7 +308,7 @@ Zynamics commercialise un outil de comparaison de binaires, BinDiff \cite{bindif
 L'outil permet de trouver des fonctions identiques et de comparer des fonctions présentant certaines similarités \cite{DR05}.
 Il opère par comparaison de critères sur les fonctions comme leur nom, les appels système qu'elles effectuent ou encore le nombre d'arcs en entrée et en sortie des sommets de leur GFC partiel. Bien qu'il n'utilise pas à proprement parler de techniques d'isomorphismes de graphes, BinDiff fonctionne sur des graphes de flot de contrôles en utilisant certains critères qui leur sont spécifiques et va donc plus loin qu'une simple comparaison syntaxique des fonctions.
 
-L'application de techniques de réduction afin de rendre des codes malveillants plus génériques et que les signatures soient plus efficaces est fréquente dans la littérature. 
+L'application de techniques de réduction dans le but de rendre des codes malveillants plus génériques et ainsi que les signatures soient plus efficaces est fréquente dans la littérature. 
 Certains travaux \cite{CKJKVM05} proposent des méthodes luttant spécifiquement contre certaines techniques d'obscurcissement comme la réorganisation de code ; c'est l'objectif des réductions proposées à la figure \ref{fig:am_reductions} dont fait partie le réalignement des sauts inconditionnels.
 Bruschi, Martignoni et Monga \cite{BMM06} proposent d'utiliser un panel de techniques d'analyse statique existantes pour définir une forme réduite, dite canonique, pour les binaires, puis de comparer les graphes de flots de contrôle résultants.
 
