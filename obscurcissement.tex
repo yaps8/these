@@ -45,7 +45,7 @@ Garg, Gentry, Halevi, Raykova, Sahai et Waters \cite{GGH13} ont montré la possi
 % On appelle une obscurcissement de type
 % La charge finale et les éventuels mécanismes de communication sont eux protégés contre l'analyse.\todo{cite}
 
-\section{Exemples d'obscurcissement}
+\section{Exemples d'obscurcissement  \label{sec:ex_obsc}}
 De nombreuses techniques d'obscurcissement sont utilisées en pratique, nous en donnons quelques exemples ici.
 
 \paragraph{Insertion de code mort.}
@@ -290,13 +290,16 @@ Le graphe de flot de contrôle du programme obscurci ne peut pas être exploité
 
 
 \section{Chevauchement de code}
+% \subsection{Définition}
+
 On a vu que la taille d'une instruction assembleur varie de un à 15 octets \done{15 dans intel2 chercher 15}.
 De plus rien n'empêche que la cible d'un saut soit une adresse se trouvant être au milieu d'une autre instruction.
 Ainsi on parle de chevauchement de code lorsque deux instructions (ou plus) à des adresses différentes sont codées sur des adresses communes. Si une instruction à l'adresse \adr{a} de taille $k\geq 2$ est atteignable, il peut y avoir une autre instruction valide et atteignable à l'adresse \adr{a+1} et ces deux instructions se chevauchent.
 
 Il est à noter que, comme indiqué par Sikorski et Honig \cite{PMA}, il n'y a dans ce cas aucun désassemblage sous forme de liste d'instructions assembleur qui soit correct et puisse être assemblée en la séquence d'octets originale. En effet une telle liste devra choisir entre l'instruction à l'adresse \adr{a} et celle à l'adresse \adr{a+1} alors qu'elles sont toutes les deux valides et atteignables. Une solution pour écrire un tel code assembleur est de mettre la première instruction en temps qu'instruction classique tandis que la deuxième sera présente sous forme d'octets codés en dur dans le fichier assembleur.
 
-\subsection{Exemples de chevauchement}
+% \DontWriteThisInToc
+\subsection*{Exemples de chevauchement}
 
 \paragraph{Dans \telock.}
 Le code de la figure \ref{fig:telock_obf_disas} est extrait d'un programme protégé par \telock\ désassemblé à l'aide d'un parcours récursif à partir de l'adresse \adr{01006e7a}. Il y a une instruction \texttt{jmp +1} à l'adresse \adr{01006e7d} et codée sur les deux octets \texttt{eb ff}, qui saute vers l'adresse \adr{01006e7d+1} où est présenté l'instruction \texttt{dec ecx}, codée sur \texttt{ff c9} et qui partage donc l'octet \texttt{ff} à l'adresse \adr{01006e7d+1} avec l'instruction \jmp.
@@ -585,7 +588,7 @@ Ces logiciels de protection s'appliquent à l'ensemble du programme malveillant 
 L'empaqueteur libre UPX \cite{UPX} est un cas typique du schéma précédent. Il compresse le binaire d'origine et le restaure à l'exécution. Ainsi il est plutôt conçu pour optimiser la taille du binaire paqueté et non pour l'obscurcir. La transformation utilisée étant réversible, l'empaqueteur permet également de récupérer le programme binaire d'origine sans l'exécuter. Il est cela dit parfois utilisé par des auteurs de logiciels malveillants sous une forme modifiée ne permettant plus de le dépaqueter automatiquement.
 
 
-\section{Conclusion}
+\section*{Conclusion}
 Cette thèse s'intéresse particulièrement à l'analyse des programmes écrits en assembleur \xq\ et \xs. Ces programmes ont en général été compilés à partir d'un langage de haut niveau puis ont été modifiés à l'aide d'un logiciel de protection. Les binaires que l'on étudie sont donc protégés avec des techniques statiques comme auto-modifiantes. Notre travail consiste alors à chercher à désassembler correctement ces programmes dans le but de faciliter leur analyse.
 
 Les chapitres suivants détailleront plusieurs techniques d'analyse que nous avons appliquées. 

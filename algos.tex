@@ -105,7 +105,7 @@ Un graphe de flot $P=(V_P, L_P, l_P, E_P)$ est un sous-graphe du graphe de flot 
 Le sous-graphe induit d'un graphe de flot $T=(V_T, L_T, l_T, E_T)$ à partir de l'ensemble de sommets $V_P \subset V_T$ est le graphe de flot $P=(V_P, L_P, l_P, E_P)$ tel que $E_P=\{(t, i, h)\in E_T / t, h \in V_P \}$, $L_P=L_T$, et $l_P=l_{T\vert V_P}$.
 \end{defi}
 
-\itodo{définition formelle de l'isomorphisme de sous-graphe!!! en gf + cas général}
+% \itodo{définition formelle de l'isomorphisme de sous-graphe!!! en gf + cas général}
 % \begin{defi}\label{def:iso-sgo}
 % Soit $T=(V_T, L_T, l_T, E_T)$ et $P=(V_P, L_P, l_P, E_P)$ deux graphes de flot. 
 % Il existe un isomorphisme de sous-graphe entre 
@@ -1911,7 +1911,7 @@ L'algorithme par recherche exhaustive comme celui d'Ullmann cherchent pour chaqu
 
 L'algorithme par parcours détermine pour chaque sommet de $T$ une liste de parcours possibles de taille maximale $S$. Le nombre maximal d'éléments à insérer est dans l'ensemble est donc $n.S$ avec au plus $S$ éléments uniques : la complexité totale ajoutée est $O(n.S.log_2(S))$.
 
-SIDT détermine pour chaque sommet de $T$ au plus un site possible. On doit donc insérer $n$ éléments dans un ensemble de taille $S$ au maximum : la complexité totale ajoutée est $n.log_2(S)$.
+SIDT détermine pour chaque sommet de $T$ au plus un site possible. On doit donc insérer $n$ éléments dans un ensemble de taille $n$ au maximum : la complexité totale ajoutée est $n.log_2(n)$.
 
 La complexité totale des opérations de détection permettant de récupérer les solutions uniques est donnée dans le tableau \ref{fig:complexite_unique}.
 
@@ -1924,7 +1924,7 @@ La complexité totale des opérations de détection permettant de récupérer le
  Recherche exhaustive & $O(S.(n^3.n!+log_2(S)))$\\
  Ullmann & $O(S.((n.h)^W+log_2(S)))$ \\
  Parcours & $O(n.S.(W+log_2(S)))$\\
- SIDT & $O(n.(W^2+log_2(S)))$\\
+ SIDT & $O(n.(W^2+log_2(n)))$\\
  \hline
 \end{tabular} 
 \end{center}
@@ -1932,8 +1932,9 @@ La complexité totale des opérations de détection permettant de récupérer le
 \label{fig:complexite_unique}
 \end{figure}
 
-En pratique un programme contient typiquement 10000 sommets dans son graphe de flot réduit et on peut donc en extraire au maximum 10000 sites. Si la base contient un million de programmes, qui est une borne largement supérieure au nombre de programmes que l'on a en général dans nos bases de programmes malveillants, il y a au plus 10 milliards de sites et le logarithme en base 2 de 10 milliards vaut 43. Même dans le cas de cette borne supérieure le terme $log_2(S)$ est négligeable pour les algorithmes par recherche exhaustive et celui d'Ullmann. Il est de l'ordre de $W$ et nous considérons qu'il n'a pas d'influence significative sur le temps de calcul pour l'algorithme par parcours et SIDT.
-Dans la suite nous présentons les calculs de complexité sans ce terme logarithmique et évaluerons notre hypothèse de non influence lors des expériences.
+En pratique un programme contient typiquement 10000 sommets dans son graphe de flot réduit et on peut donc en extraire au maximum 10000 sites. Si la base contient un million de programmes, qui est une borne largement supérieure au nombre de programmes que l'on a en général dans nos bases de programmes malveillants, il y a au plus 10 milliards de sites et le logarithme en base 2 de 10 milliards vaut 43. Même dans le cas de cette borne supérieure le terme $log_2(S)$ est négligeable pour les algorithmes par recherche exhaustive et celui d'Ullmann. Il est de l'ordre de $W$ et nous considérons qu'il n'a pas d'influence significative sur le temps de calcul pour l'algorithme par parcours.
+Le facteur logarithmique pour SIDT est $log_2(n)$ et donc même pour un programme ayant des millons de sommets dans son graphe de flot réduit, $log(n)$ serait de l'ordre de 20, ce qui est négligeable par rapport au terme en $W^2$.
+Dans la suite nous présentons les calculs de complexité sans ce terme logarithmique et évaluerons notre hypothèse de non influence pour l'algorithme par parcours lors des expériences.
 
 \subsubsection{Complexité totale}
 Si l'on ne prend plus en compte le temps pour déterminer les solutions uniques, la complexité totale de chacun des algorithmes pour ces opérations est donnée par le tableau donné en figure \ref{fig:complexite_1}.
@@ -2092,7 +2093,7 @@ Cette seconde observation peut sembler raisonnable si l'on prend en compte que l
 \end{figure}
 
 
-\section{Conclusion}
+\section*{Conclusion}
 Nous avons formalisé le problème de la détection d'isomorphismes de graphes et de sous-graphes adapté à l'analyse morphologique et proposé deux approches algorithmiques tirant partie des spécificités des graphes de flot et des sites.
 La première, cherchant à reproduire des parcours de sites au sein d'un graphe de flot, donne des résultats exacts tandis que la seconde, fonctionnant par comparaison simple des sites, n'est pas exacte mais est beaucoup plus rapide.
 

@@ -548,7 +548,7 @@ Le désassembleur commercial IDA~\cite{IDA} fonctionne par parcours récursif.
 \subsection{Désassemblage parfait et graphe de flot de contrôle parfait}
 Il est aisé de définir ce que l'on appelle code lors d'un désassemblage : il s'agit de toute partie du programme sur laquelle est écrite une instruction atteignable lors d'une exécution du programme.
 Les données sont les parties du programme qui peuvent être lues lors d'une exécution du programme. 
-Les deux ne sont donc pas contradictoires\todo{reformuler}.
+Une partie du programme peut être à la fois lue et exécutée et donc être à la fois de la donnée et du code.
 Une adresse d'un binaire chargé en mémoire peut donc être soit inutilisée, soit atteignable lors de l'exécution, soit potentiellement lue, soit potentiellement lue et exécutée.
 
 % \setlength{\parskip}{5mm}
@@ -651,7 +651,7 @@ En pratique le désassemblage est classiquement du domaine de l'analyse statique
 % \subsection{Désassemblage}
 % \subsection{Décompilation}
 
-\section{Conclusion}
+\section*{Conclusion}
 \imore{Expliquer quelques différences entre \xq\ et \xs}
 Nous avons décrit les machines sur lesquelles les programmes que nous étudions s'exécutent : il s'agit des ordinateurs avec une architecture \xq\ ou \xs.
 Un programme assembleur est généralement initialement écrit dans un langage de haut niveau puis compilé en un binaire encodant les instructions dans le langage assembleur cible.

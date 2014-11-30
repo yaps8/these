@@ -379,8 +379,9 @@ L'émulation permet une analyse plus abstraite et nous avons développé un anal
 L'instrumentation permet d'exécuter plus fidèlement le programme à analyser, nous avons donc principalement favorisé cette approche pour l'analyse de programmes malveillants. Nous avons choisi Pin qui, sans fournir de sémantique concrète pour l'assembleur, permet d'obtenir d'une instruction dynamique l'ensemble des adresses sur lesquelles elle écrit, comme souhaité à la définition \ref{def:ensembles_inst_dyn_write}.
 
 \subsection{Émulation avec BAP}
-Nous avons repris l'implémentation d'un émulateur pour programmes \sms\ basée sur BAP présentée au chapitre \ref{chap:semantique} et avons ajouté la séparation de la trace en plusieurs vagues d'exécution, selon l'algorithme \ref{algo:analyse_dyn_vagues}.
+Nous avons repris l'implémentation d'un émulateur pour programmes \sms\ basée sur BAP présentée au chapitre \ref{chap:semantique}. Nous avions modifié BAP afin de pouvoir exécuter des instructions une à une et avons ainsi réalisé un émulateur de programmes auto-modifiants, fonctionnalité qui n'est pas supportée telle quelle par BAP.
 
+Nous y avons ajouté la séparation de la trace en plusieurs vagues d'exécution en implémentant l'algorithme \ref{algo:analyse_dyn_vagues}.
 Cette implémentation donne le résultat attendu avec des programmes simples et qui n'utilisent pas d'appels système.
 Sur l'exemple de programme \sm\ donné en début de chapitre, la sortie est la suivante.
 L'exécution, de la première (\emph{pc: 1}) à la dernière instruction, est correctement découpée en vagues et les instructions correspondent à celles modifiées lors de l'exécution.
@@ -407,7 +408,7 @@ Nous avons implémenté l'algorithme \ref{algo:analyse_dyn_vagues} sous la forme
 L'analyse d'un programme malveillant a lieu sur une machine virtuelle munie de Pin et ne souffre pas des limitations de l'émulation : les appels systèmes sont correctement analysés et exécutés. 
 Dans la suite de cette thèse, nous avons exclusivement utilisé cette approche pour l'analyse dynamique.
 
-\section{Conclusion}
+\section*{Conclusion}
 Afin d'analyser les programmes \sms, nous proposons de découper toute exécution en vagues. Chaque vague représente une partie \nsm e du programme et l'exécution consiste alors en un enchaînement de vagues d'exécution.
 Nous avons implémenté ce découpage par émulation avec BAP et par instrumentation avec Pin.
 Le chapitre suivant est consacré à l'analyse d'un programme \sm\ : nous combinerons les notions abordées dans ce chapitre et dans les chapitres précédents afin de reconstruire un graphe de flot de contrôle cohérent.

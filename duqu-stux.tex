@@ -446,7 +446,7 @@ CreateProcessNotify: ImageBaseAddress=0x01000000, EntryPoint=0x01012475,
 		     EntrypointChecksum=0x49af1bf2
 \end{lstlisting}
 \end{center}
-\caption{Sortie de WinDbg: Le processus \services\ est chargé : le pilote défensif enregistre son identifiant (\texttt{0x914}), sont point d'entrée (\adr{0x01012475}) et sa somme de contrôle (\texttt{0x49af1bf2}).\label{fig:Breakpoint1}}
+\caption{Sortie de WinDbg: Le processus \services\ est chargé : le pilote défensif enregistre son identifiant (\texttt{0x914}), son point d'entrée (\adr{0x01012475}) et sa somme de contrôle (\texttt{0x49af1bf2}).\label{fig:Breakpoint1}}
 \end{figure}
 
 Lorsque la notification pour \texttt{kernel32.dll} est déclenchée, aucune modification n'a encore été faite puisque \duqu\ reçoit la notification après le pilote défensif, car nous avons lancé le pilote défensif en premier.
@@ -491,7 +491,7 @@ Deux contributions supplémentaires auraient pu être effectuées : d'une part n
 Cette étape permettrait de trouver le DLL \netpDLL\ de \duqu\ et de la relier à \stux\ puisque l'analyseur morphologique est capable de détecter des similarités. Nous n'avons pas implémenté cette analyse.
 D'autre part nous voudrions être capable de restaurer la version d'origine de \services\ afin que le système puisse non seulement éviter l'attaque mais également fonctionner dans un état normal.
 
-\section{Conclusion}
+\section*{Conclusion}
 Des similarités entre \duqu\ et \stux\ nous ont poussé à nous intéresser à une technique de détection permettant de stopper une attaque par \duqu.
 Nous avons décrit la technique d'infection ainsi que le fonctionnement du pilote de \duqu\ et ses méthodes pour rester furtif.
 Nous avons ensuite reconstruit le code source du pilote de \duqu\ et en avons fait une version défensive capable de détecter l'injection faite par le logiciel malveillant et de stopper le processus infecté.

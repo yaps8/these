@@ -1,6 +1,6 @@
 \input{include}
-% \usepackage[backgroundcolor=blue!20!white, linecolor=black]{todonotes}
-\usepackage[disable]{todonotes}
+\usepackage[backgroundcolor=blue!20!white, linecolor=black]{todonotes}
+% \usepackage[disable]{todonotes}
 %-------------------------------------------------------------------
 %                         Les références
 %-------------------------------------------------------------------
@@ -145,8 +145,8 @@ Merci.
 % Pour ne pas avoir le mot « Chapitre » au début de chaque chapitre.
 % \NoChapterHead
 
-\DontWriteThisInToc   
-\listoffigures
+% \DontWriteThisInToc   
+% \listoffigures
 
 
 % La commande \mainmatter permet de passer
@@ -213,7 +213,7 @@ Merci.
 \input{librairies}
 
 \DontFrameThisInToc
-\chapter{Cas d'étude : Duqu et Stuxnet\label{chap:duqu-stux}}
+\chapter{Cas d'étude : détection de Duqu connaissant Stuxnet\label{chap:duqu-stux}}
 \input{duqu-stux}
 
 \DontFrameThisInToc
@@ -247,7 +247,8 @@ Merci.
 \PutLineInToc
 
 % \DontFrameThisInToc
-\Annexes
+% \DontWriteThisInToc
+% \Annexes
 
 \DontFrameThisInToc
 \Annex{Désassemblage et détection de \hostname\ empaqueté \label{annex:packers}}
@@ -257,7 +258,7 @@ Merci.
 % \Annex{Désassemblage de logiciels malveillants \label{annex:malwares}}
 % \input{annex-malwares}
 
-\NumberAbstractPages
+% \NumberAbstractPages
 \begin{ThesisAbstract}
 % \newpage
   \begin{FrenchAbstract}
