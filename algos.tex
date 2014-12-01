@@ -845,7 +845,7 @@ Le pire des cas se présente lorsque toutes les associations sont possibles \cit
 Nous verrons par la suite qu'elle peut se réduire dans le cas des graphes de flot.
 
 \begin{prop}
-La complexité dans le pire des cas de l'algorithme d'Ullmann est exponentielle en fonction de la taille du graphe de motif : elle est en $O(n_T^{n_P+1})$.
+La complexité dans le pire des cas de l'algorithme d'Ullmann est en $O(n_P.n_T^{n_P+1})$.
 \label{prop:complexite-ullmann}
 \end{prop}
 
@@ -863,50 +863,54 @@ $(n_T-(i-1))(n_P-(i-1))$ possibilités d'associations au maximum, et $n_T-(i-1)$
 pour le i-ème sommet du graphe de motif P. La fonction BT(i) vérifie, pour toutes ces associations encore possibles, si FW(i)
 est vrai (ce qui est le cas car toutes les associations sont possibles), et appelle BT(i+1).
 
-Ainsi $BT(i)=(n_T-(i-1))(FW(i) + BT(i+1))$. De plus $BT(n_P)=O(1)$ car $FW(n_P)=O(1)$.
+Ainsi $BT(i)=(n_T-(i-1))(FW(i) + BT(i+1))$. 
+De plus $FW(n_P)$ se fait en temps constant $f_0$.
 
 La fonction FW vérifie, $\forall k=(i+1)..n_P\ et\ l=1..n_T$ si $C_{k, l}=1$, et dans ce cas
-effectue un nombre de vérifications borné par $2n_T + 2n_P$ car, elle vérifie une conditions sur tous les fils de deux sommets de P et une condition sur tous les fils de deux sommets de T. On ne vérifie que les sommets de la dernière association (s'il y en a une) faite dans F, les autres ayant déjà été vérifiés auparavant. Une vérification sur tous les sites d'un sommet de P se fait en un temps maximum de $n_P$ si les fils sont représentés sous forme d'une liste, et la vérifications sur tous les sites d'un sommet de T au maximum en $n_T$. De plus $n_P\leq n_T$ donc la complexité est au pire de $4.n_T$. Ainsi, au pire, $FW(i)=4.n_T(n_T-(i-1))(n_P-(i-1))+(n_P-i).n_T\leq 4.n_T(n_T-(i-1)+1)(n_P-(i-1))$ sauf pour $FW(1)=(n_P-1).n_T$.
+effectue un nombre de vérifications borné par $n_P.(2n_T + 2n_P)$ car elle vérifie une conditions sur tous les fils de deux sommets de P et une condition sur tous les fils de deux sommets de T, et ce pour toute association dans F.
+% On ne vérifie que les sommets de la dernière association (s'il y en a une) faite dans F, les autres ayant déjà été vérifiés auparavant.
+Une vérification sur tous les fils d'un sommet de P se fait en un temps maximum de $n_P$ si les fils sont représentés sous forme d'une liste, et la vérification sur tous les fils d'un sommet de T au maximum en $n_T$. De plus $n_P\leq n_T$ donc la complexité est au pire de $4.n_T$. Ainsi, au pire, $FW(i)=4.n_P.n_T(n_T-(i-1))(n_P-(i-1))+(n_P-i).n_T\leq 4.n_P.n_T(n_T-(i-1)+1)(n_P-(i-1))$ sauf pour $FW(1)=(n_P-1).n_T$.
 
-Afin de représenter plus simplement ce problème récursif, notons $z_i=n_P-i$.
+% Afin de représenter plus simplement ce problème récursif, notons $z_i=n_P-i$.
 Le problème est alors le suivant. On cherche à déterminer $BT(1)$.\\
 $\left\{
   \begin{array}{l}
 	  FW(1)=(n_P-1).n_T\\
-	  FW(i)=4.n_T.(n_T-i+2)(n_P-i+1)$ pour $2\leq i\leq n_P-1\\
+	  FW(i)=4.n_P.n_T.(n_T-i+2)(n_P-i+1)$ pour $2\leq i\leq n_P-1\\
 	  FW(n_P)=f_0\\
-	  BT(i)=(n_T-(i-1))(FW(i)+BT(i+1))
+	  BT(i)=(n_T-(i-1))(FW(i)+BT(i+1))$ pour $1\leq i\leq n_P-1\\
+	  BT(n_P)=(n_T-(n_P-1)).FW(n_P)
   \end{array}
 \right.
 $
 \\
 
-On peut noter que, quel que soit i, le terme $FW(i)$ n'apparaît que dans $BT(i)$, et on peut compter son
-nombre d'apparition : il apparaît $n_T(n_T-1)(n_T-2)...(n_T-(i-1))$ fois.
+On peut remarquer que, quel que soit i, le terme $FW(i)$ n'apparaît qu'en multiple du terme $BT(i)$, et on peut compter son
+nombre d'apparition : il apparaît $n_T(n_T-1)(n_T-2)...(n_T-(i-1))$ fois, soit $A^{i}_{n_T}$ fois avec $A^k_n = \frac{n!}{(n-k)!}$
 
-Or $n_T(n_T-1)(n_T-2)...(n_T-(i-1))$ est lui-même égal à $A^{i}_{n_T}$ avec
-$A^k_n = \frac{n!}{(n-k)!}$.
-On peut remarquer que $A^{i}_{n_T}=O(n_T^i)$.
+% Or $n_T(n_T-1)(n_T-2)...(n_T-(i-1))$ est lui-même égal à  avec
+% .
+% On peut remarquer que $A^{i}_{n_T}=O(n_T^i)$.
 
 Notons C la complexité totale de $BT(1)$.
-$$C=A^{1}_{n_T}FW(1)+A^{2}_{n_T}FW(2)+...+A^{n_P-2}_{n_T}FW(n_P-2)+A^{n_P-1}_{n_T}FW(n_P)$$
-On a vu que $FW(i)=4.n_T.(n_T-i+2)(n_P-i+1)\leq 4.n_T^2.n_P$, notons $FW=4.n_T^2.n_P$. De même $FW(1)=(n_P-1).n_T\leq FW$.
+$$C=A^{1}_{n_T}FW(1)+A^{2}_{n_T}FW(2)+...+A^{n_P-2}_{n_T}FW(n_P-2)+A^{n_P-1}_{n_T}FW(n_P-1)+A^{n_P}_{n_T}.f_0$$
+On a vu que $FW(i)=4.n_P.n_T.(n_T-i+2)(n_P-i+1)\leq 4.n_P^2.n_T^2$, notons~$F=4.n_P^2.n_T^2$. De même $FW(1)=(n_P-1).n_T\leq F$.
 \\
 De plus $A^{i}_{n_T}=O(n_T^i)$, donc $\forall i\le n_P-3,\ A^{i}_{n_T}=O(n_T^{n_P-3})$\\
 Ainsi il existe une constante k telle vérifant l'inégalité suivante.
-$$A^{1}_{n_T}FW(1)+A^{2}_{n_T}FW(2)+...+A^{n_P-3}_{n_T}FW(n_P-3)\le(n_P-3).FW.k.n_T^{n_P-3}$$
+$$A^{1}_{n_T}FW(1)+A^{2}_{n_T}FW(2)+...+A^{n_P-3}_{n_T}FW(n_P-3)\le(n_P-3).F.k.n_T^{n_P-3}$$
 \\
-De même il existe $k', k''\ et\ k'''$ telles que $$C\le(n_P-3).FW.k.n_T^{n_P-3}+k'.FW(n_P-2).n_T^{n_P-2}+k''.FW(n_P-1).n_T^{n_P-1}+k'''.f_0.n_P.n_T^{n_P}$$
+De même il existe $k', k''\ et\ k'''$ telles que $$C\le(n_P-3).F.k.n_T^{n_P-3}+k'.FW(n_P-2).n_T^{n_P-2}+k''.FW(n_P-1).n_T^{n_P-1}+k'''.f_0.n_T^{n_P}$$
 avec les inégalités suivantes :
 \begin{itemize}
- \item $FW(n_P-2)\le 4.n_T.(n_T-n_P+4).3\le 12.n_T^2$,
- \item $FW(n_P-1)\le 4.n_T.(n_T-n_P+3).2\le 8.n_T^2$, et
+ \item $FW(n_P-2)\le 4.n_P.n_T.(n_T-n_P+4).3\le 12.n_P.n_T^2$ et
+ \item $FW(n_P-1)\le 4.n_P.n_T.(n_T-n_P+3).2\le 8.n_P.n_T^2$, et
  \item $n_P\le n_T$.
 \end{itemize}
 
-Donc $$C<=FW.k.n_T^{n_P-2}+12.n_T^2.k'.n_T^{n_P-2}+8.n_T^2.k''.n_T^{n_P-1}+k'''.f_0.n_T^{n_P+1},$$
+Donc $$C<=F.k.n_T^{n_P-2}+12.n_P.n_T^2.k'.n_T^{n_P-2}+8.n_P.n_T^2.k''.n_T^{n_P-1}+k'''.f_0.n_T^{n_P},$$
 % $$C<=4.n_T^2.n_P.k.n_T^{n_P-2}+12.k'.n_T^{n_P}+8.k''.n_T^{n_P+1}+k'''.f_0.n_T^{n_P+1},$$
-$$C<=4.k.n_T^{n_P+1}+12.k'.n_T^{n_P}+8.k''.n_T^{n_P+1}+k'''.f_0.n_T^{n_P+1}.$$
+$$C<=4.k.n_P.n_T^{n_P+1}+12.k'.n_P.n_T^{n_P}+8.k''.n_P.n_T^{n_P+1}+k'''.f_0.n_T^{n_P+1}.$$
 % $$C<=2.n_P.k.n_T^{n_P-1}+8.n_T^2.k.n_T^{n_P-2}+4.n_T^2.k.n_T^{n_P-1},$$
 % $$C<=2k.n_T^{n_P}+8k.n_T^{n_P}+4k.n_T^{n_P+1},$$
 % $$C<=24k.n_T^{n_P+1}.$$
@@ -944,10 +948,10 @@ $$C<=4.k.n_T^{n_P+1}+12.k'.n_T^{n_P}+8.k''.n_T^{n_P+1}+k'''.f_0.n_T^{n_P+1}.$$
 % $$C<=24k.n_T^{n_P+1}.$$
 % \\
 % \\
-Ainsi $C=O(n_T^{n_P+1})$.
+Ainsi $C=O(n_P.n_T^{n_P+1})$.
 \end{pr}
 
-\itodo{def de BT(np)\\ C -> Anp-1 mais FWnp ?\\ littérature ?}
+\imore{littérature (Messmer/Bunke) : $C=O(n_P.n_T^{n_P})$, pk ?}
 
 % , et polynomiale en fonction de la taille du graphe à tester. 
 
@@ -989,7 +993,7 @@ aient déjà été choisies (leur nombre est très faible par rapport au nombre 
 Dans notre exemple h=0.335, soit 34\%. Prendre en compte les types d'instructions est équivalent à diviser par 3 la taille du graphe à tester
 en terme de complexité temporelle dans le pire des cas.
 \\
-Ainsi, dans notre cas la complexité est $O((n_T/3)^{n_P+1})$ alors qu'elle serait, dans le cas général, de $O((n_T.h)^{n_P+1})$ avec $h=\sum_kl_k^2$.
+Ainsi, dans notre cas la complexité est $O(n_P.(n_T/3)^{n_P+1})$ alors qu'elle serait, dans le cas général, de $O(n_P.(n_T.h)^{n_P+1})$ avec $h=\sum_kl_k^2$.
 
 \paragraph{L'arité des étiquettes est bornée.}
 On sait qu'il existe une borne $k$ au nombre de fils de tous les sommets de nos graphes, avec $k=2$ : les instructions ayant le maximum de fils sont les sauts conditionnels et les appels de fonction.
@@ -1065,12 +1069,13 @@ Cette modification diminue grandement la complexité mais nous ne l'avons pas qu
 
 \paragraph{Optimisation de la vérification a priori.}
 Une modification de l'algorithme d'Ullmann précédent permettant de l'optimiser a été utilisée. Dans la fonction \emph{forwardChecking}, il n'est pas utile de vérifier tous les éléments de F à chaque appel, mais seulement les derniers élements ajoutés (qui correspondent exactement à la dernière association ajoutée). Cette modification ne change pas le comportement ni les résultats de l'algorithme puisque les éléments précédents dans F ont déjà été vérifiés précédemment.
+\itodo{c'est vrai ??}
 
 \paragraph{Conclusion sur la complexité.} 
-Pour le cas d'un graphe de flot, la complexité a été ramenée à $O((n_T.h)^{n_P})$ avec $h=\sum_kl_k^2\simeq 0.34$ où les $l_i$ sont les probabilités d'apparition de chacun des labels (proposition \ref{prop:complexite_ullmann}).
+Pour le cas d'un graphe de flot, la complexité a été ramenée à $O(n_P.(n_T.h)^{n_P})$ avec $h=\sum_kl_k^2\simeq 0.34$ où les $l_i$ sont les probabilités d'apparition de chacun des labels (proposition \ref{prop:complexite_ullmann}).
 
 \begin{prop}
-La complexité de la recherche d'un sous-graphe de T (de taille $n_T$) isomorphe à P (de taille $n_P$) avec l'algorithme d'Ullmann optimisé est de $O((n_T.h)^{n_P})$ avec $h\simeq 0.34$.
+La complexité de la recherche d'un sous-graphe de T (de taille $n_T$) isomorphe à P (de taille $n_P$) avec l'algorithme d'Ullmann optimisé est de $O(n_P.(n_T.h)^{n_P})$ avec $h\simeq 0.34$.
 \label{prop:complexite_ullmann}
 \end{prop}
 
@@ -1928,7 +1933,7 @@ La complexité totale des opérations de détection permettant de récupérer le
  Algorithme & Analyse d'un graphe de flot à $n$ sommets\\
  \hline
  Recherche exhaustive & $O(S.(n^3.n!+log_2(S)))$\\
- Ullmann & $O(S.((n.h)^W+log_2(S)))$ \\
+ Ullmann & $O(S.(W.(n.h)^W+log_2(S)))$ \\
  Parcours & $O(n.S.(W+log_2(S)))$\\
  SIDT & $O(n.(W^2+log_2(n)))$\\
  \hline
@@ -1953,7 +1958,7 @@ Les deux premiers algorithmes ne rangent les pas sites dans une base spécifique
  Algorithme & Ajout d'un graphe de flot & Analyse d'un graphe de flot\\
  \hline
  Recherche exhaustive & $O(n.W)$ & $O(S.n^3.n!)$\\
- Ullmann & $O(n.W)$ & $O(S.(n.h)^W)$ \\
+ Ullmann & $O(n.W)$ & $O(S.W.(n.h)^W)$ \\
  Parcours & $O(n.W^2)$ & $O(S.n.W)$\\
  SIDT & $O(n.W^3)$ & $O(n.W^2)$\\
  \hline
@@ -1977,7 +1982,7 @@ La complexité de l'ajout et de l'analyse devient celle donnée en figure \ref{f
  Algorithme & Ajout d'un graphe de flot & Analyse d'un graphe de flot\\
  \hline
  Recherche exhaustive & $O(n)$ & $O(S.n^3.n!)$\\
- Ullmann & $O(n)$ & $O(S.n^W)$ \\
+ Ullmann & $O(n)$ & $O(S.W.n^W)$ \\
  Parcours & $O(n)$ & $O(S.n)$\\
  SIDT & $O(n)$ & $O(n)$\\
  \hline
@@ -2098,6 +2103,18 @@ Cette seconde observation peut sembler raisonnable si l'on prend en compte que l
 \label{fig:scan}
 \end{figure}
 
+\paragraph{Influence de la détermination des sites uniques.}
+Nous avons cherché à évaluer l'influence de l'étape de tri des résultats afin d'obtenir un ensemble de sites uniques lors de la détection avec l'algorithme par parcours.
+La figure \ref{fig:scan-u-nu} représente le temps de détection pour l'algorithme par parcours en récupérant les éléments uniques ou non uniques. Il y a au maximum XX sites uniques détectés ce qui nécessite l'insertion dans un ensemble contenant au plus XX éléments.
+La différence est imperceptible et nous considérons que cette distinction n'a pas d'influence en pratique lors de l'étape de détection.
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics{supports/plots/plotScan-GTSI-U-NU.pdf}
+\end{center}
+\caption{Temps d'apprentissage pour l'algorithme par parcours avec et sans détermination des sites uniques}
+\label{fig:scan-u-nu}
+\end{figure}
 
 \section*{Conclusion}
 Nous avons formalisé le problème de la détection d'isomorphismes de graphes et de sous-graphes adapté à l'analyse morphologique et proposé deux approches algorithmiques tirant partie des spécificités des graphes de flot et des sites.
