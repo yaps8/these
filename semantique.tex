@@ -1,10 +1,10 @@
 % \section{Sémantique concrète pour un langage assembleur}
 
-Dans ce chapitre nous proposons un modèle simplifié pour le langage assembleur et une sémantique concrète pour ce langage.
+Dans ce chapitre nous proposons un modèle de langage simplifié pour l'assembleur et une sémantique concrète pour ce langage.
 
 Lors de l'analyse d'un binaire, il est crucial de pouvoir analyser chaque instruction.
 La question centrale est la suivante : quelle est l'opération réalisée par cette instruction ?
-En particulier quels sont ses opérandes en entrées, en sortie, et comment sont-ils lus et modifiés ?
+En particulier quels sont ses opérandes d'entrée, de sortie, et comment sont-ils lus et modifiés ?
 Prenons l'instruction \texttt{push ecx}. 
 Il est clair que le registre \ecx\ est un opérande mais cette information est insuffisante : cette instruction consiste à empiler la valeur de \ecx\ sur la pile, elle modifie donc le pointeur de pile \esp\ et écrit à une adresse mémoire.
 
@@ -40,8 +40,8 @@ Nous verrons par la suite que pour certaines analyses une sémantique de niveau 
 
 \section{Sémantique concrète pour un langage assembleur}
 \paragraph{Représentation de la mémoire et des registres.}
-On peut voir la mémoire comme un tableau contenant la pile et le tas, indexés sur les entiers. Les registres sont des variables distinctes de la mémoire et sont en nombre limité.
-L'assembleur distingue plusieurs modes d'adressage dont les deux principaux sont l'adressage direct et indirect : à l'exécution \eax\ prend la valeur du registre \eax\ (adressage direct) tandis que \texttt{[eax]} fait référence à la valeur en mémoire à l'adresse contenue dans \eax\ (adressage indirect).
+On peut voir la mémoire comme un tableau indexé sur les entiers contenant la pile et le tas. Les registres sont des variables distinctes de la mémoire et sont en nombre limité.
+L'assembleur distingue plusieurs modes d'adressage dont les adressage direct et indirect : à l'exécution \eax\ prend la valeur du registre \eax\ (adressage direct) tandis que \texttt{[eax]} fait référence à la valeur en mémoire à l'adresse contenue dans \eax\ (adressage indirect).
 Ces éléments sont définis formellement à la définition \ref{def:sem_conc_var} : $\BA$ est l'ensemble des registres et $\BT$ représente la mémoire comme un tableau.
 
 % \begin{rem}
@@ -77,7 +77,7 @@ $expr:=$ $v\in\BV$ $|$ $[v]\in\BV$ $|$ $\bot$ $|$ $n\in\BN$.% $|$ $[a]$ avec $a\
 \paragraph{Langage assembleur simplifié.} Nous allons définir un langage intermédiaire dans lequel on peut transcrire chaque instruction \xq\ en une liste d'instructions atomiques de notre langage simplifié.
 Les instructions \xq\ sont disponibles à différentes adresses entières. 
 Les instructions atomiques sont de plusieurs type explicités en définition \ref{def:sem_instructions} : le premier consiste en l'assignation.
-Il est possible d'assigner un symbole ou une combinaison de symboles (à l'aide d'une fonction sur les entiers) à un symbole. 
+Il est possible d'assigner la valeur d'une expression à une variable représentée par une expression. 
 Le second type d'instruction regroupe les sauts inconditionnels et conditionnels.
 On distingue également l'instruction \texttt{end} forçant l'arrêt du programme.
 
@@ -91,9 +91,8 @@ $inst:=\ $\emph{$x\leftarrow g(x_1, ..., x_m)$ $|$ goto $x$ $|$ if $x$ then goto
 % \paragraph{Exemples naïfs de la représentation d'instructions assembleur \xq.}
 La figure \ref{fig:sem_exemples_insts} donne des exemples de transcription d'instructions \xq\ dans le langage défini précédemment. 
 Ils sont naïfs au sens que les instructions \xq\ sont plus complexes et un simple \sub\ provoque des effets de bord modifiant des registres. Ce point sera développé par la suite lorsque nous discuterons des implémentations possibles pour cette sémantique concrète.
-\\
 
-\begin{figure}
+\begin{figure}[h]
  \begin{center}
   \begin{tabular}{|l|l|}
    \hline
@@ -117,7 +116,7 @@ Ils sont naïfs au sens que les instructions \xq\ sont plus complexes et un simp
 \end{figure}
 
 
-Comme nous avons vu dans les parties précédentes, un programme est simplement composé d'un ou plusieurs blocs d'octets à charger en mémoire. Une fois ces segments chargés dans le tableau $\BT$ représentant la mémoire, le point d'entrée du programme est placé dans le registre \texttt{ep}.
+Comme nous l'avons vu dans les chapitres précédents, un programme est simplement composé d'un ou plusieurs blocs d'octets à charger en mémoire. Une fois ces segments chargés dans le tableau $\BT$ représentant la mémoire, le point d'entrée du programme est placé dans le registre \texttt{ep}.
 
 
 % \begin{defi}
@@ -132,23 +131,23 @@ Pour faire le lien entre la machine et les instructions exécutées, il est néc
 
 \begin{defi}
 % On appelle $D$ l'opérateur de désassemblage qui à une adresse de la mémoire $\BT$ associe une instruction et la taille de cette instruction dans $\BN$. \\
-On appelle $D$ l'opérateur de désassemblage qui à une adresse de la mémoire $\BT$ associe une liste d'instructions atomiques et la taille de cette instruction dans $\BN$. \\
-Pour toute adresse $t\in\BT$, on note $D(t)=d_1..d_n$ et $D_S(t)$ respectivement la suite d'instructions atomiques à l'adresse $t$ et la taille de cette instruction.\\
+On appelle $D$ l'opérateur de désassemblage qui à une adresse de la mémoire $\BT$ associe une liste d'instructions atomiques et la taille de cette instruction dans $\BN$.
+Pour toute adresse $t\in\BT$, on note $D(t)=d_1..d_n$ et $D_S(t)$ respectivement la suite d'instructions atomiques à l'adresse $t$ et la taille de cette instruction.
 Dans le cas où il n'y a pas d'instruction valide à l'adresse $t$, $D(t)=\bot$ et $D_S(t)=0$.
 \label{def:sem_desassembleur}
 \end{defi}
 
-Une sémantique concrète cherche à définir les opérations de chaque instruction de la manière la plus précise qu'il soit afin de pouvoir simuler une exécution réelle du programme.
+Une sémantique concrète cherche à définir les opérations de chaque instruction de la manière la plus précise qui soit afin de pouvoir simuler une exécution réelle du programme.
 Pour cela on va utiliser un store qui conserve l'état des variables lors de l'exécution du programme.
 Toute variable non initialisée a la valeur spéciale $\bot$ tandis que les variables définies ont des valeurs entières (définition \ref{def:sem_store_dynamique}).
 
 \begin{defi}
- Un store dynamique $\Theta$ associe à chaque variable une valeur, $\Theta:\BV\rightarrow\BN\cup\{\bot\}$.\\
+ Un store dynamique $\Theta$ associe à chaque variable une valeur, $\Theta:\BV\rightarrow\BN\cup\{\bot\}$.
  Si v est une variable et n une valeur dans $\BN\cup\{\bot\}$, on note $\Theta[v\leftarrow n]$ l'assignation de v à n dans $\Theta$.
 \label{def:sem_store_dynamique}
 \end{defi}
 
-Pour permettre l'adressage indirect on doit également définir le store sur l'ensemble des symboles de la forme $[v]$.
+Pour permettre l'adressage indirect on doit également définir le store sur l'ensemble des expressions de la forme $[v]$ et de toutes les expressions dans le cas général.
 La définition \ref{def:sem_store_dynamique_pointeurs} étend la notion de store à l'adressage indirect afin que chaque symbole ait une valeur.
 
 
@@ -174,7 +173,7 @@ La définition \ref{def:sem_store_dynamique_pointeurs} étend la notion de store
     \begin{itemize}
    \item Si $\Theta(v)=\bot$ alors l'assignation n'a aucun effet
    \item Si $\Theta(v)\in\BN$ et $\Theta(v)\notin\textlbrackdbl 0,\ N\textrbrackdbl$ alors l'assignation n'a aucun effet
-   \item Sinon $\Theta(v)\in\BN$ et $\Theta(v)\in\textlbrackdbl 0,\ N\textrbrackdbl$, alors $\Theta_X[x\leftarrow n]$ se résoud par $\Theta[T_{\Theta(v)}\leftarrow n]$.
+   \item Sinon $\Theta(v)\in\BN$ et $\Theta(v)\in\textlbrackdbl 0,\ N\textrbrackdbl$, alors $\Theta_X[x\leftarrow n]$ se résout par $\Theta[T_{\Theta(v)}\leftarrow n]$.
   \end{itemize}
   \end{itemize}
 \label{def:sem_store_dynamique_pointeurs}
@@ -248,21 +247,21 @@ Dans la suite nous appellerons évaluation sémantique ou \texttt{sem\_eval} la 
 \section{Assembleur et langage intermédiaire}
 En pratique pour analyser un programme assembleur on veut en avoir une représentation dont on connaît la sémantique concrète.
 On va pour cela réécrire le programme dans un langage intermédiaire et effectuer les analyses sur le programme en langage intermédiaire.
-Le langage défini dans ce chapitre est un langage intermédiaire possible.
+Le langage défini dans la section précédente est un langage intermédiaire possible.
 
 Une des difficultés rencontrées dans la transformation d'un langage assembleur en langage intermédiaire est la richesse sémantique du langage \xq\ qui contient des centaines d'instructions et utilise de nombreux registres et drapeaux du processeur.
 L'instruction \texttt{sub eax, b} par exemple soustrait l'opérande \texttt{b} à \eax\  en stockant le résultat de l'opérant dans \eax.
-Le mnémonique \texttt{sub} désigne une vingtaine de variantes de la soustraction selon la taille des opérandes pris en compte. Elle effectue l'opération \texttt{eax-b} et met à jour les drapeaux CF et OF indiquant un dépassement de valeur entière, le drapeau de signe SF, le drapeau ZF (à 1 si le résultat est nul) et celui de parité PF.
+Le code d'opération \texttt{sub} désigne une vingtaine de variantes de la soustraction selon la taille des opérandes pris en compte. Elle effectue l'opération \texttt{eax-b} et met à jour les drapeaux CF et OF indiquant un dépassement de valeur entière, le drapeau de signe SF, le drapeau ZF (à 1 si le résultat est nul) et celui de parité PF.
 
 Une instruction assembleur va donc être traduite en une ou plusieurs instructions atomiques dans le langage intermédiaire, que l'on sait équivalentes sémantiquement à l'instruction \xq\ et dont on a une sémantique concrète pour les exécuter.
-Une difficulté pratique vient de la richesse du langage \xq\ : écrire l'équivalence de chacun de ses instructions dans le langage intermédiaire choisi est une tâche longue et prône aux erreurs, notamment lors de l'analyse de la documentation. 
-Pour cette raison nous avons rapidement choisi de nous orienter vers des langages intermédiaire pour lesquels cette étape a déjà été réalisée.
+Une difficulté pratique vient de la richesse du langage \xq\ : écrire l'équivalence de chacune de ses instructions dans le langage intermédiaire choisi est une tâche longue et prône aux erreurs, notamment lors de l'analyse de la documentation. 
+Pour cette raison nous avons rapidement choisi de nous orienter vers des langages intermédiaires pour lesquels cette étape a déjà été réalisée.
 \\
 
 Une seconde difficulté provient de l'implémentation des appels systèmes. 
-Ces instructions (\texttt{int 80} en assembleur \xq\ et \texttt{syscall} en assembleur \xs) appellent des fonctions spéficiques du système d'exploitation sur lequel le programme est exécuté.
+Ces instructions (\texttt{int 80} en assembleur \xq\ et \texttt{syscall} en assembleur \xs) appellent des fonctions spécifiques du système d'exploitation sur lequel le programme est exécuté.
 La sémantique pour l'entrée comme la sortie de ces instructions n'est donc pas spécifiée dans le langage assembleur mais par le système d'exploitation cible.
-Ces appels sont omniprésents dans un programme réel puisque toutes la plupart interactions avec le système (lecture et écriture dans un fichier, connexion internet, allocation de mémoire via la fonction \emph{malloc} en C par exemple, etc.) passent par un appel système.
+Ces appels sont omniprésents dans un programme réel puisque la plupart des interactions avec le système (lecture et écriture dans un fichier, connexion internet, allocation de mémoire via la fonction \emph{malloc} en C par exemple, etc.) passent par un appel système.
 
 \section{Revue de littérature des langages intermédiaires}
 \imore{LLVM ?}
@@ -285,10 +284,8 @@ Une région de mémoire peut être marquée comme accessible en lecture, en écr
 L'exécution d'une instruction provoquant un accès mémoire interdit est inclut dans la sémantique et provoque une erreur.
 Cette spécificité permet à DBA de mieux représenter la mémoire d'une machine réelle où le système d'exploitation gère ces droits d'accès.
 
-\paragraph{REIL.} Dullien et Porst \cite{reil} ont développé un langage intermédiaire adapté à l'analyse de la sécurité du programme ainsi qu'à la recherche de vulnérabilités, REIL (\emph{Reverse Engineering Intermediate Language}). Il est composé de 17 instructions permettant les opérations de calculs arithmétiques, de lecture et d'écriture des registres et de la mémoire, et de sauts conditionnels.
+\paragraph{REIL.} Dullien et Porst \cite{reil} ont développé un langage intermédiaire adapté à l'analyse de la sécurité logicielle et en particulier à la recherche de vulnérabilités, REIL (\emph{Reverse Engineering Intermediate Language}). Il est composé de 17 instructions permettant les opérations de calculs arithmétiques, de lecture et d'écriture des registres et de la mémoire, et de sauts conditionnels.
 Le langage intermédiaire REIL est un des composants inclus dans les logiciels d'analyse de binaires commercialisés par Zynamics \cite{binnavi,bindiff} : ils indiquent disposer d'une sémantique concrète utilisée pour l'analyse et d'implémentations de transformations depuis l'assembleur vers REIL mais n'ont pas publié sur ces résultats.
-
-
 
 
 \section{Langage intermédiaire et analyse de binaires}
@@ -300,7 +297,7 @@ Une première approche, suivie par exemple par BAP, consiste, à l'instar de la 
 Cette approche est illustrée par le graphique donné à la figure \ref{fig:diag_approche_globale}. La partie d'analyse consiste en l'exécution ou l'émulation du programme dans son langage intermédiaire en partant du point d'entrée.
 Une première instruction est décodée, analysée et ajoutée dans le graphe de flot de contrôle du programme. Puis cette instruction est évaluée selon la méthode d'évaluation sémantique précédemment définie.
 Cette évaluation a des conséquence sur l'état des registres du processeur et de la mémoire de la machine.
-L'instruction qui doit être exécutée ensuite est cette présente à l'adresse donnée par le registre contenant le compteur ordinal (\eip\ en assembleur \xq). On récupère alors cette instruction pour l'analyser à son tour.
+L'instruction qui doit être exécutée ensuite est cette présente à l'adresse donnée par le registre de compteur ordinal (\eip\ en assembleur \xq). On récupère alors cette instruction pour l'analyser à son tour.
 
 \begin{figure}[h]
 \begin{center}
@@ -314,7 +311,7 @@ L'instruction qui doit être exécutée ensuite est cette présente à l'adresse
 \node[state, rectangle split, rectangle split parts=2, draw, below left=1.5cm and -0.5cm of INST, label=État interne, text width=2cm] (ETAT_MEM){Registres \nodepart{second} Mémoire};
 
 \draw (BIN) --  node[above=0.5cm]{\small Désassemblage} (ASM);-1
-\draw (ASM) -- node[above=0.5cm]{\small Transcodage} (IR);
+\draw (ASM) -- node[above=0.5cm]{\small Compilation} (IR);
 \draw (IR) -- node[above]{Décodage} (INST);
 \draw (INST) -- node[right=.2cm]{Ajout} (CFG);
 \draw ($(ETAT_MEM.north west) + (0, -.4) $)  -| node[above right=.0cm and 0.4cm, text width=4cm](LEC){Lecture de la \\prochaine instruction} (IR);
@@ -334,14 +331,8 @@ Le souci de cette approche est qu'elle induit une perte d'informations de bas ni
 Pourtant on ne peut pas séparer les instructions de leur représentation en mémoire : si une instruction est codée à l'adresse \adr{a} sur deux octets et que l'octet à l'adresse \adr{a+1} est modifié, cette modification peut être transcrite dans le langage intermédiaire mais il est toujours nécessaire de connaître l'octet à l'adresse \adr{a} pour pouvoir décoder la nouvelle instruction.
 
 La figure \ref{fig:prg_asm_li} donne un exemple de ce cas. Le segment de code donné est constitué de trois instructions dont l'une modifie la valeur du registre \edi. Supposons que le but de l'analyse est de connaître la valeur de \edi\ à l'issue de l'exécution.
-Les deux premières instructions servent à modifier le second octet de l'instruction modifiant \edi\ de \texttt{01} à \texttt{02} transformant cette instruction en \texttt{mov edi, 2}.
-L'approche globale de la transcription du programme dans le langage intermédiaire, bien que chaque instruction assembleur soit sémantiquement équivalente aux instructions transcrites, résulte en un programme qui n'est pas auto-modifiant. Il est composé des quatre instructions de la dernière colonne du tableau.
-Les trois premières écrivent la valeur 2 en mémoire à l'adresse \adr{0x804806c} et la dernière, indépendante, attribue la valeur 1 au registre \edi.
-Ainsi l'analyse conclurait, à tort, que l'exécution du segment de code assembleur d'origine attribue 1 à \edi, au lieu de 2.
 
-Ainsi, pour pouvoir utiliser ce langage intermédiaire dans le cas d'un programme auto-modifiant, il est nécessaire d'avoir accès à une représentation en mémoire du binaire exécuté lors de son exécution sous forme intermédiaire.
-
-\begin{figure}
+\begin{figure}[h]
 \begin{center}
 \begin{tabular}[b]{|l|l|l|l|}
 \hline
@@ -357,6 +348,13 @@ Adresse & Octets & Instruction ASM & Transcription en LI\\
 \caption{Programme assembleur et sa transcription dans le langage intermédiaire}
 \label{fig:prg_asm_li}
 \end{figure}
+
+Les deux premières instructions servent à modifier le second octet de l'instruction modifiant \edi\ de \texttt{01} à \texttt{02} transformant cette instruction en \texttt{mov edi, 2}.
+L'approche globale de la transcription du programme dans le langage intermédiaire, bien que chaque instruction assembleur soit sémantiquement équivalente aux instructions transcrites, résulte en un programme qui n'est pas auto-modifiant. Il est composé des quatre instructions de la dernière colonne du tableau.
+Les trois premières écrivent la valeur 2 en mémoire à l'adresse \adr{0x804806c} et la dernière, indépendante, attribue la valeur 1 au registre \edi.
+Ainsi l'analyse conclurait, à tort, que l'exécution du segment de code assembleur d'origine attribue 1 à \edi, au lieu de 2.
+
+Ainsi, pour pouvoir utiliser ce langage intermédiaire dans le cas d'un programme auto-modifiant, il est nécessaire d'avoir accès à une représentation en mémoire du binaire exécuté lors de son exécution sous forme intermédiaire.
 
 % \begin{figure}
 % \begin{tabular}[b]{|l|l|l|}
@@ -381,7 +379,7 @@ Nous allons donc commencer par le charger en mémoire comme une partie intégran
 C'est le comportement attendu d'une machine de Von Neumann et le comportement du programme peut donc être auto-modifiant. Le décodage, le désassemblage puis la transformation en langage intermédiaire et l'évaluation sémantique des instructions du programme se feront donc au fur et à mesure de l'analyse, une instruction à la fois, depuis l'état de la mémoire.
 Ce modèle est illustré par le diagramme suivant.
 
-\begin{figure}
+\begin{figure}[h]
 \begin{center}
 \scalebox{1}{
 \begin{tikzpicture}[->,scale=1,>=stealth',thick]
@@ -422,7 +420,7 @@ Le second est l'opérateur d'évaluation sémantique qui modifie l'état interne
 
 \section{Implémentations}
 L'objectif principal de l'implémentation est d'obtenir un couple d'opérateurs de désassemblage et d'évaluation sémantique permettant l'analyse de programmes auto-modifiants. Ces implémentations fonctionneront donc selon l'approche atomique définie à la partie précédente.
-Le langage intermédiaire utilisé n'a pas d'importance vu qu'il n'est jamais utilisé en dehors de ces deux opérateurs et que seule la sortie de l'évaluation sémantique est observée.
+Les détails de la sémantique du langage intermédiaire utilisé n'ont pas d'importance vu qu'il n'est jamais utilisé en dehors de ces deux opérateurs et que seule la sortie de l'évaluation sémantique est observée.
 
 \subsection{Preuve de concept en C}
 Nous avons réalisé une implémentation en C de la sémantique concrète de notre langage.
@@ -489,7 +487,7 @@ Le second aspect de l'évaluation sémantique est la détermination de l'adresse
 Nous avons implémenté la transcription de quelques instructions assembleur en langage intermédiaire mais le temps requis pour implémenter toutes les variantes de chaque instruction est suffisamment long pour qu'on se tourne vers des plateformes d'analyse de binaires où cette étape a déjà été réalisée.
 
 
-\subsection{En utilisant BAP}
+\subsection{Émulation de code auto-modifiant avec BAP}
 BAP permet de transcrire un programme en assembleur en un programme écrit dans le langage intermédiaire utilisé par BAP, en utilisant le modèle global décrit précédemment.
 Il fournit également un émulateur permettant d'exécuter un programme en langage intermédiaire.
 Seul l'assembleur \xq\ est supporté par la version 0.7 de BAP que nous avons utilisée et l'émulateur ne permet pas l'auto-modification.

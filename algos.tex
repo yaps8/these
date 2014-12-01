@@ -1099,7 +1099,7 @@ Le cas des graphes de flot est assez différent puisque l'on va chercher à comp
 L'algorithme d'Ullmann ainsi que les deux approches expliquées dans cette section ne sont pas adaptés pour ce problème. Nous avons alors cherché des approches prenant en comptes les spécificités des graphes de flot.
 
 \section{Approches spécifiques aux graphes de flot}
-\subsection{Approche inspirée de l'algorithme de Tarjan}
+\subsection{Algorithme par parcours de graphes de flot}
 Tarjan \cite{Tar71} propose un parcours en profondeur d'un graphe qui permet d'en simplifier la structure en construisant un arbre le recouvrant. 
 On peut adapter cette approche pour tester l'isomorphisme de sous-sites. 
 Tout d'abord on peut formaliser le parcours d'un graphe $T$ de taille $n$ à partir d'un sommet $s$ comme suit.
@@ -1631,7 +1631,7 @@ Parcourir toutes les branches a donc une complexité de $O(S.W)$.
 La complexité totale dans le pire des cas pour résoudre le problème \ref{pbisosgbase} d'isomorphisme de sous-sites entre un graphe de flot T de taille $n_T$ et une base de sites consiste à itérer cette recherche pour chaque sommet de $T$ et ensuite à faire l'union des ensembles résultant. %On doit alors ajouter au maximum $n_T$ éléments 
 
 
-La complexité totale est alors de $O(n_T.S.W)$ (proposition \ref{prop:complexite_tarjan_recherche}). Ainsi on n'a pas amélioré la complexité dans le pire des cas par rapport à l'utilisation directe du parcours de Tarjan vu dans la section précédente, bien qu'en pratique l'algorithme soit plus rapide comme nous le verrons par la suite.
+La complexité totale est alors de $O(n_T.S.W)$ (proposition \ref{prop:complexite_tarjan_recherche}). Ainsi on n'a pas amélioré la complexité dans le pire des cas par rapport à l'utilisation directe de l'approche par parcours vu dans la section précédente, bien qu'en pratique l'algorithme soit plus rapide comme nous le verrons par la suite.
 
 \begin{prop}
  La complexité dans le pire des cas de la recherche des sites (de taille $W$) de la base, construite avec algorithme par parcours, au sein d'un graphe de flot T de taille $n_T$, se fait en $O(S.n_T.W)$.
@@ -1885,7 +1885,7 @@ Ainsi l'analyse de $n$ sites se fait en $O(n.W^2)$ (proposition \ref{prop:comple
 
 \section{Comparaison des performances}
 \subsection{Complexité}
-On dispose donc de quatre algorithmes à comparer : celui par recherche exhaustive avec les matrices d'adjacence, l'algorithme d'Ullmann, pris pour référence, l'algorithme de Tarjan avec arbre de décision et l'algorithme incomplet par arbre de décision (SIDT).
+On dispose donc de quatre algorithmes à comparer : celui par recherche exhaustive avec les matrices d'adjacence, l'algorithme d'Ullmann, pris pour référence, l'algorithme par parcours avec arbre de décision et l'algorithme incomplet par arbre de décision (SIDT).
 Nous calculons les complexités dans le pire des cas de l'ajout d'un graphe de flot dans la base et d'analyse d'un graphe de flot inconnu.
 On dispose donc d'une part d'un corpus de programmes dont les graphes de flot ont été déterminés.
 Nous notons :

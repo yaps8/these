@@ -11,7 +11,7 @@ Dans ce chapitre nous chercherons rapidement à comprendre les difficultés renc
 % $\mathcal{T}$
 
 \section{Théorie de l'obscurcissement}
-Collberg et Nagra \cite{nagra2009surreptitious} définissent plusieurs propriétés souhaitables pour une protection logicielle, nous reprenons ici quelques uns de leurs arguments. La première propriété est que le programme protégé soit équivalent en terme de sorties que le programme d'origine.
+Collberg et Nagra \cite{nagra2009surreptitious} définissent plusieurs propriétés souhaitables pour une protection logicielle, nous reprenons ici quelques uns de leurs arguments. La première propriété est que le programme protégé soit équivalent en terme de sorties au programme d'origine.
 Une protection, ou obscurcissement, d'un programme P est une transformation $\mathcal{T}$ telle que le programme $\mathcal{T}(P)$ a le même comportement que P : quelle que soit l'entrée I de P, $\mathcal{T}(P)(I)=P(I)$.
 On souhaite également ne pas affecter de manière importante les performances du programme, que ce soit en termes de temps d'exécution ou de taille des binaires.
 
@@ -86,7 +86,7 @@ L'instruction \ret\ placée à la fin de la fonction appelée dépile la premiè
 Normalement la valeur dépilée lors du \ret\ est $a+n$ afin que le flot d'exécution revienne à la fonction appelant.
 Ainsi un désassembleur récursif désassemble à partir de la cible du \call\ ainsi que de l'adresse de retour.
 
-Une technique classique d'obscurcissement \cite{LD03}\cite{PMA} consiste à combiner l'empilement d'une adresse (\push\ $b$) et l'instruction \ret. Ces deux instructions provoquent un saut vers l'adresse $b$ sans que le \ret\ ne marque la fin de la fonction et le retour à l'instruction suivant le \call\ : cette instruction, à l'adresse \adr{a+n}, ne sera pas forcément atteinte. La transformation consiste alors à remplacer des instructions \jmp\ par la séquence \push\ puis \ret\ puisque les deux suites d'instructions suivantes sont équivalentes.
+Une technique classique d'obscurcissement \cite{LD03,PMA} consiste à combiner l'empilement d'une adresse (\push\ $b$) et l'instruction \ret. Ces deux instructions provoquent un saut vers l'adresse $b$ sans que le \ret\ ne marque la fin de la fonction et le retour à l'instruction suivant le \call\ : cette instruction, à l'adresse \adr{a+n}, ne sera pas forcément atteinte. La transformation consiste alors à remplacer des instructions \jmp\ par la séquence \push\ puis \ret\ puisque les deux suites d'instructions suivantes sont équivalentes.
 \begin{center}
 \begin{tabular}{c|c}
 \push\ \adr{b} & \jmp\ \adr{b}\\
@@ -98,13 +98,14 @@ Une technique classique d'obscurcissement \cite{LD03}\cite{PMA} consiste à comb
 % À l'instar de son comportement avec une instruction \call, 
 Lorsqu'un désassembleur récursif rencontre une instruction de saut conditionnel comme \je, qui provoque un saut si les deux valeurs comparées sont égales, il cherche à désassembler à la fois la cible potentielle du saut comme l'instruction suivante, qui sera exécutée si la condition n'est pas remplie.
 Une autre technique courante d'obscurcissement \cite{MKK07} consiste à utiliser comme condition du saut une relation que le programmeur sait toujours vraie ou fausse. De cette manière il prédit qu'une seule des deux branches est atteignable alors qu'un désassembleur va parcourir également la branche inutile.
-Une telle condition est appelée un prédicat opaque et peut être implémentée par des relations d'arithmétique. Par exemple en appliquant le petit théorème de Fermat \cite{fermat} : quel que soit l'entier e, $e^3\ =\ e\ mod\ 3$.
+Une telle condition est appelée un prédicat opaque et peut être implémentée par des relations d'arithmétique. Par exemple en appliquant le petit théorème de Fermat : quel que soit l'entier e, $e^3\ =\ e\ mod\ 3$.
 Le programmeur sait que l'égalité est toujours vérifiée mais un analyseur statique ne pourra pas le déterminer aisément.
 
 \paragraph{Aplatissement de graphe de flot de contrôle.}
 Nous avons vu que le but principal de l'analyse est la construction d'un graphe de flot de contrôle cohérent du binaire.
 Celui-ci peut être à la base d'une analyse automatique et, s'il est suffisamment lisible, permet à un analyste humain de gagner du temps dans la compréhension du programme.
-À partir d'un programme dont le GFC est facile à comprendre, le développeur de programmes malveillants à intérêt à appliquer des transformations permettant de le rendre plus opaque.
+% À partir d'un programme dont le GFC est facile à comprendre, le développeur de programmes malveillants à intérêt à appliquer des transformations permettant de le rendre plus opaque.
+Le développeur de programmes malveillants peut transformer le GFC afin de le rendre plus difficile à interprêter.
 
 Une de ces techniques est l'aplatissement du GFC \cite{Wang2000}. Elle consiste à transformer les changements de flot de contrôle, par exemple les appels à différentes fonctions, en un seul bloc déterminant l'adresse du saut et y effectuant un saut dynamique à l'instar d'un bloc d'aiguillage (ou \emph{switch}).
 
@@ -149,22 +150,22 @@ Ce programme modifie la valeur de \edi\ selon la valeur d'origine de \ebx. Son G
 \hline
 Adresse & Octets & Instruction\\ 
 \hline
- 8048060 <A>  &  83 fb 00               &  cmp    ebx,0x0 \\
- 8048063      &  75 07                  &  jne    804806c <E> \\
- 8048065 <B>  &  bf 00 00 00 00         &  mov    edi,0x0 \\
- 804806a <C>  &  47                     &  inc    edi \\
- 804806b <D>  &  c3                     &  ret     \\
- 804806c <E>  &  bf 01 00 00 00         &  mov    edi,0x1 \\
- 8048071      &  83 fb 01               &  cmp    ebx,0x1 \\
- 8048074      &  74 00                  &  jne     804806 a <C> \\
- 8048076 <F>  &  83 c7 02               &  add    edi,0x2 \\
- 8048079      &  eb f0                  &  jmp    804806b <D> \\
+ 8048060 <A> &  83 fb 00               &  cmp    ebx,0x0 \\
+ 8048063     &  75 07                  &  jne    804806c <E> \\
+ 8048065 <B> &  bf 00 00 00 00         &  mov    edi,0x0 \\
+ 804806a <C> &  47                     &  inc    edi \\
+ 804806b <D> &  c3                     &  ret     \\
+ 804806c <E> &  bf 01 00 00 00         &  mov    edi,0x1 \\
+ 8048071     &  83 fb 01               &  cmp    ebx,0x1 \\
+ 8048074     &  74 00                  &  jne    804806a <C> \\
+ 8048076 <F> &  83 c7 02               &  add    edi,0x2 \\
+ 8048079     &  eb f0                  &  jmp    804806b <D> \\
 \hline
 \end{tabular}
 \label{fig:applatissement_asm_orig}
 }
 \subfigure[Graphe de flot de contrôle]{
-\includegraphics[width=0.6\textwidth]{supports/applatissement/applatissement.pdf}
+\includegraphics[width=0.45\textwidth]{supports/applatissement/applatissement_cropped0.pdf}
 \label{fig:applatissement_cfg_orig}
 }
 \end{center}
@@ -267,7 +268,7 @@ Adresse & Octets & Instruction\\
 \label{fig:applatissement_asm_applati}
 }
 \subfigure[Graphe de flot de contrôle]{
-\includegraphics[width=0.8\textwidth]{supports/applatissement/applatissement_applati_simple.pdf}
+\includegraphics[width=0.8\textwidth]{supports/applatissement/applatissement_applati_simple_cropped0.pdf}
 \label{fig:applatissement_cfg_applati_simple}
 }
 \end{center}
@@ -292,8 +293,8 @@ Le graphe de flot de contrôle du programme obscurci ne peut pas être exploité
 \section{Chevauchement de code}
 % \subsection{Définition}
 
-On a vu que la taille d'une instruction assembleur varie de un à 15 octets \done{15 dans intel2 chercher 15}.
-De plus rien n'empêche que la cible d'un saut soit une adresse se trouvant être au milieu d'une autre instruction.
+La taille d'une instruction assembleur \xq\ varie de 1 à 15 octets \cite{intel_vol2}. \done{15 dans intel2 chercher 15}
+Il est parfaitement possible que la cible d'un saut soit une adresse se trouvant au milieu d'une autre instruction.
 Ainsi on parle de chevauchement de code lorsque deux instructions (ou plus) à des adresses différentes sont codées sur des adresses communes. Si une instruction à l'adresse \adr{a} de taille $k\geq 2$ est atteignable, il peut y avoir une autre instruction valide et atteignable à l'adresse \adr{a+1} et ces deux instructions se chevauchent.
 
 Il est à noter que, comme indiqué par Sikorski et Honig \cite{PMA}, il n'y a dans ce cas aucun désassemblage sous forme de liste d'instructions assembleur qui soit correct et puisse être assemblée en la séquence d'octets originale. En effet une telle liste devra choisir entre l'instruction à l'adresse \adr{a} et celle à l'adresse \adr{a+1} alors qu'elles sont toutes les deux valides et atteignables. Une solution pour écrire un tel code assembleur est de mettre la première instruction en temps qu'instruction classique tandis que la deuxième sera présente sous forme d'octets codés en dur dans le fichier assembleur.
@@ -302,9 +303,9 @@ Il est à noter que, comme indiqué par Sikorski et Honig \cite{PMA}, il n'y a d
 \subsection*{Exemples de chevauchement}
 
 \paragraph{Dans \telock.}
-Le code de la figure \ref{fig:telock_obf_disas} est extrait d'un programme protégé par \telock\ désassemblé à l'aide d'un parcours récursif à partir de l'adresse \adr{01006e7a}. Il y a une instruction \texttt{jmp +1} à l'adresse \adr{01006e7d} et codée sur les deux octets \texttt{eb ff}, qui saute vers l'adresse \adr{01006e7d+1} où est présenté l'instruction \texttt{dec ecx}, codée sur \texttt{ff c9} et qui partage donc l'octet \texttt{ff} à l'adresse \adr{01006e7d+1} avec l'instruction \jmp.
+Le code de la figure \ref{fig:telock_obf_disas} est extrait d'un programme protégé par \telock\ et désassemblé à l'aide d'un parcours récursif à partir de l'adresse \adr{01006e7a}. Il y a une instruction \texttt{jmp +1} à l'adresse \adr{01006e7d} et codée sur les deux octets \texttt{eb ff}, qui saute vers l'adresse \adr{01006e7d+1} où est présente l'instruction \texttt{dec ecx}, codée sur \texttt{ff c9} et qui partage donc l'octet \texttt{ff} à l'adresse \adr{01006e7d+1} avec l'instruction \jmp.
 
-\begin{figure}[H]
+\begin{figure}[h]
 % \scriptsize
 % 0x01006e73    00 0c 0b        add [ebx+ecx], cl
 % 0x01006e76    80 34 0b 67     xor byte [ebx+ecx], 0x67
@@ -323,7 +324,7 @@ Octets à désassembler : \texttt{fe 04 0b eb ff c9 7f e6 8b c1}
 
 Le code assembleur permettant d'être assemblé en ces octets est donné figure \ref{fig:telock_obf_asm} : la première instruction \jmp\ peut être présente dans le code tandis que l'instruction \dec\ la chevauchant est codée en dur grâce à l'octet \texttt{c9}.
 
-\begin{figure}[H]
+\begin{figure}[h]
 % \scriptsize
 % 0x01006e73    00 0c 0b        add [ebx+ecx], cl
 % 0x01006e76    80 34 0b 67     xor byte [ebx+ecx], 0x67
@@ -342,9 +343,9 @@ mov eax, ecx
 
 Le graphe de flot de contrôle correct pour ce code est donné sur la figure \ref{fig:telock_cfg}. Le sommet orange est la première instruction et les lignes en pointillés reliant deux sommets marquent un chevauchement entre les instructions de ces sommets.
 
-\begin{figure}
+\begin{figure}[h]
 \begin{center}
-\includegraphics[width=0.8\textwidth]{supports/disasm/telock/telock.pdf}
+\includegraphics[width=0.8\textwidth]{supports/disasm/telock/telock_cropped0.pdf}
 \end{center}
 \caption{Graphe de flot de contrôle de \telock}
 \label{fig:telock_cfg}
@@ -392,7 +393,7 @@ Le graphe de flot de contrôle correct pour ce code est donné sur la figure \re
 UPX \cite{UPX} cherche à optimiser la taille du binaire protégé.
 La procédure d'exécution du binaire protégé utilise un saut conditionnel pour séparer le contrôle de flot en deux blocs se chevauchants et finissant sur un bloc où ils se réalignent.
 \more{expliquer les deux branches, rapidement en quoi elles sont utiles}
-\begin{figure}[H]
+\begin{figure}[h]
 % \scriptsize
 Octets à désassembler : \texttt{89 f9 79 07 0f b7 07 47 50 47 b9 57 48 f2 ae 55}
 \begin{lstlisting}[language={[x86masm]Assembler}, escapechar=~]
@@ -411,9 +412,10 @@ Octets à désassembler : \texttt{89 f9 79 07 0f b7 07 47 50 47 b9 57 48 f2 ae 5
 % \end{framed}
 \caption{Chevauchement de code dans UPX\label{fig:upx_obf_disas}}
 \end{figure}
+
 Le graphe de flot de contrôle pour ce chevauchement est donné en figure \ref{fig:upx_cfg}.
 
-\begin{figure}[H]
+\begin{figure}[h]
 \begin{center}
 \includegraphics[width=0.4\textwidth]{supports/disasm/upx/upx.pdf}
 \end{center}
@@ -422,7 +424,6 @@ Le graphe de flot de contrôle pour ce chevauchement est donné en figure \ref{f
 \end{figure}
 
 \FloatBarrier
-
 \paragraph{Cacher une séquence de code de taille arbitraire.}
 Jämthagen, Lantz et Hell \cite{JLH13} ont proposé un moyen d'inclure une longue séquence de code cachée au sein d'une séquence d'assembleur valide qui s'exécute sans provoquer d'erreur.
 
@@ -534,7 +535,7 @@ Prenons le programme de la figure \ref{fig:easy_sm}. Ce programme commence par a
 Puis il place une adresse mémoire, \adr{8048076} dans \eax, puis l'instruction 2 écrit à l'adresse $eax+1$, provoquant la modification de l'instruction 4 en \texttt{mov edi, 2}, codée sur \texttt{bf 02 00 00 00}.
 Puis l'instruction 3 provoque une seconde auto-modification en transformant l'instruction 5 en \texttt{mov ebx, 2}, codée sur \texttt{bb 02 00 00 00}.
 Si on ne prend pas en compte les instructions auto-modifiantes la valeur finale, affichée, de \edi\ et \ebx\ est 1.
-Pourtant les instructions 2 et 3 modifie le code de telle sorte que la valeur finale de ces deux registres est 2 au moment de leur affichage.
+Pourtant les instructions 2 et 3 modifient le code de telle sorte que la valeur finale de ces deux registres soit 2 au moment de leur affichage.
 
 \begin{figure}[h]
 \begin{center}
@@ -589,8 +590,8 @@ L'empaqueteur libre UPX \cite{UPX} est un cas typique du schéma précédent. Il
 
 
 \section*{Conclusion}
-Cette thèse s'intéresse particulièrement à l'analyse des programmes écrits en assembleur \xq\ et \xs. Ces programmes ont en général été compilés à partir d'un langage de haut niveau puis ont été modifiés à l'aide d'un logiciel de protection. Les binaires que l'on étudie sont donc protégés avec des techniques statiques comme auto-modifiantes. Notre travail consiste alors à chercher à désassembler correctement ces programmes dans le but de faciliter leur analyse.
+Cette thèse s'intéresse particulièrement à l'analyse des programmes écrits en assembleur \xq\ et \xs. Ces programmes ont en général été compilés à partir d'un langage de haut niveau puis ont été modifiés à l'aide d'un logiciel de protection. Les binaires que l'on étudie sont donc protégés avec des techniques statiques et l'emploi de l'auto-modification. Notre travail consiste alors à chercher à désassembler correctement ces programmes dans le but de faciliter leur analyse.
 
 Les chapitres suivants détailleront plusieurs techniques d'analyse que nous avons appliquées. 
-Dans un premier temps nous introduirons des techniques d'analyse statiques pour chercher à construire un graphe de flot de contrôle approximant le graphe de flot de contrôle parfait et contourner certaines méthodes de protection comme le chevauchement de code.
-Nous nous intéresserons ensuite à l'aspect auto-modifiant des programmes et verrons comment l'analyse dynamique peut être utilisée pour reconstruire un modèle pour le programme auto-modifiant. 
+Dans un premier temps nous nous intéresserons à l'aspect auto-modifiant des programmes et verrons comment l'analyse dynamique peut être utilisée pour reconstruire un modèle pour le programme auto-modifiant. 
+Nous introduirons ensuite des techniques d'analyse statiques pour chercher à construire un graphe de flot de contrôle approximant le graphe de flot de contrôle parfait et contourner certaines méthodes de protection comme le chevauchement de code.
