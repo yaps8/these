@@ -2105,16 +2105,20 @@ Cette seconde observation peut sembler raisonnable si l'on prend en compte que l
 
 \paragraph{Influence de la détermination des sites uniques.}
 Nous avons cherché à évaluer l'influence de l'étape de tri des résultats afin d'obtenir un ensemble de sites uniques lors de la détection avec l'algorithme par parcours.
-La figure \ref{fig:scan-u-nu} représente le temps de détection pour l'algorithme par parcours en récupérant les éléments uniques ou non uniques. Il y a au maximum XX sites uniques détectés ce qui nécessite l'insertion dans un ensemble contenant au plus XX éléments.
-La différence est imperceptible et nous considérons que cette distinction n'a pas d'influence en pratique lors de l'étape de détection.
+Nous avons calculé le temps de détection pour l'algorithme par parcours cette fois-ci en ne récupérant pas les éléments uniques : nous obtenons alors une liste de sites dans laquelle il peut y avoir des doublons. Il y a au maximum 2896 sites uniques détectés ce qui nécessitait l'insertion dans un ensemble contenant au plus 2896 éléments : le retrait de cette étape ne crée pas une différence perceptible dans le temps de détection.
+Nous considérons donc que cette distinction n'a pas d'influence en pratique lors de l'étape de détection.
 
-\begin{figure}[h]
-\begin{center}
-\includegraphics{supports/plots/plotScan-GTSI-U-NU.pdf}
-\end{center}
-\caption{Temps d'apprentissage pour l'algorithme par parcours avec et sans détermination des sites uniques}
-\label{fig:scan-u-nu}
-\end{figure}
+% \begin{figure}[h]
+% \begin{center}
+% \includegraphics{supports/plots/plotScan-GTSI-U-NU.pdf}
+% \end{center}
+% \caption{Temps d'apprentissage pour l'algorithme par parcours avec et sans détermination des sites uniques}
+% \label{fig:scan-u-nu}
+% \end{figure}
+
+\paragraph{Apprentissage et détection sur un grand nombre de sites.}
+Forts de cette première expérience et pour valider la forme logarithmique, en fonction du nombre de sites de la base, de la courbe de détection pour l'algorithme par parcours, nous avons utilisé un second jeu de données.
+Nous avons 17044 programmes pour l'apprentissage, contenant 4452219 sites uniques. Notre jeu de données pour la détection contient 5 programmes totalisant 29145 sites uniques.
 
 \section*{Conclusion}
 Nous avons formalisé le problème de la détection d'isomorphismes de graphes et de sous-graphes adapté à l'analyse morphologique et proposé deux approches algorithmiques tirant partie des spécificités des graphes de flot et des sites.
