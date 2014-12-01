@@ -845,7 +845,7 @@ Le pire des cas se présente lorsque toutes les associations sont possibles \cit
 Nous verrons par la suite qu'elle peut se réduire dans le cas des graphes de flot.
 
 \begin{prop}
-La complexité dans le pire des cas de l'algorithme d'Ullmann est donc exponentielle en fonction de la taille du graphe de motif : $C=O(n_T^{n_P+1})$.
+La complexité dans le pire des cas de l'algorithme d'Ullmann est exponentielle en fonction de la taille du graphe de motif : elle est en $O(n_T^{n_P+1})$.
 \label{prop:complexite-ullmann}
 \end{prop}
 
@@ -897,12 +897,16 @@ Ainsi il existe une constante k telle vérifant l'inégalité suivante.
 $$A^{1}_{n_T}FW(1)+A^{2}_{n_T}FW(2)+...+A^{n_P-3}_{n_T}FW(n_P-3)\le(n_P-3).FW.k.n_T^{n_P-3}$$
 \\
 De même il existe $k', k''\ et\ k'''$ telles que $$C\le(n_P-3).FW.k.n_T^{n_P-3}+k'.FW(n_P-2).n_T^{n_P-2}+k''.FW(n_P-1).n_T^{n_P-1}+k'''.f_0.n_P.n_T^{n_P}$$
-\\
-Avec $FW(n_P-2)\le 4.n_T.(n_T-n_P+4).3\le 12.n_T^2$, $FW(n_P-1)\le 4.n_T.(n_T-n_P+3).2\le 8.n_T^2$ et $n_P\le n_T$.
-\\
-Donc $$C<=FW.k.n_T^{n_P-2}+12.n_T^2.k'.n_T^{n_P-2}+8.n_T^2.k''.n_T^{n_P-1}+k'''.f_0.n_T^{n_P},$$
-$$C<=4.n_T^2.n_P.k.n_T^{n_P-2}+12.k'.n_T^{n_P}+8.k''.n_T^{n_P+1}+k'''.f_0.n_T^{n_P},$$
-$$C<=4.k.n_T^{n_P+1}+12.k'.n_T^{n_P}+8.k''.n_T^{n_P+1}+k'''.f_0.n_T^{n_P},$$
+avec les inégalités suivantes :
+\begin{itemize}
+ \item $FW(n_P-2)\le 4.n_T.(n_T-n_P+4).3\le 12.n_T^2$,
+ \item $FW(n_P-1)\le 4.n_T.(n_T-n_P+3).2\le 8.n_T^2$, et
+ \item $n_P\le n_T$.
+\end{itemize}
+
+Donc $$C<=FW.k.n_T^{n_P-2}+12.n_T^2.k'.n_T^{n_P-2}+8.n_T^2.k''.n_T^{n_P-1}+k'''.f_0.n_T^{n_P+1},$$
+% $$C<=4.n_T^2.n_P.k.n_T^{n_P-2}+12.k'.n_T^{n_P}+8.k''.n_T^{n_P+1}+k'''.f_0.n_T^{n_P+1},$$
+$$C<=4.k.n_T^{n_P+1}+12.k'.n_T^{n_P}+8.k''.n_T^{n_P+1}+k'''.f_0.n_T^{n_P+1}.$$
 % $$C<=2.n_P.k.n_T^{n_P-1}+8.n_T^2.k.n_T^{n_P-2}+4.n_T^2.k.n_T^{n_P-1},$$
 % $$C<=2k.n_T^{n_P}+8k.n_T^{n_P}+4k.n_T^{n_P+1},$$
 % $$C<=24k.n_T^{n_P+1}.$$
@@ -942,6 +946,8 @@ $$C<=4.k.n_T^{n_P+1}+12.k'.n_T^{n_P}+8.k''.n_T^{n_P+1}+k'''.f_0.n_T^{n_P},$$
 % \\
 Ainsi $C=O(n_T^{n_P+1})$.
 \end{pr}
+
+\itodo{def de BT(np)\\ C -> Anp-1 mais FWnp ?\\ littérature ?}
 
 % , et polynomiale en fonction de la taille du graphe à tester. 
 
