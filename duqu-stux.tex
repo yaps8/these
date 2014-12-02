@@ -247,34 +247,34 @@ b8\cgris & ~~ & ~~ & ~~ & ~~ & 8d\cgris & 54\cgris & 24\cgris & 04\cgris & 9c\cg
 \ZwA:\\
 \begin{tabular}{|l|c|c|c|c|c|l|}
 \hline
-\adr{0x405ddc} & b8\cgris & 11 & 00 & 00 & 00 & mov eax, 0x11 \\
+\adr{405ddc} & b8\cgris & 11 & 00 & 00 & 00 & mov eax, 0x11 \\
 \hline
-\adr{0x405de1} & 8d\cgris & 54\cgris & 24\cgris & 04\cgris & ~~ & lea edx, [esp+ProcessHandle] \\
+\adr{405de1} & 8d\cgris & 54\cgris & 24\cgris & 04\cgris & ~~ & lea edx, [esp+ProcessHandle] \\
 \hline
-\adr{0x405de5} & 9c\cgris & ~~ & ~~ & ~~ & ~~ & pushf \\
+\adr{405de5} & 9c\cgris & ~~ & ~~ & ~~ & ~~ & pushf \\
 \hline
-\adr{0x405de6} & 6a\cgris & 08\cgris & ~~ & ~~ & ~~ & push 8 \\
+\adr{405de6} & 6a\cgris & 08\cgris & ~~ & ~~ & ~~ & push 8 \\
 \hline
-\adr{0x405de8} & e8\cgris & b9 & 20 & 00 & 00 & call +0x20be (sub\_407ea6) \\
+\adr{405de8} & e8\cgris & b9 & 20 & 00 & 00 & call +0x20be (sub\_407ea6) \\
 \hline
-\adr{0x405ded} & c2\cgris & 14\cgris & 00 & ~~ & ~~ & ret 0x14 \\
+\adr{405ded} & c2\cgris & 14\cgris & 00 & ~~ & ~~ & ret 0x14 \\
 \hline
 \end{tabular}
 ~\\~\\
 \ZwP:\\
 \begin{tabular}{|l|c|c|c|c|c|l|}
 \hline
-\adr{0x406882} & b8\cgris & 89 & 00 & 00 & 00 & mov eax, 0x89 \\
+\adr{406882} & b8\cgris & 89 & 00 & 00 & 00 & mov eax, 0x89 \\
 \hline
-\adr{0x406887} & 8d\cgris & 54\cgris & 24\cgris & 04\cgris & ~~ & lea edx, [esp+ProcessHandle] \\
+\adr{406887} & 8d\cgris & 54\cgris & 24\cgris & 04\cgris & ~~ & lea edx, [esp+ProcessHandle] \\
 \hline
-\adr{0x40688b} & 9c\cgris & ~~ & ~~ & ~~ & ~~ & pushf \\
+\adr{40688b} & 9c\cgris & ~~ & ~~ & ~~ & ~~ & pushf \\
 \hline
-\adr{0x40688c} & 6a\cgris & 08\cgris & ~~ & ~~ & ~~ & push 8 \\
+\adr{40688c} & 6a\cgris & 08\cgris & ~~ & ~~ & ~~ & push 8 \\
 \hline
-\adr{0x40688e} & e8\cgris & 13 & 16 & 00 & 00 & call +0x1618 (sub\_407ea6) \\
+\adr{40688e} & e8\cgris & 13 & 16 & 00 & 00 & call +0x1618 (sub\_407ea6) \\
 \hline
-\adr{0x406893} & c2\cgris & 14\cgris & 00 & ~~ & ~~ & ret 0x14 \\
+\adr{406893} & c2\cgris & 14\cgris & 00 & ~~ & ~~ & ret 0x14 \\
 \hline
 \end{tabular}
 \end{center}
@@ -446,7 +446,7 @@ CreateProcessNotify: ImageBaseAddress=0x01000000, EntryPoint=0x01012475,
 		     EntrypointChecksum=0x49af1bf2
 \end{lstlisting}
 \end{center}
-\caption{Sortie de WinDbg: Le processus \services\ est chargé : le pilote défensif enregistre son identifiant (\texttt{0x914}), son point d'entrée (\adr{0x01012475}) et sa somme de contrôle (\texttt{0x49af1bf2}).\label{fig:Breakpoint1}}
+\caption{Sortie de WinDbg: Le processus \services\ est chargé : le pilote défensif enregistre son identifiant (\texttt{0x914}), son point d'entrée (\adr{01012475}) et sa somme de contrôle (\texttt{0x49af1bf2}).\label{fig:Breakpoint1}}
 \end{figure}
 
 Lorsque la notification pour \texttt{kernel32.dll} est déclenchée, aucune modification n'a encore été faite puisque \duqu\ reçoit la notification après le pilote défensif, car nous avons lancé le pilote défensif en premier.
@@ -474,7 +474,7 @@ LoadImageNotifyRoutine: ImageBaseAddress=0x7c9d0000 ProcessId=0x914
 -> Terminating services.exe
 \end{lstlisting}
 \end{center}
-\caption{Détection de l'altération du point d'entrée (\adr{0x01012475}) de \services.\label{fig:Breakpoint2}}
+\caption{Détection de l'altération du point d'entrée (\adr{01012475}) de \services.\label{fig:Breakpoint2}}
 \end{figure}
 
 \paragraph{Lancement du pilote de \duqu\ en premier.}

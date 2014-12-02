@@ -12,7 +12,7 @@ Prenons le programme auto-modifiant donné à la figure \ref{fig:prg_asm_sm} et 
 Deux instructions provoquent une auto-modification.
 L'instruction 2 à l'adresse \adr{8048065} va provoquer une écriture à l'adresse pointée par la valeur de \eax\ incrémentée de 1, soit à l'adresse \adr{8048077}. Cette écriture modifie l'instruction 4 en \texttt{mov edi, 2}, codée sur les octets \texttt{bf 02 00 00 00}. De même l'instruction 3 modifie l'instruction 5 en \texttt{mov ebx, 2}, codée sur \texttt{bb 02 00 00 00}.
  
-\begin{figure}
+\begin{figure}[h]
 \begin{center}
 \begin{tabular}[b]{|l|l|l|l|}
 \hline
@@ -30,7 +30,6 @@ i & Adresse & Octets & Instruction\\
 \label{fig:prg_asm_sm}
 \end{figure}
 
-
 Au vu de l'enchaînement des instructions, on peut construire trois représentations en mémoire des parties exécutables du programme.
 La première correspond à la vision du programme lors de son chargement : la section \ptext\ est dans son état initial, donné en figure \ref{fig:prg_asm_sm}.
 La seconde est celle après que la première modification du programme faite par l'instruction 2 et la troisième après la seconde modification effectuée par l'instruction 3.
@@ -47,11 +46,12 @@ En ce sens chacune des vagues, prise indépendamment des autres, ne présente pa
 Nous détaillerons par la suite, formellement, ce qu'est une trace d'exécution pour l'analyse dynamique ainsi que la sémantique d'enchaînement des vagues.
 
 \begin{figure}
- \includegraphics[width=1.0\textwidth]{supports/automodification/phases2_final.pdf}
+ \includegraphics[width=1.0\textwidth]{supports/automodification/phases2_final_test.pdf}
+ \vspace{0.2cm}
  \caption{Vision informelle des vagues}
  \label{fig:vagues_visuel}
 \end{figure}
-
+% 
 \section{Trace, niveaux d'exécution et vagues}
 Le programme exécuté a pour sources principales de données les registres et la mémoire constituée de la pile et du tas qui sont tous les deux adressables par des entiers. Une variable d'un programme est donc soit un registre du processeur soit une adresse mémoire, de même que défini dans la sémantique du langage intermédiaire défini au chapitre précédent (définition \ref{def:sem_conc_var}).
 
@@ -95,8 +95,8 @@ On définit l'opérateur \texttt{decode} qui associe à une adresse mémoire $a$
 \end{defi}
 
 Si l'on dispose d'un langage intermédiaire comme défini au chapitre précédent, son opérateur de désassemblage atomique nous donne ces informations. Pour l'assembleur \xq, une instruction est codée au maximum sur 15 octets.
-% Si on cherche à désassembler \telock\ à l'adresse \adr{0x01006e7a}, et qu'à l'adresse \adr{0x01006e7d} sont présents les octets suivant : $\Theta[0x01006e7d..0x01006e8b]=$ \texttt{eb ff c9 7f e6 8b c1 29 00 00 00 f3 aa 66 ab}, l'opérateur \texttt{decode} renvoie la première instruction dynamique D à cette adresse : il s'agit de l'instruction assembleur \di{D}=\texttt{jmp +1} (d'une taille de deux octets : \texttt{eb ff}) à l'adresse \da{D}=\adr{0x01006e7d}, codée sur l'intervalle d'adresses \dc{D}=[\adr{0x01006e7d}, \adr{0x01006e7e}].
-Si on cherche à désassembler l'exemple précédent à l'adresse \adr{0x8048060} : à l'adresse \adr{0x8048060} sont présents les octets suivants : $\Theta[0x8048060..0x804806e]=$ \texttt{b8 6b 80 04 08 b8 6b 80 04 08 66 c7 40 06 02}, l'opérateur \texttt{decode} renvoie la première instruction dynamique D à cette adresse : il s'agit de l'instruction assembleur \di{D}=\texttt{mov eax, 0x8048076} (d'une taille de cinq octets : \texttt{b8 6b 80 04 08}) à l'adresse \da{D}=\adr{0x8048060}, codée sur l'intervalle d'adresses \dc{D}=[\adr{0x8048060}, \adr{0x8048064}].
+% Si on cherche à désassembler \telock\ à l'adresse \adr{01006e7a}, et qu'à l'adresse \adr{01006e7d} sont présents les octets suivant : $\Theta[0x01006e7d..0x01006e8b]=$ \texttt{eb ff c9 7f e6 8b c1 29 00 00 00 f3 aa 66 ab}, l'opérateur \texttt{decode} renvoie la première instruction dynamique D à cette adresse : il s'agit de l'instruction assembleur \di{D}=\texttt{jmp +1} (d'une taille de deux octets : \texttt{eb ff}) à l'adresse \da{D}=\adr{01006e7d}, codée sur l'intervalle d'adresses \dc{D}=[\adr{01006e7d}, \adr{01006e7e}].
+On cherche à désassembler l'exemple précédent à l'adresse \adr{8048060}. À l'adresse \adr{8048060} sont présents les octets suivants : $\Theta[$\adr{8048060}..\adr{804806e}$]=$ \texttt{b8 6b 80 04 08 b8 6b 80 04 08 66 c7 40 06 02}, l'opérateur \texttt{decode} renvoie la première instruction dynamique D à cette adresse : il s'agit de l'instruction assembleur \di{D}=\texttt{mov eax, 0x8048076} (d'une taille de cinq octets : \texttt{b8 6b 80 04 08}) à l'adresse \da{D}=\adr{8048060}, codée sur l'intervalle d'adresses \dc{D}=[\adr{8048060}, \adr{8048064}].
 
 Afin de pouvoir séparer la trace d'exécution selon le moment où chaque instruction a été écrite, nous définissons aussi, pour une instruction dynamique et un store $\Theta$, l'ensemble des adresses mémoire sur lesquelles l'instruction elle provoque une écriture (définition \ref{def:ensembles_inst_dyn_write}).
 
@@ -231,7 +231,7 @@ i & \da{D_i} & \dc{D_i} & \di{D_i} & \dw{D_i} & $W^\Theta_i$ & $X_i$ \\
 Reprenons l'exemple du programme \sm\ précédent.
 La figure \ref{fig:prg_asm_sm_trace} donne une trace d'exécution de ce programme en détaillant les informations sur chaque instruction dynamique ainsi que les niveaux d'écriture et d'exécution de chaque instruction.
 Au départ toute la mémoire est dans son état d'origine et a pour niveau d'exécution 0. Lorsque l'instruction $D_1$ est exécutée, il n'y a pas eu d'auto-modification donc le niveau d'écriture est 0 et le niveau d'exécution est 1.
-Les instructions $D_2$ et $D_3$ provoquent une auto-modification : les octets aux adresses \adr{0x8048077} et \adr{0x804807c} sont modifiés et leurs niveaux d'écriture deviennent donc le niveau d'exécution courant, soit 1.
+Les instructions $D_2$ et $D_3$ provoquent une auto-modification : les octets aux adresses \adr{8048077} et \adr{804807c} sont modifiés et leurs niveaux d'écriture deviennent donc le niveau d'exécution courant, soit 1.
 Lorsque l'exécution atteint $D_4$, qui a été modifié, le niveau d'écriture est 1 donc le niveau d'exécution devient 2.
 L'instruction suivante $D_5$ a également un niveau d'écriture de 1 donc le niveau d'exécution est inchangé.
 

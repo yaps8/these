@@ -293,7 +293,7 @@ L'inverse n'est par contre pas vrai puisque deux instructions peuvent ne pas êt
 
 Lors du désassemblage d'un binaire plusieurs métriques peuvent être observées.
 On peut d'une part observer combien de \layers\ différentes sont utilisées : chaque \layer, en dehors de la première de chaque segment, atteste du départ d'un chemin désaligné avec le chemin principal.
-D'autre part on peut compter le nombre de sauts d'une instruction d'une \layer\ vers une instruction désalignée d'une autre \layer. Dans le cas de \telock, le saut depuis l'instruction \texttt{dec ecx} à l'adresse \adr{0x01006e7e} vers l'instruction \texttt{jg 0x1006e68} à l'adresse \adr{0x01006e80}, bien qu'il provoque un changement de \layer, n'est pas désaligné. Le nombre de ces sauts de désalignement atteste de la prévalence des chemins représentés par chaque \layer.
+D'autre part on peut compter le nombre de sauts d'une instruction d'une \layer\ vers une instruction désalignée d'une autre \layer. Dans le cas de \telock, le saut depuis l'instruction \texttt{dec ecx} à l'adresse \adr{01006e7e} vers l'instruction \texttt{jg 0x1006e68} à l'adresse \adr{01006e80}, bien qu'il provoque un changement de \layer, n'est pas désaligné. Le nombre de ces sauts de désalignement atteste de la prévalence des chemins représentés par chaque \layer.
 
 % \begin{figure}
 % \begin{center}
@@ -316,7 +316,7 @@ D'autre part on peut compter le nombre de sauts d'une instruction d'une \layer\ 
 
 \subsection{\Layers\ désassemblées par parcours récursif}
 Une autre approche consiste à construire des \layers\ de code au fur et à mesure du désassemblage du binaire.
-Un désassemblage parfait de l'extrait de \telock\ précédent (figure \ref{fig:telock-layers-simple}) à partir du point d'entrée \adr{0x1006e7d} contient exactement les trois instructions \texttt{jmp +1}, \texttt{dec ecx}, \texttt{jg 0x1006e68}. La première instruction va provoquer la création d'une première \layer, la seconde étant en chevauchement avec la première, elle ne peut être placée que dans une nouvelle \layer. La dernière instruction peut être placée dans n'importe laquelle des deux \layers\ existantes, on la placera, arbitrairement, dans la première \layer. Un tel découpage est donné en figure \ref{fig:telock-layers-rec}.
+Un désassemblage parfait de l'extrait de \telock\ précédent (figure \ref{fig:telock-layers-simple}) à partir du point d'entrée \adr{1006e7d} contient exactement les trois instructions \texttt{jmp +1}, \texttt{dec ecx}, \texttt{jg 0x1006e68}. La première instruction va provoquer la création d'une première \layer, la seconde étant en chevauchement avec la première, elle ne peut être placée que dans une nouvelle \layer. La dernière instruction peut être placée dans n'importe laquelle des deux \layers\ existantes, on la placera, arbitrairement, dans la première \layer. Un tel découpage est donné en figure \ref{fig:telock-layers-rec}.
 
 \begin{figure}[h]
 \begin{center}

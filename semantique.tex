@@ -351,7 +351,7 @@ Adresse & Octets & Instruction ASM & Transcription en LI\\
 
 Les deux premières instructions servent à modifier le second octet de l'instruction modifiant \edi\ de \texttt{01} à \texttt{02} transformant cette instruction en \texttt{mov edi, 2}.
 L'approche globale de la transcription du programme dans le langage intermédiaire, bien que chaque instruction assembleur soit sémantiquement équivalente aux instructions transcrites, résulte en un programme qui n'est pas auto-modifiant. Il est composé des quatre instructions de la dernière colonne du tableau.
-Les trois premières écrivent la valeur 2 en mémoire à l'adresse \adr{0x804806c} et la dernière, indépendante, attribue la valeur 1 au registre \edi.
+Les trois premières écrivent la valeur 2 en mémoire à l'adresse \adr{804806c} et la dernière, indépendante, attribue la valeur 1 au registre \edi.
 Ainsi l'analyse conclurait, à tort, que l'exécution du segment de code assembleur d'origine attribue 1 à \edi, au lieu de 2.
 
 Ainsi, pour pouvoir utiliser ce langage intermédiaire dans le cas d'un programme auto-modifiant, il est nécessaire d'avoir accès à une représentation en mémoire du binaire exécuté lors de son exécution sous forme intermédiaire.
