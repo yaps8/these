@@ -1,6 +1,6 @@
 digraph G {
 fontname=cmr10;
-"ep" [labeljust=r,label="0x8048060 mov eax 0x0x8048067\l", shape=box, style="filled", fillcolor=orange]
+"ep" [labeljust=r,label="0x8048060 mov eax 0x8048067\l", shape=box, style="filled", fillcolor=orange]
 "S" [label="S :\l0x8048065 jmp eax\l", shape=box, style="filled", fillcolor=white]
 "A" [labeljust=r,label="A", shape=box, style="filled", fillcolor=white]
 "A1" [labeljust=r,label="A1", shape=box, style="filled", fillcolor=white]

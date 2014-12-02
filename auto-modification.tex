@@ -1,9 +1,9 @@
 Nous avons jusqu'à présent fait l'hypothèse que les programmes analysés ne sont pas auto-modifiants.
 Dans ce chapitre nous détaillons une approche d'analyse dynamique adaptée aux programmes auto-modifiants et ayant pour but de réduire l'analyse d'un programme auto-modifiant en l'analyse de plusieurs sous-ensembles non auto-modifiants du programme.
-Cette approche est donnée par la littérature existante, en particulier par les travaux de thèse de Reynaud \cite{Reynaud2010} et Calvet \cite{Calvet2013}.
+Cette approche est donnée par la littérature existante, en particulier par les travaux de thèse de \nom{Reynaud} \cite{Reynaud2010} et \nom{Calvet} \cite{Calvet2013}.
 
 L'analyse dynamique consiste à se baser sur une ou des exécutions particulières d'un programme pour inférer des propriétés sur son fonctionnement.
-Elle demande donc de se munir d'une langage modélisant le fonctionnement de la machine durant l'exécution du programme, d'une sémantique concrète de l'assembleur utilisé et de lancer l'évaluation sémantique du programme sur une ou plusieurs entrées : nous reprendrons à cet effet le langage assembleur et sémantique concrète définis au chapitre précédent comme référence.
+Elle demande donc de se munir d'un modèle pour le fonctionnement de la machine durant l'exécution du programme, d'une sémantique concrète de l'assembleur utilisé et de lancer l'évaluation sémantique du programme sur une ou plusieurs entrées : nous reprendrons à cet effet le langage assembleur et la sémantique concrète définis au chapitre précédent comme référence.
 % Les entrées d'un programme sont par exemple les paramètres passés lors de l'appel au programme, l'état de la machine lors du démarrage, les données lues depuis la mémoire et les saisies faites par l'utilisateur au clavier ou à la souris lors de l'exécution s'il s'agit d'une application dotée d'une interface graphique.
 % Nous reprendrons la sémantique simplifiée pour un langage assembleur définie au chapitre précédent et expliquerons comment séparer une exécution d'un programme auto-modifiant en plusieurs sous-exécution non auto-modifiantes afin d'utiliser des techniques standard d'analyse sur chacune de ces sous-exécutions.
 
@@ -96,9 +96,9 @@ On définit l'opérateur \texttt{decode} qui associe à une adresse mémoire $a$
 
 Si l'on dispose d'un langage intermédiaire comme défini au chapitre précédent, son opérateur de désassemblage atomique nous donne ces informations. Pour l'assembleur \xq, une instruction est codée au maximum sur 15 octets.
 % Si on cherche à désassembler \telock\ à l'adresse \adr{01006e7a}, et qu'à l'adresse \adr{01006e7d} sont présents les octets suivant : $\Theta[0x01006e7d..0x01006e8b]=$ \texttt{eb ff c9 7f e6 8b c1 29 00 00 00 f3 aa 66 ab}, l'opérateur \texttt{decode} renvoie la première instruction dynamique D à cette adresse : il s'agit de l'instruction assembleur \di{D}=\texttt{jmp +1} (d'une taille de deux octets : \texttt{eb ff}) à l'adresse \da{D}=\adr{01006e7d}, codée sur l'intervalle d'adresses \dc{D}=[\adr{01006e7d}, \adr{01006e7e}].
-On cherche à désassembler l'exemple précédent à l'adresse \adr{8048060}. À l'adresse \adr{8048060} sont présents les octets suivants : $\Theta[$\adr{8048060}..\adr{804806e}$]=$ \texttt{b8 6b 80 04 08 b8 6b 80 04 08 66 c7 40 06 02}, l'opérateur \texttt{decode} renvoie la première instruction dynamique D à cette adresse : il s'agit de l'instruction assembleur \di{D}=\texttt{mov eax, 0x8048076} (d'une taille de cinq octets : \texttt{b8 6b 80 04 08}) à l'adresse \da{D}=\adr{8048060}, codée sur l'intervalle d'adresses \dc{D}=[\adr{8048060}, \adr{8048064}].
+On cherche à désassembler l'exemple précédent à l'adresse \adr{8048060}. À l'adresse \adr{8048060} sont présents les octets suivants : $\Theta[$\adr{8048060}..\adr{804806e}$]=$ \texttt{b8 6b 80 04 08 b8 6b 80 04 08 66 c7 40 06 02}, l'opérateur \texttt{decode} renvoie la première instruction dynamique D à cette adresse : il s'agit de l'instruction assembleur \di{D}=\texttt{mov eax, 0x8048076} (d'une taille de cinq octets : \texttt{b8 6b 80 04 08}) à l'adresse \da{D}=\adr{8048060}, codée sur l'intervalle d'adresses \dc{D}=[\adr{8048060}..\adr{8048064}].
 
-Afin de pouvoir séparer la trace d'exécution selon le moment où chaque instruction a été écrite, nous définissons aussi, pour une instruction dynamique et un store $\Theta$, l'ensemble des adresses mémoire sur lesquelles l'instruction elle provoque une écriture (définition \ref{def:ensembles_inst_dyn_write}).
+Afin de pouvoir séparer la trace d'exécution selon le moment où chaque instruction a été écrite, nous définissons aussi, pour une instruction dynamique et un store $\Theta$, l'ensemble des adresses mémoire sur lesquelles l'instruction provoque une écriture (définition \ref{def:ensembles_inst_dyn_write}).
 
 \begin{defi}
 Soit $D$ une instruction dynamique et $\Theta$ un store représentant l'état des variables (mémoire et registres). On note \dww{\Theta}{D} l'ensemble des adresses mémoire sur lesquelles l'exécution de $D$ provoque une écriture.
@@ -137,7 +137,7 @@ Un contexte d'exécution est la donnée d'un triplet $E=(X, \Theta, W)$ où
 \begin{itemize}
  \item $X\in\BN$ est le niveau d'exécution du contexte
  \item $\Theta$ est le store des valeurs du contexte, associant une valeur à chaque registre et chaque adresse mémoire
- \item $W^M$ est le store des niveaux d'écriture du contexte, associant à chaque adresse mémoire un niveau d'écriture dans $\BN$
+ \item $W$ est le store des niveaux d'écriture du contexte, associant à chaque adresse mémoire un niveau d'écriture dans $\BN$
 \end{itemize}
 \label{def:contexte_exec}
 \end{defi}
@@ -167,7 +167,7 @@ Une trace d'exécution est une signature d'une exécution, elle contient les ins
 \end{defi}
 
 Nous avons donc, pour une exécution donnée, des niveaux d'exécution successifs $1, 2, ..., n$.
-À chaque contexte d'exécution, toute adresse en mémoire $m$ a un niveau d'écriture $W[m]$ correspondant au dernier niveau d'exécution durant lequel une instruction a modifié la valeur à l'adresse $m$.
+À chaque contexte d'exécution toute adresse en mémoire $m$ a un niveau d'écriture $W[m]$ correspondant au dernier niveau d'exécution durant lequel une instruction a modifié la valeur à l'adresse $m$.
 Une instruction $D$ a un niveau d'écriture $W_D$ qui est le niveau d'écriture le plus élevé parmi les adresses sur lesquelles elle est codée.
 Lors d'une exécution le niveau d'exécution ainsi que le niveau d'écriture de chaque adresse mémoire sont croissants.
 
@@ -202,65 +202,13 @@ En pratique une instruction $D$ écrite par une instruction ayant pour niveau d'
 \end{defi}
 
 \begin{defi}
- Étant donnée une exécution d'un programme, on appelle vague $k$ le graphe de flot de contrôle parfait du programme représenté par l'instantané du niveau d'exécution $k$ muni de son point d'entrée.
+ Étant donnée une exécution d'un programme, on appelle vague $k$ le graphe de flot de contrôle parfait du programme représenté par l'instantané du niveau d'exécution $k$ muni de son point d'entrée et considéré comme \nsm.
  \label{def:vagues}
 \end{defi}
 
 Une première vague est définie dès l'exécution de la première instruction du programme puis à chaque changement de niveau d'exécution une nouvelle vague est construite.
-L'algorithme \ref{algo:analyse_dyn_vagues} permet d'exécuter un programme dynamiquement avec la sémantique concrète choisie tout en déterminant les niveaux d'exécution de d'écriture au fur et à mesure de l'exécution. 
-Il fournit en sortie la trace d'exécution et la liste des vagues reconstruites.
-
-\begin{figure}[h]
-\begin{center}
-\begin{tabular}[b]{|l|l|l|l|l|l|l|}
-\hline
-i & \da{D_i} & \dc{D_i} & \di{D_i} & \dw{D_i} & $W^\Theta_i$ & $X_i$ \\
-\hline
-1 & 8048060  & [8048060, 8048064] & mov    eax, 0x8048076  &           & 0 & 1 \\
-2 & 8048065  & [8048065, 804806a] & mov    [eax+1], 2      & 0x8048077 & 0 & 1 \\
-3 & 804806b  & [804806b, 8048075] & mov    [eax+6], 2      & 0x804807c & 0 & 1 \\
-4 & 8048076  & [8048076, 804807a] & mov    edi, 1          &           & 1 & 2 \\
-5 & 804807b  & [804807b, 804807f] & mov    ebx, 1          &           & 1 & 2 \\
-\hline
-\end{tabular}
-\end{center}
-\caption{Trace d'exécution du programme auto-modifiant de la figure \ref{fig:prg_asm_sm}}
-\label{fig:prg_asm_sm_trace}
-\end{figure}
-
-Reprenons l'exemple du programme \sm\ précédent.
-La figure \ref{fig:prg_asm_sm_trace} donne une trace d'exécution de ce programme en détaillant les informations sur chaque instruction dynamique ainsi que les niveaux d'écriture et d'exécution de chaque instruction.
-Au départ toute la mémoire est dans son état d'origine et a pour niveau d'exécution 0. Lorsque l'instruction $D_1$ est exécutée, il n'y a pas eu d'auto-modification donc le niveau d'écriture est 0 et le niveau d'exécution est 1.
-Les instructions $D_2$ et $D_3$ provoquent une auto-modification : les octets aux adresses \adr{8048077} et \adr{804807c} sont modifiés et leurs niveaux d'écriture deviennent donc le niveau d'exécution courant, soit 1.
-Lorsque l'exécution atteint $D_4$, qui a été modifié, le niveau d'écriture est 1 donc le niveau d'exécution devient 2.
-L'instruction suivante $D_5$ a également un niveau d'écriture de 1 donc le niveau d'exécution est inchangé.
-
-Cette exécution est donc séparée en deux vagues : la vague initiale, $v_0$ dont l'instantané est l'état de la mémoire avant l'exécution de la première instruction et la vague $v_1$ contenant l'état de la mémoire juste après l'exécution de $D_3$ et avant l'exécution de la première instruction modifiée $D_4$.
-
-
-% \begin{figure}
-% \begin{center}
-% \begin{tabular}[b]{|l|l|l|l|l|l|l|}
-% \hline
-% i & \da{D_i} & \dc{D_i} & \di{D_i} & \dw{D_i} & $W_i$ & $X_i$ \\
-% \hline
-% & 8048060  &  (...)         	        & Pile -> RWX &  & 0 & 1 \\ 
-% 1 & 804807c  &  [804807c, 8048080]         &  mov    edi, 0x0 & edi & 0 & 1 \\
-% 2 & 8048081  &  [8048081, 8048086]         &  mov    eax, 0x8048091 & eax & 0 & 1 \\
-% 3 & 8048086  &  [8048086, 804808a]         &  mov    [eax], 0xeb & 0x8048091 & 0 & 1 \\
-% 4 & 804808b  &  [804808b, 8048090]         &  mov    [eax+1], 0x7 & 0x8048092 & 0 & 1 \\
-% 5 & 8048091  &  [8048091, 8048092]         &  jmp    80480a1 <edi3> &  & 1 & 2  \\
-% 6 & 804809a  &  [804809a, 804809d]         &  mov    edi,0x2 & edi & 0 & 2\\
-% 7 & 804809f  &  [804809f, 80480a0]         &  jmp    80480a8 <fin> &  & 0 & 2\\
-%  & 80480a8  &  (...)		        &  Affiche edi &  & 0 & 2\\
-%  & 80480c3  &  (...)		        &  Quitte &  & 0 & 2\\
-% \hline
-% \end{tabular}
-% \end{center}
-% \caption{Trace d'exécution du programme auto-modifiant de la figure \ref{fig:unevague_v0}}
-% \label{fig:unevague_trace}
-% \end{figure}
-
+L'algorithme \ref{algo:analyse_dyn_vagues} (utilisant les algorithmes \ref{algo:update_exec_level} et \ref{algo:update_write_level}) permet d'exécuter un programme dynamiquement avec la sémantique concrète choisie tout en déterminant les niveaux d'exécution et d'écriture au fur et à mesure de l'exécution. 
+Il fournit en sortie la trace d'exécution et la liste des instantanés d'exécution reconstruits.
 
 \begin{algorithm}[h] %or another one check
 \caption{Mise à jour du niveau d'exécution d'une instruction}
@@ -295,7 +243,7 @@ $X \leftarrow\ max(X,\ W_D+1)$ \\
 \label{algo:update_write_level}
 \end{algorithm}
 
-\begin{algorithm}[H] %or another one check
+\begin{algorithm}[h] %or another one check
 \caption{Analyse dynamique avec calcul des vagues}
 \SetAlgoLined
 \KwIn{Les registres R et une mémoire M dans laquelle un programme de point d'entrée \texttt{ep} a été chargé}
@@ -336,6 +284,57 @@ $i\leftarrow i+1$\\
 \label{algo:analyse_dyn_vagues}
 \end{algorithm}
 
+Reprenons l'exemple du programme \sm\ précédent.
+La figure \ref{fig:prg_asm_sm_trace} donne une trace d'exécution de ce programme en détaillant les informations sur chaque instruction dynamique ainsi que les niveaux d'écriture et d'exécution de chaque instruction.
+Au départ toute la mémoire est dans son état d'origine et a pour niveau d'exécution 0. Lorsque l'instruction $D_1$ est exécutée, il n'y a pas eu d'auto-modification donc le niveau d'écriture est 0 et le niveau d'exécution est 1.
+Les instructions $D_2$ et $D_3$ provoquent une auto-modification : les octets aux adresses \adr{8048077} et \adr{804807c} sont modifiés et leurs niveaux d'écriture deviennent donc le niveau d'exécution courant, soit 1.
+Lorsque l'exécution atteint $D_4$, qui a été modifié, le niveau d'écriture est 1 donc le niveau d'exécution devient 2.
+L'instruction suivante $D_5$ a également un niveau d'écriture de 1 donc le niveau d'exécution est inchangé.
+
+\begin{figure}[h]
+\begin{center}
+\begin{tabular}[b]{|l|l|l|l|l|l|l|}
+\hline
+i & \da{D_i} & \dc{D_i} & \di{D_i} & \dw{D_i} & $W^\Theta_i$ & $X_i$ \\
+\hline
+1 & 8048060  & [8048060, 8048064] & mov    eax, 0x8048076  &           & 0 & 1 \\
+2 & 8048065  & [8048065, 804806a] & mov    [eax+1], 2      & 0x8048077 & 0 & 1 \\
+3 & 804806b  & [804806b, 8048075] & mov    [eax+6], 2      & 0x804807c & 0 & 1 \\
+4 & 8048076  & [8048076, 804807a] & mov    edi, 1          &           & 1 & 2 \\
+5 & 804807b  & [804807b, 804807f] & mov    ebx, 1          &           & 1 & 2 \\
+\hline
+\end{tabular}
+\end{center}
+\caption{Trace d'exécution du programme auto-modifiant de la figure \ref{fig:prg_asm_sm}}
+\label{fig:prg_asm_sm_trace}
+\end{figure}
+
+Cette exécution est donc séparée en deux vagues : la vague initiale, $v_0$ dont l'instantané est l'état de la mémoire avant l'exécution de la première instruction et la vague $v_1$ contenant l'état de la mémoire juste après l'exécution de $D_3$ et avant l'exécution de la première instruction modifiée $D_4$.
+
+
+% \begin{figure}
+% \begin{center}
+% \begin{tabular}[b]{|l|l|l|l|l|l|l|}
+% \hline
+% i & \da{D_i} & \dc{D_i} & \di{D_i} & \dw{D_i} & $W_i$ & $X_i$ \\
+% \hline
+% & 8048060  &  (...)         	        & Pile -> RWX &  & 0 & 1 \\ 
+% 1 & 804807c  &  [804807c, 8048080]         &  mov    edi, 0x0 & edi & 0 & 1 \\
+% 2 & 8048081  &  [8048081, 8048086]         &  mov    eax, 0x8048091 & eax & 0 & 1 \\
+% 3 & 8048086  &  [8048086, 804808a]         &  mov    [eax], 0xeb & 0x8048091 & 0 & 1 \\
+% 4 & 804808b  &  [804808b, 8048090]         &  mov    [eax+1], 0x7 & 0x8048092 & 0 & 1 \\
+% 5 & 8048091  &  [8048091, 8048092]         &  jmp    80480a1 <edi3> &  & 1 & 2  \\
+% 6 & 804809a  &  [804809a, 804809d]         &  mov    edi,0x2 & edi & 0 & 2\\
+% 7 & 804809f  &  [804809f, 80480a0]         &  jmp    80480a8 <fin> &  & 0 & 2\\
+%  & 80480a8  &  (...)		        &  Affiche edi &  & 0 & 2\\
+%  & 80480c3  &  (...)		        &  Quitte &  & 0 & 2\\
+% \hline
+% \end{tabular}
+% \end{center}
+% \caption{Trace d'exécution du programme auto-modifiant de la figure \ref{fig:unevague_v0}}
+% \label{fig:unevague_trace}
+% \end{figure}
+
 \paragraph{Non unicité des instructions dynamiques dans la trace.}
  Étant donné la définition croissante des niveaux d'exécution, une instruction dynamique peut-être exécutée non seulement plusieurs fois au même niveau d'exécution mais également être présente à des niveaux d'exécution différents.
 
@@ -369,9 +368,9 @@ En particulier les appels systèmes, qui ne sont pas transcrits par BAP, ne peuv
 Les approches nécessitant une exécution non restreinte sur le système sont alors réalisées au sein d'une machine virtuelle.
 
 Une caractéristique cruciale d'un analyseur dynamique est qu'il doit être transparent : le programme analysé ne doit pas être capable de différencier son exécution dans l'analyseur de son exécution sur un système réel.
-Cette transparence est en général partielle, que ce soit avec un émulateur, un débogueur ou une technique d'instrumentation. \more{cite blue pill ou autre}
+Cette transparence est en général partielle, que ce soit avec un émulateur, un débogueur ou une technique d'instrumentation \cite{Ferrie07}.\more{cite blue pill ou autre}
 
-L'instrumentation, par rapport au débogage, offre des performances temporelles d'exécution bien supérieures.
+L'instrumentation, par rapport au débogage, offre des performances temporelles d'exécution supérieures.
 Pour ces raisons, nous nous sommes intéressés à l'émulation comme à l'instrumentation.
 \\
 
@@ -409,6 +408,8 @@ L'analyse d'un programme malveillant a lieu sur une machine virtuelle munie de P
 Dans la suite de cette thèse, nous avons exclusivement utilisé cette approche pour l'analyse dynamique.
 
 \section*{Conclusion}
-Afin d'analyser les programmes \sms, nous proposons de découper toute exécution en vagues. Chaque vague représente une partie \nsm e du programme et l'exécution consiste alors en un enchaînement de vagues d'exécution.
+Afin d'analyser les programmes \sms, nous proposons de découper toute exécution en une trace et une suite d'instantanés d'exécution : chaque instantané représente une partie \nsm e du programme.
 Nous avons implémenté ce découpage par émulation avec BAP et par instrumentation avec Pin.
-Le chapitre suivant est consacré à l'analyse d'un programme \sm\ : nous combinerons les notions abordées dans ce chapitre et dans les chapitres précédents afin de reconstruire un graphe de flot de contrôle cohérent.
+
+Le chapitre suivant est consacré à l'analyse statique du problème de chevauchement de code.
+Le chapitre \ref{chap:desassembleur} portera sur l'analyse d'un programme \sm\ : nous combinerons les notions abordées dans ce chapitre et le chapitre suivant afin de reconstruire les vagues correspondant à chaque niveau d'exécution ainsi qu'un graphe de flot de contrôle global pour le binaire étudié.
