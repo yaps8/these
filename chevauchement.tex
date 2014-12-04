@@ -317,7 +317,7 @@ D'autre part on peut compter le nombre de sauts d'une instruction d'une \layer\ 
 
 \subsection{\Layers\ désassemblées par parcours récursif}
 Une autre approche consiste à construire des \layers\ de code au fur et à mesure du désassemblage du binaire.
-Un désassemblage parfait de l'extrait de \telock\ précédent (figure \ref{fig:telock-layers-simple}) à partir du point d'entrée \adr{1006e7d} contient exactement les trois instructions \texttt{jmp +1}, \texttt{dec ecx}, \texttt{jg 0x1006e68}. La première instruction va provoquer la création d'une première \layer, la seconde étant en chevauchement avec la première, elle ne peut être placée que dans une nouvelle \layer. La dernière instruction peut être placée dans n'importe laquelle des deux \layers\ existantes, on la placera, arbitrairement, dans la première \layer. Un tel découpage est donné en figure \ref{fig:telock-layers-rec}.
+Le désassemblage parfait de l'extrait de \telock\ précédent (figure \ref{fig:telock-layers-simple}) à partir du point d'entrée \adr{1006e7d} contient exactement les trois instructions \texttt{jmp +1}, \texttt{dec ecx}, \texttt{jg 0x1006e68}. La première instruction va provoquer la création d'une première \layer, la seconde étant en chevauchement avec la première, elle ne peut être placée que dans une nouvelle \layer. La dernière instruction peut être placée dans n'importe laquelle des deux \layers\ existantes, on la placera, arbitrairement, dans la première \layer. Un tel découpage est donné en figure \ref{fig:telock-layers-rec}.
 
 \begin{figure}[h]
 \begin{center}
@@ -341,7 +341,9 @@ Octets & eb & ff & c9 & 7f & e6\\
 % Nous allons définir un algorithme de découpage cohérent en \layers\ lors d'un désassemblage récursif qui sera repris dans notre proposition de désassembleur. Nous tenterons \todo{ahah} de prouver quelques propriétés sur le découpage qui en résulte.
 
 L'algorithme \ref{algo:ajout_inst_layers} explicite le choix fait lors de l'insertion d'une instruction dans un découpage cohérent existant : on choisit simplement la première \layer\ dont les instructions ne chevauchent pas l'instruction à ajouter. La création d'une nouvelle \layer\ peut être nécessaire. 
-Ce découpage résulte en des \layers\ ayant au moins autant d'instructions que le découpage cohérent décrit au paragraphe \ref{sec:chevauchement_analyse_definitions} : sur chaque couche il y a au minimum une instruction tous les 15 octets puisqu'une instruction est codée au maximum sur 15 octets. Ainsi ce découpage résulte en un maximum de 15 \layers.
+% Ce découpage résulte en des \layers\ ayant au moins autant d'instructions que le découpage cohérent décrit au paragraphe \ref{sec:chevauchement_analyse_definitions} : sur chaque couche il y a au minimum une instruction tous les 15 octets puisqu'une instruction est codée au maximum sur 15 octets.
+% Ainsi 
+Ce découpage est cohérent et résulte en un maximum de 15 \layers.\more{vrai?}
 
 \begin{algorithm}[H] %or another one check
 \caption{Ajout d'une instruction à un découpage cohérent en \layers}
@@ -379,13 +381,13 @@ Dans la suite de cette thèse nous favorisons ce découpage pour la définition 
 Nous appliquons la seconde méthode de découpage en \layers\ à un désassemblage fonctionnant par parcours récursif. L'algorithme \ref{algo:parcours_recursif} du chapitre \ref{chap:assembleur} explicite ce parcours.
 
 \paragraph{Non-unicité du découpage.}
-La technique de désassemblage que nous proposons est basée sur un parcours récursif. Il est à noter qu'avec ce type de parcours les \layers\ obtenus en applicant l'algorithme précédent dépendent de l'ordre dans lequel les fils de chaque sommet sont explorés.
+La technique de désassemblage que nous proposons est basée sur un parcours récursif. Il est à noter qu'avec ce type de parcours les \layers\ obtenues en applicant l'algorithme précédent dépendent de l'ordre dans lequel les fils de chaque sommet sont explorés.
 
 Reprenons un graphe de flot simplifié de l'échantillon d'UPX donné au chapitre \ref{chap:obscurcissement}, donné en figure \ref{fig:upx_cfg_simple}. Le sommet 1 est le point d'entrée, le sommet 4 le point d'arrêt et les instructions aux sommets 2 et 3 se chevauchent. Le sommet 1 a deux fils : le sommet 2 qui est accessible séquentiellement (les instructions se suivent) et le sommet 3 qui est la cible d'un saut.
 
 Le découpage sera composé de deux \layers\ dans tous les cas mais si l'on parcourt d'abord le sommet 2 alors les deux \layers\ sont $L_1=\{1, 2, 4\}$ et $L_2=\{3\}$. Au contraire si l'on choisit de d'abord parcourir le sommet 3, les \layers\ sont $L_1=\{1, 3, 4\}$ et $L_2=\{2\}$.
 
-\begin{figure}
+\begin{figure}[h]
 \begin{center}
 \includegraphics[width=0.2\textwidth]{supports/disasm/upx/upx_simple.pdf}
 \end{center}
@@ -393,15 +395,16 @@ Le découpage sera composé de deux \layers\ dans tous les cas mais si l'on parc
 \label{fig:upx_cfg_simple}
 \end{figure}
 
-\paragraph{Métriques.}
-Le découpage précis en \layers\ dépend de la manière dont le parcours récursif est effectué mais \todo{à prouver} le nombre de \layers\ ainsi que le nombre de sauts de changement de \layers\ n'en dépendent pas.
-On utilisera le nombre de \layers\ pour observer la complexité des chevauchements de code tandis que le nombre de sauts de changement de \layers\ indique la fréquence d'utilisation de cette technique d'obscurcissement.
+Nous faisons le choix de désassembler d'abord la cible du saut et ensuite l'instruction accessible séquentiellement.
 
+\paragraph{Métriques.}
+% Le découpage précis en \layers\ dépend de la manière dont le parcours récursif est effectué mais \todo{à prouver} le nombre de \layers\ ainsi que le nombre de sauts de changement de \layers\ n'en dépendent pas.
+On utilisera le nombre de \layers\ pour observer la complexité des chevauchements de code tandis que le nombre de sauts de changement de \layers\ indique la fréquence d'utilisation de cette technique d'obscurcissement.
 
 \imore{Découpage cohérent minimal.}
 
 \section*{Conclusion}
-Le chevauchement de code est rarement abordé dans la littérature et, lorsqu'il l'est, il n'est pas analysé comme une technique d'obscurcissement à part entière mais plutôt contourné.
+Le chevauchement de code est rarement abordé dans la littérature et, lorsqu'il l'est, il n'est pas analysé comme une technique d'obscurcissement à part entière mais plutôt contourné en ne prenant pas en compte l'intervalle d'adresses sur lesquelles sont codées les instructions désassemblées.
 Nous avons proposé une notion de \layer\ de code, permettant d'observer et de quantifier l'utilisation du chevauchement de code par un binaire. Nous proposons un algorithme pour compter ces chevauchements lors du désassemblage récursif d'un binaire.
 
 Cette approche sera reprise et implémentée dans le chapitre suivant afin d'évaluer l'utilisation du chevauchement par des logiciels malveillants.

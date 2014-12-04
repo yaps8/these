@@ -1,5 +1,14 @@
-% 35 échantillons
-% 29 réussis
+% 34 échantillons dont hostname
+% 28 réussis dont hostname
+% couche disas: armadillo378-hostname.exe
+% couche disas: pespin
+% couche disas: tElock92a
+% couche disas: tElock90
+% couche disas: telock95-hostname.exe
+% couche disas: telock96-dd-hostname.exe
+% couche disas: telock98-hostname.exe
+% couche disas: tElock99
+% couche disas: upx-hostname.exe
 % 9 avec couche dans trace
 % 22 avec couche dans disas
 \begin{longtable}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
@@ -12,8 +21,6 @@ Empaqueteur & Vague & \multicolumn{2}{c|}{Instructions} & \multicolumn{2}{c|}{In
 \rowcolor{lightgray}(aucun) & / & 154 & 354 & / & / & / & / & / & / & 254 & 254 & \checkv \\
   & 0 & 154 & 354 & 0 & 0 & 1 & 1 & 0 & 0 & 254 & 254 & \checkv \\
 \hline
-\hline
-\rowcolor{lightgray}Acpacker & / & 0 & 0 & / & / & / & / & / & / & 0 (0\%) & 0 (0\%) & \checkv \\
 \hline
 \rowcolor{lightgray}armadillo378 & (14) & 2473 & 5817 & / & / & / & / & / & / & 0 (0\%) & 0 (0\%) & \checkf \\
 \hline
@@ -327,3 +334,8 @@ Empaqueteur & Vague & \multicolumn{2}{c|}{Instructions} & \multicolumn{2}{c|}{In
   & 5 & 171 & 10511 & 0 & 9525 & 1 & 2 & 0 & 0 & 254 (100\%) & 254 (100\%) & \checkv \\
 \hline
 \end{longtable}
+% 3 & 5 & 7-8 & 9-15 & 16+\\
+% 2 & 4 & 2 & 2 & 7\\
+% n_waves_1000 17
+% Une seule couche & 2+ couches dans le désassemblage & 2+ couches dans la trace\\
+% 11 & 10 & 7\\

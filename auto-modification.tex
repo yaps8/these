@@ -166,10 +166,10 @@ Une trace d'exécution est une signature d'une exécution, elle contient les ins
 \label{def:trace}
 \end{defi}
 
-Nous avons donc, pour une exécution donnée, des niveaux d'exécution successifs $1, 2, ..., n$.
+\sloppy{Nous avons donc, pour une exécution donnée, des niveaux d'exécution successifs $1, 2, ..., n$.
 À chaque contexte d'exécution toute adresse en mémoire $m$ a un niveau d'écriture $W[m]$ correspondant au dernier niveau d'exécution durant lequel une instruction a modifié la valeur à l'adresse $m$.
 Une instruction $D$ a un niveau d'écriture $W_D$ qui est le niveau d'écriture le plus élevé parmi les adresses sur lesquelles elle est codée.
-Lors d'une exécution le niveau d'exécution ainsi que le niveau d'écriture de chaque adresse mémoire sont croissants.
+Lors d'une exécution le niveau d'exécution ainsi que le niveau d'écriture de chaque adresse mémoire sont croissants.}
 
 
 
@@ -193,7 +193,7 @@ Lors d'une exécution le niveau d'exécution ainsi que le niveau d'écriture de 
 % \label{propri:niveau_exec}
 % \end{propri}
 
-En pratique une instruction $D$ écrite par une instruction ayant pour niveau d'exécution $k$ puis directement exécutée aura pour niveau d'écriture $W_D=k$ et pour niveau d'exécution $X=k+1$. On définit alors un instantané du niveau d'exécution $k$ selon la définition \ref{def:instantane} et une vague comme étant le désassemblage parfait de cet instantané (définition \ref{def:vagues}).
+En pratique une instruction $D$ écrite par une instruction ayant pour niveau d'exécution $k$ puis directement exécutée aura pour niveau d'écriture $W_D=k$ et pour niveau d'exécution $X=k+1$. On définit alors un instantané du niveau d'exécution $k$ selon la définition \ref{def:instantane} et une vague comme étant le graphe de flot de contrôle parfait de cet instantané (définition \ref{def:vagues}).
 
 \begin{defi}
  Étant donnée une exécution d'un programme composée des contextes d'exécution $E_0, E_1, ..., E_n$ avec $E_i=(X_i, \Theta_i, W_i)$, on appelle instantané du niveau d'exécution $k$ l'état de la mémoire contenu dans $\Theta_j$ où $E_j$ est le premier contexte d'exécution dont le niveau d'exécution est $X_j=k$.

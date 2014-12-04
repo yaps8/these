@@ -13,7 +13,7 @@ Dans ce chapitre nous présentons une méthode d'analyse combinant l'approche dy
 
 \section{Désassemblage parfait}
 % \subsection{}
-Nous avons, au chapitre \ref{chap:assembleur}, défini le désassemblage parfait d'un programme \nsm\ comme la donnée de l'ensemble des adresses auxquelles des instructions peuvent être atteintes lors de l'exécution.
+Nous avons, au chapitre \ref{chap:assembleur}, défini le désassemblage parfait d'un programme \nsm\ comme la donnée de l'ensemble des instructions qui peuvent être atteintes lors de l'exécution.
 Dans le cas d'un programme \sm, cette définition n'est pas suffisante puisque l'instruction présente à une adresse dépend du contexte d'exécution et des éventuelles modifications qui ont été faites à cette adresse.
 
 Nous considérons toujours que la donnée que l'analyste cherche à déterminer et représenter est l'ensemble des exécution possibles du programme : nous notons $E_T$ l'ensemble des traces d'exécution.
@@ -21,22 +21,22 @@ En particulier une entrée spécifique provoque une exécution que nous observon
 Cette trace peut être découpée en niveaux d'exécution et en autant d'instantanés de la mémoire (définition \ref{def:instantane}), enfin chaque vague est le désassemblage parfait de l'instantané.
 
 Le désassemblage, pris au sens de l'opération inverse de l'assemblage,
-consiste à déterminer les adresses contenant des instructions, les
-autres contenant des données.
+consiste à déterminer l'ensemble des instructions potentiellement exécutées et à séparer les adresses contenant ces instructions des
+autres adresses contenant alors des données.
 Au sein d'une exécution les octets sur lesquelles une instruction ayant
 un niveau d'exécution strictement supérieur à 1, c'est à dire que ces
 octets ont été modifiés avant que l'instruction ne soit exécutée, ne
 sont présents dans la représentation d'origine du programme qu'en temps
 que données.
 Ainsi le désassemblage, en tant qu'opération inverse de l'assembleur, d'un programme \sm\ ne prend en compte
-que les instructions exécutées avec un le niveau d'exécution 1
+que les instructions exécutées avec au niveau d'exécution 1
 (définition \ref{def:desassemblage_parfait_sm}).
 
 \begin{defi}
  Étant donné un programme P \sm\ et l'ensemble de ses traces d'exécution
 $E_T$, l'opération inverse de l'assemblage de P est la donnée de l'ensemble des adresses où une
 instruction de niveau d'exécution 1 est exécutée dans au moins une
-trace, c'est à dire~$\{a, \exists\ T\in E_T, \exists\ (i, X, D)\in T, X=1,\ $\da{D}$=a\}$.
+trace, munie de l'instruction alors exécutée, c'est à dire~$\{(\mda{D}, \mdi{D}), (i, X, D)\in T, T\in E_T, X=1\}$.
 \label{def:desassemblage_parfait_sm}
 \end{defi}
 
@@ -52,7 +52,7 @@ $E_T$, le désassemblage parfait de P est la donnée de l'ensemble des adresses 
 Le graphe de flot de contrôle ne peut plus se contenter de représenter
 une instruction par son adresse puisque plusieurs instructions
 différentes peuvent être présentes à la même adresse.
-Le graphe de flot de contrôle simple, extension du GFC parfait défini pour les programmes \nsms, est le graphe dont les sommets sont des couples $(a, I)$ provenant du désassemblage parfait du programme. Il y a un arc entre deux sommets si le second suit directement le premier dans une trace d'exécution (définition \ref{def:cfg_naif_sm}).
+Le graphe de flot de contrôle simple, extension du GFC parfait défini pour les programmes \nsms, est le graphe dont les sommets sont des couples $(a, I)$, où $I$ est une instruction présente à l'adresse $a$, provenant du désassemblage parfait du programme. Il y a un arc entre deux sommets si le second suit directement le premier dans une trace d'exécution (définition \ref{def:cfg_naif_sm}).
 
 \begin{defi}
  Étant donné un programme \sm\ P et l'ensemble de ses traces d'exécution
@@ -145,7 +145,7 @@ $T_1 = s_1, s_2, s_1, s_5, s_6$ ;
 $T_2 = s_1, s_2, s_3, s_5, s_6$ ; 
 $T_3 = s_1, s_2, s_3, s_4$ ; 
 $T_4 = s_1, s_2, s_4$.
-On peut représenter (figure \ref{fig:arbre_vagues}) ces enchaînements sous la forme d'un graphe acyclique ayant une racine qui est l'instantané du premier niveau d'exécution : il s'agit toujours de la représentation initiale du binaire.
+On peut représenter ces enchaînements sous la forme d'un graphe acyclique (figure \ref{fig:arbre_vagues}) ayant une racine qui est l'instantané du premier niveau d'exécution : il s'agit toujours de la représentation initiale du binaire.
 
 \begin{figure}[h]
 \begin{center}
@@ -296,10 +296,11 @@ I_1)\ et\ (X_2, a_2, I_2)$ se suivent dans la trace : $\exists i\in \BN, (i, X_1
 \end{defi}
 
 
-Un tel GFC pour le programme \sm\ précédent est donné en figure \ref{fig:sm_cfg_vagues} : l'exécution prise en compte est celle démarrant avec \eax=-2. La boucle directe est exécutée une fois, puis comme \eax=0, la partie auto-modifiante est activée. Dans l'exemple choisi ici, toutes les exécution partagent le même découpage en vagues et le GFC est séparé en deux GFC partiels (définition \ref{def:GFC_partiel}), celui de la vague 1 et celui de la vague 2.
+Un tel GFC pour le programme \sm\ précédent est donné en figure \ref{fig:sm_cfg_vagues} : l'exécution prise en compte est celle démarrant avec \eax=-2. La boucle directe est exécutée une fois, puis comme \eax=0, la partie auto-modifiante est activée. 
+Dans l'exemple choisi ici, toutes les exécution partagent le même découpage en vagues et le GFC est séparé en deux GFC partiels (définition \ref{def:GFC_partiel}), un pour chaque niveau d'exécution. Le GFC partiel paramétré à un niveau d'exécution $k$ est une approximation de la vague au niveau $k$, définie comme le GFC parfait du programme représenté par l'instantané et considéré comme \nsm (définition \ref{def:vagues}).
 
 \begin{defi}
- On appelle GFC partiel paramétré par une exécution $(T, S)$ et un instantané du niveau d'exécution $X$ le GFC paramétré par $T$ restreint aux sommets dont le niveau d'exécution est $X$.
+ On appelle GFC partiel paramétré par une exécution $(T, S)$ au niveau d'exécution $X$ le GFC paramétré par $T$ restreint aux sommets dont le niveau d'exécution est $X$.
 \label{def:GFC_partiel}
 \end{defi}
 
@@ -325,8 +326,8 @@ Un tel GFC pour le programme \sm\ précédent est donné en figure \ref{fig:sm_c
 \label{fig:sm_cfg_vagues}
 \end{figure}
 
-
-L'idée consiste donc à obtenir une exécution particulière d'un programme puis à augmenter la couverture de code à l'aide d'une analyse statique sur chaque instantané de l'exécution. Nous discuterons de la pertinence de cette approche.
+L'idée consiste donc à obtenir une exécution particulière d'un programme puis à augmenter la couverture de code à l'aide d'une analyse statique sur chaque instantané de l'exécution. 
+% Nous discuterons de la pertinence de cette approche.
 
 
 \FloatBarrier
@@ -338,7 +339,7 @@ L'idée consiste donc à obtenir une exécution particulière d'un programme pui
 
 Notre objectif est donc de construire un GFC paramétré par une exécution représentative du programme à analyser.
 L'analyse dynamique du programme est faite selon l'algorithme \ref{algo:analyse_dyn_vagues} du chapitre \ref{chap:auto-modification} et fournit une trace d'exécution générale et un découpage de l'exécution en plusieurs instantanés de la mémoire.
-Nous obtenons les traces et les instantanés par instrumentation avec Pin comme indiqué au chapitre précédent.
+% Nous obtenons les traces et les instantanés par instrumentation avec Pin comme indiqué au chapitre précédent.
 L'architecture générale du désassembleur est donnée par la figure \ref{fig:diag_codisasm}.
 
 % \subsection{Architecture générale}
@@ -349,15 +350,15 @@ L'architecture générale du désassembleur est donnée par la figure \ref{fig:d
 \newcommand\espace{0.3cm}
 \node[state] (BIN){Binaire};
 \node[state, above right=2cm and 3.8cm of BIN] (TRACE) {Trace};
-\node[state, below=1.8cm of TRACE.west, anchor=west] (I0) {Instantané 0};
-\node[state, below=3.0cm of TRACE.west, anchor=west] (I1) {Instantané 1};
+\node[state, below=1.8cm of TRACE.west, anchor=west] (I0) {Instantané 1};
+\node[state, below=3.0cm of TRACE.west, anchor=west] (I1) {Instantané 2};
 \node[state, below=4.2cm of TRACE.west, anchor=west] (Ip) {Instantané ...};
 \node[state, below=5.4cm of TRACE.west, anchor=west] (In) {Instantané n};
 % \node[state, right=1.4cm  of BIN] (ASM){ASM};
 % \node[state, right=1.4cm of ASM] (IR){LI};
 
-\node[state, right=4cm of I0] (V0) {Vague 0};
-\node[state, below=1.2 of V0.west, anchor=west] (V1) {Vague 1};
+\node[state, right=4cm of I0] (V0) {Vague 1};
+\node[state, below=1.2 of V0.west, anchor=west] (V1) {Vague 2};
 \node[state, below=2.4 of V0.west, anchor=west] (Vp) {Vague ...};
 \node[state, below=3.6 of V0.west, anchor=west] (Vn) {Vague n};
 
@@ -487,9 +488,9 @@ Dans le GFC deux instructions qui se chevauchent sont liées par un arc noir non
 Dans les exemples de GFC déjà vus précédemment, nous avons regroupé certaines instructions dans le même bloc, dit bloc de base, lorsque le regroupement aide à la lisibilité et ne fait pas perdre d'informations. Nous regrouperons deux instructions $I_1$ et $I_2$ du GFC si et seulement si :
 \begin{itemize}
  \item Elles se suivent séquentiellement : elles sont reliées par un arc dirigé de $I_1$ vers $I_2$ de couleur noire, et
- \item $I_1$ n'a pas d'autres arcs sortant que celui aboutissant sur $I_2$
- \item $I_2$ n'a pas d'autres arcs entrant que celui provenant de $I_1$
- \item $I_1$ et $I_2$ ne sont pas en chevauchement avec d'autres instructions
+ \item $I_1$ n'a pas d'autres arcs sortant que celui aboutissant sur $I_2$, et
+ \item $I_2$ n'a pas d'autres arcs entrant que celui provenant de $I_1$, et
+ \item $I_1$ et $I_2$ ne sont pas en chevauchement avec d'autres instructions.
 \end{itemize}
 
 \section{Revue de littérature}
@@ -498,7 +499,7 @@ Une application directe de l'analyse des GFC faite dans ce chapitre est la recon
 Renovo \cite{renovo} et PolyUnpack \cite{polyunpack} implémentent de tels systèmes d'extraction qui fonctionnent par analyse du code généré dynamiquement en utilisant des notions similaires à nos instantanés d'exécution. Ils considèrent que le binaire d'origine est celui disponible dans le dernier instantané, qui ne sera plus modifié dans la suite de l'exécution.
 Leur objectif étant de reconstruire le programme d'origine, dépaqueté, ces deux approches s'arrêtent à cette étape et n'effectuent pas d'analyse supplémentaire. 
 
-Pour l'évaluation les auteurs de PolyUnpack utilisent des programmes malveillants qu'ils analysent avec des antivirus existants (ClamAV et McAfee) et montrent que pour certains échantillons les programmes d'origine (empaquetés) ne sont pas détectés tandis que les programmes reconstruits par leur outil sont détectés.
+Pour l'évaluation les auteurs de PolyUnpack utilisent des programmes malveillants qu'ils analysent avec des antivirus existants (ClamAV et McAfee) et montrent que pour certains échantillons les programmes d'origine (empaquetés) ne sont pas détectés par la solution antivirale tandis que les programmes reconstruits par leur outil sont détectés.
 
 Les auteurs de Renovo utilisent des empaqueteurs pour protéger un binaire légitime, \texttt{notepad.exe}. Ils analysent ensuite les binaires protégés et montrent qu'ils arrivent à récupérer le programme d'analyse en comparant la section \ptext\ du \texttt{notepad.exe} d'origine avec celle du programme reconstruit.
 
@@ -506,8 +507,8 @@ Les auteurs de Renovo utilisent des empaqueteurs pour protéger un binaire légi
 \subsection{Interprétation abstraite et analyse hybride}
 Nous présentons ici des approches qui pourraient remplacer l'analyse statique simple par parcours récursif effectuée dans le cadre de ce chapitre sur les instantanés à l'aide de la trace d'exécution. Cependant elles ne sont pas aptes à remplacer l'analyse dynamique puisqu'elles sont effectuées sur des programmes non \sms.
 
-L'analyse statique est souvent réalisée à l'aide d'une interprétation abstraite \cite{CousotC77}, méthode basée sur la définition d'une sémantique permettant d'obtenir une \sura\ des actions de chaque instructions et donc de travailler sur une \sura\ du GFC.
-Kinder et Kravchenko \cite{jakstab-alternating} proposent une technique basée sur une sémantique concrète et une sémantique de \sura, alternant entre l'une et l'autre pour obtenir des résultats plus précis : il s'agit donc aussi en une sens d'une approche hybride.
+\sloppy{L'analyse statique est souvent réalisée à l'aide d'une interprétation abstraite \cite{CousotC77}, méthode basée sur la définition d'une sémantique permettant d'obtenir une \sura\ des actions de chaque instructions et donc de travailler sur une \sura\ du GFC.
+Kinder et Kravchenko \cite{jakstab-alternating} proposent une technique basée sur une sémantique concrète et une sémantique de \sura, alternant entre l'une et l'autre pour obtenir des résultats plus précis : il s'agit donc aussi en une sens d'une approche hybride.}
 
 Bardin, Herrmann et Védrine \cite{BHV11} proposent une méthode d'interprétation abstraite permettant de définir des niveaux de précision souhaités pour certaines variables, en particulier pour les instructions de saut dynamique. 
 Une première analyse trouve des approximations grossières sur les valeurs, puis les variables dont on cherche à connaître précisément la valeur sont à nouveau analysées, jusqu'à obtenir le niveau de précision suffisant (ou échouer).
@@ -518,7 +519,7 @@ Cette approche a montré son efficacité pour déterminer les cibles de sauts dy
 \paragraph{Analyse dynamique.}
 Nous avons implémenté l'analyse dynamique avec l'outil d'instrumentation d'Intel, Pin, comme expliqué au chapitre \ref{chap:auto-modification} traitant de l'auto-modification.
 L'implémentation permet de suivre les instructions exécutées dans la mémoire du processus instrumenté et gère les allocations dynamiques.
-Chaque instantané est enregistré sous la forme d'un fichier exécutable (PE sous Windows et ELF sous Linux) dans lequel les sections ont été mises à jour et des sections supplémentaires sont ajoutées dans le cas où le programme utilise des allocations dynamiques.
+Chaque instantané est enregistré sous la forme d'un fichier exécutable (PE sous Windows) dans lequel les sections ont été mises à jour et des sections supplémentaires sont ajoutées dans le cas où le programme utilise des allocations dynamiques.
 
 \paragraph{Désassembleur.}
 Le désassembleur fonctionnant par analyse statique et récursive a été codé en 3500 lignes de C++. Il utilise l'outil XED d'Intel \cite{xed} fournissant les informations sémantiques suffisantes, comme détaillé au chapitre \ref{chap:semantique}.
@@ -539,22 +540,24 @@ Outre les quelques échantillons que nous n'avons pas réussi à instrumenter, l
 Bien qu'il s'agisse d'un problème surmontable en enregistrant à part les entêtes modifiés, nous n'avons à ce jour par implémenté cette solution et donc certaines vagues de \texttt{pespin} présentent des erreurs lors du désassemblage.
 
 \paragraph{Métriques.}
-Nous avons analyse chaque niveau d'exécution et reconstruit des graphes de flot de contrôle partiels à pour chaque vague ainsi que le graphe de flot de contrôle paramétré par l'exécution. Nous avons retenu les informations suivantes.
+Nous avons analysé chaque niveau d'exécution et reconstruit chaque vague ainsi que le graphe de flot de contrôle paramétré par l'exécution. Nous avons retenu les informations suivantes.
 \begin{itemize}
- \item Le nombre d'instructions à chaque niveau d'exécution, d'une part dans la trace d'exécution, d'autre part le nombre total d'instructions récupérées par le désassemblage.
- \item Le nombre d'instructions étant en chevauchement avec une autre instruction, d'une pour les instructions de la trace, d'autre part pour toutes les instructions désassemblées.
+ \item Le nombre d'instructions dans chaque vague, d'une part exclusivement dans la trace d'exécution, d'autre part le nombre d'instructions récupérées par le désassemblage hybride.
+%  \item Le nombre total d'instructions, caractérisées par leur adresse et leur instruction assembleur, dans la trace et dans le désassemblage.
+ \item Le nombre d'instructions étant en chevauchement avec une autre instruction, d'une part pour les instructions de la trace, d'autre part pour toutes les instructions désassemblées.
  \item Le nombre de \layers\ de code, d'une part en ne prenant en compte que les instructions de la trace, d'autre part en prenant toutes les instructions désassemblées, selon l'algorithme \ref{algo:ajout_inst_layers} du chapitre précédent.
- \item Le nombre de sauts entre des \layers\ de code différent, d'une part en ne comptant que ceux provenant de la trace, d'autre part en comptant tous les sauts du graphe de flot de contrôle reconstruit par le désassembleur.
+ \item Le nombre de sauts entre des \layers\ de code différentes, d'une part en ne comptant que ceux provenant de la trace, d'autre part en comptant tous les sauts du graphe de flot de contrôle reconstruit par le désassembleur.
 %  \item Le nombre d'appels (\call) non standard
- \item Le part du graphe de flot de contrôle du programme \hostname\ d'origine que l'on retrouve dans chaque vague : $100\%$ indique que l'intégralité du graphe de flot de contrôle de \hostname\ est retrouvé dans le graphe de flot de contrôle de la vague. Cette métrique sera formalisée dans la partie suivante de cette thèse.
+ \item Le part du graphe de flot de contrôle du programme \hostname\ d'origine que l'on retrouve dans le GFC partiel de chaque niveau d'exécution : $100\%$ indique que l'intégralité du graphe de flot de contrôle de \hostname\ est retrouvé dans le graphe de flot de contrôle partiel. Cette métrique sera formalisée dans la partie suivante de cette thèse.
  \item Le statut : cette colonne indique si l'instrumentation a été un échec (\checkf), si le désassemblage est un succès complet (\checkv) ou si le désassemblage a rencontré des erreurs (``partiel'').
 \end{itemize}
 Les données résultant de cette expérience sont données en annexe \ref{annex:packers} et un extrait donnant le résultats sur le fichier d'origine, celui protégé par tElock99 et celui protégé par \upx\ est donné en figure \ref{fig:packers_extrait}.
+Le premier binaire détaillé est \hostname\ non protégé. Pour chaque binaire étudié la première ligne donne des informations générales sur le désassemblage de ce binaire : nombre total d'instructions (caractérisées par leur adresse et leur instruction assembleur) différentes dans la trace et le désassemblage hybride et la part du GFC de \hostname\ que l'on retrouve dans le GFC paramétré.
 
 \begin{figure}[h]
-\begin{tiny}
+\begin{small}
  \input{annexes/packers_extraits.table}
-\end{tiny}
+\end{small}
 \caption{Extrait du résultat du désassemblage de \hostname\ protégé}
 \label{fig:packers_extrait}
 \end{figure}
@@ -583,4 +586,4 @@ Nous concluons que peu d'empaqueteurs utilisent le chevauchement de code lors de
 \section*{Conclusion}
 Nous avons combiné les notions d'analyse statique et d'analyse dynamique vues aux chapitres précédents pour réaliser et implémenter un désassembleur capable de construire un graphe de flot de contrôle approchant le graphe de flot parfait d'un programme \sm, notion que nous avons définie.
 
-L'expérience réalisée sur des version protégée de \hostname\ montre que nous sommes capables d'identifier le binaire d'origine au sein des versions protégées dans de nombreux cas. Nous constatons une utilisation systématique de l'auto-modification et un emploi fréquent du chevauchement de code pour gêner le travail du désassembleur bien que peu de programmes de protection exécutent réellement ces instructions en chevauchement.
+L'expérience réalisée sur des versions protégées de \hostname\ montre que nous sommes capables d'identifier le binaire d'origine au sein des versions protégées dans de nombreux cas. Nous constatons une utilisation systématique de l'auto-modification et un emploi fréquent du chevauchement de code pour gêner le travail du désassembleur bien que peu de programmes de protection exécutent réellement ces instructions en chevauchement.
