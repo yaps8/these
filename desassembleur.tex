@@ -58,12 +58,13 @@ Le graphe de flot de contrôle simple, extension du GFC parfait défini pour les
  Étant donné un programme \sm\ P et l'ensemble de ses traces d'exécution
 $E_T$, le graphe de flot de contrôle simple de P est le graphe orienté
 $G=(V, E)$ tel que :
+
  \begin{itemize}
-  \item $V=\{(\mda{D}, \mdi{D}), (i, X, D)\in T, T\in E_T\}$
-  \item $((a_1, I_1), (a_2, I_2))\in E\ si\ et\ seulement\ si\ (a_1,
-I_1)\ et\ (a_2, I_2)\ se\ suivent\ dans\ une\ trace\ : \exists T\in
+  \item $V=\{(\mda{D}, \mdi{D}), (i, X, D)\in T, T\in E_T\}$.
+  \item $((a_1, I_1), (a_2, I_2))\in E$ si et seulement si $(a_1,
+I_1)\ et\ (a_2, I_2)$ se suivent dans une trace : $\exists T\in
 E_T,\ i\in \BN, (i, X_1, D_1)\ et\ (i+1, X_2, D_2)\in T\ avec\
-$\da{D_1}$=a_1,\ $\di{D_1}$=I_1,$~\da{D_2}$=a_2,\ $\di{D_2}$=I_2$.
+\mda{D_1}=a_1,\ \mdi{D_1}=I_1,~\mda{D_2}=a_2,\ \mdi{D_2}=I_2$.
  \end{itemize}
 \label{def:cfg_naif_sm}
 \end{defi}
@@ -130,7 +131,7 @@ Le GFC simple de ce programme est donné en figure \ref{fig:sm_cfg_parfait}. En 
 
 
 
-Cette difficulté n'est pas intrinsèque aux programmes \sm\ et provient du fait même que le graphe de flot de contrôle est sur une \sura\ de l'ensemble des exécutions possibles. Il est cependant exacerbé dans le cas des programmes \sm\ puisque souvent les vagues successives n'ont que peu de code commun entre elles et il n'est pas cohérent de les mélanger dans le CFG.
+Cette difficulté n'est pas intrinsèque aux programmes \sm\ et provient du fait même que le graphe de flot de contrôle est sur une \sura\ de l'ensemble des exécutions possibles. Il est cependant exacerbé dans le cas des programmes \sm\ puisque souvent les vagues successives n'ont que peu de code commun entre elles et il n'est pas cohérent de les mélanger dans le GFC.
 
 \FloatBarrier
 \subsection{Graphe de flot de contrôle parfait\label{sec:gfc_parfait}}
@@ -227,7 +228,7 @@ Formellement le GFC parfait (définition \ref{def:cfg_parfait_sm2}) est constitu
  Étant donné un programme P \sm\ et $E_X$ l'ensemble des exécutions de P.
  Nous appelons GFC parfait le graphe $G=(V, E)$ tel que :
  \begin{itemize}
-  \item $V=\{(X,\ S[X],\ $\da{D}$,\ $\di{D}$), (T, S)\in E_X, (i, X, D)\in T\}$%\in E_C, \exists\ (i, X, D)\in T',\
+  \item $V=\{(X,\ S[X],\ $\da{D}$,\ $\di{D}$), (T, S)\in E_X, (i, X, D)\in T\}$.%\in E_C, \exists\ (i, X, D)\in T',\
 %$\da{D}$=a,\ $\di{D}$=I\}$
   \item $((X_1, S[X_1], a_1, I_1), (X_2, S[X_2], a_2, I_2))\in E$ si et seulement si $(X_1, S[X_1], a_1,
 I_1)$ et $(X_2, S[X_2], a_2, I_2)$ se suivent dans une trace : $\exists (T, S)\in
@@ -287,7 +288,7 @@ Nous ne caractérisons plus, comme dans le graphe de flot de contrôle parfait, 
  Étant donné un programme P \sm\ et $(T, S)$ une exécution de P.
  Nous appelons GFC paramétré par $T$ le graphe $G=(V, E)$ tel que :
  \begin{itemize}
-  \item $V=\{(X,\ $\da{D}$,\ $\di{D}$), (i, X, D)\in T\}$%\in E_C, \exists\ (i, X, D)\in T',\
+  \item $V=\{(X,\ $\da{D}$,\ $\di{D}$), (i, X, D)\in T\}$.%\in E_C, \exists\ (i, X, D)\in T',\
 %$\da{D}$=a,\ $\di{D}$=I\}$
   \item $((X_1, a_1, I_1), (X_2, a_2, I_2))\in E$ si et seulement si $(X_1, a_1,
 I_1)\ et\ (X_2, a_2, I_2)$ se suivent dans la trace : $\exists i\in \BN, (i, X_1, D_1)\ et\ (i+1, X_2, D_2)\in T$ avec \da{D_1}$=a_1,\ $\di{D_1}$=I_1,$~\da{D_2}$=a_2,\ $\di{D_2}$=I_2$.

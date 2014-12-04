@@ -1,5 +1,5 @@
 Nous avons vu au chapitre précédent que l'analyse morphologique fonctionne par comparaison des graphes de flot de contrôles.
-Dans ce chapitre nous formalisons le fonctionnement du détecteur par analyse morphologique et nous nous intéressons au problème de la détection d'isomorphismes de sous-graphes. 
+Dans ce chapitre nous décrivons le fonctionnement du détecteur par analyse morphologique et nous nous intéressons au problème de la détection d'isomorphismes de sous-graphes. 
 Nous définissons ce qu'est un graphe de flot, notion plus spécifique que la notion générale de graphe, au sein duquel les fils d'un sommet sont ordonnés.
 Cette restriction rend le problème de la recherche d'isomorphisme de sous-graphes de flot solvable en temps polynômial alors qu'il est NP-complet dans le cas général.
 
@@ -7,11 +7,12 @@ Cette restriction rend le problème de la recherche d'isomorphisme de sous-graph
 \subsection{Graphes de flot}
 Nous avons vu que les graphes de flot de contrôle sur lesquels nous travaillons sont étiquetés (définition \ref{def:graphe-oriente}) et, une fois réduits, les étiquettes possibles sont les suivantes : $INST$, $JMP$, $JCC$, $CALL$, $RET$, $HLT$ et $UNDEF$.
 Le nombre de fils d'un sommet est sa valence (définition \ref{def:valence}) ; à chaque étiquette est associée une valence maximale. Par exemple les instructions de saut conditionnel $JCC$ ont au maximum deux successeurs.
-Nous notons $k$ la valence maximale quelle que soit l'étiquette. Les étiquettes ayant le plus de successeurs étant $JCC$ et $CALL$, $k=2$.
+Nous notons $k$ la valence maximale quelle que soit l'étiquette. Les étiquettes ayant le plus de successeurs étant $JCC$ et $CALL$ ; $k=2$.
 
 \begin{defi}
 Un graphe orienté et étiqueté $T=(V, L, l, E)$ est composé par les ensembles finis V, L, E, et la fonction totale $l:V\rightarrow L$.
-V est l'ensemble des sommets de T, L un ensemble d'étiquettes, l la fonction donnant l'étiquette d'un sommet, et $E\subset V\times V$ est l'ensemble des arcs de T tel que $(t, h)\in E$ ssi il y a un arc entre le sommet t et le sommet h.
+V est l'ensemble des sommets de T, L un ensemble d'étiquettes, l la fonction donnant l'étiquette d'un sommet et $E$ l'ensemble des arcs de $T$.
+% , et $E\subset V\times V$ est l'ensemble des arcs de T tel que $(t, h)\in E$ ssi il y a un arc entre le sommet t et le sommet h.
 \label{def:graphe-oriente}
 \end{defi}
 
@@ -28,7 +29,7 @@ Nous définissons ainsi formellement un graphe de flot à la définition \ref{de
 Un exemple de graphe de flot est donné en figure \ref{fig:am_exemple_gf}.
 
 \begin{defi}\label{def:gf}
-Un graphe de flot est un graphe orienté et étiqueté vérifiant :
+Un graphe de flot est un graphe orienté et étiqueté $(V, L, l, E)$ vérifiant :
 \begin{enumerate}
 %  \item Chaque sommet a une étiquette, et
 %  \begin{enumerate}
@@ -40,8 +41,13 @@ Un graphe de flot est un graphe orienté et étiqueté vérifiant :
   \item Si la valence de chaque sommet est égale à l'arité de son étiquette, le graphe de flot est dit complet
   \item Dans le cas contraire, il s'agit d'un graphe de flot incomplet
  \end{enumerate}
- \item Les fils de chaque sommet sont ordonnés : les arcs ont pour label l'ordre i du fils (où i est un entier compris entre 1 et la valence du sommet)\\
-       L'ensemble des arcs est $E\subset V\times \mathbb{N}\times V$ tel que $(t, i, h)\in E$ ssi il y a un arc numeroté i entre le sommet t et le sommet h.
+ \item Les fils de chaque sommet sont ordonnés : 
+%  les arcs ont pour label l'ordre i du fils (où i est un entier compris entre 1 et la valence du sommet)\\
+       l'ensemble des arcs est $E\subset V\times \mathbb{N}\times V$ tel que $(t, i, h)\in E$ si et seulement si~: 
+       \begin{itemize}
+        \item $1\leq i\leq a$ où $a$ est l'arité de l'étiquette de t, et
+        \item il y a un arc numeroté i entre le sommet t et le sommet h.
+       \end{itemize}
 %  \item La valence de ses sommets est bornée
 \end{enumerate}
 \end{defi}
@@ -87,15 +93,17 @@ Un graphe de flot est un graphe orienté et étiqueté vérifiant :
 
 \subsection{Isomorphisme de graphes et de sous-graphes de flot}
 Deux graphes de flot sont isomorphes s'ils vérifient les
-propriétés de la définition \ref{def:iso-go}, c'est à dire s'il existe une permutation des sommets de l'un tel que le graphes modifié soit structurellement identique au second.
+propriétés de la définition \ref{def:iso-go}, c'est à dire s'il existe une permutation des sommets de l'un tel que le graphe modifié soit identique au second.
 
 \begin{defi}\label{def:iso-go}
-Soit $T=(V_T, L_T, l_T, E_T)$ et $P=(V_P, L_P, l_P, E_P)$ deux graphes de flot. Ils sont dits isomorphes s'il existe une bijection $f:V_T\rightarrow V_P$ entre les sommets de T et ceux de P et
-si f préserve la structure d'adjacence des graphes avec l'ordre des fils, c'est à dire si \\
-$\forall u, v \in V_T$ et $i\in\mathbb{N} : (u, i, v) \in E_T \Leftrightarrow (f(u), i, f(v)) \in E_P$.
+Soit $T=(V_T, L_T, l_T, E_T)$ et $P=(V_P, L_P, l_P, E_P)$ deux graphes de flot. Ils sont dits isomorphes si et seulement si il existe une bijection $f:V_T\rightarrow V_P$ entre les sommets de T et ceux de P telle que $f$ préserve la structure d'adjacence des graphes avec l'ordre des fils et que les étiquettes sont identiques, c'est à dire si et seulement si :
+\begin{itemize}
+ \item $\forall u, v \in V_T$ et $i\in\mathbb{N} : (u, i, v) \in E_T \Leftrightarrow (f(u), i, f(v)) \in E_P$, et
+ \item $\forall u\in V_T, l_T(u)=l_P(f(u))$.
+\end{itemize}
 \end{defi}
 
-On définit le sous-graphe d'un graphe T selon la définition \ref{def:sousgrapheflot} et le sous-graphe de flot induit par un ensemble de sommet en définition \ref{def:sousgrapheflot-induit}.
+On définit un sous-graphe d'un graphe T selon la définition \ref{def:sousgrapheflot} et un sous-graphe de flot induit par un ensemble de sommet en définition \ref{def:sousgrapheflot-induit}.
 
 \begin{defi}\label{def:sousgrapheflot}
 Un graphe de flot $P=(V_P, L_P, l_P, E_P)$ est un sous-graphe du graphe de flot $T=(V_T, L_T, l_T, E_T)$ si et seulement si $V_P \subset V_T$, $E_P\subset\{(t, i, h)\in E_T / t, h \in V_P \}$, et $\forall u\in V_P, l_P(u)=l_T(u)$
@@ -151,19 +159,19 @@ Au contraire on va découper les graphes de flot du corpus en sous-graphes tout 
 On cherchera alors des isomorphismes de sous-graphes entre chaque petit graphe de la base et un sous-graphe du graphe de flot de test.
 
 En pratique on va générer un certain nombre de sous-graphes, appelés sites, du corpus de graphes de flot qui seront les motifs que l'on cherche à retrouver dans le graphe de flot analysé : on notera généralement P un graphe de motif. 
-Ces sous-graphes sont définis par le sous-graphe induit par les sommets parcourus avec d'un parcours en largeur limité à un certain nombre de sommets, que l'on notera W (typiquement entre 12 et 24), à partir de chaque sommet du graphe d'origine. Ils ont donc une racine qui est le sommet à partir duquel ils ont été générés.
+Ces sous-graphes sont définis par le sous-graphe induit par les sommets parcourus à l'aide d'un parcours en largeur limité à un certain nombre de sommets, que l'on notera W (typiquement entre 12 et 24), à partir de chaque sommet du graphe d'origine. Ils ont donc une racine qui est le sommet à partir duquel ils ont été générés.
 
 Ainsi un site est un graphe de flot ayant une racine (définition \ref{def-site}). Un site peut être un sous-graphe d'un graphe de flot (définition \ref{def-soussite}) comme dans l'exemple de la figure \ref{fig:ex-gf-site} : le sous-site est généré à partir du sommet $b$ en construisant le sous-graphe induit par les trois premiers sommets atteignables par un parcours en largeur.
 
 \begin{defi}\label{def-site}
-Un site P est un graphe de flot ayant une racine : un sommet à partir duquel on peut atteindre n'importe quel autre sommet de P
+Un site P est un graphe de flot ayant une racine : un sommet à partir duquel on peut atteindre n'importe quel autre sommet de P.
 \end{defi}
 
 \begin{defi}\label{def-soussite}
 On appelle sous-site d'un graphe de flot $T$ tout site étant un sous-graphe de $T$.
 \end{defi}
 
-\begin{figure}[ht]
+\begin{figure}[h]
 \begin{center}
   \subfigure[Graphe de flot T]{
 \label{fig:ex-gf}
@@ -262,9 +270,6 @@ La signature d'un programme malveillant est un ensemble de sites extraits du gra
 Afin que les signatures soient extraites automatiquement nous cherchons donc à construire tous les sites de taille limitée, par parcours en largeur à partir de chaque sommet du graphe de flot.
 Un exemple de signature du graphe de flot précédent est donné en figure \ref{fig:gfc_gf_sites}. Nous avons pris, pour l'exemple, des sites de taille 3, bien qu'en réalité nous prenions des sites de taille $W=24$.
 
-La taille des sites considérés influe sur la précision des correspondances que l'on pourra trouver : plus un site a de sommets, plus il est discriminatoire et moins il risque d'être retrouvé dans des graphes de flot ne présentant pas le même comportement.
-Il s'agit donc d'un compromis entre faux positifs (correspondances sur des graphes indépendants) et faux négatifs (graphes similaires mais non détectés) qui aboutit à une valeur pour W entre 12 et 24, choisie en pratique à 24.
-
 \begin{figure}[h]
 \begin{center}
 \def\imagetop#1{\vtop{\null\hbox{#1}}}
@@ -284,6 +289,12 @@ Graphe de flot & Signature : ensemble de sites\\
 \caption{Graphe de flot d'un programme et sa signature dans le corpus}
 \label{fig:gfc_gf_sites}
 \end{figure}
+
+
+La taille des sites considérés influe sur la précision des correspondances que l'on pourra trouver : plus un site a de sommets, plus il est discriminatoire et moins il risque d'être retrouvé dans des graphes de flot ne présentant pas le même comportement.
+Il s'agit donc d'un compromis entre faux positifs (correspondances sur des graphes indépendants) et faux négatifs (graphes similaires mais non détectés) qui aboutit à une valeur pour W entre 12 et 24, choisie en pratique à 24.
+
+La phase d'apprentissage consiste donc à récupérer une signature sous forme d'un ensemble de sites pour chaque programme du corpus et à regrouper ces signatures dans une base, comme illustré à la figure \ref{fig:corpus}.
 
 \begin{figure}[h]
 \begin{center}
@@ -320,8 +331,6 @@ Graphe de flot & Signature : ensemble de sites\\
 \label{fig:corpus}
 \end{figure}
 
-
-
 \subsubsection{Détection}
 Supposons que l'on dispose du corpus comprenant la signature du programme précédent et du graphe de flot de test, provenant d'un programme à analyser.
 Le détecteur morphologique cherche à trouver tous les sites du corpus qui sont des sous-sites du graphe de flot de test et, selon les programmes dans lesquels ils étaient présents, à rapprocher le programme analysé de ceux du corpus.
@@ -330,16 +339,15 @@ Prenons le programme de test de la figure \ref{fig:am_exemple_gf_test}.
 Le site 1 du corpus (figure \ref{fig:gfc_gf_sites}) est un sous-site de ce graphe de flot : en partant du premier sommet \emph{JCC}, dans les deux cas le fils numéroté 1 est un \emph{CALL} et le fils numéroté 2 est un \emph{JCC}.
 De même les sites 3 et 4 sont des sous-sites du graphe de flot de test. Par contre le site 2 n'est pas un sous-site : aucun sommet d'étiquette \emph{CALL} n'a pour fils numéroté 2 un sommet d'étiquette \emph{RET}.
 
-
 \begin{figure}[h]
 \begin{center}
-\includegraphics[width=0.25\textwidth]{supports/algos/g1p_cropped10.pdf}
+\includegraphics[width=0.25\textwidth]{supports/algos/g1p_cropped0.pdf}
 \end{center}
-\caption{Graphe de flot d'un programme à analyser}
+\caption{Graphe de flot de test d'un programme à analyser}
 \label{fig:am_exemple_gf_test}
 \end{figure}
 
-
+\FloatBarrier
 \subsection{Problème de la détection des sites isomorphes}
 Le problème se pose alors de la manière suivante. On dispose d'une liste de sites et %provenant de multiples graphes de flot de contrôle différents.
 on veut déterminer, dans le graphe de flot de test T, les sites qui sont isomorphes à (au moins) un site présent dans la liste connue. 
@@ -1069,7 +1077,7 @@ Cette modification diminue grandement la complexité mais nous ne l'avons pas qu
 
 \paragraph{Optimisation de la vérification a priori.}
 Une modification de l'algorithme d'Ullmann précédent permettant de l'optimiser a été utilisée. Dans la fonction \emph{forwardChecking}, il n'est pas utile de vérifier tous les éléments de F à chaque appel, mais seulement les derniers élements ajoutés (qui correspondent exactement à la dernière association ajoutée). Cette modification ne change pas le comportement ni les résultats de l'algorithme puisque les éléments précédents dans F ont déjà été vérifiés précédemment.
-\itodo{c'est vrai ??}
+\imore{ça a l'air vrai (l'algo dans la version du papier d'Ullmann peut vraiment être optimisée)}
 
 \paragraph{Conclusion sur la complexité.} 
 Pour le cas d'un graphe de flot, la complexité a été ramenée à $O(n_P.(n_T.h)^{n_P})$ avec $h=\sum_kl_k^2\simeq 0.34$ où les $l_i$ sont les probabilités d'apparition de chacun des labels (proposition \ref{prop:complexite_ullmann}).

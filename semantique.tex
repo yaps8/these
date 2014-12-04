@@ -307,7 +307,7 @@ L'instruction qui doit être exécutée ensuite est cette présente à l'adresse
 \node[state, right=1.4cm  of BIN] (ASM){ASM};
 \node[state, right=1.4cm of ASM] (IR){LI};
 \node[state, right=6cm of IR] (INST){Instruction};    
-\node[state, above=1cm of INST.north] (CFG){CFG};
+\node[state, above=1cm of INST.north] (CFG){GFC};
 \node[state, rectangle split, rectangle split parts=2, draw, below left=1.5cm and -0.5cm of INST, label=État interne, text width=2cm] (ETAT_MEM){Registres \nodepart{second} Mémoire};
 
 \draw (BIN) --  node[above=0.5cm]{\small Désassemblage} (ASM);-1
@@ -388,7 +388,7 @@ Ce modèle est illustré par le diagramme suivant.
 % \node[state, right=1.4cm of ASM] (IR){LI};
 \node[state, rectangle split, rectangle split parts=2, draw, below left=-0.8cm and -5.6cm of BIN.north east, label=État interne, text width=2cm] (ETAT_MEM){Registres \nodepart{second} Mémoire};
 \node[state, above right=1cm and 2cm of ETAT_MEM.east, text width=3.5cm] (INST){Liste\\ d'instructions LI};    
-\node[state, above=1cm of INST.north] (CFG){CFG};
+\node[state, above=1cm of INST.north] (CFG){GFC};
 
 % \coordinate [below right=-0.35 and 0.5cm of ETAT_MEM.south east] (C_DESA);
 \coordinate [left=4.7cm of INST.west] (C_SEM);
