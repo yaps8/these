@@ -380,7 +380,7 @@ Nous introduirons dans les deux prochaines sections des approches générales au
 \section{Approches générales à l'isomorphisme de sous-graphes}
 Nous présentons deux méthodes générales pour la résolution du problème d'isomorphisme de sous-graphes : l'approche matricielle par recherche exhaustive et l'algorithme d'Ullmann. Nous tenterons d'adapter ce second algorithme au problème des graphes de flot.
 
-Dans cette section on traite donc le cas général de l'isomorphisme de graphes et de sous-graphes orientés l'illustre la figure \ref{fig:ex-graphe-sg}. En particulier ces graphes ne sont, sauf mention du contraire, pas étiquetés et les fils des sommets ne sont pas ordonnés.
+Dans cette section on traite donc le cas général de l'isomorphisme de graphes et de sous-graphes orientés comme l'illustre la figure \ref{fig:ex-graphe-sg}. En particulier ces graphes ne sont, sauf mention du contraire, pas étiquetés et les fils des sommets ne sont pas ordonnés.
 
 \begin{figure}[h]
 \begin{center}
@@ -417,7 +417,7 @@ Le sous-graphe induit d'un graphe orienté et étiqueté $T=(V_T, E_T)$ à parti
 \end{defi}
 
 \begin{defi}\label{def:isog}
-Soit $T=(V_T, E_T)$ et $P=(V_P, E_P)$ deux graphes orientés. Ils sont dits isomorphes s'il existe une bijection $f:V_T\rightarrow V_P$ entre les sommets de T et ceux de P et si f préserve la structure d'adjacence des graphes, c'est à dire si : $\forall u, v \in V_T, (u, v) \in E_T \Leftrightarrow (f(u), f(v)) \in E_P$.
+Soit $T=(V_T, E_T)$ et $P=(V_P, E_P)$ deux graphes orientés. Ils sont dits isomorphes si et seulement si il existe une bijection $f:V_T\rightarrow V_P$ entre les sommets de T et ceux de P telle que $f$ préserve la structure d'adjacence des graphes, c'est à dire si : $\forall u, v \in V_T, (u, v) \in E_T \Leftrightarrow (f(u), f(v)) \in E_P$.
 \end{defi}
 
 \subsection{Représentation sous forme matricielle et recherche exhaustive}
@@ -499,9 +499,9 @@ $(I_{n_P, n_T})_{i, j} = \left\{
 $.
 
 
-Dans ce cas, et si on pose $Q=I_{n_P, n_T}.K$ avec $Q\in \mathbb{M}_{n_P, n_T}$, on a $Q.M_T.Q^t=I_{n_P, n_T}.K.M_T.K^t.I_{n_T, n_P}$, les deux matrices $M_P$ et la condition devient : il est nécessaire qu'il existe une matrice $Q\in \mathbb{M}_{n_P, n_T}$ telle que pour toute ligne k et colonne l de $M_P$, $(M_P)_{k,l}\leq (Q.M_T.Q^t)_{k,l}$.
+Dans ce cas, et si on pose $Q=I_{n_P, n_T}.K$ avec $Q\in \mathbb{M}_{n_P, n_T}$, on a $Q.M_T.Q^t=I_{n_P, n_T}.K.M_T.K^t.I_{n_T, n_P}$, la condition devient : il est nécessaire qu'il existe une matrice $Q\in \mathbb{M}_{n_P, n_T}$ telle que pour toute ligne k et colonne l de $M_P$, $(M_P)_{k,l}\leq (Q.M_T.Q^t)_{k,l}$.
 
-Inversement, s'il existe une matrice de permutation $K$ (carrée de taille $n_T$) telle que, en notant $Q=I_{n_P, n_T}.K$, $\forall k,l\leq n_P, (M_P)_{k,l}\leq (Q.M_T.Q^t)_{k,l}$ alors il existe bien un isomorphisme de graphes entre un sous-graphe de T et P.
+Inversement, s'il existe une matrice de permutation $K$ (carrée de taille $n_T$) telle que, en notant $Q=I_{n_P, n_T}.K$, $\forall k,l\leq n_P, (M_P)_{k,l}\leq (Q.M_T.Q^t)_{k,l}$ alors la matrice $Q.M_T.Q^t$ est la matrice d'un sous-graphe induit de $T$. De plus, en raison de l'inégalité, tous les arcs présents dans $M_P$ sont présents dans ce sous-graphe induit : on en déduit que $P$ est bien un sous-graphe de $T$.
 \end{pr}
 
 Dans l'exemple des graphes de la figure \ref{fig:ex-graphe-sg}, P est isomorphe au sous-graphe de T composé des sommets $\{d, e, a\}$ en faisant correspondre les couples (a, a), (d, b) et (e, c) entre T et P, soit la
@@ -545,16 +545,14 @@ $\left( \begin{array}{ccccc}
 
 
 %$I^{n, m}_{i, j}=1$ si $i=j$, $I^{n, m}_{i, j}=0$ 
-
+s
 % \paragraph{Complexité.}
-L'approche par force brute demande de parcourir toutes les matrice de permutations de taille $n_T$ : il y en a $n_P!$. Pour chaque matrice de permutation, une matrice transposée est déterminée et plusieurs multiplications matricielles sont faites sur des matrices de taille $n_T.n_T$, opération réalisable au pire en $n_T^3$. La complexité de cette approche dans le pire des cas est donc $O(n_T^3.n_T!)$ (proposition \ref{prop:complexite_matrices}).
+L'approche par force brute demande de parcourir toutes les matrice de permutations de taille $n_T$ : il y en a $n_T!$. Pour chaque matrice de permutation, une matrice transposée est déterminée et plusieurs multiplications matricielles sont faites sur des matrices de taille $n_T.n_T$, opération réalisable au pire en $n_T^3$. La complexité de cette approche dans le pire des cas est donc $O(n_T^3.n_T!)$ (proposition \ref{prop:complexite_matrices}).
 
 \begin{prop}
 La complexité de la recherche exhaustive d'un sous-graphe de T (de taille $n_T$) isomorphe à P est de $O(n_T^3.n_T!)$.
 \label{prop:complexite_matrices}
 \end{prop}
-
-
 
 \subsection{Algorithme d'Ullmann}
 \idone{il s'appelle Ullmann}
@@ -572,8 +570,8 @@ Cette approche a ensuite été largement améliorée par Ullmann à l'aide de l'
 
 \subsubsection{Backtracking simple}
 Soit $T=(V_T, E_T)$ un graphe et $P=(V_P, E_P)$ un graphe dont on cherche à connaître les sous-graphes de T avec lesquels il est isomorphe.
-On note $n_T=Card(V_T)$ et $n_P=Card(V_P)$ les nombres de sommets de chaque graphe.
-L'idée consiste à partir d'un sommet de P, à l'associer à un sommet de T, de vérifier si l'association créée est bien un
+On note $n_T$ et $n_P$ le nombre de sommets de chaque graphe.
+L'idée consiste à associer un sommet de P à un sommet de T puis à vérifier si l'association créée est bien un
 isomorphisme de sous-graphe. 
 Si c'est le cas, on prend un autre sommet de P à associer avec un sommet de T pas encore
 inclus dans la transformation. 
@@ -587,24 +585,25 @@ puis la matrice $I_{n_P, n_T}$ permettant le redimensionnement d'une matrice, et
 vérifiée.
 \\
 
-\paragraph{Complétude.}
-La première remarque à faire sur le principe donne la validité de cet algorithme. Si deux graphes sont isomorphes et ont au moins 2 sommets,
-alors il existe deux sous-graphes respectifs de chacun des graphes, avec un sommet de moins, tels que les deux sous-graphes sont isomorphes.
-De ce fait, en augmentant progressivement la taille de chaque sous-graphe de P donnant un isomorphisme, on atteint tous les sous-graphes isomorphes à T.
+% \paragraph{Complétude.}
+% La première remarque à faire sur le principe donne la validité de cet algorithme. Si deux graphes sont isomorphes et ont au moins 2 sommets,
+% alors il existe deux sous-graphes respectifs de chacun des graphes, avec un sommet de moins, tels que les deux sous-graphes sont isomorphes.
+% De ce fait, en augmentant progressivement la taille de chaque sous-graphe de P donnant un isomorphisme, on atteint tous les sous-graphes isomorphes à T.
 
 
 \paragraph{Optimisation.}
-Une deuxième remarque peut être faite : on peut dès le départ savoir que certaines associations ne donneront pas lieu à un sous-graphe. Avec les graphes P et T
-de la figure \ref{fig:ex-graphe-sg}, il est clair que le sommet c du graphe P ne peut pas être associé au sommet c du graphe T. En effet $c_P$ a strictement plus d'arcs
-entrant que $c_T$, la structure autour de $c_P$ ne pourrait donc pas être préservée par un isomorphisme. On construit une matrice $C^0 \in \mathbb{M}_{n_P, n_T}$ telle que, pour
+On peut dès le départ savoir que certaines associations ne donneront pas lieu à un sous-graphe. Avec les graphes P et T
+de la figure \ref{fig:ex-graphe-sg}, il est clair que le sommet $\gamma$ du graphe P ne peut pas être associé au sommet c du graphe T. En effet $\gamma$ a strictement plus d'arcs
+sortants que $c$, la structure autour de $\gamma$ ne pourrait donc pas être préservée par un isomorphisme. On construit une matrice $C^0 \in \mathbb{M}_{n_P, n_T}$ telle que, pour
 $i\le n_P, j\le n_T$, on n'essaie d'associer les sommets i et j que si $C^0_{i, j}=1$. En prenant en compte la remarque précédente, on définit alors
 \\
 
 $C^0_{i, j} = \left\{
   \begin{array}{ll}
-	  1 & \mbox{si le nombre d'arcs entrant est plus grand pour i dans P que pour j dans T,} \\
-	    &  \mbox{et si le nombre d'arcs sortant est plus grand pour i dans P que pour j dans T}
-	\\0 & \mbox{sinon.}
+	    & $si le nombre d'arcs entrants est plus petit pour i dans P que pour j$ \\
+	  1 & $dans T, et si le nombre d'arcs sortants est plus petit pour i dans P que$ \\
+	    & $pour j dans T$ \\
+	  0 & $sinon.$
   \end{array}
 \right.
 $
@@ -612,15 +611,15 @@ $
 Les conditions sur les inégalités sont prises au sens large.
 \\
 
-Le calcul effectif du nombre d'arcs entrant (respectivement sortant) d'un sommet d'un graphe se fait simplement à partir de sa matrice d'adjacence en
+Le calcul effectif du nombre d'arcs entrants (respectivement sortants) d'un sommet d'un graphe se fait simplement à partir de sa matrice d'adjacence en
 additionnant, à colonne (respectivement ligne) constante correspondant au sommet, les valeurs de la matrice sur toutes les lignes (respectivement colonnes).
 
 
 \paragraph{Algorithme.}
 L'algorithme est détaillé dans la figure \ref{algo:ullman} : il consiste à associer chaque sommet de P à un sommet de T. On note i le numéro du prochain sommet de P à associer à un sommet de T. 
 On démarre donc avec i=1.
-On conserve la permutation $\sigma$ sous la forme d'un ensemble F d'éléments de couples de la forme $(i, j)$ avec $i\in T$, et $j\in P$. 
-La première étape consiste donc à initialiser les matrices que l'on va utiliser ($M_T,\ M_P,\ I_{n_P, n_T},\ et\ C^0$). Une fois l'initialisation faite, pour parcourir toutes les possibilités, on utilise la procédure \emph{backtrack} en partant d'une matrice de possibilités $C^0$, de i=1, et d'un ensemble F vide. 
+On conserve la permutation $\sigma$ sous la forme d'une liste F de couples de la forme $(i, j)$ avec $i\in T$, et $j\in P$. 
+La première étape consiste donc à initialiser les matrices que l'on va utiliser ($M_T,\ M_P,\ I_{n_P, n_T},\ et\ C^0$). Une fois l'initialisation faite, pour parcourir toutes les possibilités, on utilise la procédure \emph{backtrack} en partant d'une matrice de possibilités $C^0$, de i=1, et d'une liste F vide. 
 % Cette procédure commence par vérifier si la
 % situation courante est une solution d'isomorphisme de sous-graphe. Pour cela il faut d'une part que le sous-graphe soit de la taille de P, et d'autre part que ce soit bien un isomorphisme
 % avec P, c'est à dire que $M_P=I_{n_P, n_T}^t.K.M_T.K^t.I_{n_P, n_T}$ soit vérifiée. Si la situation courante est une solution, on arrête l'algorithme et on renvoie la solution. Si ce n'était pas
@@ -631,7 +630,7 @@ plus l'être ensuite), on détermine les matrices d'adjacence des sous-graphes i
 % $S_T$ et $S_P$ considérés par ajouts successifs. 
 On peut alors vérifier qu'il y a un isomorphisme de sous-graphe entre les graphes induits de P et T avec la relation suivante : $\forall k,l\leq i, (S_P)_{k,l}\leq (K.S_T.K^t)_{k,l}$, détaillée dans la section précédente.
 \begin{itemize}
- \item Si c'est le cas et que $i=n_P$ alors on a trouvé un isomorphisme de sous-graphe entre P et T, on le renvoie puis.
+ \item Si c'est le cas et que $i=n_P$ alors on a trouvé un isomorphisme de sous-graphe entre P et T, on le renvoie.
  \item Si c'est le cas mais que $i\ne n_P$ alors on continue à chercher à ajouter des éléments à l'isomorphisme en appelant \emph{backtrack} avec $C'$, $i+1$ et F.
  \item Si ce n'est pas le cas, on ne fait rien.
 \end{itemize}
@@ -648,7 +647,7 @@ $\exists i,\ (i,\ j)\in F$.
 \caption{Retour sur traces simple}
 \SetAlgoLined
 \KwData{Deux graphes P (de taille $n_P$) et T (de taille $n_T$)}
-\KwResult{Les possibilités d'association donnant un isomorphisme de sous-graphe entre P et T}
+\KwResult{L'ensemble des listes d'association donnant un isomorphisme de sous-graphes entre P et T}
 % Fixer l'ordre des sommets de $P$ et de $T$\\
 % Initialiser $M_P$ et $M_T$ les matrices d'adjacence de P et T, respectivement\\
 Initialiser $C^0$\\
@@ -657,22 +656,24 @@ backtrack($C^0$, 1, $\emptyset$)\\
 \SetKwProg{Fn}{}{}{}
 \SetKwFunction{FRecurs}{backtrack}
 \Fn(\tcc*[h]{C : matrice des associations possibles, i : numéro du prochain sommet de P à associer, F : liste des couples d'associations faites}){\FRecurs{C, i, F}}{
+  $E\leftarrow \emptyset$ \tcc*[H]{$E$ contiendra les solutions}
   \For{$j\in  \llbracket 1, n_T \rrbracket$ tel que $C_{i, j}=1$}{
-    $F \leftarrow F\cup \{(i, j)\}$\\
+    $F \leftarrow F, (i, j)$\\
     $C'\leftarrow C\mbox{ et }\forall k>i,\ C'_{k,j} \leftarrow 0$\\
     $S_P\leftarrow$ la matrice d'adjacence du sous-graphe de P induit par les sommets $1 .. i$\\
     $S_T\leftarrow$ la matrice d'adjacence du sous-graphe de T induit par les sommets de $\{j, (k,j)\in F\}$\\
     $K\leftarrow$ la matrice de permutation définie par F\\
     \If{$\forall k,l\leq i, (S_P)_{k,l}\leq (K.S_T.K^t)_{k,l}$}{
       \eIf{$i = n_P$}{
-	\Return F
+	$E\leftarrow E\cup \{F\}$
       }
       {
-	$backtrack(C',\ i+1,\ F)$
+	$E\leftarrow E\cup backtrack(C',\ i+1,\ F)$
       }
     }
-    $F \leftarrow F-\{(i, j)\}$
+    retirer le dernier élément de $F$
   }
+  \Return $E$
 }
 \label{algo:ullman}
 \end{algorithm}
@@ -769,7 +770,7 @@ possible cette association, sinon elle l'interdira. Enfin si plus aucune associa
 \caption{Retour sur traces avec vérification a priori}
 \SetAlgoLined
 \KwData{Deux graphes P (de taille $n_P$) et T (de taille $n_T$)}
-\KwResult{Les possibilités d'association donnant un isomorphisme de sous-graphe entre P et T}
+\KwResult{L'ensemble de listes d'association donnant un isomorphisme de sous-graphes entre P et T}
 % Fixer l'ordre des sommets de $P$ et de $T$\\
 % Initialiser $M_P$ et $M_T$ les matrices d'adjacence de P et T, respectivement\\
 Initialiser $C^0$\\
@@ -778,25 +779,27 @@ backtrack($C^0$, 1, $\emptyset$)\\
 \SetKwProg{Fn}{}{}{}
 \SetKwFunction{FRecurs}{backtrack}
 \Fn(\tcc*[h]{C : matrice des associations possibles, i : numéro du prochain sommet de P à associer, F : liste des couples d'associations faites}){\FRecurs{C, i, F}}{
+  $E\leftarrow \emptyset$\\
   \For{$j\in  \llbracket 1, n_T \rrbracket$ tel que $C_{i, j}=1$}{
 %     $S_P\leftarrow$ la matrice d'adjacence du sous-graphe de P induit par les sommets $1 .. i$\\
 %     $S_T\leftarrow$ la matrice d'adjacence du sous-graphe de T induit par les sommets de $\{j, (k,j)\in F\}$\\
 %     $K\leftarrow$ la matrice de permutation définie par F\\
 %     \If{$\forall k,l\leq i, (S_P)_{k,l}\leq (K.S_T.K^t)_{k,l}$}{
-      $F \leftarrow F\cup \{(i, j)\}$\\
+      $F \leftarrow F, (i, j)$\\
       $C'\leftarrow C\mbox{ et }\forall k>i,\ C'_{k,j} \leftarrow 0$\\
       $(C'', continue)\leftarrow forwardChecking(C', i, F)$\\
       \If{continue}{
 	\eIf{$i = n_P$}{
-	  \Return F
+	  $E\leftarrow E\cup \{F\}$
 	}
 	{
-	  $backtrack(C'',\ i+1,\ F)$
+	  $E\leftarrow E\cup backtrack(C'',\ i+1,\ F)$
 	}
       }
 %     }
-    $F \leftarrow F-\{(i, j)\}$
+    retirer le dernier élément de $F$
   }
+  \Return $E$
 }
 \label{algo:ullman-backforw}
 \end{algorithm}
@@ -846,7 +849,7 @@ backtrack($C^0$, 1, $\emptyset$)\\
 
 
 
-
+% \FloatBarrier
 \subsubsection{Complexité \label{sec:ullmann_complexite}}
 On peut étudier la complexité temporelle dans le pire des cas de l'algorithme d'Ullmann en gardant les notations prises précédemment.
 Le pire des cas se présente lorsque toutes les associations sont possibles \cite{MessPhd} ($C^0$ n'est composée que de 1), c'est à dire que les deux graphes sont entièrement connectés. La complexité de l'algorithme d'Ullmann avec vérification a priori est donnée à la proposition \ref{prop:complexite-ullmann}.
@@ -905,7 +908,7 @@ $$C=A^{1}_{n_T}FW(1)+A^{2}_{n_T}FW(2)+...+A^{n_P-2}_{n_T}FW(n_P-2)+A^{n_P-1}_{n_
 On a vu que $FW(i)=4.n_P.n_T.(n_T-i+2)(n_P-i+1)\leq 4.n_P^2.n_T^2$, notons~$F=4.n_P^2.n_T^2$. De même $FW(1)=(n_P-1).n_T\leq F$.
 \\
 De plus $A^{i}_{n_T}=O(n_T^i)$, donc $\forall i\le n_P-3,\ A^{i}_{n_T}=O(n_T^{n_P-3})$\\
-Ainsi il existe une constante k telle vérifant l'inégalité suivante.
+Ainsi il existe une constante k telle vérifiant l'inégalité suivante.
 $$A^{1}_{n_T}FW(1)+A^{2}_{n_T}FW(2)+...+A^{n_P-3}_{n_T}FW(n_P-3)\le(n_P-3).F.k.n_T^{n_P-3}$$
 \\
 De même il existe $k', k''\ et\ k'''$ telles que $$C\le(n_P-3).F.k.n_T^{n_P-3}+k'.FW(n_P-2).n_T^{n_P-2}+k''.FW(n_P-1).n_T^{n_P-1}+k'''.f_0.n_T^{n_P}$$
@@ -983,7 +986,7 @@ Voici la répartition de ces 48218 instructions, les valeurs numériques ont ét
 Formellement, on suppose que l'on a $n$ différents types d'instructions (ici 5) dont les probabilités d'apparition sont $l_i$ avec $1\le i\le n$.
 Ce qui est modifié, c'est la matrice $C^0$ initiale, qui au lieu de n'être composée que de 1, vaut 0 si $L_i\ne L_j$ où $L_i$ est le label de i et $L_j$ celui de j. Si on note h la probabilité pour deux sommets pris au hasard d'avoir
 le même label, à chaque fois que l'on veut faire correspondre un élément du graphe de motif au graphe à tester, il y a le nombre
-normal de possibilités divisé par h, dans l'hypothèse où $n_T$ est grand devant $n_P$ et donc à chaque étape la probabilité h reste
+normal de possibilités multiplié par h, dans l'hypothèse où $n_T$ est grand devant $n_P$ et donc à chaque étape la probabilité h reste
 constante. Ainsi dans le calcul de la complexité, il suffit de multiplier $n_T$ par h pour obtenir la complexité modifiée.
 \\
 
@@ -994,7 +997,7 @@ $$h=\sum_kP(L_i=k).P(L_j=k) \mbox{ car ces événements sont indépendants,}$$
 $$h=\sum_kl_k^2.$$
 
 Dans le cas que l'on traite les sous-sites P sont de petite taille (inférieure à 24 sommets) tandis que les graphes de flot T peuvent avoir plusieurs milliers de sommets.
-Comme $n_T >> n_P$, chaque choix de correspondance ne modifie pas la probabilité H que $C^0_{i, j}=1$ parmi les sommets restant
+Comme $n_T >> n_P$, chaque choix de correspondance ne modifie pas la probabilité h que $C^0_{i, j}=1$ parmi les sommets restant
 malgré le fait que certaines correspondances
 aient déjà été choisies (leur nombre est très faible par rapport au nombre total de correspondances possibles).
 
@@ -1005,8 +1008,7 @@ Ainsi, dans notre cas la complexité est $O(n_P.(n_T/3)^{n_P+1})$ alors qu'elle 
 
 \paragraph{L'arité des étiquettes est bornée.}
 On sait qu'il existe une borne $k$ au nombre de fils de tous les sommets de nos graphes, avec $k=2$ : les instructions ayant le maximum de fils sont les sauts conditionnels et les appels de fonction.
-La complexité de la fonction \emph{forwardChecking} en est modifiée car les vérifications des conditions sur les enfants de chaque sommet se font désormais en temps maximal fixé à k. On a donc dans le pire des cas $FW=4.k.n_T.n_P$. Ce qui se traduit par la perte en complexité totale d'un
-multiple de $n_T$, soit $O(n_T^{n_P})$.
+La complexité de la fonction \emph{forwardChecking} en est modifiée car les vérifications des conditions sur les enfants de chaque sommet se font désormais en temps maximal fixé à k. On a donc dans le pire des cas $FW=4.k.n_T.n_P^2$. Ce qui se traduit par la perte en complexité totale d'un multiple de $n_T$.
 % Bien que je sois convaincu que la complexité de l'algorithme est encore moindre avec les conditions de CFG simple, je n'ai pas réussi à le montrer.
 % \\
 
@@ -1073,17 +1075,18 @@ Par rapport à l'algorithme \ref{algo:ullman-forwardch}, on ne vérifie que le d
 \paragraph{Les fils sont ordonnés.}
 De plus on doit maintenant forcer les sommets correspondants entre P et T à être ordonnés de la même manière par rapport à leur père. 
 La nouvelle fonction \emph{forwardChecking}, prenant en compte les optimisations discutées, est l'algorithme \ref{algo:ullman-forwardch-site}.
-Cette modification diminue grandement la complexité mais nous ne l'avons pas quantifiée.
+Cette modification semble diminuer grandement la complexité mais nous ne l'avons pas quantifiée.
 
 \paragraph{Optimisation de la vérification a priori.}
 Une modification de l'algorithme d'Ullmann précédent permettant de l'optimiser a été utilisée. Dans la fonction \emph{forwardChecking}, il n'est pas utile de vérifier tous les éléments de F à chaque appel, mais seulement les derniers élements ajoutés (qui correspondent exactement à la dernière association ajoutée). Cette modification ne change pas le comportement ni les résultats de l'algorithme puisque les éléments précédents dans F ont déjà été vérifiés précédemment.
+Cette modification enlève un multiple de $n_P$ à la complexité de la fonction \emph{forwardChecking} et donc enlève un multiple de $n_P$ à la complexité totale.
 \imore{ça a l'air vrai (l'algo dans la version du papier d'Ullmann peut vraiment être optimisée)}
 
 \paragraph{Conclusion sur la complexité.} 
-Pour le cas d'un graphe de flot, la complexité a été ramenée à $O(n_P.(n_T.h)^{n_P})$ avec $h=\sum_kl_k^2\simeq 0.34$ où les $l_i$ sont les probabilités d'apparition de chacun des labels (proposition \ref{prop:complexite_ullmann}).
+Pour le cas d'un graphe de flot, la complexité a été ramenée à $O((n_T.h)^{n_P})$ avec $h=\sum_kl_k^2\simeq 0.34$ où les $l_i$ sont les probabilités d'apparition de chacun des labels (proposition \ref{prop:complexite_ullmann}).
 
 \begin{prop}
-La complexité de la recherche d'un sous-graphe de T (de taille $n_T$) isomorphe à P (de taille $n_P$) avec l'algorithme d'Ullmann optimisé est de $O(n_P.(n_T.h)^{n_P})$ avec $h\simeq 0.34$.
+La complexité de la recherche d'un sous-graphe de T (de taille $n_T$) isomorphe à P (de taille $n_P$) avec l'algorithme d'Ullmann optimisé est de $O((n_T.h)^{n_P})$ avec $h\simeq 0.34$.
 \label{prop:complexite_ullmann}
 \end{prop}
 
