@@ -50,7 +50,7 @@ int     0x80	    ; ~Appel au noyau~
 
 Le fichier binaire exécutable résultant de la compilation est un exécutable binaire pour Linux, sous format ELF.
 % Le format ELF est structuré de la manière suivante. 
-Comme indiqué sur la figure \ref{fig:structure_elf}, il contient des entêtes dans lesquels sont indiqués des informations générales sur le binaire telles que le point d'entrée du programme, des informations sur les différentes sections du programme (leur taille, leurs adresses) et les sections : ici une section \pdata\ (Figure \ref{fig:data_helloworld}) contient les données du programme (dont la chaîne de caractères ``Hello World'') et une section \ptext\ (Figure \ref{fig:text_helloworld}) contenant le code assembleur à exécuter. L'entête de chargement (ou \emph{program header table}) contient des informations supplémentaires pour un binaire amené à être chargé en mémoire à une adresse spécifique.
+Comme indiqué sur la figure \ref{fig:structure_elf}, il contient des entêtes dans lesquels sont indiquées des informations générales sur le binaire telles que le point d'entrée du programme, des informations sur les différentes sections du programme (leur taille, leurs adresses) et les sections : ici une section \pdata\ (Figure \ref{fig:data_helloworld}) contient les données du programme (dont la chaîne de caractères ``Hello World'') et une section \ptext\ (Figure \ref{fig:text_helloworld}) contenant le code assembleur à exécuter. L'entête de chargement (ou \emph{program header table}) contient des informations supplémentaires pour un binaire amené à être chargé en mémoire à une adresse spécifique.
 À l'instar de la figure \ref{fig:structure_elf} donnant une structure simplifiée du format ELF pour Linux, la figure \ref{fig:structure_pe} donne un aperçu du format des fichiers exécutables pour un binaire \xq\ sous Windows (format PE).
 
 % \begin{figure}
@@ -202,7 +202,7 @@ Nous allons présenter deux approches historiques pour l'architecture d'une mach
 
 \paragraph{Architecture de Harvard et de von Neumann.}
 L'architecture de Harvard \cite{ibm_mark1}, sépare le code exécutable des données en deux mémoires distinctes.
-La première implémentation de l'architecture de Harvard était L’ASCC (Automatic Sequence Controlled Calculator) d'IBM, également appelé le Mark I et considérée comme le premier calculateur universel, en 1944. 
+La première implémentation de l'architecture de Harvard était L’ASCC (\emph{Automatic Sequence Controlled Calculator}) d'IBM, également appelé le Mark I, et considérée comme le premier calculateur universel, en 1944. 
 Il lisait les instructions sur des cartes perforées et les données étaient entrées manuellement à l'aide d'interrupteurs. 
 Ainsi le code exécutable était physiquement non modifiable et séparé des données. 
 
@@ -328,7 +328,7 @@ Ces drapeaux indiquent entre autres le signe du résultat d'une opération ainsi
 
 Les instructions précédemment décrites sont séquentielles et ne modifient pas l'ordre d'exécution des instructions. 
 Après l'exécution d'une instruction de type \mov\ à l'adresse $a$ codée sur $n$ octets, l'instruction située à l'adresse $a+n$ sera exécutée.
-Le dernier type d'instruction modifie le flot de contrôle du programme : elles effectuent des sauts à des adresses spécifiées dans le programme.
+Le dernier type d'instructions modifie le flot de contrôle du programme : elles effectuent des sauts à des adresses spécifiées dans le programme.
 Ces sauts peuvent être inconditionnels comme un \texttt{jmp 8048085} qui provoque un saut à l'adresse \adr{8048085} ou le saut dynamique \texttt{jmp eax} dont l'adresse cible du saut est la valeur de \eax.
 Les sauts peuvent aussi être conditionnels : l'instruction \texttt{je~+10}, à l'adresse $a$ et de taille $n$, sera suivie de l'instruction à l'adresse $a+10$ si le registre ZF vaut 1 et de l'instruction à l'adresse $a+n$ dans le cas contraire.
 
