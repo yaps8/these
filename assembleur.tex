@@ -202,7 +202,7 @@ Nous allons présenter deux approches historiques pour l'architecture d'une mach
 
 \paragraph{Architecture de Harvard et de von Neumann.}
 L'architecture de Harvard \cite{ibm_mark1}, sépare le code exécutable des données en deux mémoires distinctes.
-La première implémentation de l'architecture de Harvard était L’ASCC (\emph{Automatic Sequence Controlled Calculator}) d'IBM, également appelé le Mark I, et considérée comme le premier calculateur universel, en 1944. 
+La première implémentation de l'architecture de Harvard était L’ASCC (\emph{Automatic Sequence Controlled Calculator}) d'IBM, également appelé le Mark I, et considéré comme le premier calculateur universel, en 1944. 
 Il lisait les instructions sur des cartes perforées et les données étaient entrées manuellement à l'aide d'interrupteurs. 
 Ainsi le code exécutable était physiquement non modifiable et séparé des données. 
 
@@ -254,7 +254,7 @@ Une organisation simplifiée d'une machine utilisant ce modèle est donnée Figu
 La mémoire physique de la machine peut-être faite, entre autres, de mémoire volatile (mémoire vive) et de supports amovibles (disques durs).
 Chacun de ces supports peut être vu comme une liste d'adresses mémoire où l'on peut stocker des données et le système d'exploitation gère ces supports comme il l'entend.
 Plus précisément un programme n'est pas nécessairement chargé sur une plage contiguë d'adresses mémoire.
-Pour éviter au programmeur de devoir gérer des adresses mémoires qui ne concernent pas son programme, un mécanisme de mémoire virtuelle est mis en place : de son point de vue, le programme courant voit sa mémoire comme un intervalle d'adresses mémoire contiguës. C'est le système d'exploitation qui traduit les adresses virtuelles en adresses physiques lors de l'exécution du programme.
+Pour éviter au programmeur de devoir gérer des adresses mémoires qui ne concernent pas son programme, un mécanisme de mémoire virtuelle est mis en place. De son point de vue, le programme courant voit sa mémoire comme un intervalle d'adresses mémoires contiguës. C'est le système d'exploitation qui traduit les adresses virtuelles en adresses physiques lors de l'exécution du programme.
 Cette technique permet au système d'exploitation de choisir, de manière transparente pour le programme, un support différent pour certaines parties du programme. Elle lui permet aussi de gérer plus finement l'accès à la mémoire, tant pour interdire l'accès à certaines zones que pour partager des zones entre plusieurs processus.
 
 En pratique, lors de l'exécution d'un programme, des informations peuvent être stockées en plusieurs lieux. 
@@ -322,7 +322,7 @@ Une seconde catégorie d'instructions permet de gérer les opérations arithmét
 Une instructions comme \texttt{add eax, ebx} ajoute la valeur de \ebx\ à celle de \eax\ et stocke le résultat de l'opération dans \eax.
 Ce type d'opération combine en fait une opération arithmétique et une assignation. 
 On peut y inclure l'instruction \cmp\ qui compare deux valeurs et met à jour les drapeaux de tests. 
-Ces drapeaux indiquent entre autres le signe du résultat d'une opération ainsi que si elle a provoqué un débordement d'entier.
+Ces drapeaux indiquent entre autres le signe du résultat d'une opération et si elle a provoqué un débordement d'entier.
 % En fait les instructions arithmétiques comme \add\ provoquent aussi une mise à jour de ces drapeaux : il s'agit d'une assignation implicite.\jym{sens ? expliquer ce qu'on veut dire par explicite/implicite?}
 \imore{assignations implicites et explicites?}
 
@@ -585,7 +585,7 @@ Nous utilisons, comme précédemment, l'opérateur $decode$ qui, à partir d'une
 
 L'analyste est intéressé par davantage d'informations que la seule liste des instructions atteignables.
 L'enchaînement des instructions lors des différentes exécutions du programme est une donnée primordiale.
-Reprenons l'exemple de code assembleur de la figure \ref{fig:asm_eax_code}. Une exécution possible consiste à prendre les instructions \adr{8048067}, \adr{804806c}, \adr{8048073}, \adr{8048076}, \adr{804807e}, \adr{8048083} dans cet ordre. En fait quelles que soient les valeurs initiales de \eax, des autres registres ou de la mémoire, le chemin précédent est toujours emprunté : il s'agit du seul chemin d'exécution possible.
+Reprenons l'exemple de code assembleur de la figure \ref{fig:asm_eax_code}. Une exécution possible consiste à prendre les instructions \adr{8048067}, \adr{804806c}, \adr{8048073}, \adr{8048076}, \adr{804807e}, \adr{8048083} dans cet ordre. En fait, quelles que soient les valeurs initiales de \eax, des autres registres ou de la mémoire, le chemin précédent est toujours emprunté : il s'agit du seul chemin d'exécution possible.
 % Il est utile de connaître les enchaînements d'instructions possibles, représentés dans le graphe de flot de contrôle.
 La meilleure source pour l'analyse d'un programme serait cette connaissance de tous les chemins d'exécution possibles, quelle que soit l'entrée donnée au programme (définition \ref{def:exec_possibles}).
 
@@ -595,7 +595,7 @@ La meilleure source pour l'analyse d'un programme serait cette connaissance de t
 \end{defi}
 
 À partir de cette donnée il est possible de parcourir l'ensemble des comportements possibles du programme, que ce soit la valeur des différents registres au cours de l'exécution, les interactions entre le programme et le système d'exploitation ou les enchaînements possibles entre différentes instructions.
-Nous nous intéressons en particulier au graphe de flot de contrôle parfait (définition \ref{def:cfg_parfait_nsm}) dans lequel les sommets seraient exactement les adresses de toutes les instructions atteignables et un arc relierait deux instructions si et seulement si il existe un chemin d'exécution dans lequel les deux instructions se suivent immédiatement.
+Nous nous intéressons en particulier au graphe de flot de contrôle parfait (définition \ref{def:cfg_parfait_nsm}) dans lequel les sommets sont exactement les adresses de toutes les instructions atteignables et dans lequel un arc relie deux instructions si et seulement si il existe un chemin d'exécution dans lequel les deux instructions se suivent immédiatement.
 % Cette définition d'un graphe de flot de contrôle parfait représente une instruction par son adresse en mémoire : il s'agit d'une simplification cohérente dans le cas d'un programme \nsm\ et 
 Nous ne nous intéressons ici qu'aux programmes \nsms\ mais nous verrons par la suite comment étendre la notion de graphe de flot de contrôle parfait à un programme qui se modifie lui-même.
 
@@ -643,7 +643,7 @@ Dans le domaine de l'analyse de code, on parle d'analyse dynamique lorsque le fi
 Les deux techniques permettent de récupérer du code assembleur à partir du programme et donc de réaliser un désassemblage et de reconstruire un graphe de flot de contrôle.
 L'avantage de l'analyseur dynamique est que, puisqu'il travaille sur une exécution spécifique du programme, il est précis : les instructions qui sont exécutées doivent être inclues dans le désassemblage.
 Les traces d'exécution fournissent ainsi une \sousa\ de l'ensemble des chemins d'exécution possibles.
-Par contre l'analyseur dynamique n'est pas complet vu qu'il ne suivra pas des branches du programme qui pourraient être utilisées si leurs conditions étaient vérifiées. À l'inverse un analyseur statique n'est pas précis et ne peut en général pas être complet à cause de l'impossibilité de prédire certaines cibles de sauts dynamiques. En considérant que les sauts dynamiques dont les cibles sont inconnues peuvent aboutir à n'importe quelle adresse mémoire, l'analyse statique fournit une \sura\ de l'ensemble des chemins d'exécution possibles.
+Par contre l'analyseur dynamique n'est pas complet vu qu'il ne suivra pas certaines branches du programme qui pourraient être utilisées si leurs conditions étaient vérifiées. À l'inverse un analyseur statique n'est pas précis et ne peut en général pas être complet à cause de l'impossibilité de prédire certaines cibles de sauts dynamiques. En considérant que les sauts dynamiques dont les cibles sont inconnues peuvent aboutir à n'importe quelle adresse mémoire, l'analyse statique fournit une \sura\ de l'ensemble des chemins d'exécution possibles.
 
 En pratique le désassemblage est classiquement du domaine de l'analyse statique. Nous expliquerons comment l'analyse dynamique peut aider à reconstruire les graphes de flot et le code des programmes obscurcis.
 

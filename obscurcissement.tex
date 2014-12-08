@@ -1,4 +1,4 @@
-L'analyse d'un logiciel malveillant a pour but de comprendre ses mécanismes internes : selon les logiciels il peut, entre autres, s'agir des techniques d'attaque, de communication avec d'autres instances du programme ou l'attaquant, de clés de chiffrement utilisées. Le programmeur a donc intérêt à protéger son logiciel contre l'analyse. Son but est de la rendre plus compliquée, nécessitant plus de ressources en temps ou en argent de la part de l'analyste.
+L'analyse d'un logiciel malveillant a pour but de comprendre ses mécanismes internes : selon les logiciels il peut, entre autres, s'agir des techniques d'attaque, de communication avec d'autres instances du programme, ou de clés de chiffrement utilisées. Le programmeur a donc intérêt à protéger son logiciel contre l'analyse. Son but est de la rendre plus compliquée, nécessitant plus de ressources en temps ou en argent de la part de l'analyste.
 
 De nombreuses techniques de protection sont applicables à un programme binaire pour rendre son analyse plus compliquée. Certaines rendent le code plus difficile à comprendre en ajoutant par exemple du code inutile. Une autre technique consiste à modifier le programme au cours de son exécution afin que le code réellement utile du binaire ne soit pas lisible à première vue : on parle alors d'auto-modification.
 
@@ -17,7 +17,7 @@ On souhaite également ne pas affecter de manière importante les performances d
 
 Deux formes d'obscurcissement formelles sont décrites dans la littérature \cite{BR13} :
 \begin{itemize}
- \item L'obscurcissement de type boîte noire : $\mathcal{T}$ est un opérateur d'obscurcissement de type boîte noire si, quel que soit le programme $P$, l'analyse de $\mathcal{T}(P)$ ne fournit pas plus d'information que ce à quoi aurait accès un oracle pouvant simplement utiliser $P$ sur des entrées et en observer les sorties.
+ \item L'obscurcissement de type boîte noire : $\mathcal{T}$ est un opérateur d'obscurcissement de type boîte noire si, quel que soit le programme $P$, l'analyse de $\mathcal{T}(P)$ ne fournit pas plus d'informations que ce à quoi aurait accès un oracle pouvant simplement utiliser $P$ sur des entrées et en observer les sorties.
  \item L'obscurcissement indistinguable : $\mathcal{T}$ est un opérateur d'obscurcissement indistinguable si, pour toute classe de programmes $P_1, P_2, ...$ équivalents fonctionnellement, les programmes obscurcis $\mathcal{T}(P_1)$, $\mathcal{T}(P_2)$, ... sont indistinguables, c'est à dire identiques dans le cas de programmes assembleur.
 \end{itemize}
 
@@ -50,7 +50,7 @@ De nombreuses techniques d'obscurcissement sont utilisées en pratique, nous en 
 
 \paragraph{Insertion de code mort.}
 Insérer du code non atteignable (ou code mort) peut forcer un désassembleur par parcours linéaire à se désaligner avec le code réellement exécuté et à favoriser le code mort au détriment du code légitime.
-L'exemple donné en figure \ref{fig:junk_right} montre de l'assembleur avec deux octets de données placés à la suite d'une instruction \jmp. Ces deux octets aux adresses $0x08048062$ et $0x08048063$ ne sont pas atteignables. Pourtant un désassembleur linéaire (Figure \ref{fig:junk_fooled}) chercherait à les désassembler et serait alors incapable de voir une partie des instructions réellement exécutées.
+L'exemple donné en figure \ref{fig:junk_right} montre du code assembleur avec deux octets de données placés à la suite d'une instruction \jmp. Ces deux octets aux adresses $0x08048062$ et $0x08048063$ ne sont pas atteignables. Pourtant un désassembleur linéaire (Figure \ref{fig:junk_fooled}) chercherait à les désassembler et serait alors incapable de voir une partie des instructions réellement exécutées.
 
 \begin{figure}[H]
 \begin{lstlisting}[language={[x86masm]Assembler}, escapechar=~]
@@ -110,7 +110,7 @@ Le développeur de programmes malveillants peut transformer le GFC afin de le re
 Une de ces techniques est l'aplatissement du GFC \cite{Wang2000}. Elle consiste à transformer les changements de flot de contrôle, par exemple les appels à différentes fonctions, en un seul bloc déterminant l'adresse du saut et y effectuant un saut dynamique à l'instar d'un bloc d'aiguillage (ou \emph{switch}).
 
 Prenons le programme \xq\ donné en figure \ref{fig:applatissement_asm_orig}, dont le graphe de flot de contrôle est donné à la figure \ref{fig:applatissement_cfg_orig}.
-Ce programme modifie la valeur de \edi\ selon la valeur d'origine de \ebx. Son GFC est simple et l'on peut par exemple déterminer facilement les valeur possibles de \edi\ en sortie (lorsque que l'instruction \ret\ est atteinte) : 1, 2 ou 3.
+Ce programme modifie la valeur de \edi\ selon la valeur d'origine de \ebx. Son GFC est simple et l'on peut par exemple déterminer facilement les valeurs possibles de \edi\ en sortie (lorsque que l'instruction \ret\ est atteinte) : 1, 2 ou 3.
 
 % \begin{figure}[h]
 % \begin{center}
@@ -297,7 +297,7 @@ La taille d'une instruction assembleur \xq\ varie de 1 à 15 octets \cite{intel_
 Il est parfaitement possible que la cible d'un saut soit une adresse se trouvant au milieu d'une autre instruction.
 Ainsi on parle de chevauchement de code lorsque deux instructions (ou plus) à des adresses différentes sont codées sur des adresses communes. Si une instruction à l'adresse \adr{a} de taille $k\geq 2$ est atteignable, il peut y avoir une autre instruction valide et atteignable à l'adresse \adr{a+1} et ces deux instructions se chevauchent.
 
-Il est à noter que, comme indiqué par Sikorski et Honig \cite{PMA}, il n'y a dans ce cas aucun désassemblage sous forme de liste d'instructions assembleur qui soit correct et puisse être assemblée en la séquence d'octets originale. En effet une telle liste devra choisir entre l'instruction à l'adresse \adr{a} et celle à l'adresse \adr{a+1} alors qu'elles sont toutes les deux valides et atteignables. Une solution pour écrire un tel code assembleur est de mettre la première instruction en temps qu'instruction classique tandis que la deuxième sera présente sous forme d'octets codés en dur dans le fichier assembleur.
+Il est à noter que, comme indiqué par Sikorski et Honig \cite{PMA}, il n'y a dans ce cas aucun désassemblage sous forme de liste d'instructions assembleur qui soit correct et puisse être assemblé en la séquence d'octets originale. En effet une telle liste devra choisir entre l'instruction à l'adresse \adr{a} et celle à l'adresse \adr{a+1} alors qu'elles sont toutes les deux valides et atteignables. Une solution pour écrire un tel code assembleur est de mettre la première instruction en temps qu'instruction classique tandis que la deuxième sera présente sous forme d'octets codés en dur dans le fichier assembleur.
 
 % \DontWriteThisInToc
 \subsection*{Exemples de chevauchement}
@@ -391,7 +391,7 @@ Le graphe de flot de contrôle correct pour ce code est donné sur la figure \re
 
 \paragraph{Dans UPX.}
 UPX \cite{UPX} cherche à optimiser la taille du binaire protégé.
-La procédure d'exécution du binaire protégé utilise un saut conditionnel pour séparer le contrôle de flot en deux blocs se chevauchants et finissant sur un bloc où ils se réalignent.
+La procédure d'exécution du binaire protégé utilise un saut conditionnel pour séparer le contrôle de flot en deux blocs se chevauchant et finissant sur un bloc où ils se réalignent.
 \more{expliquer les deux branches, rapidement en quoi elles sont utiles}
 \begin{figure}[h]
 % \scriptsize
@@ -450,7 +450,7 @@ Si on la désassemble linéairement à partir du premier octet il s'agit d'une s
 \end{tabular}
 \end{center}
 
-Les octets forment en fait deux chemin. L'un est exclusivement composé d'instructions \nop\ et est inoffensif : il s'agit du chemin d'exécution principal. Le second, le chemin d'exécution caché, débute à $\mathtt{x_1}$ et exécute le code que l'on souhaite dissimuler. En pratique le premier octet du chemin principal sera une cible valide et évidente du flot de contrôle tandis qu'il sera possible de sauter indirectement sur $\mathtt{x_1}$, par exemple avec un \texttt{jmp eax}. De cette manière le désassembleur est poussé à considérer le chemin principal sans examiner le chemin caché.
+Les octets forment en fait deux chemins. L'un est exclusivement composé d'instructions \nop\ et est inoffensif : il s'agit du chemin d'exécution principal. Le second, le chemin d'exécution caché, débute à $\mathtt{x_1}$ et exécute le code que l'on souhaite dissimuler. En pratique le premier octet du chemin principal sera une cible valide et évidente du flot de contrôle tandis qu'il sera possible de sauter indirectement sur $\mathtt{x_1}$, par exemple avec un \texttt{jmp eax}. De cette manière le désassembleur est poussé à considérer le chemin principal sans examiner le chemin caché.
 
 La limite est que les instructions cachées ne peuvent excéder une taille de 4 octets. Les auteurs expliquent cependant que beaucoup d'instructions \xq\ peuvent être séparées en plusieurs instructions plus petites, en utilisant par exemple des registres restreints comme \texttt{ax} ou \texttt{al} à la place d'\eax.
 

@@ -182,7 +182,7 @@ La définition \ref{def:sem_store_dynamique_pointeurs} étend la notion de store
 \paragraph{Règles de transition.}
 Les états d'exécution sont de la forme \textlangle$t, \Theta_X$\textrangle\ où $t$ est une adresse ou l'adresse invalide (ou finale) $\bot$. 
 À chaque instruction exécutée, il y a une transition \textlangle$t, \Theta_X$\textrangle$\rightarrow$\textlangle$t', \Theta_X'$\textrangle.\\
-Si il y a une suite de transitions amenant d'un état \textlangle$t, \Theta_X$\textrangle\ à l'état \textlangle$t', \Theta_X'$\textrangle, on note \textlangle$t, \Theta$\textrangle$\rightarrow^*$\textlangle$t', \Theta_X'$\textrangle.\\
+S'il y a une suite de transitions amenant d'un état \textlangle$t, \Theta_X$\textrangle\ à l'état \textlangle$t', \Theta_X'$\textrangle, on note \textlangle$t, \Theta$\textrangle$\rightarrow^*$\textlangle$t', \Theta_X'$\textrangle.\\
 Un programme s'arrête en partant de l'état initial \textlangle$ep, \Theta_X$\textrangle\ où \texttt{ep} est son point d'entrée si et seulement si \textlangle$ep, \Theta_X$\textrangle$\rightarrow^*$\textlangle$\bot, \Theta_X'$\textrangle. 
 Le programme dans ce cas s'arrête à la première occurrence d'une adresse finale ou invalide $\bot$.
 
@@ -253,7 +253,7 @@ Une des difficultés rencontrées dans la transformation d'un langage assembleur
 L'instruction \texttt{sub eax, b} par exemple soustrait l'opérande \texttt{b} à \eax\  en stockant le résultat de l'opérant dans \eax.
 Le code d'opération \texttt{sub} désigne une vingtaine de variantes de la soustraction selon la taille des opérandes pris en compte. Elle effectue l'opération \texttt{eax-b} et met à jour les drapeaux CF et OF indiquant un dépassement de valeur entière, le drapeau de signe SF, le drapeau ZF (à 1 si le résultat est nul) et celui de parité PF.
 
-Une instruction assembleur va donc être traduite en une ou plusieurs instructions atomiques dans le langage intermédiaire, que l'on sait équivalentes sémantiquement à l'instruction \xq\ et dont on a une sémantique concrète pour les exécuter.
+Une instruction assembleur va donc être traduite en une ou plusieurs instructions atomiques dans le langage intermédiaire, que l'on sait équivalentes sémantiquement à l'instruction \xq\ et pour lesquelles on dispose d'une sémantique concrète permettant de les exécuter.
 Une difficulté pratique vient de la richesse du langage \xq\ : écrire l'équivalence de chacune de ses instructions dans le langage intermédiaire choisi est une tâche longue et prône aux erreurs, notamment lors de l'analyse de la documentation. 
 Pour cette raison nous avons rapidement choisi de nous orienter vers des langages intermédiaires pour lesquels cette étape a déjà été réalisée.
 \\
@@ -266,10 +266,10 @@ Ces appels sont omniprésents dans un programme réel puisque la plupart des int
 \section{Revue de littérature des langages intermédiaires}
 \imore{LLVM ?}
 
-\paragraph{BAP.} Parmis les projets de langages intermédiaires existants et fournissant d'une part une transcription depuis l'assembleur et d'autre part une sémantique concrète du langage considéré, nous nous sommes intéressés à BAP \cite{BAP11}. 
+\paragraph{BAP.} Parmi les projets de langages intermédiaires existants, fournissant d'une part une transcription depuis l'assembleur et d'autre part une sémantique concrète du langage considéré, nous nous sommes intéressés à BAP \cite{BAP11}. 
 BAP est le successeur du projet BitBlaze qui a défini et développé une plateforme d'analyse statique basée sur le langage intermédiaire Vine IL \cite{bitblaze08}. 
 Sémantiquement le langage intermédiaire défini par BAP ne diffère pas fondamentalement de celui défini dans ce chapitre. 
-Ils définissent également un opérateur permettant de gérer l'adressage indirect : \texttt{load($e_1$, $e_2$, $e_3$, $\tau_{reg}$)} place la valeur de l'expression $e_1$ à l'adresse $e_2$, ainsi \texttt{load($x$, $eax$, $e_3$, $\tau_{reg}$)} effectue l'opération \texttt{$[eax]\leftarrow x$}. 
+Ils définissent également un opérateur permettant de gérer l'adressage indirect : un appel à \texttt{load($e_1$, $e_2$, $e_3$, $\tau_{reg}$)} place la valeur de l'expression $e_1$ à l'adresse $e_2$, ainsi \texttt{load($x$, $eax$, $e_3$, $\tau_{reg}$)} effectue l'opération \texttt{$[eax]\leftarrow x$}. 
 Le paramètre $e_3$ a une valeur booléenne indiquant si la machine fonctionne en petit ou grand boutiste et $\tau_{reg}$ indique le nombre d'octets qui doivent être copiés. 
 L'avantage de BAP par rapport au langage présenté précédemment est qu'il est bien plus proche du langage assembleur : les valeurs des variables ne sont pas dans $\BN$ mais dans $\textlbrackdbl 0,\ 2^{32}-1\textrbrackdbl$, $\textlbrackdbl -2^{31},\ 2^{31}-1\textrbrackdbl$, $\textlbrackdbl 0,\ 2^{64}-1\textrbrackdbl$ ou $\textlbrackdbl -2^{63},\ 2^{63}-1\textrbrackdbl$ selon la machine que l'on cherche à modéliser et le type des variables (signé ou non). 
 De même les fonctions entières sont explicitées et contiennent, entre autres, des opérations binaires comme l'addition, le ``ou'' logique, la comparaison de deux valeurs.
@@ -281,7 +281,7 @@ Cette dernière région contient autant de blocs distincts qu'il y a eu d'alloca
 \paragraph{DBA.}
 Le langage intermédiaire DBA (\emph{Dynamic Bitvector Automata}) \cite{bincoa}, faisant partie du projet BinSec \cite{binsec}, intègre des permissions au sein de son modèle. À l'instar du comportement de Jakstab la mémoire est scindée en régions disjointes et chaque allocation dynamique crée une nouvelle région.
 Une région de mémoire peut être marquée comme accessible en lecture, en écriture, en exécution ou une combinaison de ces trois permissions.
-L'exécution d'une instruction provoquant un accès mémoire interdit est inclut dans la sémantique et provoque une erreur.
+L'exécution d'une instruction provoquant un accès mémoire interdit est incluse dans la sémantique et provoque une erreur.
 Cette spécificité permet à DBA de mieux représenter la mémoire d'une machine réelle où le système d'exploitation gère ces droits d'accès.
 
 \paragraph{REIL.} Dullien et Porst \cite{reil} ont développé un langage intermédiaire adapté à l'analyse de la sécurité logicielle et en particulier à la recherche de vulnérabilités, REIL (\emph{Reverse Engineering Intermediate Language}). Il est composé de 17 instructions permettant les opérations de calculs arithmétiques, de lecture et d'écriture des registres et de la mémoire, et de sauts conditionnels.
@@ -296,7 +296,7 @@ Il est donc, comme nous le verrons par la suite, fréquent de construire des mé
 Une première approche, suivie par exemple par BAP, consiste, à l'instar de la compilation, à transformer l'intégralité du programme assembleur en un programme en langage intermédiaire et à effectuer les analyses sur cette représentation intermédiaire.
 Cette approche est illustrée par le graphique donné à la figure \ref{fig:diag_approche_globale}. La partie d'analyse consiste en l'exécution ou l'émulation du programme dans son langage intermédiaire en partant du point d'entrée.
 Une première instruction est décodée, analysée et ajoutée dans le graphe de flot de contrôle du programme. Puis cette instruction est évaluée selon la méthode d'évaluation sémantique précédemment définie.
-Cette évaluation a des conséquence sur l'état des registres du processeur et de la mémoire de la machine.
+Cette évaluation a des conséquences sur l'état des registres du processeur et de la mémoire de la machine.
 L'instruction qui doit être exécutée ensuite est cette présente à l'adresse donnée par le registre de compteur ordinal (\eip\ en assembleur \xq). On récupère alors cette instruction pour l'analyser à son tour.
 
 \begin{figure}[h]
@@ -377,7 +377,7 @@ Ainsi, pour pouvoir utiliser ce langage intermédiaire dans le cas d'un programm
 En pratique nous souhaitons donc avoir accès à la représentation sous forme binaire du programme intial.
 Nous allons donc commencer par le charger en mémoire comme une partie intégrante de l'état interne de la machine.
 C'est le comportement attendu d'une machine de Von Neumann et le comportement du programme peut donc être auto-modifiant. Le décodage, le désassemblage puis la transformation en langage intermédiaire et l'évaluation sémantique des instructions du programme se feront donc au fur et à mesure de l'analyse, une instruction à la fois, depuis l'état de la mémoire.
-Ce modèle est illustré par le diagramme suivant.
+Ce modèle est illustré par le diagramme de la figure \ref{fig:diag_approche_atomique}.
 
 \begin{figure}[h]
 \begin{center}
@@ -415,7 +415,7 @@ Ce modèle est illustré par le diagramme suivant.
 \label{fig:diag_approche_atomique}
 \end{figure}
 
-Au c\oe ur de cette architecture se trouvent deux opérateurs. Le premier est l'opérateur de désassemblage capable de transformer des octets présents à une certaines adresse mémoire en une liste d'instructions dans le langage intermédiaire, équivalentes sémantiquement à l'instruction assembleur codée sur ces octets. 
+Au c\oe ur de cette architecture se trouvent deux opérateurs. Le premier est l'opérateur de désassemblage capable de transformer des octets présents à une certaine adresse mémoire en une liste d'instructions dans le langage intermédiaire, équivalentes sémantiquement à l'instruction assembleur codée sur ces octets. 
 Le second est l'opérateur d'évaluation sémantique qui modifie l'état interne de la machine selon l'instruction dans le langage intermédiaire donnée en entrée.
 
 \section{Implémentations}
@@ -493,7 +493,7 @@ Il fournit également un émulateur permettant d'exécuter un programme en langa
 Seul l'assembleur \xq\ est supporté par la version 0.7 de BAP que nous avons utilisée et l'émulateur ne permet pas l'auto-modification.
 
 Nous souhaitions utiliser BAP pour qu'il nous fournisse l'opérateur de désassemblage et d'évaluation sémantique et ainsi permettre l'analyse de code auto-modifiant.
-Ces deux opérateurs sont déjà implémentés dans BAP mais ne sont pas normalement accessibles depuis l'interface de programmation, nous avons donc légèrement modifié le code de BAP, codé en OCaml, pour les rendre accessibles et permettre le décodage d'une instruction puis son exécution dans un contexte donné.
+Ces deux opérateurs sont déjà implémentés dans BAP mais ne sont pas normalement accessibles depuis l'interface de programmation. Nous avons donc légèrement modifié le code de BAP, codé en OCaml, pour les rendre accessibles et permettre le décodage d'une instruction puis son exécution dans un contexte donné.
 
 \paragraph{Limites de l'approche.}
 Nous sommes capables d'émuler l'exécution de programmes \sms\ simples mais les appels systèmes ne sont pas gérés par BAP.

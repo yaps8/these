@@ -32,8 +32,8 @@ i & Adresse & Octets & Instruction\\
 
 Au vu de l'enchaînement des instructions, on peut construire trois représentations en mémoire des parties exécutables du programme.
 La première correspond à la vision du programme lors de son chargement : la section \ptext\ est dans son état initial, donné en figure \ref{fig:prg_asm_sm}.
-La seconde est celle après que la première modification du programme faite par l'instruction 2 et la troisième après la seconde modification effectuée par l'instruction 3.
-En fait vu qu'aucune des adresses modifiées par la première instruction auto-modifiante n'est exécutée avant que la seconde modification ne soit faite, on peut regrouper les deux instructions auto-modifiantes et considérer que le programme n'a que deux représentations en mémoire : la représentation initiale et la représentation après que l'instruction 3 ait été exécutée. 
+La seconde représentation est celle après la première modification du programme faite par l'instruction 2 et la troisième après la seconde modification effectuée par l'instruction 3.
+En fait vu qu'aucune des adresses modifiées par la première instruction auto-modifiante n'est exécutée avant que la seconde modification ne soit faite, on peut regrouper les deux instructions auto-modifiantes et considérer que le programme n'a que deux représentations en mémoire : la représentation initiale et la représentation après que l'instruction 3 a été exécutée. 
 Beaucoup de logiciels protégés restaurent de grandes parties de code au démarrage : un grand nombre d'instructions sont modifiées sans que les instructions modifiées ne soient exécutées. 
 Il nous paraît plus cohérent que toutes ces modifications soient réunies puisqu'elles correspondent à une étape lors de l'exécution du programme, l'étape suivante étant l'exécution d'une de ces instructions modifiées.
 
@@ -105,10 +105,10 @@ Soit $D$ une instruction dynamique et $\Theta$ un store représentant l'état de
 \label{def:ensembles_inst_dyn_write}
 \end{defi}
 
-Cette information est donnée par la sémantique concrète choisie : si l'instruction assembleur \di{D} est sémantiquement équivalente, avec le store $\Theta$, à la suite d'instructions atomiques $d_1, ..., d_n$ dans un langage intermédiaire alors l'ensemble des adresses écrites par D est l'union de adresses écrites par chacune des instructions atomiques $d_i$ dans la sémantique concrète choisie pour ce langage intermédiaire (propriété \ref{propri:eq_W_D_di}).
+Cette information est donnée par la sémantique concrète choisie : si l'instruction assembleur \di{D} est sémantiquement équivalente, avec le store $\Theta$, à la suite d'instructions atomiques $d_1, ..., d_n$ dans un langage intermédiaire alors l'ensemble des adresses écrites par D est l'union des adresses écrites par chacune des instructions atomiques $d_i$ dans la sémantique concrète choisie pour ce langage intermédiaire (propriété \ref{propri:eq_W_D_di}).
 
 \begin{propri}
-Soit $D$ une instruction dynamique, $\Theta$ un store représentant l'état des variables (mémoire et registres) et $d_1, ..., d_n$ une suite d'instruction atomiques dans un langage intermédiaire telle que la suite d'instruction $d_1, ..., d_n$ dans le langage intermédiaire est sémantiquement équivalente à l'instruction assembleur \di{D}. On a :
+Soit $D$ une instruction dynamique, $\Theta$ un store représentant l'état des variables (mémoire et registres) et $d_1, ..., d_n$ une suite d'instructions atomiques dans un langage intermédiaire telle que la suite d'instruction $d_1, ..., d_n$ dans le langage intermédiaire est sémantiquement équivalente à l'instruction assembleur \di{D}. On a :
 $$\mdww{\Theta}{D}=\mdww{\Theta}{d_1,..., d_n}=\mdww{\Theta}{d_1}\ \cup\ ...\ \cup\ \mdww{\Theta}{d_n}.$$
 \label{propri:eq_W_D_di}
 \end{propri}
@@ -159,7 +159,7 @@ Une exécution d'un programme, dont le point d'entrée est $ep$, est la donnée 
 \label{def:execution}
 \end{defi}
 
-Une trace d'exécution est une signature d'une exécution, elle contient les instructions successives avec leurs niveau d'exécution respectifs (définition \ref{def:trace}).
+Une trace d'exécution est une signature d'une exécution, elle contient les instructions successives avec leur niveau d'exécution respectifs (définition \ref{def:trace}).
 
 \begin{defi}
 Étant donnée une exécution d'un programme composée des contextes d'exécution $E_0, E_1, ..., E_n$ avec $E_i=(X_i, \Theta_i, W_i)$, on appelle trace d'exécution la suite $T=(t_1, t_2, ..., t_n)$ où $t_i=(i, X_{i-1}, D_i)$ avec $D_i=$\texttt{decode}$(\Theta_{i-1}[eip], \Theta_{i-1})$.
@@ -343,10 +343,10 @@ Supposons que l'on dispose d'un programme P dont le point d'entrée est $ep$ et 
 Nous appelons exécution de ce programme sur une entrée I composée d'états initiaux pour les registres $I_R$ et pour la mémoire $I_M$, sous réserve que le programme P est correctement chargé dans $I_M$, la donnée de la trace et des instantanés d'exécution résultant de l'application de l'algorithme \ref{algo:analyse_dyn_vagues}, soit \texttt{analyseDynamique($I_R$, $I_M$, ep)} que l'on notera par la suite \texttt{exécution(P, I, ep)}.
 
 \section{Revue de littérature}
-La notion de vague présentée dans ce chapitre a été développée dans les thèse de Reynaud \cite{Reynaud2010} et Calvet \cite{Calvet2013}.
+La notion de vague présentée dans ce chapitre a été développée dans les thèses de Reynaud \cite{Reynaud2010} et Calvet \cite{Calvet2013}.
 Elle est similaire à la notion de \emph{phase} présentée par Debray et Patel \cite{DP10} et utilisée pour automatiser la suppression de la protection d'un binaire. Le découpage d'une trace en phases est, chez eux, identique au découpage en vagues que l'on présente dans ce chapitre.
 En particulier le programme auto-modifiant précédent (figure \ref{fig:prg_asm_sm}), exécuté, forme deux vagues : la vague initiale est le programme initial et la seconde, modifiée, est identique à l'exception des instructions 4 et 5 qui ont été modifiées en \texttt{mov edi, 2} et \texttt{mov ebx, 2} respectivement.
-En général la suppression des protections se fait à l'aide d'une analyse dynamique et d'une image de la mémoire à un instant donné au cours de l'exécution. C'est cette image mémoire qui sera considérée comme étant le programme d'origine. La difficulté réside alors dans le choix de l'instant où prendre l'image mémoire : il s'agit souvent la dernière phase.
+En général la suppression des protections se fait à l'aide d'une analyse dynamique et d'une image de la mémoire à un instant donné au cours de l'exécution. C'est cette image mémoire qui sera considérée comme étant le programme d'origine. La difficulté réside alors dans le choix de l'instant où prendre l'image mémoire : il s'agit souvent de la dernière phase.
 
 Preda, Giacobazzi, Debray, Coogan et Townsend \cite{PGDCT10} effectuent un découpage en phases mais chaque exécution d'une instruction écrite lors d'une vague précédente (pas uniquement lors de la phase en cours) provoque la création d'une nouvelle phase.
 Avec l'exemple précédent, leur approche crée trois phases : la phase initiale, celle où uniquement l'instruction 4 a été modifiée, puis celle où les instructions 4 et 5 ont été modifiées.

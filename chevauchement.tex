@@ -1,6 +1,6 @@
 Nous cherchons à parcourir le plus de code atteignable dans le but d'approximer le graphe de flot de contrôle parfait.
 Il faut alors pallier d'une part à l'incomplétude d'un parcours récursif du à la présence de sauts dynamiques, et d'autre part au manque de précision d'un parcours linéaire.
-Une des difficulté vient de l'obscurcissement par chevauchement de code. 
+Une des difficultés vient de l'obscurcissement par chevauchement de code. 
 
 Dans ce chapitre nous commençons par dresser un état de l'art de quelques techniques d'analyse statique et de leur approche du chevauchement de code, puis nous proposerons une caractérisation des binaires utilisant cette technique.
 Nous ne considérons que des programmes \nsms.
@@ -16,10 +16,10 @@ Cette contrainte empêche de détecter tout chevauchement mais permet un désass
 \paragraph{Parcours spéculatif.}
 Le parcours récursif étant moins sensible à des obscurcissements très simples comme l'injection de code mort, il est souvent pris comme point de départ dans les recherches sur le désassemblage statique.
 Une fois une première recherche de code avec un parcours récursif effectuée, les octets restants peuvent subir un parcours linéaire qui cherchera à déterminer s'ils sont du code ou des données à l'aide d'heuristiques.
-Une de ces approche évalue la probabilité qu'une suite d'octets soit effectivement du code en apprenant au préalable des suites d'octets codant réellement des instructions lancées lors de l'exécution de programmes \cite{KDF09}.
+Une de ces approches évalue la probabilité qu'une suite d'octets soit effectivement du code en apprenant au préalable des suites d'octets codant réellement des instructions lancées lors de l'exécution de programmes \cite{KDF09}.
 On appelle cet enchaînement des deux parcours un parcours spéculatif.
 
-Prasaf et Chiueh \cite{PC03}, après un premier désassemblage récursif, tentent d'identifier les adresses de début de fonctions assembleur à l'aide de la suite d'instruction \push\ puis \mov, caractéristique de fonctions compilées : elles commencent par empiler le pointeur de pile de base avec \texttt{push ebp} pour le remplacer par le pointeur de pile avec \texttt{mov ebp, esp}. Ils identifient également toutes les adresses où sont codées une instruction valide. À partir de ces adresses ils effectuent à nouveau un parcours récursif jusqu'à une instruction de saut inconditionnel (\ret\ out \jmp), estimant que la séquence de code identifiée s'arrête sur ce saut. Le risque est grand que des chemins parcourus ainsi ne soient pas valides, ils éliminent alors les chemins qui aboutissent sur du code invalide ou des adresses connues pour être des données.
+Prasaf et Chiueh \cite{PC03}, après un premier désassemblage récursif, tentent d'identifier les adresses de début de fonctions assembleur à l'aide de la suite d'instruction \push\ puis \mov, caractéristique de fonctions compilées : elles commencent par empiler le pointeur de pile de base avec \texttt{push ebp} pour le remplacer par le pointeur de pile avec \texttt{mov ebp, esp}. Ils identifient également toutes les adresses où est codée une instruction valide. À partir de ces adresses ils effectuent à nouveau un parcours récursif jusqu'à une instruction de saut inconditionnel (\ret\ out \jmp), estimant que la séquence de code identifiée s'arrête sur ce saut. Le risque étant grand que des chemins parcourus ainsi ne soient pas valides, ils éliminent alors les chemins qui aboutissent sur du code invalide ou des adresses connues pour être des données.
 
 Krügel, Roberston, Valeur et Vigna \cite{KruegelRVV04} proposent aussi de séparer le code en fonctions assembleur. Ils effectuent une première analyse récursive pour détecter le maximum d'instructions atteignables et, lorsque que deux ou plusieurs instructions atteignables se chevauchent, ils considèrent qu'il s'agit d'un conflit qui se résoudra par le choix d'une des instructions.
 Leurs hypothèses sont : (i) les instructions ne peuvent pas se chevaucher, (ii) les sauts conditionnels peuvent être suivis ou non, (iii) le binaire peut contenir du code mort, et (iv) le code suivant une instruction \call\ n'est pas nécessairement accessible. Pour résoudre les conflits de chevauchement ils favorisent les instructions atteignables depuis le point d'entrée (que l'on sait accessible), puis ils considèrent qu'une instruction permettant d'atteindre directement deux instructions qui se chevauchent n'est pas valide et enfin ils favorisent les instructions les plus connectées au graphe de flot de contrôle.
@@ -230,12 +230,12 @@ Ce découpage est donc, par définition, basé sur l'alignement des instructions
 Il est à noter qu'en assembleur \xq\ ou \xs\ les instructions ont tendance à se réaligner rapidement, 
 % il suffit en général d'au plus quatre \todo{cite, vrai?}instructions pour que ces deux parcours se confondent.
 cette propriété a pour conséquence que la plupart des \layers\ linéaires se réalignent, après quelques instructions, sur une \layer\ précédente, en général la première. Sur la figure \ref{fig:telock-layers-linear} les \layers\ 1 et 2 se réalignent et partagent l'instruction \texttt{jg 0x1006e68}.
-Cette propriété n'est évidemment pas vérifiée si les instructions ont été spécialement choisie pour provoquer de longs chemins de chevauchement, comme avec l'obscurcissement précédemment cité \cite{JLH13}.
+Cette propriété n'est évidemment pas vérifiée si les instructions ont été spécialement choisies pour provoquer de longs chemins de chevauchement, comme avec l'obscurcissement précédemment cité \cite{JLH13}.
 \imore{combien d'instructions pour se réaligner ? cite ?}
 
 Nous souhaitons obtenir un découpage cohérent des \layers\ sous forme d'ensembles deux à deux disjoints.
 Il suffit alors d'enlever des \layers\ les instructions existant déjà dans les \layers\ inférieures (colorées en gris sur la figure \ref{fig:telock-layers-linear}) et de ne garder que les \layers\ contenant des instructions valides.
-Au final il reste les deux \layers\ données précédemment à la figure \ref{fig:telock-layers-simple}, obtenus linéairement.
+Au final il reste les deux \layers\ données précédemment à la figure \ref{fig:telock-layers-simple}, obtenues linéairement.
 L'algorithme \ref{algo:decoupage_lineaire} détaille le découpage cohérent en couches linéaires d'un programme composé d'un seul segment est donné.
 % \\
 
@@ -284,7 +284,7 @@ L'extension consiste à simplement à réaliser un découpage cohérent pour cha
 % Les \layers\ linéaires sont en fait une extension du désassemblage linéaire. Un programme non obscurcis peut être désassemblé avec un minimum d'erreurs par un parcours linéaire représenté.
 Le découpage en \layers\ linéaires n'est pas en soi un algorithme de désassemblage : il s'agit d'une analyse exhaustive de toutes les instructions codées dans le segment analysé et ne cherche pas à discriminer les instructions atteignables des autres.
 On peut voir ce découpage comme une caractéristique du binaire qui contient l'ensemble des instructions potentiellement exécutées (hors auto-modification) et qui dépend de leur agencement en mémoire.
-La première \layer\ correspond à un désassemblage linéaire depuis la première adresse du segment analysé tandis les suivantes ne sont pas présents dans le désassemblage linéaire.
+La première \layer\ correspond à un désassemblage linéaire depuis la première adresse du segment analysé tandis les suivantes ne sont pas présentes dans le désassemblage linéaire.
 
 \paragraph{Caractérisations des binaires obscurcis.}
 % Considérons le graphe de flot de contrôle parfait d'un programme.

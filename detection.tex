@@ -30,11 +30,11 @@ De nombreux éditeurs de logiciels non libres, cherchant à empêcher ou ralenti
 \paragraph{Critères de classification.}
 La classification en logiciel légitime ou malveillant peut s'effectuer sur divers critères, que l'on compare à ceux de programmes ou de comportements connus :
 \begin{itemize}
- \item Sa représentation sous forme de fichier
- \item Des traces d'exécution
- \item Son code assembleur désassemblé
- \item Le code assembleur du programme dont on aurait enlevé les protections
- \item Son graphe de flot de contrôle (GFC)
+ \item sa représentation sous forme de fichier,
+ \item des traces d'exécution,
+ \item son code assembleur désassemblé,
+ \item le code assembleur du programme dont on aurait enlevé les protections,
+ \item son graphe de flot de contrôle (GFC).
 %  \item Son graphe de flot (GFC) de contrôle parfait
 %  \item Son graphe de flot (GFC) de contrôle paramétré par une exécution
 \end{itemize}
@@ -107,7 +107,7 @@ Ensuite la classification se fait par mesure de la distance entre le programme a
 Une possibilité est de décomposer le code des programmes en n-grammes contenant $n$ instructions séquentielles d'un même bloc de base. La signature du programme est alors l'ensemble de ces groupes de $n$ instructions. Pour rendre les instructions plus génériques, Upchurch et Zhou~\cite{UZ13} ne prennent pas les instructions entières mais seulement leur mnémonique (\texttt{mov eax, 3} devient \mov).
 
 \paragraph{Familles de logiciels malveillants.}
-Jang, Brumley et Venkataraman \cite{JBV11} proposent un outil générique de classification des logiciels en familles, quelles que soient les caractéristiques et donc les mesures choisies. Ce type d'approches permettent d'aller plus loin que la simple classification en logiciel légitime ou malveillant et peut donner des informations sur ce qu'on peut attendre d'un logiciel en fonction de la famille à laquelle il appartient.
+Jang, Brumley et Venkataraman \cite{JBV11} proposent un outil générique de classification des logiciels en familles, quelles que soient les caractéristiques et donc les mesures choisies. Ce type d'approches permet d'aller plus loin que la simple classification en logiciel légitime ou malveillant et peut donner des informations sur ce qu'on peut attendre d'un logiciel en fonction de la famille à laquelle il appartient.
 
 \section{Analyse morphologique}
 L'analyse morphologique, introduite par Kaczmarek \cite{Kacz08}, Bonfante et Marion \cite{BKM08}, propose une détection 
@@ -309,7 +309,7 @@ La principale différence avec notre approche est donc que les auteurs cherchent
 
 Zynamics commercialise un outil de comparaison de binaires, BinDiff \cite{bindiff}, qui sépare également les binaires utilisés en fonctions assembleur.
 L'outil permet de trouver des fonctions identiques et de comparer des fonctions présentant certaines similarités \cite{DR05}.
-Il opère par comparaison de critères sur les fonctions comme leur nom, les appels système qu'elles effectuent ou encore le nombre d'arcs en entrée et en sortie des sommets de leur GFC partiel. Bien qu'il n'utilise pas à proprement parler de techniques d'isomorphismes de graphes, BinDiff fonctionne sur des graphes de flot de contrôles en utilisant certains critères qui leur sont spécifiques et va donc plus loin qu'une simple comparaison syntaxique des fonctions.
+Il opère par comparaison de critères sur les fonctions comme leur nom, les appels système qu'elles effectuent ou encore le nombre d'arcs en entrée et en sortie des sommets de leur GFC partiel. Bien qu'il n'utilise pas à proprement parler de techniques d'isomorphismes de graphes, BinDiff fonctionne sur des graphes de flot de contrôle en utilisant certains critères qui leur sont spécifiques et va donc plus loin qu'une simple comparaison syntaxique des fonctions.
 
 L'application de techniques de réduction dans le but de rendre des codes malveillants plus génériques et ainsi que les signatures soient plus efficaces est fréquente dans la littérature. 
 Certains travaux \cite{CKJKVM05} proposent des méthodes luttant spécifiquement contre certaines techniques d'obscurcissement comme la réorganisation de code ; c'est l'objectif des réductions proposées à la figure \ref{fig:am_reductions} dont fait partie le réalignement des sauts inconditionnels.

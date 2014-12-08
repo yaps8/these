@@ -1,4 +1,4 @@
-Nous avons vu au chapitre précédent que l'analyse morphologique fonctionne par comparaison des graphes de flot de contrôles.
+Nous avons vu au chapitre précédent que l'analyse morphologique fonctionne par comparaison des graphes de flot de contrôle.
 Dans ce chapitre nous décrivons le fonctionnement du détecteur par analyse morphologique et nous nous intéressons au problème de la détection d'isomorphismes de sous-graphes. 
 Nous définissons ce qu'est un graphe de flot, notion plus spécifique que la notion générale de graphe, au sein duquel les fils d'un sommet sont ordonnés.
 Cette restriction rend le problème de la recherche d'isomorphisme de sous-graphes de flot solvable en temps polynômial alors qu'il est NP-complet dans le cas général.
@@ -21,7 +21,7 @@ V est l'ensemble des sommets de T, L un ensemble d'étiquettes, l la fonction do
 \end{defi}
 
 
-Afin de refléter l'incomplétude des graphes de flot de contrôles reconstruits, les graphes sur lesquels nous sommes amenés à travailler peuvent être partiels : il y a des branches qui peuvent être inconnues.
+Afin de refléter l'incomplétude des graphes de flot de contrôle reconstruits, les graphes sur lesquels nous sommes amenés à travailler peuvent être partiels : il y a des branches qui peuvent être inconnues.
 Par exemple un sommet d'étiquette $JCC$ ayant un seul fils est incomplet : la cible du saut est inconnue.
 % De plus pour simplifier les algorithmes impliqués dans la recherche de parties communes à plusieurs graphes, il est pratique de forcer les fils de chaque sommet à être ordonnés.
 Nous forçons les fils de chaque sommet à être ordonnés. Il s'agit d'une contrainte forte qui permet de réduire grandement la complexité des algorithmes mis en \oe uvre pour résoudre l'isomorphisme de sous-graphe.
@@ -130,7 +130,7 @@ Le sous-graphe induit d'un graphe de flot $T=(V_T, L_T, l_T, E_T)$ à partir de 
 % Notre problème
 % consiste donc, à partir du graphe de flot T à analyser, à déterminer si un de ses sous-graphes est isomorphe à un des graphes de flot de la base.
 Notre problème consiste donc, à partir d'un graphe de flot P connu et d'un graphe de flot T à analyser, à déterminer si P est isomorphe à un sous-graphe de flot de T.
-Par exemple sur la figure \ref{fig:ex-gf-sous-gf}, le graphe P est isomorphe au sous-graphe de T induit par les sommets $\{d, e, a\}$ comme à celui formé induit par les sommets sommets $\{b, d, a\}$.
+Par exemple sur la figure \ref{fig:ex-gf-sous-gf}, le graphe P est isomorphe au sous-graphe de T induit par les sommets $\{d, e, a\}$ comme à celui formé induit par les sommets $\{b, d, a\}$.
 
 
 \begin{figure}[ht]
@@ -250,7 +250,7 @@ $E\leftarrow\emptyset$\\
 \end{algorithm}
 
 \paragraph{Complexité.}
-Calculons la complexité de l'obtention d'un site par parcours en largeur limité à W sommets en prenant en compte le nombre d'opération de dépilement ou d'empilement dans la file L.
+Calculons la complexité de l'obtention d'un site par parcours en largeur limité à W sommets en prenant en compte le nombre d'opérations de dépilement ou d'empilement dans la file L.
 Nous avons vu que chaque sommet a au plus $k$ fils.
 De plus le parcours s'arrête dès que W sommets ont été ajoutés à l'ensemble E. Il peut arriver que les fils du $W^e$ sommet soient ajoutés à la liste d'attente (mais ils ne seront pas ajoutés à E).
 Dans le pire des cas on empile donc la racine puis $k$ fils pour $W$ sommets et on dépile $W$ sommets. La complexité de l'algorithme \ref{algo:generation_site_largeur} est donc $O((k+1).W)$.
@@ -547,7 +547,7 @@ $\left( \begin{array}{ccccc}
 %$I^{n, m}_{i, j}=1$ si $i=j$, $I^{n, m}_{i, j}=0$ 
 s
 % \paragraph{Complexité.}
-L'approche par force brute demande de parcourir toutes les matrice de permutations de taille $n_T$ : il y en a $n_T!$. Pour chaque matrice de permutation, une matrice transposée est déterminée et plusieurs multiplications matricielles sont faites sur des matrices de taille $n_T.n_T$, opération réalisable au pire en $n_T^3$. La complexité de cette approche dans le pire des cas est donc $O(n_T^3.n_T!)$ (proposition \ref{prop:complexite_matrices}).
+L'approche par force brute demande de parcourir toutes les matrices de permutations de taille $n_T$ : il y en a $n_T!$. Pour chaque matrice de permutation, une matrice transposée est déterminée et plusieurs multiplications matricielles sont faites sur des matrices de taille $n_T.n_T$, opération réalisable au pire en $n_T^3$. La complexité de cette approche dans le pire des cas est donc $O(n_T^3.n_T!)$ (proposition \ref{prop:complexite_matrices}).
 
 \begin{prop}
 La complexité de la recherche exhaustive d'un sous-graphe de T (de taille $n_T$) isomorphe à P est de $O(n_T^3.n_T!)$.
@@ -558,7 +558,7 @@ La complexité de la recherche exhaustive d'un sous-graphe de T (de taille $n_T$
 \idone{il s'appelle Ullmann}
 L'algorithme d'Ullmann est le plus connu pour résoudre le problème \ref{pbisosg} d'isomorphisme de sous-graphes \cite{Ull76} dans le cas général des graphes orientés. Il s'applique à un graphe de motif P à détecter et à un graphe T dans lequel faire la reconnaissance. Comme détaillé par la suite, sa complexité est exponentielle en le nombre de sommets maximal du graphe de motif P.
 
-De plus, si on veut l'utiliser pour résoudre le problème \ref{pbisosgbase} de recherche d'isomorphismes de sous-graphes dans une base de graphes de motifs, il est nécessaire de l'appliquer pour chaque graphe dans la base, la complexité est alors linéaire en le nombre de graphes dans la base.
+De plus, si on veut l'utiliser pour résoudre le problème \ref{pbisosgbase} de recherche d'isomorphismes de sous-graphes dans une base de graphes de motifs, il est nécessaire de l'appliquer pour chaque graphe dans la base. La complexité est alors linéaire en le nombre de graphes dans la base.
 Puisqu'il est complet pour le problème d'isomorphisme de sous-graphes, ce sera l'algorithme de référence auquel on pourra comparer les heuristiques sur le plan de la complétude, de la complexité, et du temps d'exécution.\\
 
 Nous présenterons d'abord l'algorithme d'Ullmann dans le cas de graphes orientés quelconques puis nous y ferons des restrictions pour l'adapter au cas des graphes de flot.
@@ -991,15 +991,13 @@ constante. Ainsi dans le calcul de la complexité, il suffit de multiplier $n_T$
 \\
 
 Supposons que les graphes P et T ont pour chaque label les même probabilités d'apparition et $n_T >> n_P.$
-On a alors. $$h=P(m^0_{i, j}=1)=P(L_i=L_j)=P(\cup_k(L_i=k \cap L_j=k)),$$
+On a alors : $$h=P(m^0_{i, j}=1)=P(L_i=L_j)=P(\cup_k(L_i=k \cap L_j=k)),$$
 $$h=\sum_kP(L_i=k\ \cap\ L_j=k) \mbox{ car les labels sont tous différents (événements disjoints),}$$
 $$h=\sum_kP(L_i=k).P(L_j=k) \mbox{ car ces événements sont indépendants,}$$
 $$h=\sum_kl_k^2.$$
 
 Dans le cas que l'on traite les sous-sites P sont de petite taille (inférieure à 24 sommets) tandis que les graphes de flot T peuvent avoir plusieurs milliers de sommets.
-Comme $n_T >> n_P$, chaque choix de correspondance ne modifie pas la probabilité h que $C^0_{i, j}=1$ parmi les sommets restant
-malgré le fait que certaines correspondances
-aient déjà été choisies (leur nombre est très faible par rapport au nombre total de correspondances possibles).
+Comme $n_T >> n_P$, chaque choix de correspondance ne modifie pas la probabilité h que $C^0_{i, j}=1$ parmi les sommets restant bien que certaines correspondances aient déjà été choisies (leur nombre est très faible par rapport au nombre total de correspondances possibles).
 
 Dans notre exemple h=0.335, soit 34\%. Prendre en compte les types d'instructions est équivalent à diviser par 3 la taille du graphe à tester
 en terme de complexité temporelle dans le pire des cas.
@@ -1103,7 +1101,7 @@ Messmer \cite{MessPhd} propose plusieurs approches pour la comparaison de graphe
 Pour l'isomorphisme de sous-graphes, Messmer et Bunke proposent \cite{MB95} de construire la matrice d'adjacence de chaque graphe du corpus, de générer toutes les matrices d'adjacence possibles par diminution du nombre de sommets et par permutations, et de les ranger dans un arbre de décision.
 L'analyse d'un graphe inconnu est extrêmement rapide puisqu'il suffit de parcourir l'arbre de décision avec sa matrice d'adjacence pour vérifier s'il est un sous-graphe d'un graphe du corpus.
 La limite de l'approche est donc qu'il faut non seulement générer tous les isomorphismes, mais en plus les stocker.
-Ils montrent, en appliquant quelques optimisations, que l'on peut générer et stocker tous les isomorphismes de sous-graphes pour des graphes allant jusqu'à 22 sommets.
+Les auteurs montrent, en appliquant quelques optimisations, que l'on peut générer et stocker tous les isomorphismes de sous-graphes pour des graphes allant jusqu'à 22 sommets.
 \\
 
 Le cas des graphes de flot est assez différent puisque l'on va chercher à comparer des petits graphes de motif (moins de 24 sommets) et dans graphes de test de grande taille (plusieurs dizaines de milliers de sommets).
@@ -1409,7 +1407,7 @@ On voudrait maintenant prouver l'équivalence entre l'existence d'un isomorphism
 On va montrer que l'algorithme \ref{algo:parcoursSiteDepuisCodage} appliqué au codage $C_P$, au graphe T, à partir de la racine de S produit un site S' isomorphe à S et P. \\
 Le graphe composé uniquement de la racine de P est isomorphe à celui composé de la racine de S ajoutée au graphe à construire dans l'algorithme \ref{algo:parcoursSiteDepuisCodage}. \\
 Supposons que les sous sites restreints aux sommets du parcours $1:L_1\xrightarrow{\alpha_1}i_2[:L_2]\xrightarrow{\alpha_2} ...\xrightarrow{\alpha_{p-1}}i_{p}[:L_{p}]$ sont isomorphes et que les numérotations correspondent à l'isomorphisme.\\
-Lors de l'étape suivante du parcours ($\xrightarrow{\alpha}i[:L]$), un sommet n'est ajouté dans l'algorithme \ref{algo:siteDepuisCodage} que si $\alpha$ est un entier $k$ et si le sommet $i$ n'a pas déjà été créé. Dans le parcours de T (algorithme \ref{algo:parcoursSiteDepuisCodage}), cela implique qu'aucun sommet n'est déjà numéroté $i$. Puisque le sommet courant dans P a un fils $k$, que les sommets courants de P et S' sont correspondant dans l'isomorphisme et que P et S sont isomorphes, le sommet courant dans S' a un fils $k$ (d'étiquette $L$). Puisque le codage est bien formé, il n'y a qu'un fils $k$ du sommet courant. Ce fils $k$ n'a pas déjà été numéroté, sinon il aurait déjà été créé précédemment dans l'algorithme \ref{algo:siteDepuisCodage}. On est donc nécessairement dans le cas où on numérote le fils $k$ du sommet courant par i, le sommet ajouté dans l'algorithme \ref{algo:siteDepuisCodage} porte le même numéro que celui numéroté dans le parcours de T : ils se correspondent dans un isomorphisme de 
+Lors de l'étape suivante du parcours ($\xrightarrow{\alpha}i[:L]$), un sommet n'est ajouté dans l'algorithme \ref{algo:siteDepuisCodage} que si $\alpha$ est un entier $k$ et si le sommet $i$ n'a pas déjà été créé. Dans le parcours de T (algorithme \ref{algo:parcoursSiteDepuisCodage}), cela implique qu'aucun sommet n'est déjà numéroté $i$. Puisque le sommet courant dans P a un fils $k$, que les sommets courants de P et S' correspondent dans l'isomorphisme et que P et S sont isomorphes, le sommet courant dans S' a un fils $k$ (d'étiquette $L$). Puisque le codage est bien formé, il n'y a qu'un fils $k$ du sommet courant. Ce fils $k$ n'a pas déjà été numéroté, sinon il aurait déjà été créé précédemment dans l'algorithme \ref{algo:siteDepuisCodage}. On est donc nécessairement dans le cas où on numérote le fils $k$ du sommet courant par i, le sommet ajouté dans l'algorithme \ref{algo:siteDepuisCodage} porte le même numéro que celui numéroté dans le parcours de T : ils se correspondent dans un isomorphisme de 
 sites.\\
 Dans le cas contraire où aucun fils n'est ajouté, comme précédemment le sommet courant a nécessairement un fils $k$ qui a déjà été numéroté puisque c'est le cas dans la reconstruction du site P. Dans les deux cas aucun site n'est ajouté mais le fils $k$ devient le sommet courant.\\
 On en déduit que les sommets ajoutés sont toujours deux sommets correspondants dans un isomorphisme et que les arcs ajoutés sont également les mêmes.
@@ -1444,7 +1442,7 @@ On en déduit que les sommets ajoutés sont toujours deux sommets correspondants
  \end{itemize}
 \end{pr}
 
-L'intérêt de cet équivalence est qu'elle donne un algorithme simple et bien plus efficace que celui d'Ullmann pour résoudre le problème \ref{pbisosg} d'isomorphisme de sous-site entre un site de motif et un graphe de flot de test.
+L'intérêt de cette équivalence est qu'elle donne un algorithme simple et bien plus efficace que celui d'Ullmann pour résoudre le problème \ref{pbisosg} d'isomorphisme de sous-site entre un site de motif et un graphe de flot de test.
 
 \subsubsection{Application directe}
 \paragraph{Résolution des problèmes d'isomorphisme.}
@@ -1452,7 +1450,7 @@ L'équivalence entre isomorphisme et parcours permet de résoudre le problème \
 Deux sites sont isomorphes si et seulement si leurs codages de parcours en profondeur\footnote{On peut substituer le parcours en profondeur par un parcours en largeur ou n'importe quel codage de parcours bien formé} sont identiques.
 
 Le problème \ref{pbisosg} de l'existence d'un isomorphisme entre un site et un sous-site d'un site peut être résolu ainsi :
-Il existe un sous-site de T isomorphe au site P si et seulement si il existe un sommet de T à partir duquel le codage du parcours en profondeur\footnotemark[\value{footnote}] de P est possible.
+il existe un sous-site de T isomorphe au site P si et seulement si il existe un sommet de T à partir duquel le codage du parcours en profondeur\footnotemark[\value{footnote}] de P est possible.
 
 Une solution au problème \ref{pbisosgbase} de l'existence, dans une base $L_S$, d'un site isomorphe à un sous-site d'un site T consiste à itérer la solution précédente de l'isomorphisme de sous-site à chaque site de la base $L_S$.
 
@@ -1575,7 +1573,7 @@ child {node {}
 \end{figure}
 
 % \paragraph{Complexité.}
-L'ajout d'un site à la base consiste à ajouter un codage de parcours dans l'arbre de décision, cette opération nécessite un nombre de comparaison en $W\times f$ où $f$ est le nombre de fils maximum de chaque sommet de l'arbre. Vu que les étiquettes des arcs de l'arbre sont de la forme $[\xrightarrow{\alpha}]i[:L]$, en notant $k=2$ le nombre de fils maximum de chaque sommet dans un site et $l\leq 10$ le nombre d'étiquettes différentes pour les sommets des sites, $f\leq (k+2)\times W\times l$ donc l'ajout d'un site à la base se fait en $O(W^2)$ (proposition \ref{prop:complexite_tarjan_ajout}).
+L'ajout d'un site à la base consiste à ajouter un codage de parcours dans l'arbre de décision, cette opération nécessite un nombre de comparaison en $W\times f$ où $f$ est le nombre de fils maximum de chaque sommet de l'arbre. Vu que les étiquettes des arcs de l'arbre sont de la forme $[\xrightarrow{\alpha}]i[:L]$, en notant $k=2$ le nombre de fils maximum de chaque sommet dans un site et $l\leq 10$ le nombre d'étiquettes différentes pour les sommets des sites, $f\leq (k+2)\times W\times l$, l'ajout d'un site à la base se fait en $O(W^2)$ (proposition \ref{prop:complexite_tarjan_ajout}).
 
 \begin{prop}
  La complexité de l'ajout d'un site de taille $W$ à une base, pour l'algorithme par parcours, se fait en $O(W^2)$.
@@ -1652,7 +1650,7 @@ L'algorithme \ref{algo:rechercheArbreTarjan} liste ces sommets finaux. Il est à
 Dans le pire des cas il y a $S$ branches à l'arbre A qui partent de la racine où $S$ est le nombre de sites dans la base. Le parcours d'une branche avec au maximum un fils à chaque sommet, à partir de la racine se fait en $O(W)$ au vu de la récursion de l'algorithme \ref{algo:rechercheArbreTarjan} car à chaque profondeur l'appel de la fonction \textit{etape} se fait en $O(1)$ et la concaténation de deux listes (notée $@$) se fait également en temps constant.
 Parcourir toutes les branches a donc une complexité de $O(S.W)$. 
 % On obtient alors
-La complexité totale dans le pire des cas pour résoudre le problème \ref{pbisosgbase} d'isomorphisme de sous-sites entre un graphe de flot T de taille $n_T$ et une base de sites consiste à itérer cette recherche pour chaque sommet de $T$ et ensuite à faire l'union des ensembles résultant. %On doit alors ajouter au maximum $n_T$ éléments 
+La complexité totale dans le pire des cas pour résoudre le problème \ref{pbisosgbase} d'isomorphisme de sous-sites entre un graphe de flot T de taille $n_T$ et une base de sites consiste à itérer cette recherche pour chaque sommet de $T$ et ensuite à faire l'union des ensembles résultants. %On doit alors ajouter au maximum $n_T$ éléments 
 
 
 La complexité totale est alors de $O(n_T.S.W)$ (proposition \ref{prop:complexite_tarjan_recherche}). Ainsi on n'a pas amélioré la complexité dans le pire des cas par rapport à l'utilisation directe de l'approche par parcours vue dans la section précédente.
@@ -1667,7 +1665,7 @@ La complexité totale est alors de $O(n_T.S.W)$ (proposition \ref{prop:complexit
 \FloatBarrier
 \subsection{SIDT : Site Isomorphism Decision Tree}
 Le problème \ref{pbisosg} consiste à détecter un site P dans un graphe de flot T. En pratique le site P aura été généré à partir d'un graphe de flot G. Si P est un sous-site de T, puisque l'on a généré le site à partir d'un parcours dans un autre graphe de flot, on peut envisager que le même parcours appliqué à T est susceptible de générer le site P. Ce n'est pas vrai dans le cas général et en ce sens l'algorithme présenté ici n'est pas complet.
-Inversement il est clair que si le même parcours appliqué à partir de sommets de T et G génèrent le même site P, alors P est bien un sous-site de T.
+Inversement il est clair que si le même parcours appliqué à partir de sommets de T et G génère le même site P, alors P est bien un sous-site de T.
 
 On se propose donc, pour approcher la solution au problème \ref{pbisosg} de détection d'isomorphisme de sous-site entre un site P (généré par parcours avec un algorithme A à partir d'un sommet d'un graphe de flot G) et un graphe de flot T, de générer tous les sous-sites de T avec l'algorithme de parcours A et de regarder si P est dans cet ensemble.
 
@@ -1943,7 +1941,7 @@ Par exemple si les sommets finaux atteints dans le graphe de décision de l'algo
 
 Obtenir ces sites uniques nécessite d'ajouter les éléments récupérés à un ensemble que l'on peut par exemple implémenter à l'aide d'un arbre bicolore. L'ajout d'un élément dans un tel arbre contenant $m$ éléments se fait en $O(log_2(m))$.
 
-L'algorithme par recherche exhaustive comme celui d'Ullmann cherchent pour chaque élément de $S$ un isomorphisme de sous-graphe entre l'élément de $S$ et $T$ puis ajoutent, si le résultat est positif, cet élément à l'ensemble : la complexité totale dans le pire des cas ajoutée par la récupération des sites uniques est celle d'un tri, c'est à dire $O(S.log_2(S))$.
+Les algorithmes par recherche exhaustive et d'Ullmann cherchent pour chaque élément de $S$ un isomorphisme de sous-graphe entre l'élément de $S$ et $T$ puis ajoutent, si le résultat est positif, cet élément à l'ensemble : la complexité totale dans le pire des cas ajoutée par la récupération des sites uniques est celle d'un tri, c'est à dire $O(S.log_2(S))$.
 
 L'algorithme par parcours détermine pour chaque sommet de $T$ une liste de parcours possibles de taille maximale $S$. Le nombre maximal d'éléments à insérer dans l'ensemble est donc $n.S$ avec au plus $S$ éléments uniques : la complexité totale ajoutée est $O(n.S.log_2(S))$.
 
