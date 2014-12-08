@@ -159,7 +159,7 @@ Une exécution d'un programme, dont le point d'entrée est $ep$, est la donnée 
 \label{def:execution}
 \end{defi}
 
-Une trace d'exécution est une signature d'une exécution, elle contient les instructions successives avec leur niveau d'exécution respectifs (définition \ref{def:trace}).
+Une trace d'exécution est une signature d'une exécution. Elle contient les instructions successives avec leur niveau d'exécution respectif (définition \ref{def:trace}).
 
 \begin{defi}
 Étant donnée une exécution d'un programme composée des contextes d'exécution $E_0, E_1, ..., E_n$ avec $E_i=(X_i, \Theta_i, W_i)$, on appelle trace d'exécution la suite $T=(t_1, t_2, ..., t_n)$ où $t_i=(i, X_{i-1}, D_i)$ avec $D_i=$\texttt{decode}$(\Theta_{i-1}[eip], \Theta_{i-1})$.
