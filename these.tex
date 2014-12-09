@@ -1,6 +1,6 @@
 \input{include}
-\usepackage[backgroundcolor=blue!20!white, linecolor=black]{todonotes}
-% \usepackage[disable]{todonotes}
+% \usepackage[backgroundcolor=blue!20!white, linecolor=black]{todonotes}
+\usepackage[disable]{todonotes}
 %-------------------------------------------------------------------
 %                         Les références
 %-------------------------------------------------------------------
@@ -65,7 +65,7 @@
 % \ThesisTitle{Analyse morphologique de logiciels malveillants auto-modifiants}
 \ThesisTitle{Désassemblage et détection de logiciels malveillants auto-modifiants}
 \ThesisDate{30/01/2015}
-\ThesisAuthor{Aurélien Thierry}
+\ThesisAuthor{Aurélien \textsc{Thierry}}
 
 % Type de la these
 \ThesisUL
@@ -87,17 +87,17 @@
 \def\blanc{\hspace*{1cm}}
 
 % \President    = {Le président}
-\Rapporteurs  = {Ludovic Mé & Professeur, Supélec \\
-                 Hervé Debar & Professeur, Télécom SudParis \\
-		 Frédéric Cuppens & Professeur, Télécom Bretagne
+\Rapporteurs  = {Ludovic \textsc{Mé} & Professeur, Supélec \\
+                 Hervé \textsc{Debar} & Professeur, Télécom SudParis \\
+		 Frédéric \textsc{Cuppens} & Professeur, Télécom Bretagne
                  }
-\Examinateurs = {Sébastien Bardin & Chargé de recherches, CEA\\
-		Guillaume Bonfante & Maître de conférences, Université de Lorraine\\
-		Pierrick Gaudry & Directeur de recherches, CNRS		
+\Examinateurs = {Sébastien \textsc{Bardin} & Chargé de recherches, CEA\\
+		Guillaume \textsc{Bonfante} & Maître de conférences, Université de Lorraine\\
+		Pierrick \textsc{Gaudry} & Directeur de recherches, CNRS		
                  }
 %\Invites=       {}
 
-\directeur = {Jean-Yves Marion & Professeur, Université de Lorraine}
+\directeur = {Jean-Yves \textsc{Marion} & Professeur, Université de Lorraine}
 
 \AddLab{\vspace{3ex} \includegraphics[height=2cm]{TUL/Inria.png}\hspace{6cm}\includegraphics[height=2cm]{TUL/tulloria.eps}}
 % \AddLab{\vspace{2ex} \includegraphics[height=2cm]{TUL/tulloria.eps}}
@@ -142,7 +142,7 @@ Merci.
 %-------------------------------------------------------------------
 
 % \tableofcontents 
-\SetTocSpacing{1.0}
+\SetTocSpacing{1.25}
 \setcounter{tocdepth}{2}
 \tableofcontents
 
@@ -266,6 +266,9 @@ Merci.
 % \DontWriteThisInToc
 % \NoNewPageAfterParts
 % \parttt{Annexes}
+
+% \ChapterPageStyle{}
+% \part*{Annexes}
 
 \WriteChapterLabelInToc
 \DontFrameThisInToc

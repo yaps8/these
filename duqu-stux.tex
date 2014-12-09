@@ -83,6 +83,7 @@ Beaucoup d'informations manquent. Par exemple la plupart des types sont décrits
 Nous allons détailler sur cet exemple quelques techniques permettant de récupérer ces informations.
 
 \begin{figure}[h]
+\begin{center}
 \begin{lstlisting}[language={C}]
 signed int __cdecl sub_12F36(int a1, int a2, int a3)
 {
@@ -94,7 +95,8 @@ signed int __cdecl sub_12F36(int a1, int a2, int a3)
   if (*(_DWORD *)v4 ^ 0xF750F284 != 0xF750B7D4)
     return 1;
 \end{lstlisting}
-\caption{Première lignes de la fonction ParsePE décompilée par IDA\label{fig:ParsePEInitial}}
+\end{center}
+\caption{Premières lignes de la fonction ParsePE décompilée par IDA\label{fig:ParsePEInitial}}
 \end{figure}
 
 Certaines constantes peuvent nous aider : par exemple \texttt{0xF750F284 XOR 0xF750B7D4 = 0x00004550} , qui représente la chaîne de caractères 'PE$\backslash$0$\backslash$0' en ASCII. Le texte était obscurci à l'aide d'une opération de ou exclusif (\emph{XOR}).
@@ -113,6 +115,7 @@ De plus le code compilé de cette fonction est très similaire au binaire d'orig
 
 
 \begin{figure}[h]
+\begin{center}
 \begin{lstlisting}[language={C}]
 NTSTATUS __cdecl ParsePE(__out PEDataPtr pPEData, 
     __in PIMAGE_DOS_HEADER BaseAddress, __in int flag){
@@ -125,7 +128,8 @@ if ((pNtHeader->Signature ^ 0xF750F284)
       != (IMAGE_NT_SIGNATURE ^ 0xF750F284)) 
     return STATUS_WAIT_1; 
 \end{lstlisting}
-\caption{Première lignes de la fonction ParsePE reconstruite\label{fig:ParsePEFinal}}
+\end{center}
+\caption{Premières lignes de la fonction ParsePE reconstruite\label{fig:ParsePEFinal}}
 \end{figure}
 
 \subsubsection{Conventions d'appel}
@@ -195,6 +199,7 @@ Si ce motif, représenté en figure \ref{fig:CallZwProtect}, est retrouvé alors
 À partir de cet instant, le pilote connaît les adresses mémoire de ces deux fonctions.
 
 \begin{figure}[h]
+\begin{center}
 \scriptsize
 \begin{lstlisting}[language={[x86masm]Assembler}, escapechar=~]
 (01) PAGE:004ED1AD                  loc_4ED1AD: [...]                      
@@ -220,6 +225,7 @@ Si ce motif, représenté en figure \ref{fig:CallZwProtect}, est retrouvé alors
 (21) PAGE:004ED1EA E8 93 96 F1 FF   ~\textcolor{red}{\texttt{call    loc\_406882}}~ ; ZwProtectVirtualMemory
 (22) PAGE:004ED1EF 3B C3            cmp     eax, ebx
 \end{lstlisting}
+\end{center}
 % \end{framed}
 \caption{Fonction faisant appel à \ZwP\label{fig:CallZwProtect}}
 \end{figure}
@@ -435,6 +441,9 @@ Le système notifie le pilote défensif qui enregistre l'identifiant, l'adresse 
 \begin{figure}[h]
 \begin{center}
 \scriptsize
+\lstset{
+  xleftmargin=.1\textwidth, xrightmargin=.1\textwidth
+}
 \begin{lstlisting}[language={}]
 -----------------------+* Create process 0x914 *+------------------------
 ProcessImageInformation: PEB=0x7ffd6000, ImageBaseAddress=0x01000000,
@@ -459,6 +468,9 @@ Ainsi l'altération du point d'entrée est détecté et le pilote défensif pren
 \begin{figure}[h]
 \begin{center}
 \scriptsize
+\lstset{
+  xleftmargin=.1\textwidth, xrightmargin=.1\textwidth
+}
 \begin{lstlisting}[language={}]
 ----------* Loaded module \WINDOWS\system32\kernel32.dll *----------
 LoadImageNotifyRoutine: ImageBaseAddress=0x7c800000 ProcessId=0x914 
