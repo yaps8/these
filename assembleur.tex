@@ -595,7 +595,8 @@ La meilleure source pour l'analyse d'un programme serait cette connaissance de t
 \end{defi}
 
 À partir de cette donnée il est possible de parcourir l'ensemble des comportements possibles du programme, que ce soit la valeur des différents registres au cours de l'exécution, les interactions entre le programme et le système d'exploitation ou les enchaînements possibles entre différentes instructions.
-Nous nous intéressons en particulier au graphe de flot de contrôle parfait (définition \ref{def:cfg_parfait_nsm}) dans lequel les sommets sont exactement les adresses de toutes les instructions atteignables et dans lequel un arc relie deux instructions si et seulement si il existe un chemin d'exécution dans lequel les deux instructions se suivent immédiatement.
+Nous nous intéressons en particulier au graphe de flot de contrôle parfait (définition \ref{def:cfg_parfait_nsm}) dans lequel les sommets sont exactement les adresses de toutes les instructions atteignables.
+Dans ce graphe de flot de contrôle parfait, un arc relie deux instructions si et seulement si il existe un chemin d'exécution dans lequel les deux instructions se suivent immédiatement.
 % Cette définition d'un graphe de flot de contrôle parfait représente une instruction par son adresse en mémoire : il s'agit d'une simplification cohérente dans le cas d'un programme \nsm\ et 
 Nous ne nous intéressons ici qu'aux programmes \nsms\ mais nous verrons par la suite comment étendre la notion de graphe de flot de contrôle parfait à un programme qui se modifie lui-même.
 
