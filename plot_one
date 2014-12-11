@@ -10,7 +10,7 @@ if [ -e Makefile ]; then
   r=$?
 else
   echo "trying pdflatex"
-  timeout 60s pdflatex these.pdf 1>/dev/null 2>/dev/null
+  timeout 20s pdflatex these.pdf 1>/dev/null 2>/dev/null
   r=$?
 fi
 
@@ -23,7 +23,7 @@ else
     t=`./todo_sum`
     w=`./words_sum`
     echo "d, p, t, w: "$d", "$p", "$t", "$w
-    echo $d" "$p" "$t" "$w >> plot.dat
+    echo $d" "$p" "$t" "$w" "$1 >> plot.dat
   else
     echo "ERRPDF"
   fi
