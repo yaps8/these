@@ -2,7 +2,7 @@
 trap exit SIGINT
 
 rm -f plot.dat
-./list_commits > list
+./list_commits | tac > list
 for c in `cat list`; do
   echo "plotting "$c"..."
   ./plot_one $c > /dev/null
