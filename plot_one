@@ -1,7 +1,7 @@
 #!/bin/bash
 
 make clean
-git checkout $1 -- *.tex
+git checkout $1
 timeout 120s make
 
 if [ $? -eq 124 ]; then
