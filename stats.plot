@@ -9,6 +9,6 @@ FACTOR=0.003
 #set grid
 set xlabel 'Date'
 set ylabel 'Nombre'
-#set key on left box
+set key on left box
 plot "plot.dat" using 1:2 with lines ti "Pages", "plot.dat" using 1:3 with lines ti "Todo", "plot.dat" using 1:(FACTOR*$4) with lines ti "Mots" 
 
