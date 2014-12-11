@@ -2,11 +2,14 @@
 
 make clean
 git checkout $1 -- *.tex
-make
+timeout 120s make
 
-d=`./date`
-p=`./pages`
-t=`./todo_sum`
-w=`./words_sum`
-
-echo "d, p, t, w: "$d", "$p", "$t", "$w
+if [ $? -eq 124 ]; then
+  echo "ERR"
+else
+  d=`./date`
+  p=`./pages`
+  t=`./todo_sum`
+  w=`./words_sum`
+  echo "d, p, t, w: "$d", "$p", "$t", "$w
+fi
