@@ -2,7 +2,7 @@
 
 git checkout master Makefile
 make clean
-git checkout $1
+git checkout -f $1
 git checkout master plot_one date pages todo_sum words_sum listTex stats.plot
 if [ -e Makefile ]; then
   echo "trying make"
