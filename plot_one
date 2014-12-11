@@ -2,6 +2,7 @@
 
 make clean
 git checkout $1
+git checkout master plot_one date pages todo_sum words_sum Makefile
 timeout 120s make
 
 if [ $? -eq 124 ]; then
