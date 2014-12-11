@@ -28,3 +28,6 @@ else
     echo "ERRPDF"
   fi
 fi
+
+git stash
+git checkout master
