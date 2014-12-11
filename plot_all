@@ -8,7 +8,7 @@ for c in `cat list`; do
     echo "already done"
   else
     echo "plotting "$c"..."
-    ./plot_one $c > /dev/null
+    ./plot_one $c
     touch done/$c
   fi
   echo "done"

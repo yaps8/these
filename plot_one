@@ -5,15 +5,17 @@ make clean
 git checkout $1
 git checkout master plot_one date pages todo_sum words_sum listTex
 if [ -e Makefile ]; then
-  timeout 120s make 2>&1
+  echo "trying make"
+  timeout 120s make 1>/dev/null 2>/dev/null
   r=$?
 else
-  timeout 120s pdflatex these.pdf
+  echo "trying pdflatex"
+  timeout 120s pdflatex these.pdf 1>/dev/null 2>/dev/null
   r=$?
 fi
 
 if [ $r -eq 124 ]; then
-  echo "ERR" 1>&2
+  echo "ERRTIME"
 else
   if [ -e these.pdf ]; then
     d=`./date`
@@ -23,6 +25,6 @@ else
     echo "d, p, t, w: "$d", "$p", "$t", "$w
     echo $d" "$p" "$t" "$w >> plot.dat
   else
-    echo "ERRPDF" 1>&2
+    echo "ERRPDF"
   fi
 fi
