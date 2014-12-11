@@ -1,0 +1,2 @@
+#!/bin/bash
+git show -s --format=%ct HEAD|date +%D

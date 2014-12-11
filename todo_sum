@@ -1,0 +1,2 @@
+#!/bin/bash
+total=0; for i in `./listTex`; do n=`cat $i | sed 's/%.*//' | grep -c -e "todo\|jym"`; total=`echo "$total+$n"|bc`; done; echo $total

@@ -1,0 +1,2 @@
+#!/bin/bash
+pdfinfo these.pdf | grep Pages | sed 's/Pages:          //'
