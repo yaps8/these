@@ -13,4 +13,5 @@ else
   t=`./todo_sum`
   w=`./words_sum`
   echo "d, p, t, w: "$d", "$p", "$t", "$w
+  echo $d" "$p" "$t" "$w >> plot.dat
 fi
