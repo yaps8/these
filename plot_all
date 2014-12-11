@@ -4,12 +4,12 @@ trap exit SIGINT
 rm -f plot.dat
 ./list_commits | tac > list
 for c in `cat list`; do
-  if [ -e done/$c ]; then
+  if [ -e list_done/$c ]; then
     echo "already done"
   else
     echo "plotting "$c"..."
     ./plot_one $c
-    touch done/$c
+    touch list_done/$c
   fi
   echo "done"
 done
