@@ -1,7 +1,7 @@
 #!/bin/bash
 trap exit SIGINT
 
-rm -f plot.dat
+#rm -f plot.dat
 ./list_commits | tac > list
 for c in `cat list`; do
   if [ -e list_done/$c ]; then
