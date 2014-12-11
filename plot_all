@@ -1,4 +1,6 @@
 #!/bin/bash
+trap exit SIGINT
+
 rm -f plot.dat
 ./list_commits > list
 for c in `cat list`; do
