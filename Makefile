@@ -16,7 +16,8 @@ TEXCOMP = latexmk -pdf
 
 
 #default: $(pdf_from_dot) these.bbl these.pdf
-default: $(pdf_from_dot) $(tex_from_dot) $(cropped0_pdf) $(cropped5_pdf) $(cropped10_pdf) these.pdf
+#default: $(pdf_from_dot) $(tex_from_dot) $(cropped0_pdf) $(cropped5_pdf) $(cropped10_pdf) these.pdf
+default: $(pdf_from_dot) $(cropped0_pdf) $(cropped5_pdf) $(cropped10_pdf) these.pdf
 
 all: default chap.pdf
 
