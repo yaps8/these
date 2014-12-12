@@ -2149,7 +2149,6 @@ Avec l'algorithme SIDT le temps d'apprentissage de l'ensemble de ces programmes 
 Une partie des résultats de l'algorithme par parcours en termes de vitesse de détection sont donnés à la figure \ref{fig:scan-plus-gtsi}. Nous observons que la courbe a une croissance intermédiaire entre une croissance linéaire (donnée par le pire des cas) et ce qui semble être une croissante logarithmique.
 Le temps de détection dépend fortement du nombre de sites uniques appris dans la base.
 
-
 \begin{figure}[h]
 \begin{center}
 \includegraphics{supports/plots/plotScan-plus-GTSI.pdf}
@@ -2168,6 +2167,13 @@ Le temps de détection dépend fortement du nombre de sites uniques appris dans 
 %  300000 & 1.4s & < 1 seconde \\
 % \end{tabular}
 
+\FloatBarrier
+\paragraph{Comparaison des temps d'exécution.}
+Le temps d'apprentissage des deux algorithmes varient linéairement en fonction du nombre de sites à ajouter à la base.
+En revanche le temps de détection pour l'algorithme par parcours dépend du nombre de sites dans la base tandis que le temps de détection pour SIDT n'en dépend pas.
+
+Notre analyse est la suivante. Dans un contexte de détection pour implémenter un détecteur de programmes malveillants les deux algorithmes peuvent être utilisés pour apprendre l'ensemble des programmes du corpus en un temps raisonnable à condition d'optimiser les algorithmes pour améliorer le facteur linéaire.
+Il est par contre important que le temps de détection ne dépende pas trop du nombre de programmes dans le corpus, ce qui n'est pas le cas pour l'algorithme par parcours. Une approche incomplète comme SIDT remplit cette condition sur le temps de détection.
 
 \section*{Conclusion}
 Nous avons formalisé le problème de la détection d'isomorphismes de graphes et de sous-graphes adapté à l'analyse morphologique et proposé deux approches algorithmiques tirant partie des spécificités des graphes de flot et des sites.
