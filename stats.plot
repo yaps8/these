@@ -1,6 +1,7 @@
 set terminal pdf color
 set xdata time
 set timefmt "%d/%m/%y"
+set format x "%d/%m"
 set output "stats.pdf"
 set y2tics
 FACTOR=0.003
