@@ -3,7 +3,7 @@
 git checkout master Makefile
 make clean
 git checkout -f $1
-git checkout master plot_one date pages todo_sum words_sum listTex stats.plot
+git checkout master plot_one date pages todo_sum words_sum listTex stats.plot Makefile
 if [ -e Makefile ]; then
   echo "trying make"
   timeout 120s make 1>/dev/null 2>/dev/null
