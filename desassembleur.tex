@@ -21,20 +21,21 @@ En particulier une entrée spécifique provoque une exécution que nous observon
 Cette trace peut être découpée en niveaux d'exécution et en autant d'instantanés de la mémoire (définition \ref{def:instantane}), enfin chaque vague est le désassemblage parfait de l'instantané.
 
 Le désassemblage, pris au sens de l'opération inverse de l'assemblage, consiste à déterminer l'ensemble des instructions potentiellement exécutées et à séparer les adresses contenant ces instructions des autres adresses contenant alors des données.
-Lors de l'exécution d'un programme \sm\ on peut séparer les instructions dont le niveau d'exécution est 1 et celles dont le niveau d'exécution est strictement supérieur à 1.
-Les instructions de cette seconde catégorie sont codées sur au moins un octet qui a été modifié plus tôt lors de l'exécution et dont la valeur a donc été modifiée. Ces instructions ne sont donc pas présentes dans la représentation d'origine du programme.
+Lors de l'exécution d'un programme \sm\ on peut séparer les instructions dont le niveau d'écriture est 0 et celles dont le niveau d'écriture est strictement supérieur à 0.
+Les instructions de cette seconde catégorie sont codées sur au moins un octet qui a été modifié lors de l'exécution et dont la valeur a donc été modifiée. Ces instructions ne sont donc pas présentes dans la représentation d'origine du programme.
 % Au sein d'une exécution les octets sur lesquelles une instruction ayant un niveau d'exécution strictement supérieur à 1, c'est à dire que ces octets ont été modifiés avant que l'instruction ne soit exécutée, ne sont présents dans la représentation d'origine du programme qu'en temps que données.
-Ainsi le désassemblage d'un programme \sm\, en tant qu'opération inverse de l'assembleur, ne prend en compte que les instructions exécutées au niveau d'exécution 1 (définition \ref{def:desassemblage_parfait_sm}).
-\itodo{c'est faux, c'est le niveau d'écriture qui compte...}
-\begin{defi}
- Étant donné un programme P \sm\ et l'ensemble de ses traces d'exécution
-$E_T$, l'opération inverse de l'assemblage de P est la donnée de l'ensemble des adresses où une
-instruction de niveau d'exécution 1 est exécutée dans au moins une
-trace, munie de l'instruction alors exécutée, c'est à dire~$\{(\mda{D}, \mdi{D}), (i, X, D)\in T, T\in E_T, X=1\}$.
-\label{def:desassemblage_parfait_sm}
-\end{defi}
+Ainsi le désassemblage d'un programme \sm\, en tant qu'opération inverse de l'assembleur, ne prend en compte que les instructions dont le niveau d'écriture est 0.
+Par la suite nous nous intéresserons plutôt au désassemblage comme méthode d'analyse des exécutions d'un binaire et chercherons donc à y inclure toutes les instructions exécutables et pas seulement celles présentes dans sa représentation d'origine.
+% (définition \ref{def:desassemblage_parfait_sm}).
+% \begin{defi}
+%  Étant donné un programme P \sm\ et l'ensemble de ses traces d'exécution
+% $E_T$, l'opération inverse de l'assemblage de P est la donnée de l'ensemble des adresses où une
+% instruction de niveau d'exécution 1 est exécutée dans au moins une
+% trace, munie de l'instruction alors exécutée, c'est à dire~$\{(\mda{D}, \mdi{D}), (i, X, D)\in T, T\in E_T, X=1\}$.
+% \label{def:desassemblage_parfait_sm}
+% \end{defi}
 
-Nous étendons cependant la notion de désassemblage parfait aux programmes \sms\ pour qu'elle inclue toutes les instructions exécutées (définition \ref{def:desassemblage_parfait_sm2}) en les caractérisant par leur adresse, l'instruction assembleur exécutée et le niveau d'exécution auquel elles ont été exécutées.
+Nous étendons la notion de désassemblage parfait aux programmes \sms\ pour qu'elle inclue toutes les instructions exécutées (définition \ref{def:desassemblage_parfait_sm2}) en les caractérisant par leur adresse, l'instruction assembleur exécutée et le niveau d'exécution auquel elles ont été exécutées.
 
 \begin{defi}
  Étant donné un programme P \sm\ et l'ensemble de ses traces d'exécution
