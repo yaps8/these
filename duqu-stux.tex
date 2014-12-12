@@ -1,5 +1,5 @@
 Dans ce chapitre nous continuons nos travaux sur deux programmes malveillants particuliers, \duqu\ et \stux, dont nous avons montré qu'ils partageaient du code au chapitre précédent.
-Notre objectif était de pouvoir détecter une attaque par \duqu\ connaissant \stux.
+Notre objectif est de pouvoir détecter une attaque par \duqu\ connaissant \stux.
 % cela nécessite un accès au code déchiffré et injecté par \duqu.
 
 Nous cherchons donc à détecter \duqu\ avant qu'il ne puisse infecter une machine ciblée.
@@ -45,7 +45,7 @@ Nous aurons pour cela besoin de suivre les processus lancés et de pouvoir analy
 Étant donné que le pilote de \duqu\ réalise cette opération, nous avons choisi de le modifier de telle sorte qu'il puisse s'interfacer avec le détecteur par analyse morphologique.
 Pour mettre ce plan en \oe uvre, nous avons
 \begin{itemize}
- \item reconstitué, par rétroingénierie, le code source du pile de \duqu\ à partir de son binaire.
+ \item reconstitué, par rétroingénierie, le code source du pilote de \duqu\ à partir de son binaire.
  \item modifié son code pour qu'il surveille le chargement des processus sans provoquer d'injection.
 %  \item Interfacé le nouveau pilote avec notre outil de détection.
 \end{itemize}
@@ -192,11 +192,11 @@ De plus, afin de détourner le point d'entrée d'un binaire (\emph{hook}), \duqu
 Ces deux fonctions sont implémentées dans le noyau Windows, dans les fichiers \path{Ntoskrnl.exe} ou \path{ntkrnlpa.exe}, selon les versions. 
 Le pilote inspecte chaque module, DLL et exécutables, chargés par le système lors du démarrage à la recherche d'un de ces deux fichiers.
 
-Un fois le fichier cible trouvé, le pilote utilise la fonction \emph{ParsePE} pour l'examiner et y retrouver l'adresse de \ZwP.
+Une fois le fichier cible trouvé, le pilote utilise la fonction \emph{ParsePE} pour l'examiner et y retrouver l'adresse de \ZwP.
 Pour cela il dispose d'un motif à reconnaître.
 Il est à la recherche d'un appel vers \ZwA, dont l'adresse est connue parce qu'elle est présente dans la table d'exports du noyau, suivi par l'instruction \texttt{push 0x104} et par une instruction \texttt{call}.
 Si ce motif, représenté en figure \ref{fig:CallZwProtect}, est retrouvé alors l'adresse cible de ce \texttt{call} est considérée comme étant \ZwP.
-À partir de cet instant, le pilote connaît les adresses mémoire de ces deux fonctions.
+À partir de cet instant, le pilote connaît les adresses mémoires de ces deux fonctions.
 
 \begin{figure}[h]
 \begin{center}
