@@ -32,7 +32,7 @@ i & Adresse & Octets & Instruction\\
 
 Au vu de l'enchaînement des instructions, on peut construire trois représentations en mémoire des parties exécutables du programme.
 La première correspond à la vision du programme lors de son chargement : la section \ptext\ est dans son état initial, donné en figure \ref{fig:prg_asm_sm}.
-La seconde représentation est celle après la première modification du programme faite par l'instruction 2 et la troisième après la seconde modification effectuée par l'instruction 3.
+La seconde représentation est celle après la première modification du programme réalisée par l'instruction 2 et la troisième après la seconde modification effectuée par l'instruction 3.
 En fait vu qu'aucune des adresses modifiées par la première instruction auto-modifiante n'est exécutée avant que la seconde modification ne soit faite, on peut regrouper les deux instructions auto-modifiantes et considérer que le programme n'a que deux représentations en mémoire : la représentation initiale et la représentation après que l'instruction 3 a été exécutée. 
 Beaucoup de logiciels protégés restaurent de grandes parties de code au démarrage : un grand nombre d'instructions sont modifiées sans que les instructions modifiées ne soient exécutées. 
 Il nous paraît plus cohérent que toutes ces modifications soient réunies puisqu'elles correspondent à une étape lors de l'exécution du programme, l'étape suivante étant l'exécution d'une de ces instructions modifiées.
@@ -56,7 +56,7 @@ Nous détaillerons par la suite, formellement, ce qu'est une trace d'exécution 
 Le programme exécuté a pour sources principales de données les registres et la mémoire constituée de la pile et du tas qui sont tous les deux adressables par des entiers. Une variable d'un programme est donc soit un registre du processeur soit une adresse mémoire, de même que défini dans la sémantique du langage intermédiaire défini au chapitre précédent (définition \ref{def:sem_conc_var}).
 
 En utilisant la sémantique concrète précédemment définie on est capable, à partir d'un ensemble de valeurs initiales pour les registres et la mémoire, d'exécuter un programme sur cette entrée.
-Schématiquement, l'exécution d'un programme consiste en la définition d'un contexte d'exécution initial $E_0$, l'évaluation sémantique de la première instruction $D_1$ dans ce contexte, puis l'évaluation de l'instruction suivante dans le contexte mis à jour, et ainsi de suite. Dans cette partie nous définirons formellement ces éléments mais leur enchaînement est schématiquement le suivant.
+Schématiquement, l'exécution d'un programme consiste en la définition d'un contexte d'exécution initial $E_0$, en l'évaluation concrète de la première instruction $D_1$ dans ce contexte, puis en l'évaluation de l'instruction suivante dans le contexte mis à jour, et ainsi de suite. Dans cette partie nous définirons formellement ces éléments mais leur enchaînement est schématiquement le suivant.
 
 % \begin{figure}
 \begin{center}
@@ -98,17 +98,17 @@ Si l'on dispose d'un langage intermédiaire comme défini au chapitre précéden
 % Si on cherche à désassembler \telock\ à l'adresse \adr{01006e7a}, et qu'à l'adresse \adr{01006e7d} sont présents les octets suivant : $\Theta[0x01006e7d..0x01006e8b]=$ \texttt{eb ff c9 7f e6 8b c1 29 00 00 00 f3 aa 66 ab}, l'opérateur \texttt{decode} renvoie la première instruction dynamique D à cette adresse : il s'agit de l'instruction assembleur \di{D}=\texttt{jmp +1} (d'une taille de deux octets : \texttt{eb ff}) à l'adresse \da{D}=\adr{01006e7d}, codée sur l'intervalle d'adresses \dc{D}=[\adr{01006e7d}, \adr{01006e7e}].
 On cherche à désassembler l'exemple précédent à l'adresse \adr{8048060}. À l'adresse \adr{8048060} sont présents les octets suivants : $\Theta[$\adr{8048060}..\adr{804806e}$]=$ \texttt{b8 6b 80 04 08 b8 6b 80 04 08 66 c7 40 06 02}, l'opérateur \texttt{decode} renvoie la première instruction dynamique D à cette adresse : il s'agit de l'instruction assembleur \di{D}=\texttt{mov eax, 0x8048076} (d'une taille de cinq octets : \texttt{b8 6b 80 04 08}) à l'adresse \da{D}=\adr{8048060}, codée sur l'intervalle d'adresses \dc{D}=[\adr{8048060}..\adr{8048064}].
 
-Afin de pouvoir séparer la trace d'exécution selon le moment où chaque instruction a été écrite, nous définissons aussi, pour une instruction dynamique et un store $\Theta$, l'ensemble des adresses mémoire sur lesquelles l'instruction provoque une écriture (définition \ref{def:ensembles_inst_dyn_write}).
+Afin de pouvoir séparer la trace d'exécution selon le moment où chaque instruction a été écrite, nous définissons aussi, pour une instruction dynamique et un store $\Theta$, l'ensemble des adresses mémoires sur lesquelles l'instruction provoque une écriture (définition \ref{def:ensembles_inst_dyn_write}).
 
 \begin{defi}
-Soit $D$ une instruction dynamique et $\Theta$ un store représentant l'état des variables (mémoire et registres). On note \dww{\Theta}{D} l'ensemble des adresses mémoire sur lesquelles l'exécution de $D$ provoque une écriture.
+Soit $D$ une instruction dynamique et $\Theta$ un store représentant l'état des variables (mémoire et registres). On note \dww{\Theta}{D} l'ensemble des adresses mémoires sur lesquelles l'exécution de $D$ provoque une écriture.
 \label{def:ensembles_inst_dyn_write}
 \end{defi}
 
 Cette information est donnée par la sémantique concrète choisie : si l'instruction assembleur \di{D} est sémantiquement équivalente, avec le store $\Theta$, à la suite d'instructions atomiques $d_1, ..., d_n$ dans un langage intermédiaire alors l'ensemble des adresses écrites par D est l'union des adresses écrites par chacune des instructions atomiques $d_i$ dans la sémantique concrète choisie pour ce langage intermédiaire (propriété \ref{propri:eq_W_D_di}).
 
 \begin{propri}
-Soit $D$ une instruction dynamique, $\Theta$ un store représentant l'état des variables (mémoire et registres) et $d_1, ..., d_n$ une suite d'instructions atomiques dans un langage intermédiaire telle que la suite d'instruction $d_1, ..., d_n$ dans le langage intermédiaire est sémantiquement équivalente à l'instruction assembleur \di{D}. On a :
+Soit $D$ une instruction dynamique, $\Theta$ un store représentant l'état des variables (mémoire et registres) et $d_1, ..., d_n$ une suite d'instructions atomiques dans un langage intermédiaire telle que la suite d'instructions $d_1, ..., d_n$ dans le langage intermédiaire est sémantiquement équivalente à l'instruction assembleur \di{D}. On a :
 $$\mdww{\Theta}{D}=\mdww{\Theta}{d_1,..., d_n}=\mdww{\Theta}{d_1}\ \cup\ ...\ \cup\ \mdww{\Theta}{d_n}.$$
 \label{propri:eq_W_D_di}
 \end{propri}
@@ -153,7 +153,7 @@ Une exécution d'un programme, dont le point d'entrée est $ep$, est la donnée 
      \item Le niveau d'écriture de $D_{i+1}$ est le niveau d'écriture maximum des octets qui la composent : $W_D=max(\{W[m],\ m\in\ $\dc{D_{i+1}}$\})$
      \item $X_{i+1}=max(X_i, W_D+1)$
      \item $\Theta_{i+1}$ est $\Theta_i$ mis à jour par l'évaluation sémantique de \di{D}
-     \item $W_{i+1}=W_{i}$ sauf pour les adresses mémoire écrites par $D_{i+1}$:\\ $\forall m\in\ $\dww{\Theta}{D_{i+1}}$,\ W_{i+1}[m\leftarrow X_i]$
+     \item $W_{i+1}=W_{i}$ sauf pour les adresses mémoires écrites par $D_{i+1}$:\\ $\forall m\in\ $\dww{\Theta}{D_{i+1}}$,\ W_{i+1}[m\leftarrow X_i]$
     \end{itemize}
 \end{itemize}
 \label{def:execution}
@@ -381,7 +381,7 @@ L'instrumentation permet d'exécuter plus fidèlement le programme à analyser, 
 Nous avons repris l'implémentation d'un émulateur pour programmes \sms\ basée sur BAP présentée au chapitre \ref{chap:semantique}. Nous avions modifié BAP afin de pouvoir exécuter des instructions une à une et avons ainsi réalisé un émulateur de programmes auto-modifiants, fonctionnalité qui n'est pas supportée telle quelle par BAP.
 
 Nous y avons ajouté la séparation de la trace en plusieurs vagues d'exécution en implémentant l'algorithme \ref{algo:analyse_dyn_vagues}.
-Cette implémentation donne le résultat attendu avec des programmes simples et qui n'utilisent pas d'appels système.
+Cette implémentation donne le résultat attendu avec des programmes simples et qui n'utilisent aucun appel système.
 Sur l'exemple de programme \sm\ donné en début de chapitre, la sortie est la suivante.
 L'exécution, de la première (\emph{pc: 1}) à la dernière instruction, est correctement découpée en vagues et les instructions correspondent à celles modifiées lors de l'exécution.
 
@@ -400,7 +400,7 @@ Ne pouvant pas émuler des programmes utilisant des appels systèmes, nous avons
 
 \subsection{Instrumentation avec Pin}
 Pin est l'outil d'instrumentation développé par Intel pour ses processeurs \xq\ et \xs.
-Il fournit une information sémantique de niveau 2, suffisante pour suivre chaque instruction et connaître l'ensemble des adresses mémoire que l'instruction modifie.
+Il fournit une information sémantique de niveau 2, suffisante pour suivre chaque instruction et connaître l'ensemble des adresses mémoires que l'instruction modifie.
 Nous avons implémenté l'algorithme \ref{algo:analyse_dyn_vagues} sous la forme d'un PinTool : codé en C, il s'agit d'un programme définissant les actions à effectuer avant et après l'exécution de chaque instruction selon le type de l'instruction considérée.
 % \itodo{Attention TraceSurfer=daniel mais il n'y avait pas l'algo, c'est arrivé après}
 

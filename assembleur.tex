@@ -9,7 +9,7 @@ Dans un second temps nous définissons les objectifs de l'analyse d'un programme
 Un exécutable est en général d'abord écrit dans un langage de haut niveau. Chacun de ses modules est ensuite compilé en un fichier \more{objet (binaire)} encodant le langage assembleur spécifique à la machine. La dernière étape est l'édition de liens qui consiste à regrouper tous ces fichiers compilés en un exécutable unique.
 
 Prenons l'exemple d'un simple \helloworld\ en C (Figure \ref{fig:helloword_c}). Il est uniquement composé d'un appel à la fonction \texttt{printf} permettant l'affichage, à l'exécution, de la chaîne de caractère ``Hello, world.''.
-Une implémentation possible en assembleur \nasm\ \xq\ (32 bits) pouvant tourner sous une distribution GNU/Linux est donnée en figure \ref{fig:helloword_asm}. Il est alors composé de deux appels système vers le noyau Linux : un premier (sys$\_$write) permettant l'affichage de la chaîne et un second (sys$\_$exit) permettant de fermer le processus.
+Une implémentation possible en assembleur \nasm\ \xq\ (32 bits) pouvant tourner sous une distribution GNU/Linux est donnée en figure \ref{fig:helloword_asm}. Il est alors composé de deux appels systèmes vers le noyau Linux : un premier (sys$\_$write) permettant l'affichage de la chaîne et un second (sys$\_$exit) permettant de fermer le processus.
 On peut déjà remarquer que le programme est séparé en une section de données (\pdata) contenant la chaîne de caractère à afficher et une section de code (\ptext) contenant le code assembleur à exécuter.
 \begin{figure}
 \begin{lstlisting}[language={C}]

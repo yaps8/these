@@ -274,7 +274,7 @@ Le paramètre $e_3$ a une valeur booléenne indiquant si la machine fonctionne e
 L'avantage de BAP par rapport au langage présenté précédemment est qu'il est bien plus proche du langage assembleur : les valeurs des variables ne sont pas dans $\BN$ mais dans $\textlbrackdbl 0,\ 2^{32}-1\textrbrackdbl$, $\textlbrackdbl -2^{31},\ 2^{31}-1\textrbrackdbl$, $\textlbrackdbl 0,\ 2^{64}-1\textrbrackdbl$ ou $\textlbrackdbl -2^{63},\ 2^{63}-1\textrbrackdbl$ selon la machine que l'on cherche à modéliser et le type des variables (signé ou non). 
 De même les fonctions entières sont explicitées et contiennent, entre autres, des opérations binaires comme l'addition, le ``ou'' logique, la comparaison de deux valeurs.
 
-\paragraph{Jakstab.} Le projet Jakstab \cite{jakstab} ajoute un modèle de la mémoire pouvant gérer les allocations dynamiques de mémoire effectuée par l'appel système \emph{malloc} en incluant dans langage intermédiaire les instructions \emph{alloc} et \emph{free} \cite{jakstab-drivers}. 
+\paragraph{Jakstab.} Le projet Jakstab \cite{jakstab} ajoute un modèle de la mémoire pouvant gérer les allocations dynamiques de mémoire effectuées par l'appel système \emph{malloc} en incluant dans langage intermédiaire les instructions \emph{alloc} et \emph{free} \cite{jakstab-drivers}. 
 La mémoire est alors scindée en trois régions : la région globale contient le code et les variables globales du programme, une seconde région contient la pile, et la dernière région inclut le tas, c'est à dire la mémoire allouée dynamiquement par des \emph{malloc}. 
 Cette dernière région contient autant de blocs distincts qu'il y a eu d'allocations dynamiques.
 
@@ -297,7 +297,7 @@ Une première approche, suivie par exemple par BAP, consiste, à l'instar de la 
 Cette approche est illustrée par le graphique donné à la figure \ref{fig:diag_approche_globale}. La partie d'analyse consiste en l'exécution ou l'émulation du programme dans son langage intermédiaire en partant du point d'entrée.
 Une première instruction est décodée, analysée et ajoutée dans le graphe de flot de contrôle du programme. Puis cette instruction est évaluée selon la méthode d'évaluation sémantique précédemment définie.
 Cette évaluation a des conséquences sur l'état des registres du processeur et de la mémoire de la machine.
-L'instruction qui doit être exécutée ensuite est cette présente à l'adresse donnée par le registre de compteur ordinal (\eip\ en assembleur \xq). On récupère alors cette instruction pour l'analyser à son tour.
+L'instruction qui doit être exécutée ensuite est celle présente à l'adresse donnée par le registre de compteur ordinal (\eip\ en assembleur \xq). On récupère alors cette instruction pour l'analyser à son tour.
 
 \begin{figure}[h]
 \begin{center}
@@ -349,7 +349,7 @@ Adresse & Octets & Instruction ASM & Transcription en LI\\
 \label{fig:prg_asm_li}
 \end{figure}
 
-Les deux premières instructions servent à modifier le second octet de l'instruction modifiant \edi\ de \texttt{01} à \texttt{02} transformant cette instruction en \texttt{mov edi, 2}.
+Les deux premières instructions servent à modifier le second octet de l'instruction modifiant \edi\ de \texttt{01} à \texttt{02}, transformant l'instruction  \texttt{mov edi, 1} en \texttt{mov edi, 2}.
 L'approche globale de la transcription du programme dans le langage intermédiaire, bien que chaque instruction assembleur soit sémantiquement équivalente aux instructions transcrites, résulte en un programme qui n'est pas auto-modifiant. Il est composé des quatre instructions de la dernière colonne du tableau.
 Les trois premières écrivent la valeur 2 en mémoire à l'adresse \adr{804806c} et la dernière, indépendante, attribue la valeur 1 au registre \edi.
 Ainsi l'analyse conclurait, à tort, que l'exécution du segment de code assembleur d'origine attribue 1 à \edi, au lieu de 2.
@@ -461,8 +461,7 @@ Nous avons utilisé la librairie XED d'Intel \cite{xed} qui permet d'encoder et 
 Ces informations ne suffisent pas en l'état pour construire une suite d'instructions dans le langage intermédiaire équivalentes sémantiquement à l'instruction assembleur décodée. 
 Les informations fournies permettent par contre de classer les instructions en différentes catégories, selon la documentation officielle, et d'écrire des règles de transcription adaptées à chacune afin d'en déduire un désassemblage.
 Cette étape de transcription des instructions assembleur est la plus pénible à implémenter puisqu'elle consiste principalement à lire la documentation des processeurs ciblés (ici les processeurs Intel \cite{intel_vol2}).
-
-Par exemple les instructions de type \texttt{CMP} prenant comme arguments deux variables à modifier, par exemple \texttt{cmp eax, ebx}.
+Prenons les instructions de type \texttt{CMP} prenant comme arguments deux variables à comparer, par exemple \texttt{cmp eax, ebx}.
 Cette instruction met à jour les drapeaux du processeur selon des caractéristiques de $eax-ebx$.
 Elle est sémantiquement équivalente à la suite d'instructions suivantes.
 % \\
@@ -479,7 +478,7 @@ CF $\leftarrow$ retenue(tmp)
 \end{center}
 
 \paragraph{Évaluation sémantique.}
-La seule instruction atomique provoquant la modification de la valeur d'une variable, hors compteur ordinal, est l'assignation, de la forme $x\leftarrow g(x_1, ..., x_m)$, et l'évaluation sémantique d'une assignation est donnée dans la sémantique du langage intermédiaire et consiste simplement à évaluer les arguments, puis à calculer la valeur de $g(x_1, ..., x_m)$ et à l'assigner à la variable $x$.
+La seule instruction atomique provoquant la modification de la valeur d'une variable, hors compteur ordinal, est l'assignation, de la forme $x\leftarrow g(x_1, ..., x_m)$. L'évaluation concrète d'une assignation est donnée dans la sémantique du langage intermédiaire et consiste simplement à évaluer les arguments, puis à calculer la valeur de $g(x_1, ..., x_m)$ et à l'assigner à la variable $x$.
 
 Le second aspect de l'évaluation sémantique est la détermination de l'adresse de la prochaine instruction à évaluer, c'est à dire de la valeur de \eip. Cette valeur est également donnée par la sémantique du langage intermédiaire.
 
@@ -498,7 +497,7 @@ Ces deux opérateurs sont déjà implémentés dans BAP mais ne sont pas normale
 \paragraph{Limites de l'approche.}
 Nous sommes capables d'émuler l'exécution de programmes \sms\ simples mais les appels systèmes ne sont pas gérés par BAP.
 La sémantique d'un appel système dépendant largement du système d'exploitation sur lequel le programme est exécution, il s'agit d'une limite naturelle de toute méthode basée sur l'émulation.
-Notre implémentation n'est donc pas fonctionnelle pour des programmes réels qui utilisent de nombreux appels système.
+Notre implémentation n'est donc pas fonctionnelle pour des programmes réels qui utilisent de nombreux appels systèmes.
 
 \section*{Conclusion}
 Nous avons présenté les différents niveaux d'information qu'une sémantique du langage assembleur utilisé peut nous apporter et avons détaillé un langage intermédiaire fournissant une sémantique de niveau 3 et des exemples de code équivalent entre l'assembleur et ce langage intermédiaire.

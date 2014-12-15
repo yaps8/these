@@ -18,7 +18,7 @@ Dans le cas d'un programme \sm, cette définition n'est pas suffisante puisque l
 
 Nous considérons toujours que la donnée que l'analyste cherche à déterminer et représenter est l'ensemble des exécutions possibles du programme : nous notons $E_T$ l'ensemble des traces d'exécution.
 En particulier une entrée spécifique provoque une exécution que nous observons sous la forme d'une trace.
-Cette trace peut être découpée en niveaux d'exécution et en autant d'instantanés de la mémoire (définition \ref{def:instantane}), enfin chaque vague est le désassemblage parfait de l'instantané.
+Cette trace peut être découpée en niveaux d'exécution et en autant d'instantanés de la mémoire (définition \ref{def:instantane}). Enfin chaque vague est le désassemblage parfait de l'instantané.
 
 Le désassemblage, pris au sens de l'opération inverse de l'assemblage, consiste à déterminer l'ensemble des instructions potentiellement exécutées et à séparer les adresses contenant ces instructions des autres adresses contenant alors des données.
 Lors de l'exécution d'un programme \sm\ on peut séparer les instructions dont le niveau d'écriture est 0 et celles dont le niveau d'écriture est strictement supérieur à 0.
@@ -65,7 +65,7 @@ E_T,\ i\in \BN, (i, X_1, D_1)\ et\ (i+1, X_2, D_2)\in T\ avec\
 \end{defi}
 
 Le problème de cette définition d'un GFC pour un programme \sm\ est qu'%e souvent les vagues se suivent et ont peu de rapport les unes avec les autres.
-elle ne permet pas de visualiser l'enchaînement des niveaux d'exécution et peut conduire à une interprêtation biaisée des exécutions possibles.
+elle ne permet pas de visualiser l'enchaînement des niveaux d'exécution et peut conduire à une interprétation biaisée des exécutions possibles.
 
 \paragraph{Exemple.}
 Prenons le programme donné en figure \ref{fig:sm_asm} dont le graphe de flot de contrôle construit par analyse statique à l'aide d'un parcours récursif est en figure \ref{fig:sm_cfg_statique}.
@@ -237,7 +237,7 @@ La différence tient dans l'agencement des sommets dans le graphe : un sommet du
 
 \FloatBarrier
 \subsection{Revue de littérature}
-Anckaert, Madou et Bosschere \cite{AMB06} proposent d'introduire la représentation sous forme d'octets de chaque instruction au sein du graphe de flot de contrôle et d'ajouter aux arcs les conditions sur les octets en mémoire. Sur l'exemple précédent, leur GFC, présenté en figure \ref{fig:sm_cfg_parfait_amb}, est identique au GFC simple mais il est alors possible de différencier les chemins selon l'état de la mémoire et donc plus précis pour une analyse automatique.
+Anckaert, Madou et Bosschere \cite{AMB06} proposent d'introduire la représentation sous forme d'octets de chaque instruction au sein du graphe de flot de contrôle et d'ajouter aux arcs les conditions sur les octets en mémoire. Sur l'exemple précédent, leur GFC, présenté en figure \ref{fig:sm_cfg_parfait_amb}, est identique au GFC simple mais il est alors possible de différencier les chemins selon l'état de la mémoire et est donc plus précis pour une analyse automatique.
 En fait le graphe qu'ils représentent est un automate, permettant de compléter la notion d'automate de flot de contrôle introduit comme extension au graphe de flot de contrôle \cite{HJMS02} pour des programmes \sms.
 
 \begin{figure}[h]
@@ -397,11 +397,11 @@ L'architecture générale du désassembleur est donnée par la figure \ref{fig:d
 L'exécution à partir de laquelle on cherche à reconstruire le GFC se doit d'être représentative d'une exécution standard du programme sur une machine cible.
 Dans le cas des programmes malveillants on tente donc de se faire passer pour une machine ciblée par l'attaquant pour laisser le programme mener son attaque. 
 À part les informations provenant du système d'exploitation, un programme malveillant ne prend en général pas d'entrée et ne nécessite pas d'interaction avec l'utilisateur. Une seule exécution devrait donc permettre d'analyser son comportement.
-D'autre part la plupart des logiciels malveillants sont compilés sans comportement auto-modifiant et sont ensuite empaquetés. C'est le binaire empaqueté qui est obscurcis et auto-modifiant.
+D'autre part la plupart des logiciels malveillants sont compilés sans comportement auto-modifiant et sont ensuite empaquetés. C'est le binaire empaqueté qui est obscurci et auto-modifiant.
 Dans ce cas il est fréquent \cite{Calvet2013} que la charge utile, c'est à dire le binaire d'origine, ne soit activé qu'à la dernière vague de l'exécution.
 Par conséquent c'est principalement le logiciel de protection qui peut empêcher l'exécution de référence d'être représentative en détectant que le programme est instrumenté, débogué ou émulé et en détournant l'exécution dans ce cas.
 
-Dans beaucoup de cas le programme de protection essaye de détecter qu'une analyse est en cours et oriente le programme vers un arrêt n'exécutant pas la charge finale.
+Dans beaucoup de cas le programme de protection essaie de détecter qu'une analyse est en cours et oriente le programme vers un arrêt n'exécutant pas la charge finale.
 La difficulté est donc d'obtenir une des deux exécutions activant la charge finale présente à l'instantané $s_6$, comme illustré sur la figure \ref{fig:arbre_vagues2} reprenant l'arbre des traces possibles présenté lors de la définition du désassemblage parfait (section \ref{sec:gfc_parfait}) : les deux points de sortie présents dans l'instantané $s_4$ ne sont activés que parce que la protection a détecté que le programme était analysé et celui-ci n'a donc pas activé la charge finale.
 
 \begin{figure}[h]
@@ -458,7 +458,7 @@ child {node (S9) {$s_4$}}
 Pour l'analyse statique nous disposons de la trace et des instantanés munis de leurs points d'entrée et sortie respectifs.
 Nous cherchons, à partir de la trace et d'un instantané, à reconstruire la vague correspondante, c'est à dire le désassemblage parfait de l'instantané.
 Nous appelons trace partielle la liste des éléments de la trace qui sont exécutés au même niveau d'exécution que l'instantané étudié.
-Nous utilisons la trace partielle comme guide dans l'analyse de l'instantané. Toute instruction présente dans la trace est nécessaire du code et doit être inclue dans la vague et le GFC.
+Nous utilisons la trace partielle comme guide dans l'analyse de l'instantané. Toute instruction présente dans la trace est nécessairement du code et doit être incluse dans la vague et le GFC.
 
 \paragraph{Reconstruction du GFC par parcours récursif.}
 Nous effectuons un désassemblage par parcours récursif de l'instantané à partir de chaque instruction présente dans la trace partielle.
@@ -471,7 +471,7 @@ Dans le cas où cette instruction n'est exécutée qu'une seule fois dans la tra
 
 \paragraph{Chemins invalides.}
 Si tous les chemins d'exécution passant par une instruction $D$ aboutissent nécessairement sur une instruction provoquant une erreur, soit parce que son adresse n'est pas valide, soit parce qu'elle n'est pas une adresse \xq\ valide, alors l'instruction $D$ n'est pas valide non plus.
-Nous n'incluons donc par ces instructions dans le GFC.
+Nous n'incluons donc pas ces instructions dans le GFC.
 Les instructions dont les chemins aboutissent à un saut dont les cibles ne sont pas connues ne sont pas concernées puisqu'il est possible qu'une de ces cibles soit valide.
 
 
@@ -492,7 +492,7 @@ Dans les exemples de GFC déjà vus précédemment, nous avons regroupé certain
 \section{Revue de littérature}
 \subsection{Analyse dynamique}
 Une application directe de l'analyse des GFC faite dans ce chapitre est la reconstitution de l'original d'un binaire empaqueté.
-Renovo \cite{renovo} et PolyUnpack \cite{polyunpack} implémentent de tels systèmes d'extraction qui fonctionnent par analyse du code généré dynamiquement en utilisant des notions similaires à nos instantanés d'exécution. Ils considèrent que le binaire d'origine est celui disponible dans le dernier instantané, qui ne sera plus modifié dans la suite de l'exécution.
+Renovo \cite{renovo} et PolyUnpack \cite{polyunpack} implémentent de tels systèmes d'extraction qui fonctionnent par analyse du code généré dynamiquement en utilisant des notions similaires à nos instantanés d'exécution. Ils considèrent que le binaire d'origine est celui disponible dans le dernier instantané qui ne sera plus modifié dans la suite de l'exécution.
 Leur objectif étant de reconstruire le programme d'origine, dépaqueté, ces deux approches s'arrêtent à cette étape et n'effectuent pas d'analyse supplémentaire. 
 
 Pour l'évaluation les auteurs de PolyUnpack utilisent des programmes malveillants qu'ils analysent avec des antivirus existants (ClamAV et McAfee) et montrent que pour certains échantillons les programmes d'origine (empaquetés) ne sont pas détectés par la solution antivirale tandis que les programmes reconstruits par leur outil sont détectés.
@@ -538,7 +538,7 @@ Bien qu'il s'agisse d'un problème surmontable en enregistrant à part les entê
 \paragraph{Métriques.}
 Nous avons analysé chaque niveau d'exécution et reconstruit chaque vague ainsi que le graphe de flot de contrôle paramétré par l'exécution. Nous avons retenu les informations suivantes.
 \begin{itemize}
- \item Le nombre d'instructions dans chaque vague, d'une part exclusivement dans la trace d'exécution, d'autre part le nombre d'instructions récupérées par le désassemblage hybride.
+ \item Le nombre d'instructions dans chaque vague, d'une part exclusivement dans la trace d'exécution, d'autre part en incluant toutes les instructions récupérées par le désassemblage hybride.
 %  \item Le nombre total d'instructions, caractérisées par leur adresse et leur instruction assembleur, dans la trace et dans le désassemblage.
  \item Le nombre d'instructions étant en chevauchement avec une autre instruction, d'une part pour les instructions de la trace, d'autre part pour toutes les instructions désassemblées.
  \item Le nombre de \layers\ de code, d'une part en ne prenant en compte que les instructions de la trace, d'autre part en prenant toutes les instructions désassemblées, selon l'algorithme \ref{algo:ajout_inst_layers} du chapitre précédent.
@@ -547,8 +547,8 @@ Nous avons analysé chaque niveau d'exécution et reconstruit chaque vague ainsi
  \item Le part du graphe de flot de contrôle du programme \hostname\ d'origine que l'on retrouve dans le GFC partiel de chaque niveau d'exécution : $100\%$ indique que l'intégralité du graphe de flot de contrôle de \hostname\ est retrouvé dans le graphe de flot de contrôle partiel. Cette métrique sera formalisée dans la partie suivante de cette thèse.
  \item Le statut : cette colonne indique si l'instrumentation a été un échec (\checkf), si le désassemblage est un succès complet (\checkv) ou si le désassemblage a rencontré des erreurs (``partiel'').
 \end{itemize}
-Les données résultant de cette expérience sont données en annexe \ref{annex:packers} et un extrait donnant le résultats sur le fichier d'origine, celui protégé par tElock99 et celui protégé par \upx\ est donné en figure \ref{fig:packers_extrait}.
-Le premier binaire détaillé est \hostname\ non protégé. Pour chaque binaire étudié la première ligne donne des informations générales sur le désassemblage de ce binaire : nombre total d'instructions (caractérisées par leur adresse et leur instruction assembleur) différentes dans la trace et le désassemblage hybride et la part du GFC de \hostname\ que l'on retrouve dans le GFC paramétré.
+Les données résultant de cette expérience sont données en annexe \ref{annex:packers} et un extrait donnant les résultats sur le fichier d'origine, celui protégé par tElock99 et celui protégé par \upx\ est donné en figure \ref{fig:packers_extrait}.
+Le premier binaire détaillé est \hostname\ non protégé. Pour chaque binaire étudié la première ligne donne des informations générales sur le désassemblage de ce binaire : nombre total d'instructions (caractérisées par leur adresse et leur instruction assembleur) différentes dans la trace et dans le désassemblage hybride ; et la part du GFC de \hostname\ que l'on retrouve dans le GFC paramétré.
 
 \begin{figure}[h]
 \begin{small}
@@ -564,7 +564,7 @@ Nos expériences confirment un fait étudié précédemment \cite{Calvet2013,ren
 Nous montrons que tous les cas de détection massive de \hostname\ au sein d'un binaire protégé se font dans la dernière vague.
 De plus nous validons également l'utilisation systématique de l'auto-modification comme technique de protection : le seul empaqueteur ne présentant pas d'auto-modification est vmprotect qui utilise une technnique d'émulation de code et n'exécute pas directement le code d'origine sur la machine.
 
-On peut distinguer deux cas différents de protection. UPX, comme d'autres empaqueteurs simples, présente le programme d'origine dans son intégralité et non modifié en dernière vague : les caractéristiques de la dernière vague d'UPX sont exactement les mêmes que celle de l'unique vague de \hostname. L'empaqueteur tElock99 présente le code de \hostname\ également en dernière vague mais il est mêlé à d'autre code : la dernière vague est également obscurcie.
+On peut distinguer deux cas différents de protection. UPX, comme d'autres empaqueteurs simples, présente le programme d'origine dans son intégralité et non modifié en dernière vague : les caractéristiques de la dernière vague d'UPX sont exactement les mêmes que celle de l'unique vague de \hostname. L'empaqueteur tElock99 présente le code de \hostname\ également en dernière vague mais il est mêlé à du code supplémentaire : la dernière vague est également obscurcie.
 
 \paragraph{Utilisation du chevauchement de code et \layers.}
 De nombreux binaires protégés (22 sur 28) présentent, dans le graphe que nous reconstruisons, des chevauchements de code et donc plus d'une couche de code. Pourtant seuls 9 de ces binaires ont utilisé des instructions en chevauchement lors de leur exécution : les autres binaires utilisent en fait des techniques d'obscurcissement qui conduisent notre désassembleur à considérer des instructions se chevauchant sans en faire un usage actif. 

@@ -1,7 +1,7 @@
 Le second objet d'étude de cette thèse est une technique de détection de logiciels malveillants fonctionnant par comparaison de leurs graphes de flot de contrôle (GFC).
 
 Cette partie est organisée comme suit.
-Nous présentons en premier lieu différentes approches de la détection de programmes malveillants, puis nous détaillerons l'analyse morphologique fonctionnant par comparaison des graphes de flot de contrôle et expliquerons comment optimiser cette approche. Enfin nous donnerons une application de l'analyse morphologique à la détection de similarités logicielles et des exemples d'études de codes malveillants basées sur cette approche.
+Nous présentons en premier lieu différentes approches de la détection de programmes malveillants, puis nous détaillons l'analyse morphologique fonctionnant par comparaison des graphes de flot de contrôle et expliquons comment optimiser cette approche. Enfin nous donnons une application de l'analyse morphologique à la détection de similarités logicielles et des exemples d'études de codes malveillants basées sur cette approche.
 
 Dans ce chapitre nous présentons plusieurs techniques de détection de programmes malveillants et introduisons l'analyse morphologique.
 
@@ -42,7 +42,7 @@ La classification en logiciel légitime ou malveillant peut s'effectuer sur dive
 Ces caractéristiques et les techniques permettant de les déterminer ont été étudiées dans la première partie de ce document.
 Nous considérons que leur extraction ne fait pas à proprement partie de la détection : il s'agit de données à partir desquelles nous pouvons construire des signatures de programmes malveillants ou des comportements de référence.
 
-Dans le cas d'une détection par signature, les corpus de logiciels malveillants et légitimes contiennent des programmes dont ont préalablement été extraits les critères précédents et à partir desquels des règles de détection ont été décidées.
+Dans le cas d'une détection par signatures, les corpus de logiciels malveillants et légitimes contiennent des programmes dont ont préalablement été extraits les critères précédents et à partir desquels des règles de détection ont été décidées.
 Le schéma général de détection par signatures est donné en figure \ref{fig:detection}.
 
 \begin{figure}[h]
@@ -291,7 +291,7 @@ Graphe de flot de contrôle & GFC simplifié & GFC réduit\\
 
 \paragraph{Résistance à l'obscurcissement.}
 L'emploi de réductions a pour but de rendre les signatures plus génériques et moins sensibles à l'obscurcissement.
-Certains types d'obscurcissement visent spécifiquement le graphe de flot de contrôle pour le rendre moins intelligible. Nous avons présenté une de ces techniques, l'aplatissement de graphe de flot de contrôle lors de la première partie (section \ref{sec:ex_obsc}). Nous n'avons pas étudié en détails l'impact de ces méthodes sur la précision de la détection faite par l'analyse morphologique mais nous pensons que des techniques d'obscurcissement spécialement créées pour contrer notre technique de détection seraient efficaces et pourraient mener à un grand nombre de faux positifs ou de faux négatifs.
+Certains types d'obscurcissement visent spécifiquement le graphe de flot de contrôle pour le rendre moins intelligible. Nous avons présenté une de ces techniques, l'aplatissement de graphe de flot de contrôle lors de la première partie (section \ref{sec:ex_obsc}). Nous n'avons pas étudié en détail l'impact de ces méthodes sur la précision de la détection faite par l'analyse morphologique mais nous pensons que des techniques d'obscurcissement spécialement créées pour contrer notre technique de détection seraient efficaces et pourraient mener à un grand nombre de faux positifs ou de faux négatifs.
 
 \subsection{Algorithme de comparaison}
 L'algorithme de comparaison des graphes de flot de contrôle et de détection d'isomorphismes de sous-graphes développé à l'origine pour l'analyse morphologique \cite{BKM08} transforme les GFC en arbres et crée un automate d'arbres dans lequel les programmes du corpus sont ajoutés.
@@ -309,7 +309,7 @@ La principale différence avec notre approche est donc que les auteurs cherchent
 
 Zynamics commercialise un outil de comparaison de binaires, BinDiff \cite{bindiff}, qui sépare également les binaires utilisés en fonctions assembleur.
 L'outil permet de trouver des fonctions identiques et de comparer des fonctions présentant certaines similarités \cite{DR05}.
-Il opère par comparaison de critères sur les fonctions comme leur nom, les appels système qu'elles effectuent ou encore le nombre d'arcs en entrée et en sortie des sommets de leur GFC partiel. Bien qu'il n'utilise pas à proprement parler de techniques d'isomorphismes de graphes, BinDiff fonctionne sur des graphes de flot de contrôle en utilisant certains critères qui leur sont spécifiques et va donc plus loin qu'une simple comparaison syntaxique des fonctions.
+Il opère par comparaison de critères sur les fonctions comme leur nom, les appels systèmes qu'elles effectuent ou encore le nombre d'arcs en entrée et en sortie des sommets de leur GFC partiel. Bien qu'il n'utilise pas à proprement parler de techniques d'isomorphismes de graphes, BinDiff fonctionne sur des graphes de flot de contrôle en utilisant certains critères qui leur sont spécifiques et va donc plus loin qu'une simple comparaison syntaxique des fonctions.
 
 L'application de techniques de réduction dans le but de rendre des codes malveillants plus génériques et ainsi que les signatures soient plus efficaces est fréquente dans la littérature. 
 Certains travaux \cite{CKJKVM05} proposent des méthodes luttant spécifiquement contre certaines techniques d'obscurcissement comme la réorganisation de code ; c'est l'objectif des réductions proposées à la figure \ref{fig:am_reductions} dont fait partie le réalignement des sauts inconditionnels.
