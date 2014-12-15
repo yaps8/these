@@ -1343,9 +1343,9 @@ L'algorithme \ref{algo:parcoursSiteDepuisCodage} tente de trouver le sous-site d
 
 % \begin{figure}[h]
 \begin{algorithm}[h] %or another one check
-\caption{Reconstruction d'un sous-site de graphe de flot à partir d'un sommet donné, depuis son codage}
+\caption{Reconstruction d'un sous-site de graphe de flot à partir d'un sommet donné, depuis son codage bien formé}
 \SetAlgoLined
-\KwData{Le codage d'un site, un graphe de flot T, un sommet R de T}
+\KwData{Le codage bien formé d'un site, un graphe de flot T, un sommet R de T}
 \KwResult{Un site ou FAIL}
 \SetKwProg{Fn}{}{}{}
 \SetKwFunction{FRecurs}{reconstructionSousSite}
@@ -1385,22 +1385,40 @@ On voudrait maintenant prouver l'équivalence entre l'existence d'un isomorphism
 
 \FloatBarrier
 \begin{prop}
- Soit un codage C d'un parcours, $S_C$ son site associé par l'algorithme \ref{algo:siteDepuisCodage}, T un graphe de flot et R un sommet de T. Si un parcours de T à partir de R avec l'algorithme \ref{algo:parcoursSiteDepuisCodage} renvoie un site S, alors $S_C$ et S sont isomorphes.
+ Soit un codage bien formé C d'un parcours, $S_C$ son site associé par l'algorithme \ref{algo:siteDepuisCodage}, T un graphe de flot et R un sommet de $T$. Si un parcours de $T$ à partir de $R$ avec l'algorithme \ref{algo:parcoursSiteDepuisCodage} renvoie un site S, alors $S_C$ et $S$ sont isomorphes.
  \label{prop:condageDoncIso}
 \end{prop}
 
+\itodo{revoir la preuve + on a prouvé quoi ?}
+
 \begin{pr}
- Les sous-sites restreints à leur racine sont isomorphes (un seul sommet avec la même étiquette), numérotés de la même manière et le sommet courant est le même.\\
- Supposons que les sous sites restreints aux sommets du parcours $1:L_1\xrightarrow{\alpha_1}i_2[:L_2]\xrightarrow{\alpha_2} ...\xrightarrow{\alpha_{p-1}}i_{p}[:L_{p}]$ sont isomorphes.\\
- Lors de l'étape suivante du parcours ($\xrightarrow{\alpha}i[:L]$), le seul cas où un sommet est numéroté est si $\alpha$ est un entier $k$, si le sommet courant dans T a un fils k non numéroté d'étiquette L et aucun sommet n'est déjà numéroté i. Dans cas un sommet est ajouté au site créé par l'algorithme \ref{algo:siteDepuisCodage} à partir du sommet courant. Dans les deux cas la numérotation est la même et le sommet courant est le sommet qui vient d'être numéroté ou ajouté.\\
- Le second cas possible est si le sommet courant a un fils k déjà numéroté i et d'étiquette L. Dans ce cas ce sommet a déjà été ajouté au sité créé par l'algorithme \ref{algo:siteDepuisCodage}, il n'y a ni numérotation ni ajout de site et le sommet courant devient le fils k.\\
-  Les arcs sont nécessairement les mêmes puisque les parcours appliqués dans les deux algorithmes sont identiques. \\
- Tous les autres cas provoquent un arrêt du parcours par un FAIL. \\
+ Supposons que l'on dispose d'un parcours de $T$ à partir de $R$ qui renvoie, par l'algorithme \ref{algo:parcoursSiteDepuisCodage}, un site $S$. Nous notons $S_C$ le site associé, par l'algorithme \ref{algo:siteDepuisCodage}, au codage de parcours $C$. Nous effectuons la preuve par récurrence.
+ 
+ Les sous-sites restreints à leur racine sont isomorphes (un seul sommet avec la même étiquette), numérotés de la même manière et le sommet courant est le même.
+ Supposons que les sous-sites de $S_C$ et $S$ restreints aux sommets présents dans le sous-parcours de $C$ représenté par le codage $1:L_1\xrightarrow{\alpha_1}i_2[:L_2]\xrightarrow{\alpha_2} ...\xrightarrow{\alpha_{p-1}}i_{p}[:L_{p}]$ sont isomorphes.
+ 
+ Lors de l'étape suivante du parcours le mot $\xrightarrow{\alpha}i[:L]$ est présent.
+ Comme l'algorithme \ref{algo:parcoursSiteDepuisCodage} a renvoyé un site, deux cas sont possibles.
+ \begin{itemize}
+  \item $\alpha$ est un entier $k$ : le sommet courant devient le fils $k$, d'étiquette $L$, du fils courant et ce sommet devient le fils courant. Si aucun site n'était numéroté $i$ ce sommet est également numéroté $i$.
+  \item $\alpha$ est $R$ : le sommet courant devient le sommet précédemment numéroté $i$.
+ \end{itemize}
+
+ 
+ 
+ 
+%  un sommet est nouvellement numéroté uniquement si
+%  Dans le premier cas $\alpha$ est un entier $k$ et si le sommet courant dans T a un fils k non numéroté d'étiquette L et si aucun sommet n'est déjà numéroté i. Dans ce cas un sommet est ajouté au site créé par l'algorithme \ref{algo:siteDepuisCodage} à partir du sommet courant.
+%  Le second cas possible est si le sommet courant a un fils k déjà numéroté i et d'étiquette L. Dans ce cas ce sommet a déjà été ajouté au site créé par l'algorithme \ref{algo:siteDepuisCodage}, il n'y a ni numérotation ni ajout de site et le sommet courant devient le fils k.
+ Dans les deux cas la numérotation est la même que celle effectuée dans l'algorithme \ref{algo:siteDepuisCodage} et le sommet courant devient le sommet qui vient d'être numéroté ou ajouté.
+  Les arcs sont nécessairement les mêmes puisque les parcours appliqués dans les deux algorithmes sont identiques.
+%  Tous les autres cas provoquent un arrêt du parcours par un FAIL. \\
+
  On a bien montré que dans les cas ne provoquant pas d'erreur, les deux sites restreints aux sommets du parcours sont isomorphes.
 \end{pr}
 
 \begin{prop}
- Si P est un site isomorphe à un sous-site S d'un graphe de flot T alors tout codage de parcours $C_P$ de P peut être parcouru dans T à partir de la racine de S.
+ Si P est un site isomorphe à un sous-site S d'un graphe de flot T alors tout codage de parcours bien formé $C_P$ de P peut être parcouru dans T à partir de la racine de S.
  \label{prop:isoDoncCodage}
 \end{prop}
 
@@ -1448,7 +1466,7 @@ L'intérêt de cette équivalence est qu'elle donne un algorithme simple et bien
 \subsubsection{Application directe}
 \paragraph{Résolution des problèmes d'isomorphisme.}
 L'équivalence entre isomorphisme et parcours permet de résoudre le problème \ref{pbisog} de la manière suivante :
-Deux sites sont isomorphes si et seulement si leurs codages de parcours en profondeur\footnote{On peut substituer le parcours en profondeur par un parcours en largeur ou n'importe quel codage de parcours bien formé} sont identiques.
+deux sites sont isomorphes si et seulement si leurs codages de parcours en profondeur\footnote{On peut substituer le parcours en profondeur par un parcours en largeur ou n'importe quel codage de parcours bien formé} sont identiques.
 
 Le problème \ref{pbisosg} de l'existence d'un isomorphisme entre un site et un sous-site d'un site peut être résolu ainsi :
 il existe un sous-site de T isomorphe au site P si et seulement si il existe un sommet de T à partir duquel le codage du parcours en profondeur\footnotemark[\value{footnote}] de P est possible.
@@ -1458,10 +1476,11 @@ Une solution au problème \ref{pbisosgbase} de l'existence, dans une base $L_S$,
 \paragraph{Complexité.}
 La résolution du problème de l'isomorphisme de sous-site avec cet algorithme se réalise dans le pire des cas en $O(n_T.n_P)$ puisqu'elle nécessite :
 \begin{itemize}
- \item Un parcours en profondeur du site de motif P avec détermination du codage : $O(n_P)$
- \item Un parcours du graphe de flot T à partir de chacun de ses sommets : chaque parcours se fait en $O(n_P)$, cette étape peut alors se réaliser en $O(n_T.n_P)$
- \item Si on a une base $L_S$ contenant $S$ sites de taille $W$, la complexité dans le pire des cas pour déterminer un site de la base est isomorphe à un sous-site de T est $O(S.n_T.W)$.
-\end{itemize}
+ \item un parcours en profondeur du site de motif P avec détermination du codage : $O(n_P)$,
+ \item un parcours du graphe de flot T à partir de chacun de ses sommets : chaque parcours se fait en $O(n_P)$, cette étape peut alors se réaliser en $O(n_T.n_P)$.
+ \end{itemize}
+Si on a une base $L_S$ contenant $S$ sites de taille $W$, la complexité dans le pire des cas pour déterminer un site de la base est isomorphe à un sous-site de T est $O(S.n_T.W)$.
+
 
 \subsubsection{Codages rangés dans un arbre de décision}
 \paragraph{Création d'un arbre de décision des codages.}
@@ -1674,7 +1693,7 @@ Nous reprenons l'exemple de fonctionnement du détecteur par analyse morphologiq
 Le corpus est constitué du graphe de flot G découpé en sites donnés en figure \ref{fig:gfc_gf_P_sites}.
 Afin de détecter le graphe de flot donné à la figure \ref{fig:gfc_gf_T_sites}, au lieu de vérifier si les sites P sont isomorphes à des sous-sites de T, nous découpons T en sites en suivant la même méthode que pour déterminer les sites à ajouter au corpus.
 Nous comparons ensuite les sites générés à partir de T à ceux présents dans le corpus : il y a une correspondance si on trouve des sites identiques.
-Ici nous voyons que les sites 1 et $\alpha$ sont identiques, ainsi que les sites 4 et $\epsilon$ et sont donc détectés par cette approche.
+Ici nous voyons que les sites 1 et $\alpha$ sont identiques. C'est également le cas des sites 4 et $\epsilon$. Ces correspondances sont donc détectées par cette approche.
 En revanche le site 3, pourtant sous-site du graphe T, n'est pas présent dans la liste des sites générés à partir de T par le parcours en largeur de taille limitée.
 
 \begin{figure}[h]
@@ -1720,7 +1739,7 @@ Graphe de flot de test T & Ensemble de sites générés à partir de T\\
 Pour régler le problème \ref{pbisosgbase} de détection d'un site dans une base de graphes de flot, on va créer un arbre de décision contenant tous les sites générés à partir du parcours en largeur des graphes de flot de la base.
 
 \subsubsection{Arbre de décision pour la détection de sites}
-Chaque site est généré par un parcours numérotant ses sommets, et chaque sommet a un nombre de fils bornés. On représente alors les sites sous forme matricielle : chaque ligne représente un sommet, le premier élément de la colonne est l'étiquette du sommet et les éléments suivants sont les numéros des fils de ce sommet (0 indique qu'il n'y a pas de sommet). La représentation des sites de la figure \ref{fig:troisProf} est donnée figure \ref{fig:troisProfMatRed}.
+Chaque site est généré par un parcours numérotant ses sommets et chaque sommet a un nombre de fils bornés. On représente alors les sites sous forme matricielle : chaque ligne représente un sommet, le premier élément de la colonne est l'étiquette du sommet et les éléments suivants sont les numéros des fils de ce sommet (0 indique qu'il n'y a pas de sommet). La représentation des sites de la figure \ref{fig:troisProf} est donnée figure \ref{fig:troisProfMatRed}.
 
 \begin{figure}[h]
 \begin{center}
@@ -1781,7 +1800,7 @@ $\begin{array}{r|ccc} Sommet & Etiquette & Fils 1 & Fils 2 \\
 \label{fig:troisProfMatRed}
 \end{figure}
 
-Un site généré par un parcours a une unique représentation sous cette forme parce que, d'une part, le parcours a numéroté ses sommets qui sont donc ordonnés ; d'autre part les fils de chaque sommet sont numérotés, enlevant toute ambiguïté sur l'ordre à donner aux fils dans la matrice générée.
+Un site généré par un parcours a une unique représentation sous cette forme parce que, d'une part le parcours a numéroté ses sommets qui sont donc ordonnés, d'autre part les fils de chaque sommet sont numérotés, enlevant toute ambiguïté sur l'ordre à donner aux fils dans la matrice générée.
 
 \begin{figure}[h]
 \begin{center}
@@ -1936,7 +1955,7 @@ De même l'analyse d'un graphe de flot a pour complexité $O(n.(k+1).W+S.n.W)$, 
 La complexité de l'ajout pour SIDT est $O(n.(k+1).W+n.W^3)$, soit $O(n.W^3)$ et celle pour l'analyse est $O(n.(k+1).W+n.W^3)$, soit $O(n.W^3)$.
 
 \paragraph{Liste de sites et unicité des résultats.}
-Tous les algorithmes étudiés précédemment ainsi que les complexité calculées permettent d'obtenir une liste contenant tous les sites de la base (sauf SIDT qui est incomplet) isomorphes à un sous-site de T.
+Tous les algorithmes étudiés précédemment ainsi que les complexités calculées permettent d'obtenir une liste contenant tous les sites de la base (sauf SIDT qui est incomplet) isomorphes à un sous-site de T.
 Afin de pouvoir détecter des programmes malveillants nous préférons en général connaître l'ensemble des sites uniques qui sont isomorphes à un sous-site de T et sa taille.
 Par exemple si les sommets finaux atteints dans le graphe de décision de l'algorithme par parcours sont $[c, a, c, b]$, on cherche à récupérer l'ensemble $\{a, b, c\}$ contenant 3 éléments.
 
@@ -1967,9 +1986,9 @@ La complexité totale des opérations de détection permettant de récupérer le
 \label{fig:complexite_unique}
 \end{figure}
 
-En pratique un programme contient typiquement 10000 sommets dans son graphe de flot réduit et on peut donc en extraire au maximum 10000 sites. Si la base contient un million de programmes, qui est une borne largement supérieure au nombre de programmes que l'on a en général dans nos bases de programmes malveillants, il y a au plus 10 milliards de sites et le logarithme en base 2 de 10 milliards vaut 43. Même dans le cas de cette borne supérieure le terme $log_2(S)$ est négligeable pour les algorithmes par recherche exhaustive et celui d'Ullmann. Il est de l'ordre de $W$ et nous considérons qu'il n'a pas d'influence significative sur le temps de calcul pour l'algorithme par parcours.
+En pratique un programme contient typiquement 10000 sommets dans son graphe de flot réduit et on peut donc en extraire au maximum 10000 sites. Si la base contient un million de programmes, ce qui est une borne largement supérieure au nombre de programmes que l'on a en général dans nos bases de programmes malveillants, il y a au plus 10 milliards de sites et le logarithme en base 2 de 10 milliards vaut 43. Même dans le cas de cette borne supérieure le terme $log_2(S)$ est négligeable pour les algorithmes par recherche exhaustive et celui d'Ullmann. Il est de l'ordre de $W$ et nous considérons qu'il n'a pas d'influence significative sur le temps de calcul pour l'algorithme par parcours.
 Le facteur logarithmique pour SIDT est $log_2(n)$ et donc même pour un programme ayant des millons de sommets dans son graphe de flot réduit, $log(n)$ serait de l'ordre de 20, ce qui est négligeable par rapport au terme en $W^3$.
-Dans la suite nous présentons les calculs de complexité sans ce terme logarithmique et évaluerons notre hypothèse de non influence pour l'algorithme par parcours lors des expériences.
+Dans la suite nous présentons les calculs de complexité sans ce terme logarithmique et évaluons notre hypothèse de non influence pour l'algorithme par parcours lors des expériences.
 
 \subsubsection{Complexité totale}
 Si l'on ne prend plus en compte le temps pour déterminer les solutions uniques, la complexité totale de chacun des algorithmes pour ces opérations est donnée par le tableau donné en figure \ref{fig:complexite_1}.
@@ -2022,7 +2041,7 @@ Les deux autres algorithmes ont eux une complexité augmentant linéairement ave
 
 \FloatBarrier
 \subsubsection{Influence de la taille de la base}
-Les trois premiers algorithmes ont, pour l'analyse de graphe de flot inconnu, une complexité linéaire en le nombre de site de la base, $S$.
+Les trois premiers algorithmes ont, pour l'analyse de graphe de flot inconnu, une complexité linéaire en le nombre de sites de la base, $S$.
 L'algorithme SIDT est le seul pour lequel le temps de l'analyse ne dépend pas du nombre de sites dans la base, ce qui le rend à même de mieux gérer un corpus de grande taille.
 
 % \begin{center}
@@ -2056,7 +2075,7 @@ L'algorithme SIDT est le seul pour lequel le temps de l'analyse ne dépend pas d
 \subsection{Détail des implémentations}
 Nous avons implémenté différents algorithmes de la manière suivante. Ils prennent en entrée un ou plusieurs graphes de flot à insérer dans la base de programmes connus et un ou plusieurs graphes de flot à tester.
 Le programme donne en sortie, pour chaque graphe de flot à tester, les correspondances trouvées avec ceux ajoutés à la base.
-Les graphes de flot sont stockés dans des fichier de format binaire ou des fichiers de graphes (\texttt{.dot}).
+Les graphes de flot sont stockés dans des fichiers de format binaire ou des fichiers de graphes (\texttt{.dot}).
 
 \paragraph{Algorithme d'Ullmann.}
 Développé en 2000 lignes C \cite{graphbinalgo}, l'implémentation offre les différentes options d'optimisation dont celles discutées précédemment à la section \ref{sec:ullmann_optimisation}.
@@ -2075,7 +2094,7 @@ Développée en 1200 lignes de C \cite{SIDT}, l'implémentation permet égalemen
 Nous avons réalisé nos tests sur un ordinateur portable DELL Latitude E6510 doté d'un processeur Intel i5-560M à double c\oe ur fonctionnant à 2.66 GHz.
 
 \paragraph{Programmes d'empaquetage.}
-Nous avons utilisé l'analyse morphologique lors de l'expérience sur les programmes de protection du chapitre \ref{chap:desassembleur} et dont les résultats sont donnés en annexe \ref{annex:packers}.
+Nous avons utilisé l'analyse morphologique lors de l'expérience sur les programmes de protection du chapitre \ref{chap:desassembleur} dont les résultats sont donnés en annexe \ref{annex:packers}.
 Nous avons cherché à détecter les sites extraits du GFC de \hostname\ que l'on retrouve dans des versions protégées de ce même binaire.
 
 Conformément à nos attentes les algorithmes d'Ullmann et l'algorithme par parcours nous donnent les mêmes résultats en termes de détection sur deux exemples choisis (tElock99 et UPX). L'algorithme d'Ullmann étant lent, nous n'avons pas mené à terme la détection sur tous les échantillons.
@@ -2130,7 +2149,7 @@ Cette seconde observation peut sembler raisonnable si l'on prend en compte que l
 
 \paragraph{Influence de la détermination des sites uniques.}
 Nous avons cherché à évaluer l'influence de l'étape de tri des résultats afin d'obtenir un ensemble de sites uniques lors de la détection avec l'algorithme par parcours.
-Nous avons calculé le temps de détection pour l'algorithme par parcours cette fois-ci en ne récupérant pas les éléments uniques : nous obtenons alors une liste de sites dans laquelle il peut y avoir des doublons. Il y a au maximum 2896 sites uniques détectés ce qui nécessitait l'insertion dans un ensemble contenant au plus 2896 éléments : le retrait de cette étape ne crée pas une différence perceptible dans le temps de détection.
+Nous avons calculé le temps de détection pour l'algorithme par parcours cette fois-ci en ne récupérant pas les éléments uniques : nous obtenons alors une liste de sites dans laquelle il peut y avoir des doublons. Il y a au maximum 2896 sites uniques détectés ce qui nécessite l'insertion dans un ensemble contenant au plus 2896 éléments : le retrait de cette étape ne crée pas une différence perceptible dans le temps de détection.
 Nous considérons donc que cette distinction n'a pas d'influence en pratique lors de l'étape de détection.
 
 % \begin{figure}[h]
@@ -2142,12 +2161,12 @@ Nous considérons donc que cette distinction n'a pas d'influence en pratique lor
 % \end{figure}
 
 \paragraph{Apprentissage et détection sur un grand nombre de sites.}
-Forts de cette première expérience et pour valider la dépendance plus lente amortie qu'une dépendance linéaire en fonction du nombre de sites de la base, de la courbe de détection pour l'algorithme par parcours, nous avons utilisé un second jeu de données.
+Forts de cette première expérience, pour valider la dépendance temporelle plus amortie qu'une dépendance linéaire en fonction du nombre de sites de la base lors de la détection avec l'algorithme par parcours, nous avons utilisé un second jeu de données.
 Nous avons 17044 programmes pour l'apprentissage, contenant 4452219 sites uniques. Notre jeu de données pour la détection contient 5 programmes totalisant 29145 sites uniques.
 
 Avec l'algorithme SIDT le temps d'apprentissage de l'ensemble de ces programmes est de 335 secondes, soit 5 minutes et 30 secondes et le temps de détection de 5 programmes est toujours inférieur à une seconde.
 
-Une partie des résultats de l'algorithme par parcours en termes de vitesse de détection sont donnés à la figure \ref{fig:scan-plus-gtsi}. Nous observons que la courbe a une croissance intermédiaire entre une croissance linéaire (donnée par le pire des cas) et ce qui semble être une croissante logarithmique.
+Une partie des résultats de l'algorithme par parcours en termes de vitesse de détection est donnée à la figure \ref{fig:scan-plus-gtsi}. Nous observons que la courbe a une croissance intermédiaire entre une croissance linéaire (donnée par le pire des cas) et ce qui semble être une croissante logarithmique.
 Le temps de détection dépend fortement du nombre de sites uniques appris dans la base.
 
 \begin{figure}[h]

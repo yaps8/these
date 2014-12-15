@@ -5,10 +5,10 @@ Ces travaux ont fait l'objet d'une communication orale à REcon en 2012 \cite{RE
 
 % \section{Problème : accélérer l'analyse}
 \section{Contexte d'analyse de code}
-L'analyse manuelle de code binaires inconnus est à la base de tout travail sur la détection de logiciels malveillants.
+L'analyse manuelle de codes binaires inconnus est à la base de tout travail sur la détection de logiciels malveillants.
 L'analyste cherche d'une part à déterminer et comprendre l'ensemble du code du programme afin d'en connaître les fonctionnalités
 et le classer comme logiciel malveillant ou légitime.
-D'autre part, s'il s'agit d'un logiciel malveillant, il cherche à établir une signature du binaire permettant de détecter sa présence sur une machine infectée et, éventuellement, de le supprimer.
+D'autre part, s'il s'agit d'un logiciel malveillant, il cherche à établir une signature du binaire permettant de détecter sa présence sur une machine infectée et éventuellement de le supprimer.
 L'analyse se fait à l'aide de différents outils, dont un désassembleur interactif tel IDA \cite{IDA} ou Radare \cite{radare} pour l'analyse statique et d'un outil pour l'analyse dynamique comme un débogueur, un émulateur ou un logiciel d'instrumentation.
 
 Les logiciels analysés ne présentent en général pas d'informations de compilation permettant d'identifier les bibliothèques logicielles utilisées ni leur version. Nous cherchons à automatiser la recherche de bibliothèques connues dans un logiciel à analyser et à marquer son emplacement dans un désassembleur interactif (IDA) afin d'éviter l'analyse inutile de code documenté et d'accélérer l'analyse manuelle.
@@ -19,14 +19,14 @@ Les machines esclaves communiquent entre elles sous la forme d'un réseau pair �
 Il s'agit d'un programme dont les fonctionnalités étaient déjà bien connues et documentées lorsque nous avons commencé à nous y intéresser. Notre objectif était alors de voir s'il était possible d'automatiser une partie de l'analyse, sachant que nous serions capables de vérifier nos résultats à l'aide d'analyses manuelles existantes.
 
 Afin de savoir quelles méthodes de chiffrement le programme utilise, nous avons cherché des chaînes de caractères dans le binaire correspondant à quelques bibliothèques standard à l'aide du l'outil \emph{strings}.
-Par chance il était facile de trouver qu'il utilise la version 0.9.8e d'OpenSSL:
+Par chance il a été facile de trouver qu'il utilise la version 0.9.8e d'OpenSSL:
 \begin{verbatim}
 $ strings "Waledac v48 unpacked.exe" | grep OpenSSL
    EC part of OpenSSL 0.9.8e 23 Feb 2007
    ECDSA part of OpenSSL 0.9.8e 23 Feb 2007
 \end{verbatim}
 
-OpenSSL \cite{openssl} est une bibliothèque libre et documentée, elle ne devrait pas nécessiter une analyse de son code binaire ici inclu dans Waledac. Nous voulons aller plus loin afin de connaître précisément les fonctions utilisées ainsi que les parties de code communes.
+OpenSSL \cite{openssl} est une bibliothèque libre et documentée, elle ne devrait pas nécessiter une analyse de son code binaire ici inclus dans Waledac. Nous voulons aller plus loin afin de connaître précisément les fonctions utilisées ainsi que les parties de code communes.
 
 \section{Analyse morphologique}
 % \subsection{Trouver des sites communs}
@@ -35,7 +35,7 @@ On cherche ensuite des sites communs entre les Waledac et OpenSSL.
 
 \paragraph{Taille des graphes de flot.}
 Les binaires sur lesquels nous avons travaillé ont des graphes de flot de contrôle initiaux allant jusqu'à quelques centaines de milliers de sommets avant réduction et environ quinze mille sommets après réduction. Nous avons initialement trouvé 53 sites communs entre la version 0.9.8x d'OpenSSL et Waledac.
-Nous avions initialement pris la version 0.9.8x, la version à jour d'OpenSSL, parce que les versions antérieures n'étaient pas disponibles sous forme binaire pour Windows et nécessitaient d'être compilées.
+Nous avons initialement pris la version 0.9.8x, la version à jour d'OpenSSL, parce que les versions antérieures n'étaient pas disponibles sous forme binaire pour Windows et nécessitaient d'être compilées.
 
 \begin{figure}[h]
 \begin{center}
@@ -126,16 +126,16 @@ $k\leftarrow k-1$
 
 \subsection{Implémentation et résultats}
 \paragraph{Correspondance entre sommets.}
-La fonction \emph{match} donnant les correspondances a été implémentée pour une variante de l'algorithme d'Ullmann présenté au chapitre précédent, variante adaptée à la comparaison de sites de même taille.
-Elle a également été implémentée dans la version d'origine du détecteur, fonctionnant par automates d'arbres.
-Nous avons ajouté, dans le détecteur, une possibilité d'export de ces correspondances.
+La fonction \emph{match} donnant les correspondances a été implémentée pour une variante de l'algorithme d'Ullmann présentée au chapitre précédent, variante adaptée à la comparaison de sites de même taille.
+Elle a également été implémentée dans la version d'origine du détecteur fonctionnant par automates d'arbres.
+Nous avons ajouté dans le détecteur une possibilité d'export de ces correspondances.
 
 \paragraph{Greffon IDA.}
 Un greffon (ou \emph{plugin}) a été développé pour le désassembleur interactif IDA, permettant, lorsque que deux instances du désassembleur sont lancées, chacune analysant un des deux programmes comparés, d'aligner le code comparé selon les correspondances trouvées au préalable par analyse morphologique.
 Le greffon surligne les instructions ayant trouvé un correspondant dans l'autre graphe de flot et donne également la correspondance entre les fonctions assembleur du premier programme et du second.
 
 \paragraph{Exemple avec Waledac et OpenSSL.}
-La figure \ref{fig:plugin_subroutines} montre un extrait de la page de correspondances entre les fonctions assembleurs identifiées par IDA entre la DLL principale d'OpenSSL (\emph{libeay32-098e.dll}) et Waledac (\emph{Waledac48.int}). La première colonne indique les adresses des instructions d'OpenSSL correspondant aux instructions présentes aux adresses de Waledac à la troisième colonne. Les deuxième et quatrième colonnes donnent le nom des fonctions assembleur auxquelles ces instructions appartiennent.
+La figure \ref{fig:plugin_subroutines} montre un extrait de la page de correspondances entre les fonctions assembleur identifiées par IDA entre la DLL principale d'OpenSSL (\emph{libeay32-098e.dll}) et Waledac (\emph{Waledac48.int}). La première colonne indique les adresses des instructions d'OpenSSL correspondant aux instructions présentes aux adresses de Waledac situées à la troisième colonne. Les deuxième et quatrième colonnes donnent le nom des fonctions assembleur auxquelles ces instructions appartiennent.
 OpenSSL ayant été compilé avec des options de débogage, le nom des fonctions est retrouvé par IDA, ce qui n'est pas le cas pour Waledac.
 Il est à noter que, puisqu'on a effectué des réductions avant de lancer la comparaison, la plupart des instructions, dont les instructions séquentielles, ne sont pas comparées : ce sont principalement les instructions modifiant le flot de contrôle qui ont été considérées.
 
@@ -182,7 +182,7 @@ Adresse & Fonction & Adresse & Fonction \\
 \end{figure}
 
 
-Nous avons ensuite vérifié, dans IDA grâce à la fonction d'alignement de code du greffon, que le code des instructions correspondantes était bien suffisamment similaire pour valider la méthode.
+Nous avons ensuite vérifié dans IDA, grâce à la fonction d'alignement de code du greffon, que le code des instructions correspondantes était bien suffisamment similaire pour valider la méthode.
 Une telle correspondance est donnée en exemple à la figure \ref{fig:plugin_code_sync} pour la fonction \emph{AES\_set\_encrypt\_key}.
 L'image est constituée d'un bout du graphe de flot de contrôle d'OpenSSL à gauche et d'un bout du GFC de Waledac à droite.
 Les instructions surlignées en orange et alignées sont celles pour lesquelles on a trouvé une correspondance.
@@ -214,12 +214,12 @@ CRYPTO\_lock, CRYPTO\_malloc 					& Fonctions génériques d'OpenSSL 	\\
 \label{fig:tab_fonctionnalites_waledac_openssl}
 \end{figure}
 
-Il n'est pas surprenant que l'on retrouve ces fonctionnalités puisque Waledac utilise du chiffrement AES et RSA et gère des certificats X509. Notre contribution est que l'on est capable de le montrer sans réellement analyser le code assembleur.
+Il n'est pas surprenant que l'on retrouve ces fonctionnalités puisque Waledac utilise du chiffrement AES et RSA et gère des certificats X509. Notre contribution est l'emploi de la technique d'analyse morphologique pour déterminer automatiquement ces informations sans analyser manuellement le code assembleur.
 
 \section{Limites}
 On a vu qu'on retrouve certaines fonctions utilisées lors d'un chiffrement AES.
-Pourtant nous n'avons pas retrouvé les fonctions principales, servant à chiffrer et déchiffrer à l'aide de l'algorithme AES.
-La raison est que notre approche, par graphes de flot réduits, s'applique très mal aux fonctions de chiffrement qui sont en général très simples du point de vue de leur graphe de flot de contrôle.
+Pourtant nous n'avons pas retrouvé les fonctions principales servant à chiffrer et déchiffrer à l'aide de l'algorithme AES.
+La raison est que notre approche par graphes de flot réduits s'applique très mal aux fonctions de chiffrement qui sont en général très simples du point de vue de leur graphe de flot de contrôle.
 Une vue simplifiée du GFC de la fonction \emph{AES\_encrypt} est donnée en figure \ref{fig:AES_encrypt_CFG}.
 
 \begin{figure}[h]
@@ -237,12 +237,12 @@ Une vue simplifiée du GFC de la fonction \emph{AES\_encrypt} est donnée en fig
 \label{fig:AES_encrypt_CFG}
 \end{figure}
 
-Le GFC réduit est trop petit pour pouvoir être détecté par l'analyse morphologique, qui prend des graphes d'une taille 24 au minimum.
+Le GFC réduit est trop petit pour pouvoir être détecté par l'analyse morphologique qui prend des graphes d'une taille 24 au minimum.
 En fait beaucoup d'algorithmes de chiffrement ont cette structure une fois réduits et elle n'est pas non plus spécifique aux algorithmes de chiffrement. De ce fait l'analyse morphologique est inadaptée à la détection de ce genre de fonctions.
 
 \section{Application à Duqu et Stuxnet}
 Dans cette section nous présentons nos travaux sur deux programmes malveillants particuliers, \duqu\ et \stux.
-Lorsque nous avons commencé ces travaux \stux\ était déjà documenté et détecté, et \duqu\ venait d'être découvert.
+Lorsque nous avons commencé ces travaux \stux\ était déjà documenté et détecté et \duqu\ venait d'être découvert.
 Il a rapidement été dit qu'ils étaient semblables et nous avons donc cherché à détecter \duqu\ connaissant \stux.
 % Dans un premier temps nous appliquons les travaux présentés au chapitre précédent sur ces exemples \cite{REAT12,mal12}.
 
@@ -255,7 +255,7 @@ Symantec \cite{SymantecStux2011} indique que la plupart des systèmes infectés 
 
 % \paragraph{\duqu.}
 \duqu, découvert en premier par Crysys \cite{CrysysDuquStuxnet} en septembre 2011, laboratoire de sécurité et de cryptographie de l'université de Budapest, a directement été détecté comme apparenté à \stux\ parce que ces deux programmes utilisent des techniques d'infection et de propagation similaires.
-\duqu\ est un outil offensif utilisé pour le vol d'informations. Symantec \cite{SymantecDuqu2011} a identifié, parmi ses fonctionnalités, des enregistreurs de frappes (\emph{keyloggers}), de l'écran, de l'activité réseau, ainsi que des outils de détection de machines sur le réseau.
+\duqu\ est un outil offensif utilisé pour le vol d'informations. Symantec \cite{SymantecDuqu2011} a identifié parmi ses fonctionnalités des enregistreurs de frappes (\emph{keyloggers}), de l'écran, de l'activité réseau ainsi que des outils de détection de machines sur le réseau.
 Il est maintenu à jour via des serveurs de commande et de contrôle (C\&C) et dispose d'une fonctionnalité d'auto-destruction après, typiquement, 36 jours sans nouvelles du C\&C.
 
 Les attaques semblent réussies puisque le programme malveillant n'a pas été détecté à chaud alors que certaines opérations ont duré plusieurs mois, mais seulement post-mortem. De nombreuses souches de \duqu\ ont été trouvées dans la natures, chacune avec des binaires différents mais similaires. Kaspersky a publié un historique des versions \cite{KaspDuqu10}, la dernière souche détectée date de février 2012, bien après que les première attaques n'ont été détectées et documentées.
@@ -270,14 +270,14 @@ Lorsque l'on regarde les sommets correspondants dans les graphes réduits, on s'
 
 Forts de ces résultats indiquant que \duqu\ et \stux\ partagent beaucoup de code, nous considérons donc qu'un détecteur de programmes malveillants fonctionnant avec la technique d'analyse morphologique connaissant \stux\ serait capable de détecter \duqu.
 
-La principale difficulté qu'aurait à résoudre un détecteur est que le programme provocant l'infection de \duqu\ ne ressemble pas à \stux\ ni à aucun autre programme malveillant connu. Ce n'est que lorsque certains composants de \duqu\ sont déchiffrés et installés que l'on peut le détecter.
-Nous détaillerons, dans le chapitre suivant, la méthode d'infection de \duqu\ et le travail nécessaire afin de détecter une attaque.
+La principale difficulté que doit résoudre un détecteur est que le programme provocant l'infection de \duqu\ ne ressemble pas à \stux\ ni à aucun autre programme malveillant connu. Ce n'est que lorsque certains composants de \duqu\ sont déchiffrés et installés que l'on peut le détecter.
+Nous détaillons dans le chapitre suivant la méthode d'infection de \duqu\ et le travail nécessaire afin de détecter une attaque.
 % Nous avons alors cherché à documenter la méthode d'infection de \duqu\ afin de pouvoir détecter une attaque.
 
 
 \section{Perspectives}
 Un approfondissement de cette approche à l'analyse de similarités logicielles serait intéressant. D'une part nous voudrions effectuer des expériences sur plus d'échantillons de code malveillant pour confirmer les résultats prometteurs mis en lumière dans ce chapitre.
-D'autre part nous souhaitons comparer en détail notre approche à celles existantes, notamment par rapport à une comparaison directe des instructions des binaires.
+D'autre part nous souhaiterions comparer en détail notre approche à celles existantes, notamment par rapport à une comparaison directe des instructions des binaires.
 
 \section*{Conclusion}
 Nous avons identifié des similarités entre Waledac et une version spécifique d'OpenSSL, nous avons pu reconstruire automatiquement des correspondances fines afin de déterminer quelles fonctions d'OpenSSL ont été utilisées par Waledac.

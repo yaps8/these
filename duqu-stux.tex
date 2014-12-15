@@ -3,9 +3,9 @@ Notre objectif est de pouvoir détecter une attaque par \duqu\ connaissant \stux
 % cela nécessite un accès au code déchiffré et injecté par \duqu.
 
 Nous cherchons donc à détecter \duqu\ avant qu'il ne puisse infecter une machine ciblée.
-Nous avons pour cela étudié un composant spécifique de \duqu, son pilote (\emph{driver}) qui permet de charger discrètement le code malveillant en mémoire.
+Nous étudions pour cela un composant spécifique de \duqu, son pilote (\emph{driver}) qui permet de charger discrètement le code malveillant en mémoire.
 Notre contribution consiste en la rétroingénierie de ce composant, en la reconstitution de son code source et en une analyse de son fonctionnement.
-Nous avons ensuite détourné le pilote pour en faire une version défensive capable de détecter d'éventuelles attaques similaires.
+Nous avons détournons ensuite le pilote pour en faire une version défensive capable de détecter d'éventuelles attaques similaires.
 En particulier nous montrons comment le pilote de \duqu\ modifié permet de détecter et d'empêcher une attaque par \duqu.
 Ces travaux ont fait l'objet d'une publication à SSTIC \cite{sstic13} ainsi qu'à  Malware \cite{mal13}.
 
@@ -20,9 +20,9 @@ Dans un premier temps il exploite une faille jusque là inconnue (\emph{0-day} s
 \end{itemize}
 
 Au redémarrage de la machine, le pilote surveille le chargement des processus par le système d'exploitation et injecte la DLL principale de \duqu, une fois déchiffrée, dans un processus spécifié par le fichier de configuration, typiquement \services.
-Enfin le pilote modifie \services\ afin qu'il exécute la charge finale, qui est inclue dans la DLL.
+Enfin le pilote modifie \services\ afin qu'il exécute la charge finale, qui est incluse dans la DLL.
 
-Une fois installé sur une première cible, \duqu\ reçoit des ordres d'attaques et de propagation d'un serveur C\&C.
+Une fois installé sur une première cible \duqu\ reçoit des ordres d'attaque et de propagation d'un serveur C\&C.
 Chaque machine infectée peut être configurée pour se connecter à l'attaquant, pas directement mais par la machine qui l'a infectée, créant une sorte de tunnel de routage pour des machines non accessibles directement depuis l'extérieur. Une illustration de ce mécanisme est donnée en figure \ref{fig:propagationDuqu}.
 
 \begin{figure}[h]
@@ -51,13 +51,13 @@ Pour mettre ce plan en \oe uvre, nous avons
 \end{itemize}
 
 \subsection{Reconstruction du code du pilote}
-Nous savions donc que les DLL principales de \duqu\ et \stux\ partagent du code.
+Nous savions donc que les DLL principales de \duqu\ et \stux\ partageaient du code.
 Le pilote de \stux\ a été décompilé par Amr Thabet \cite{ThabetDriver}.
 Nous avons voulu suivre la même route et désassembler le pilote de \duqu\ afin de le documenter.
-Nous avions à notre disposition la souche du pilote découverte en octobre 2011 en Europe : \driver.
+Nous avons eu à notre disposition la souche du pilote découverte en octobre 2011 en Europe : \driver.
 
 Nous avons donc travaillé sur la rétroingénierie de cette version spécifique du pilote afin d’en documenter les fonctionnalités. 
-Notre objectif est d’obtenir un code compréhensible, que l'on peut compiler, et dont la version compilée soit au plus proche du binaire d'origine.
+Notre objectif est d’obtenir un code compréhensible que l'on peut compiler et dont la version compilée soit au plus proche du binaire d'origine.
 
 \subsubsection{Décompilation avec IDA}
 Nous avons utilisé le module de décompilation "Hex-Rays Decompiler", intégré à IDA sous la forme d’un greffon \cite{IDADecompiler}.
@@ -65,8 +65,8 @@ Il permet de générer un pseudo-code C à partir du fichier binaire en cours d�
 Il produit non seulement du code source mais facilite également sa réécriture directement à l’intérieur de l’interface graphique du greffon. 
 Malheureusement le code en sortie n’est, dans notre cas, pas exploitable directement. 
 D’une part le code n’est pas compilable parce que des types de variables n’ont pas été correctement reconnus et certaines conventions d’appel ne sont pas standard (non reconnues par le décompilateur). 
-De plus le code généré est difficilement lisible, en partie parce que certaines structures n’ont pas été identifiées.
-Nous détaillerons dans les paragraphes suivants ces difficultés et des moyens de résolution.
+De plus le code généré est difficilement lisible en partie parce que certaines structures n’ont pas été identifiées.
+Nous détaillons dans les paragraphes suivants ces difficultés et des moyens de résolution.
 
 Nous avons procédé de manière incrémentale afin de reconstruire le code petit à petit en vérifiant à chaque étape que le code compile et qu'une fois compilé il est équivalent à celui du binaire \driver\ original. 
 Cela a consisté à :
@@ -99,12 +99,12 @@ signed int __cdecl sub_12F36(int a1, int a2, int a3)
 \caption{Premières lignes de la fonction ParsePE décompilée par IDA\label{fig:ParsePEInitial}}
 \end{figure}
 
-Certaines constantes peuvent nous aider : par exemple \texttt{0xF750F284 XOR 0xF750B7D4 = 0x00004550} , qui représente la chaîne de caractères 'PE$\backslash$0$\backslash$0' en ASCII. Le texte était obscurci à l'aide d'une opération de ou exclusif (\emph{XOR}).
+Certaines constantes peuvent nous aider : par exemple \texttt{0xF750F284 XOR 0xF750B7D4 = 0x00004550} , qui représente la chaîne de caractères 'PE$\backslash$0$\backslash$0' en ASCII. Le texte est obscurci à l'aide d'une opération de ou exclusif (\emph{XOR}).
 
 Nous soupçonnons alors que cette fonction est utilisée pour le traitement de fichiers binaires au format PE.
 La documentation officielle de Microsoft Visual C++ détaille la structure PIMAGE\_NT\_HEADERS dont le premier champ, \emph{Signature}, vaut \PEzz\ pour les binaires Windows.
 Ainsi la variable \texttt{v4}, qui est comparée à \PEzz, est probablement du type PIMAGE\_NT\_HEADERS.
-Nous forçons ce type pour cette variable au sein d'IDA, à la place du type \texttt{int} et IDA trouve automatiquement le nom des champs de ce type de variable à partir de leur décalage (\emph{offset}) en mémoire.
+Nous forçons ce type pour cette variable au sein d'IDA à la place du type \texttt{int} et IDA trouve automatiquement le nom des champs de ce type de variable à partir de leur décalage (\emph{offset}) en mémoire.
 Lorsque les structures sont spécifiques au binaire analysé, il est possible de les définir manuellement dans le décompilateur.
 Nous avons retrouvé les types des autres variables de manière similaire.
 
@@ -174,10 +174,10 @@ Le pilote \driver\ de \duqu, appartenant au groupe ``network'', est activé avan
 Le pilote, une fois démarré, commence par allouer un emplacement mémoire de 512 octets destiné à contenir un tableau de pointeurs de fonctions partagées entre les différentes routines de rappel (\emph{callback}) qui seront définies par la suite.
 Il passe ensuite au déchiffrement de quelques paramètres internes, révélant le nom et l'emplacement de la clé de registre utilisée pour la configuration de l'injection.
 
-Si le déchiffrement s'est correctement déroulé, vient alors la vérification du mode d'exécution : soit le système s'avère être en mode sans échec ou en mode débogage, dans ce cas le pilote termine prématurément son exécution ; soit il est en mode normal et il crée alors un \emph{device}, \texttt{\{624409B3-4CEF-41c0-8B81-7634279A41E5\}}, et définit la liste des commandes de contrôle qu'il sera amené à traiter.
+Si le déchiffrement s'est correctement déroulé, vient alors la vérification du mode d'exécution : soit le système s'avère être en mode sans échec ou en mode débogage, dans ce cas le pilote termine prématurément son exécution ; soit il est en mode normal, le pilote crée alors un \emph{device}, \texttt{\{624409B3-4CEF-41c0-8B81-7634279A41E5\}}, et définit la liste des commandes de contrôle qu'il sera amené à traiter.
 
 Cette étape réalisée, le pilote enregistre deux fonctions de rappel auprès du gestionnaire d'événements interne du noyau.
-La première est requise par le système : elle est utilisée pour créer un point d'accès ($\backslash$\texttt{Device}$\backslash$\texttt{Gpd0}) et un lien ($\backslash$\texttt{DosDevices}$\backslash$\texttt{GpdDev}) vers le pilote, ainsi que pour définir une pile mémoire pour le \emph{device}.
+La première est requise par le système : elle est utilisée pour créer un point d'accès ($\backslash$\texttt{Device}$\backslash$\texttt{Gpd0}) et un lien ($\backslash$\texttt{DosDevices}$\backslash$\texttt{GpdDev}) vers le pilote ainsi que pour définir une pile mémoire pour le \emph{device}.
 La seconde fonction sera appelée lorsque le pilote sera initialisé ou ré-initialisé. 
 
 
@@ -306,13 +306,13 @@ Le pilote est notifié à chaque fois qu'un module (DLL ou exécutable) est char
 Pour cela il utilise l'identifiant du processus que lui fournit le système d'exploitation lors de la notification.
 Il lit l'adresse de base du fichier directement à partir des informations accessibles dans la structure PEB (\emph{Process Environment Block}) et la compare à celle passée en paramètre par le système.
 Il vérifie que le fichier de configuration est bien déchiffré dans la mémoire partagée et lit le champ donnant la cible de l'injection.
-Comme expliqué dans le document de Crysys \cite{CrysysDuquStuxnet}, la cible est \services\ donc nous nous focaliserons sur ce processus et l'injection dont il sera victime.
+Comme expliqué dans le document de Crysys \cite{CrysysDuquStuxnet}, la cible est \services\ donc nous nous focalisons sur ce processus et l'injection dont il sera victime.
 
 \paragraph{Injection de la charge finale.}
 Le pilote de \duqu\ va maintenant injecter du code malveillant dans \services\ de telle manière que la charge finale soit exécutée par \services\ avant que son code légitime ne soit à son tour exécuté.
 
 Une fois que \services\ est chargé, le pilote détermine son point d'entrée et alloue de la mémoire dans sa section \pdata\ à l'aide de la fonction \ZwA.
-Deux fichiers PE dont les entêtes ont été altérés, à des fins de furtivité, sont injectés.
+Deux fichiers PE dont les entêtes ont été altérés à des fins de furtivité sont injectés.
 Ensuite certaines constantes ('\texttt{MZ}', '\texttt{IMAGE\_NT\_SIGNATURE}', '\texttt{IMAGE\_PE\_i386\_MACHINE}, et '\texttt{IMAGE\_PE32\_MAGIC}') du premier code injecté sont restaurées.
 Certaines adresses sont recalculées : les adresses cibles de sauts qui étaient codées en dur doivent être recalculées.
 Enfin le pilote modifie les permissions du point d'entrée de \services\ de \texttt{RX} (\texttt{PAGE\_EXECUTE\_READ}) à \texttt{RWX} (\texttt{PAGE\_EXECUTE\_WRITECOPY}) en utilisant la fonction \ZwP.
@@ -334,7 +334,7 @@ Le processus \services\ a ainsi été altéré et est prêt à lancer la charge 
 Le système d'exploitation termine l'initialisation de \services\ et procède à son exécution en passant le contrôle au point d'entrée modifié, c'est à dire au premier code injecté par \duqu.
 
 Sa première tâche consiste à déterminer sa propre adresse en mémoire afin de pouvoir recalculer les adresses de certaines cibles de saut.
-Cette opération peut être effectuée à l'aide de deux instructions : un \texttt{call +5} vers l'instruction suivante suivi d'un \texttt{pop eax} a pour effet de placer l'adresse de retour (celle de \texttt{pop eax}) en haut de la pile, puis de la dépiler dans \eax\ qui contient alors cette même adresse.
+Cette opération peut être effectuée à l'aide de deux instructions : un \texttt{call +5} vers l'instruction suivante suivi d'un \texttt{pop eax} a pour effet de placer l'adresse de retour (celle de \texttt{pop eax}) en haut de la pile puis de la dépiler dans \eax\ qui contient alors cette même adresse.
 Il modifie alors les adresses à partir du nouveau point d'entrée déterminé.
 
 Il restaure ensuite les entêtes du second PE injecté afin de le rendre valide et remplit, dans une structure partagée, une table d'import à partir des 10 fonctions trouvées précédemment de \texttt{kernel32.dll}.
@@ -397,11 +397,11 @@ Nous terminerons ce chapitre par une présentation détaillée d'une exécution 
 \subsection{Phase d'initialisation}
 La phase d'initialisation d'origine a été grandement allégée pour notre pilote modifié.
 Nous avons gardé la création des points d'accès, enlevé la recherche de la fonction \ZwP, que nous n'utiliserons pas.
-Nous avons conservé le système de notification des chargements de modules en mémoire et avons également demandé à recevoir une notification lorsque le système termine la création d'un processus (à l'aide de la fonction \emph{PsSetCreateProcessNotifyRoutine}).
+Nous avons conservé le système de notification des chargements de modules en mémoire et avons également demandé de recevoir une notification lorsque le système termine la création d'un processus (à l'aide de la fonction \emph{PsSetCreateProcessNotifyRoutine}).
 
 \subsection{Phase de mémorisation}
 Nous avons vu que le point d'entrée n'est pas altéré lors de la première notification.
-Ainsi si une somme de contrôle est calculée pour le point d'entrée de chaque module, la modification du point d'entrée pourra être détectée lorsque la seconde notification sera déclenchée.
+Ainsi si une somme de contrôle est calculée pour le point d'entrée de chaque module, la modification du point d'entrée peut être détectée lorsque la seconde notification sera déclenchée.
 Nous avons intégralement repris la fonction de hachage implémentée dans \duqu\ qui était à l'origine utilisée pour obscurcir le nom des fonctions appelées.
 
 Une première notification est reçue lorsque le processus est créé.
@@ -429,7 +429,7 @@ Pour cette démonstration, nous avons utilisé deux machines virtuelles sous Win
 Une instance de WinDbg \cite{WinDbg}, débogueur fonctionnant sur le noyau Windows, tourne sur la première machine.
 La seconde machine est lancée en mode ``débogage du noyau'' l'autorisant à dialoguer avec la première machine afin que celle-ci puisse déboguer les pilotes du noyau.
 
-Lors de ces tests nous avons réalisé que le pilote \driver\ de \duqu\ vérifie si le système est en mode débogage ou en mode sans échec : nous l'avons alors modifié pour qu'il se lance tout de même en mode débogage.
+Lors de ces tests nous avons observé que le pilote \driver\ de \duqu\ vérifie si le système est en mode débogage ou en mode sans échec : nous l'avons alors modifié pour qu'il se lance tout de même en mode débogage.
 Nous avons également configuré les deux pilotes afin que l'on puisse les lancer sur demande (et non automatiquement au lancement de la machine).
 Cette configuration nous permet de choisir l'ordre de lancement des pilotes ainsi que de \services.
 
@@ -499,12 +499,12 @@ Il est à noter que ce comportement vient de l'utilisation par le pilote de \duq
 \section{Perspectives}
 Nous sommes capables de détecter l'injection de d'empêcher le chargement de \services\ afin d'éviter l'attaque.
 Cela dit Windows ne peut pas fonctionner normalement sans \services. La machine ne sera donc pas infectée mais nécessitera une intervention humaine pouvant éventuellement détecter que le programme malveillant injecté est une variante de \stux.
-Deux contributions supplémentaires auraient pu être effectuées. D'une part nous voudrions analyser automatiquement la mémoire du processus infecté, \services, à la recherche de binaires connus pour être malveillants. 
+Deux contributions supplémentaires pourraient être effectuées. D'une part nous voudrions analyser automatiquement la mémoire du processus infecté, \services, à la recherche de binaires connus pour être malveillants. 
 Cette étape permettrait de trouver la DLL \netpDLL\ de \duqu\ et de la relier à \stux\ puisque l'analyseur morphologique est capable de détecter des similarités. Nous n'avons pas implémenté cette analyse.
 D'autre part nous voudrions être capables de restaurer la version d'origine de \services\ afin que le système puisse non seulement éviter l'attaque mais également fonctionner dans un état normal.
 
 \section*{Conclusion}
-Des similarités entre \duqu\ et \stux\ nous ont poussé à nous intéresser à une technique de détection permettant de stopper une attaque par \duqu.
+Des similarités entre \duqu\ et \stux\ nous ont poussés à nous intéresser à une technique de détection permettant de stopper une attaque par \duqu.
 Nous avons décrit la technique d'infection ainsi que le fonctionnement du pilote de \duqu\ et ses méthodes pour rester furtif.
 Nous avons ensuite reconstruit le code source du pilote de \duqu\ et en avons fait une version défensive capable de détecter l'injection faite par le logiciel malveillant et de stopper le processus infecté.
 
