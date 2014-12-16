@@ -76,7 +76,7 @@ $expr:=$ $v\in\BV$ $|$ $[v]\in\BV$ $|$ $\bot$ $|$ $n\in\BN$.% $|$ $[a]$ avec $a\
 
 \paragraph{Langage assembleur simplifié.} Nous allons définir un langage intermédiaire dans lequel on peut transcrire chaque instruction \xq\ en une liste d'instructions atomiques de notre langage simplifié.
 Les instructions \xq\ sont disponibles à différentes adresses entières. 
-Les instructions atomiques sont de plusieurs type explicités en définition \ref{def:sem_instructions} : le premier consiste en l'assignation.
+Les instructions atomiques sont de plusieurs types explicités en définition \ref{def:sem_instructions} : le premier consiste en l'assignation.
 Il est possible d'assigner la valeur d'une expression à une variable représentée par une expression. 
 Le second type d'instruction regroupe les sauts inconditionnels et conditionnels.
 On distingue également l'instruction \texttt{end} forçant l'arrêt du programme.
@@ -131,7 +131,7 @@ Pour faire le lien entre la machine et les instructions exécutées, il est néc
 
 \begin{defi}
 % On appelle $D$ l'opérateur de désassemblage qui à une adresse de la mémoire $\BT$ associe une instruction et la taille de cette instruction dans $\BN$. \\
-On appelle $D$ l'opérateur de désassemblage qui à une adresse de la mémoire $\BT$ associe une liste d'instructions atomiques et la taille de cette instruction dans $\BN$.
+On appelle $D$ l'opérateur de désassemblage qui, à une adresse de la mémoire $\BT$ associe une liste d'instructions atomiques et la taille de cette instruction dans $\BN$.
 Pour toute adresse $t\in\BT$, on note $D(t)=d_1..d_n$ et $D_S(t)$ respectivement la suite d'instructions atomiques à l'adresse $t$ et la taille de cette instruction.
 Dans le cas où il n'y a pas d'instruction valide à l'adresse $t$, $D(t)=\bot$ et $D_S(t)=0$.
 \label{def:sem_desassembleur}
@@ -240,9 +240,7 @@ L'état initial du store est : $\forall v\in\BV, \Theta_X(v)=\bot$ et l'on part 
 \end{tabular}
 \end{center}
 
-
-Dans la suite nous appellerons évaluation sémantique ou \texttt{sem\_eval} la fonction qui, à une adresse $t$ et un store $\Theta_X$, associe l'état sur les instructions \xq\ suivant : si $t'$ et $\Theta_X'$ sont les premières valeurs vérifiant \textlangle$t, \Theta$\textrangle$\rightarrow^*$\textlangle$t', \Theta_X'$\textrangle\ avec $t\ne t'$ alors \texttt{sem\_eval}$(t, \Theta_X)=(t', \Theta_X')$.
-
+Dans la suite nous appellerons évaluation sémantique ou \texttt{sem\_eval} la fonction qui, à une adresse $t$ et un store $\Theta_X$, associe l'état suivant : si $t'$ et $\Theta_X'$ sont les premières valeurs vérifiant \textlangle$t, \Theta$\textrangle$\rightarrow^*$\textlangle$t', \Theta_X'$\textrangle\ avec $t\ne t'$ alors \texttt{sem\_eval}$(t, \Theta_X)=(t', \Theta_X')$.
 
 \section{Assembleur et langage intermédiaire}
 En pratique pour analyser un programme assembleur on veut en avoir une représentation dont on connaît la sémantique concrète.
