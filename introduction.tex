@@ -1,11 +1,12 @@
 Les risques liés à la sécurité informatique sont multiples.
 L'utilisateur d'un ordinateur souhaite protéger les données relevant de sa vie privée.
-Les entreprises courent le risque de pertes liées à la diffusion de leur propriété intellectuelle ou de leurs secrets commerciaux.
+Les entreprises courent le risque de pertes liées à la divulgation de leur propriété intellectuelle ou de leurs secrets commerciaux.
 
-Les logiciels sont au centre des systèmes d'information. Ils peuvent présenter des bogues ou des failles de sécurité exposant leurs utilisateurs à ces risques.
-L'exploitation d'une faille de sécurité d'un programme légitime peut résulter en la diffusion d'informations sensibles mais ne traduit que des erreurs de conception et non une intention malveillante.
+Les logiciels sont au centre des systèmes d'information. Ils peuvent présenter des bogues ou des vulnérabilités exposant leurs utilisateurs à ces risques.
+La présence et l'exploitation d'une vulnérabilité dans un programme légitime ne traduit que des erreurs de conception et non une intention malveillante de la part du développeur du logiciel.
+% L'exploitation d'une faille de sécurité d'un programme légitime peut résulter en la diffusion d'informations sensibles mais ne traduit que des erreurs de conception et non une intention malveillante.
 Par ailleurs un programme peut envoyer des données personnelles à son éditeur dans le but de servir de la publicité ciblée. 
-Dans le cas où cette fonctionnalité est clairement indiquée à l'utilisateur, le programme peut tout de même être considéré comme légitime.
+Si cette fonctionnalité est clairement indiquée à l'utilisateur, le programme peut tout de même être considéré comme légitime.
 À l'opposé un logiciel dont le but est d'exposer la vie privée de l'utilisateur sans le prévenir est malveillant.
 Nous proposons donc la définition suivante pour un logiciel malveillant.
 \\
@@ -29,21 +30,24 @@ Nous proposons donc la définition suivante pour un logiciel malveillant.
 % Nous proposons donc la définition suivante pour un logiciel malveillant.
 
 
-\textit{Un logiciel est dit malveillant s'il réalise volontairement des opérations allant à l'encontre de l'intérêt de l'utilisateur, et ce à l'insu de celui-ci.}
+% \textit{Un logiciel est dit malveillant s'il réalise volontairement des opérations allant à l'encontre de l'intérêt de l'utilisateur, et ce à l'insu de celui-ci.}
+\textit{Un logiciel est dit malveillant s'il réalise volontairement et à l'insu de l'utilisateur des opérations allant à l'encontre de l'intérêt de celui-ci.}
 \\ 
 
 % Les actions malveillantes peuvent être de différentes natures. On parle d'atteinte à la confidentialité lorsque des données privées sont obtenues par l'attaquant, d'atteinte à l'intégrité lorsque de l'information présente sur le système attaqué est altérée par l'attaquant et d'atteinte à la disponibilité du système si l'attaquant rend le système inutilisable ou plus difficile à opérer.
 
 % Les logiciels malveillants s'attaquent en général à la confidentialité et la disponibilité du système bien que les outils d'administration à distance soient capables, une fois la machine infectée, d'attaquer ces trois aspects de la sécurité de la machine.
 
-En pratique un logiciel malveillant diffère d'un logiciel légitime parce qu'il cherche à dissimuler son existence et son action sur le système. Il déploie à cette fin des techniques de protection logicielle rendant son analyse plus difficile que celle d'un programme légitime.
-On appelle alors \emph{charge utile} l'action finale d'une attaque sur le système compromis.
-Le programme malveillant cherche à exécuter cette charge utile sur sa cible tout en la dissimulant à des analystes éventuels.
+Dans la pratique la différence entre un logiciel légitime et un logiciel malveillant est que ce dernier cherche à dissimuler son existence et son action sur le système.
+% Dans la pratique un logiciel malveillant diffère d'un logiciel légitime parce qu'il cherche à dissimuler son existence et son action sur le système.
+Il déploie à cette fin des techniques de protection logicielle rendant son analyse plus difficile que celle d'un programme légitime.
+Le programme malveillant cherche à exécuter une action finale, appelée \emph{charge utile}, sur sa cible tout en la dissimulant à des analystes éventuels.
+% On appelle alors \emph{charge utile} l'action finale d'une attaque sur le système compromis.
 
 \section*{Analyse et détection de logiciels malveillants}
 
 % Les logiciels malveillants sont souvent protégés par des techniques d'obscurcissement cachant la charge utile à un analyste.
-Les mécanismes de protection employés, ou techniques d'obscurcissement, sont tels qu'aucune analyse basée sur une observation passive du programme ne peut permettre de prédire sa charge utile et donc de détecter s'il est malveillant.
+Les mécanismes de protection employés, ou techniques d'obscurcissement, sont tels qu'aucune analyse basée sur une observation passive du programme ne peut permettre de prédire sa charge utile et donc de décider s'il est malveillant.
 La principale difficulté rencontrée lors de l'analyse d'un logiciel malveillant est qu'il est auto-modifiant : il se décompresse en réécrivant sur lui-même en mémoire. L'auto-modification complexifie grandement la sémantique du programme puisqu'une instruction peut-être amenée à être modifiée au cours de l'exécution de celui-ci.
 Afin de comprendre cette technique il est nécessaire d'utiliser une sémantique compatible avec l'auto-modification.
 Nous avons repris les analyses développées par Reynaud \cite{Reynaud2010} et Calvet \cite{Calvet2013} permettant de séparer l'exécution d'un programme auto-modifiant en plusieurs parties non auto-modifiantes. 
@@ -58,14 +62,14 @@ Le premier objectif de cette thèse est donc de résoudre le problème suivant.
 \end{pbb}
 
 Une fois ces éléments extraits du programme analysé, même partiellement, nous nous interrogeons sur la détection d'un comportement malveillant au sein du programme.
-Les premiers travaux traitant de virologie informatique datent de 1986 avec Cohen \cite{Cohen86} puis Adleman \cite{Adleman88} en 1988. Ils s'intéressent particulièrement au comportement auto-reproducteur de certains programmes. Déterminer si un programme a un comportement auto-reproducteur est un problème indécidable. De même il n'existe pas de programme capable de décider, sans jamais se tromper, si un programme analysé a un comportement malveillant.
+Les premiers travaux traitant de virologie informatique datent de 1986 avec Cohen \cite{Cohen86} puis Adleman \cite{Adleman88} en 1988. Ils s'intéressent particulièrement au comportement auto-reproducteur de certains programmes. Déterminer si un programme a un comportement auto-reproducteur est un problème indécidable. De même, il n'existe pas de programme capable de décider, sans jamais se tromper, si un programme analysé a un comportement malveillant.
 
-Les décennies qui ont suivi ont vu apparaître différentes techniques de détection partielles dont la plus répandue est l'analyse de signatures syntaxiques. Ces approches consistent dans un premier temps à extraire d'un corpus de logiciels connus pour être malveillants certaines caractéristiques : la présence de certaines chaînes de caractères dans le fichier contenant le programme ou l'utilisation de certaines instructions dans un ordre précis, par exemple. Dans un second temps, pour classifier un logiciel inconnu, on regarde s'il possède une des caractéristiques extraites de ce corpus.
+Les décennies qui ont suivi ont vu apparaître différentes techniques de détection partielles dont la plus répandue est l'analyse de signatures syntaxiques. Ces approches consistent dans un premier temps à extraire d'un corpus de logiciels connus pour être malveillants certaines caractéristiques : la présence de certaines chaînes de caractères dans le fichier contenant le programme ou l'utilisation de certaines instructions dans un ordre précis, par exemple. Dans un second temps, pour classifier un logiciel inconnu, il suffit de regarder s'il possède une des caractéristiques extraites de ce corpus.
 Cette technique possède le double avantage d'être rapide et de générer peu de fausses alarmes.
 
 Cependant chaque souche originale d'un logiciel malveillant est généralement déclinée en de nombreuses versions dont les caractéristiques varient. Ces souches forment une famille de logiciels malveillants. Pour éviter la détection par signatures syntaxiques, il suffit souvent d'insérer du code inutile ou de réorganiser le code : le nouveau logiciel malveillant est identique fonctionnellement au code initial mais les signatures précédemment extraites n'y sont plus présentes.
 
-Nous nous sommes intéressés à la technique de détection initiée par Kaczmarek \cite{BKM08} lors de sa thèse. Il s'agit d'une technique de détection par signatures basée sur la comparaison des graphes de flot de contrôle. %, c'est à dire du graphe structurant l'exécution du logiciel.
+Nous nous sommes intéressés à la technique de détection initiée par Kaczmarek \cite{BKM08}. Il s'agit d'une technique de détection par signatures basée sur la comparaison des graphes de flot de contrôle. %, c'est à dire du graphe structurant l'exécution du logiciel.
 % \todo[inline]{exemple prog ->  CFG}
 La comparaison des graphes de flot de contrôle, ou analyse morphologique, consiste en la détection d'isomorphismes de graphes entre des parties des graphes de flot considérés. 
 L'algorithme utilisé à l'origine fonctionnait par reconnaissance d'arbres à l'aide d'un automate d'arbres. Il n'existait pas de cadre formel définissant les objets détectés par cette analyse. Sans cadre formel il était difficile de mesurer les performances des implémentations utilisées en termes de précision des résultats.
@@ -143,7 +147,7 @@ Une possibilité consiste à utiliser l'analyse morphologique pour la détection
 Nous illustrons cette idée avec un logiciel malveillant, Waledac, et son emploi d'OpenSSL.
 Ces travaux ont été publiés à REcon \cite{REAT12} et Malware \cite{mal12}.
 
-Cette idée est également utilisée sur les programmes malveillants Duqu et Stuxnet dont nous avons montré qu'ils ont du code en commun.
+Nous utilisons également l'analyse morphologique sur les programmes malveillants Duqu et Stuxnet dont nous avons montré qu'ils ont du code en commun.
 Dans une optique de détection nous nous interrogeons sur la possibilité de détecter Duqu connaissant Stuxnet et montrons qu'il est nécessaire de surveiller l'exécution de Duqu pour réagir à l'injection d'un code en mémoire, code que le détecteur morphologique est capable de relier à Stuxnet.
 Ces travaux ont fait l'objet de publications à Malware \cite{mal13} et SSTIC \cite{sstic13}.
 
