@@ -43,10 +43,11 @@ Un graphe de flot est un graphe orienté et étiqueté $(V, L, l, E)$ vérifiant
  \end{enumerate}
  \item Les fils de chaque sommet sont ordonnés : 
 %  les arcs ont pour label l'ordre i du fils (où i est un entier compris entre 1 et la valence du sommet)\\
-       l'ensemble des arcs est $E\subset V\times \mathbb{N}\times V$ tel que $(t, i, h)\in E$ si et seulement si~: 
+       l'ensemble des arcs est $E\subset V\times \mathbb{N}\times V$. Les éléments $(t, i, h)$ de $E$ vérifient~: 
        \begin{itemize}
         \item $1\leq i\leq a$ où $a$ est l'arité de l'étiquette de t, et
-        \item il y a un arc numeroté i entre le sommet t et le sommet h.
+%         \item il y a un arc numeroté i entre le sommet t et le sommet h, et
+        \item il n'y a pas d'autre fils de $t$ numéroté i : $\{(t, i, h')\in E, h'\ne h\}=\emptyset$.
        \end{itemize}
 %  \item La valence de ses sommets est bornée
 \end{enumerate}
@@ -1340,8 +1341,18 @@ Ajout du sommet 1 d'étiquette L qui est la racine du site et devient le sommet 
 \end{algorithm}
 
 \begin{defi}
- On appelle codage d'un site
+ On appelle codage d'un site $S$ tout codage de parcours bien formé dont le site associé par l'algorithme \ref{algo:siteDepuisCodage} est $S$.
 \end{defi}
+
+\begin{prop}
+ Le codage du parcours en profondeur founi par l'algorithme \ref{algo:codageProf} à partir de n'importe quel site $S$ est un codage de $S$.
+\end{prop}
+
+\begin{pr}
+ \itodo{todo}
+\end{pr}
+
+
 
 % \begin{prop}
 % Soit $S_1$ et $S_2$ deux sites dont les codages de parcours en profondeur (générés par l'algorithme \ref{algo:codageProf}) sont $C_1$ et $C_2$.\\
@@ -1403,9 +1414,34 @@ L'algorithme \ref{algo:parcoursSiteDepuisCodage} tente de trouver le sous-site d
 
 On voudrait maintenant prouver l'équivalence entre l'existence d'un isomorphisme de sous-site entre un site P et un graphe de flot T d'une part, et la possibilité d'appliquer un parcours bien formé quelconque de P à partir d'un sommet de T d'autre part. Les deux propositions suivantes vont permettre d'établir l'équivalence statuée au théorème \ref{theo:eqIsoCodage}.
 
+
+\begin{defi}
+ On dit que le codage $C$ d'un parcours bien formé peut être parcouru dans un graphe de flot $T$ si et seulement si il existe un sommet $R$ de $T$ tel que l'algorithme \ref{algo:parcoursSiteDepuisCodage} appliqué à $C$, $T$ et $R$ renvoie un site. On appelle site résultant le site alors renvoyé par cet algorithme.
+\end{defi}
+
 \FloatBarrier
+
 \begin{prop}
- Soit $C$ un parcours de codage bien formé, $S_C$ son site associé par l'algorithme \ref{algo:siteDepuisCodage}, T un graphe de flot et R un sommet de $T$. Si un parcours de $T$ à partir de $R$ avec l'algorithme \ref{algo:parcoursSiteDepuisCodage} renvoie un site S, alors $S_C$ et $S$ sont isomorphes.
+ Si P est un site isomorphe à un sous-site S d'un graphe de flot T alors tout codage de P peut être parcouru dans T à partir de la racine de S.
+ \label{prop:isoDoncCodage}
+\end{prop}
+
+\begin{pr}
+Soit $C$ un codage de parcours bien formé de $P$.
+Chacun des algorithmes \ref{algo:siteDepuisCodage} et \ref{algo:parcoursSiteDepuisCodage} prenent le codage $C$ en entrée et traitent les mots qui le composent un par un.
+Nous montrons qu'à la fin du traitement dans chaque mot les sommet courant du site $P$ dans l'algorithme \ref{algo:siteDepuisCodage} est le correspondant, au sens de l'isomorphisme de graphes de flot, du sommet courant du site $S$ dans l'algorithme \ref{algo:parcoursSiteDepuisCodage}.
+
+% On va montrer que l'algorithme \ref{algo:parcoursSiteDepuisCodage} appliqué au codage $C_P$, au graphe T, à partir de la racine de S produit un site S' isomorphe à S et P. \\
+% Le graphe composé uniquement de la racine de P est isomorphe à celui composé de la racine de S ajoutée au graphe à construire dans l'algorithme \ref{algo:parcoursSiteDepuisCodage}. \\
+% Supposons que les sous-sites restreints aux sommets du parcours $1:L_1\xrightarrow{\alpha_1}i_2[:L_2]\xrightarrow{\alpha_2} ...\xrightarrow{\alpha_{p-1}}i_{p}[:L_{p}]$ sont isomorphes et que les numérotations correspondent à l'isomorphisme.\\
+% Lors de l'étape suivante du parcours ($\xrightarrow{\alpha}i[:L]$), un sommet n'est ajouté dans l'algorithme \ref{algo:siteDepuisCodage} que si $\alpha$ est un entier $k$ et si le sommet $i$ n'a pas déjà été créé. Dans le parcours de T (algorithme \ref{algo:parcoursSiteDepuisCodage}), cela implique qu'aucun sommet n'est déjà numéroté $i$. Puisque le sommet courant dans P a un fils $k$, que les sommets courants de P et S' correspondent dans l'isomorphisme et que P et S sont isomorphes, le sommet courant dans S' a un fils $k$ (d'étiquette $L$). Puisque le codage est bien formé, il n'y a qu'un fils $k$ du sommet courant. Ce fils $k$ n'a pas déjà été numéroté, sinon il aurait déjà été créé précédemment dans l'algorithme \ref{algo:siteDepuisCodage}. On est donc nécessairement dans le cas où on numérote le fils $k$ du sommet courant par i, le sommet ajouté dans l'algorithme \ref{algo:siteDepuisCodage} porte le même numéro que celui numéroté dans le parcours de T : ils se correspondent dans un isomorphisme de 
+% sites.\\
+% Dans le cas contraire où aucun fils n'est ajouté, comme précédemment le sommet courant a nécessairement un fils $k$ qui a déjà été numéroté puisque c'est le cas dans la reconstruction du site P. Dans les deux cas aucun site n'est ajouté mais le fils $k$ devient le sommet courant.\\
+% On en déduit que les sommets ajoutés sont toujours deux sommets correspondants dans un isomorphisme et que les arcs ajoutés sont également les mêmes.
+\end{pr}
+
+\begin{prop}
+ Soit $C$ un codage de parcours bien formé, $S_C$ son site associé par l'algorithme \ref{algo:siteDepuisCodage} et T un graphe de flot. Si $C$ peut être parcouru dans $T$, en nommant $S$ le site résultant, alors $S_C$ et $S$ sont isomorphes.
  \label{prop:condageDoncIso}
 \end{prop}
 
@@ -1435,21 +1471,6 @@ On voudrait maintenant prouver l'équivalence entre l'existence d'un isomorphism
 %  Tous les autres cas provoquent un arrêt du parcours par un FAIL. \\
 
  On a bien montré que dans les cas ne provoquant pas d'erreur, les deux sites restreints aux sommets du parcours sont isomorphes.
-\end{pr}
-
-\begin{prop}
- Si P est un site isomorphe à un sous-site S d'un graphe de flot T alors tout codage de parcours bien formé $C_P$ de P peut être parcouru dans T à partir de la racine de S.
- \label{prop:isoDoncCodage}
-\end{prop}
-
-\begin{pr}
-On va montrer que l'algorithme \ref{algo:parcoursSiteDepuisCodage} appliqué au codage $C_P$, au graphe T, à partir de la racine de S produit un site S' isomorphe à S et P. \\
-Le graphe composé uniquement de la racine de P est isomorphe à celui composé de la racine de S ajoutée au graphe à construire dans l'algorithme \ref{algo:parcoursSiteDepuisCodage}. \\
-Supposons que les sous-sites restreints aux sommets du parcours $1:L_1\xrightarrow{\alpha_1}i_2[:L_2]\xrightarrow{\alpha_2} ...\xrightarrow{\alpha_{p-1}}i_{p}[:L_{p}]$ sont isomorphes et que les numérotations correspondent à l'isomorphisme.\\
-Lors de l'étape suivante du parcours ($\xrightarrow{\alpha}i[:L]$), un sommet n'est ajouté dans l'algorithme \ref{algo:siteDepuisCodage} que si $\alpha$ est un entier $k$ et si le sommet $i$ n'a pas déjà été créé. Dans le parcours de T (algorithme \ref{algo:parcoursSiteDepuisCodage}), cela implique qu'aucun sommet n'est déjà numéroté $i$. Puisque le sommet courant dans P a un fils $k$, que les sommets courants de P et S' correspondent dans l'isomorphisme et que P et S sont isomorphes, le sommet courant dans S' a un fils $k$ (d'étiquette $L$). Puisque le codage est bien formé, il n'y a qu'un fils $k$ du sommet courant. Ce fils $k$ n'a pas déjà été numéroté, sinon il aurait déjà été créé précédemment dans l'algorithme \ref{algo:siteDepuisCodage}. On est donc nécessairement dans le cas où on numérote le fils $k$ du sommet courant par i, le sommet ajouté dans l'algorithme \ref{algo:siteDepuisCodage} porte le même numéro que celui numéroté dans le parcours de T : ils se correspondent dans un isomorphisme de 
-sites.\\
-Dans le cas contraire où aucun fils n'est ajouté, comme précédemment le sommet courant a nécessairement un fils $k$ qui a déjà été numéroté puisque c'est le cas dans la reconstruction du site P. Dans les deux cas aucun site n'est ajouté mais le fils $k$ devient le sommet courant.\\
-On en déduit que les sommets ajoutés sont toujours deux sommets correspondants dans un isomorphisme et que les arcs ajoutés sont également les mêmes.
 \end{pr}
 
 \begin{theo}
