@@ -1112,16 +1112,27 @@ L'algorithme d'Ullmann ainsi que les deux approches citées dans cette section n
 \subsection{Algorithme par parcours de graphes de flot}
 Tarjan \cite{Tar71} propose un parcours en profondeur d'un graphe qui permet d'en simplifier la structure en construisant un arbre le recouvrant. 
 On peut adapter cette approche pour tester l'isomorphisme de sous-sites. 
-Tout d'abord on formalise le parcours d'un graphe $T$ de taille $n$ à partir d'un sommet $s$ comme suit.
-C'est une numérotation $\pi:V\rightarrow \llbracket 1, n \rrbracket$ de ses sommets vérifiant les propriétés suivantes.
+Tout d'abord on formalise le parcours d'un graphe à la définition \ref{def:parcours} et plus spécifiquement le parcours d'un site à la définition \ref{def:parcours_site}.
+Le parcours d'un site peut être bijectif car tous les sommets du site sont accessibles depuis sa racine.
+
+\begin{defi}
+Soit $T$ un graphe de taille $n$. On appelle parcours de $T$ depuis le sommet $s$ toute numérotation $\pi:V\rightarrow \llbracket 1, n \rrbracket$ de ses sommets vérifiant les propriétés suivantes.
 \begin{itemize}
  \item $\pi(s)=1$
  \item $\pi$ est injective
  \item $\forall\ i\geq 2$, $\pi^{-1}(i)$, s'il existe, est le fils d'au moins un sommet $s'$ vérifiant $\pi(s')<i$
 %  \item L'ensemble des numéros est l'intervalle des entiers entre 1 et n où n est nombre de sommets du site et il y a une bijection entre ces deux ensembles
 \end{itemize}
+\label{def:parcours}
+\end{defi}
 
-Le parcours d'un site se fait à partir de sa racine (numérotée 1) et est bijectif (c'est possible car il a une racine).
+\begin{defi}
+On appelle parcours d'un site $S$ tout parcours bijectif du graphe représenté par $S$ à partir de sa racine.
+% Le parcours d'un site $S$ est le parcours du graphe représenté par $S$ à partir de sa racine.
+\label{def:parcours_site}
+\end{defi}
+
+
 % Nous exploitons le fait que les fils d'un graphe de flot son numérotés : comme nous l'expliciterons cette propriété rend possible la définition d'algorithmes de numérotation déterministes.
 
 
@@ -1275,34 +1286,38 @@ $E\leftarrow \{\}$\tcc*[H]{E est l'ensemble des sommets déjà visités.}
 
 
 \FloatBarrier
-On peut reconstruire le site à partir du codage précédent en procédant de manière incrémentale (algorithme \ref{algo:siteDepuisCodage}) si le codage est bien formé (définition \ref{def-codage-bien-forme}).
+On peut reconstruire le site à partir du codage précédent en procédant de manière incrémentale (algorithme \ref{algo:siteDepuisCodage}) si le codage est bien formé (définitions \ref{def-mot-bien-forme} et \ref{def-codage-bien-forme}).
 Par la suite on ne parlera que de codages bien formés sans l'expliciter.
+\itodo{non, on explicite + à prouver pour le parcours en profondeur}
 
 \begin{defi}
-\label{def-codage-bien-forme}
- Un mot de parcours bien formé est soit :
+ Un mot de parcours est soit:
  \begin{itemize}
-  \item De type $m_1$, c'est à dire $1:L$ où L est une étiquette
-  \item De type $m_2$, c'est à dire $\xrightarrow{\alpha}i[:L]$ où i est un entier, L est une étiquette et $\alpha$ est soit un entier k, soit R
+  \item de type $m_1$, c'est à dire $1:L$ où L est une étiquette, ou
+  \item de type $m_2$, c'est à dire $\xrightarrow{\alpha}i[:L]$ où i est un entier, L est une étiquette et $\alpha$ est soit un entier k, soit R.
  \end{itemize}
+ \label{def-mot-bien-forme}
+\end{defi}
 
- Un codage de parcours est bien formé s'il vérifie :
+\begin{defi}
+ On appelle codage de parcours bien formé tout mot vérifiant les quatre conditions suivantes.
 \begin{enumerate}
  \item Il est de la forme $m_1(m_2)^*$
  \item L'étiquette de chaque sommet $i$ est spécifiée une unique fois, lors la première référence à ce sommet : à $i$ fixé, si un mot de la forme $[\xrightarrow{\alpha}]i:L$ est présent alors aucun mot le précédent n'est de la forme $[\xrightarrow{\alpha}]i[:L]$ et aucun mot suivant n'est de la forme $\xrightarrow{\alpha}i:L$
 %  \item S'il y a deux mots de la forme $i:L_1$ et $i:L_2$ alors $L_1=L_2$
  \item Pour tout mot de la forme $\xrightarrow{R}i[:L]$, un mot $i:L$ est présent précédemment dans le codage
- \item Il ne définit qu'une fois chaque fils de chaque sommet : à $i$ et $k$ fixés, il ne doit y avoir qu'au plus une occurrence de $i[:L]\xrightarrow{k}$
+ \item Chaque fils de chaque sommet est défini au plus une fois : à $i$ et $k$ fixés, il ne doit y avoir qu'au plus une occurrence du mot $i[:L]\xrightarrow{k}$
 %  \item Toute suite incluse dans le codage de la forme $1:L(\xrightarrow{\alpha}i[:L])*$ est également un parcours
 \end{enumerate} 
+\label{def-codage-bien-forme}
 \end{defi}
 
 
 
 \begin{algorithm}[h] %or another one check
-\caption{Reconstruction d'un site depuis son codage bien formé}
+\caption{Reconstruction d'un site depuis un codage de parcours bien formé}
 \SetAlgoLined
-\KwData{Le codage bien formé d'un site}
+\KwData{Un codage de parcours bien formé}
 \KwResult{Un site}
 \SetKwProg{Fn}{}{}{}
 \SetKwFunction{FRecurs}{reconstructionSite}
@@ -1323,6 +1338,11 @@ Ajout du sommet 1 d'étiquette L qui est la racine du site et devient le sommet 
 }
 \label{algo:siteDepuisCodage}
 \end{algorithm}
+
+\begin{defi}
+ On appelle codage d'un site
+\end{defi}
+
 % \begin{prop}
 % Soit $S_1$ et $S_2$ deux sites dont les codages de parcours en profondeur (générés par l'algorithme \ref{algo:codageProf}) sont $C_1$ et $C_2$.\\
 % $C_1=C_2\Rightarrow S_1$ et $S_2$ sont deux sites isomorphes.
@@ -1343,9 +1363,9 @@ L'algorithme \ref{algo:parcoursSiteDepuisCodage} tente de trouver le sous-site d
 
 % \begin{figure}[h]
 \begin{algorithm}[h] %or another one check
-\caption{Reconstruction d'un sous-site de graphe de flot à partir d'un sommet donné, depuis son codage bien formé}
+\caption{Reconstruction, depuis un codage de parcours bien formé, d'un sous-site de graphe de flot à partir d'un sommet donné du graphe de flot}
 \SetAlgoLined
-\KwData{Le codage bien formé d'un site, un graphe de flot T, un sommet R de T}
+\KwData{Un codage de parcours bien formé, un graphe de flot T, un sommet R de T}
 \KwResult{Un site ou FAIL}
 \SetKwProg{Fn}{}{}{}
 \SetKwFunction{FRecurs}{reconstructionSousSite}
@@ -1385,7 +1405,7 @@ On voudrait maintenant prouver l'équivalence entre l'existence d'un isomorphism
 
 \FloatBarrier
 \begin{prop}
- Soit un codage bien formé C d'un parcours, $S_C$ son site associé par l'algorithme \ref{algo:siteDepuisCodage}, T un graphe de flot et R un sommet de $T$. Si un parcours de $T$ à partir de $R$ avec l'algorithme \ref{algo:parcoursSiteDepuisCodage} renvoie un site S, alors $S_C$ et $S$ sont isomorphes.
+ Soit $C$ un parcours de codage bien formé, $S_C$ son site associé par l'algorithme \ref{algo:siteDepuisCodage}, T un graphe de flot et R un sommet de $T$. Si un parcours de $T$ à partir de $R$ avec l'algorithme \ref{algo:parcoursSiteDepuisCodage} renvoie un site S, alors $S_C$ et $S$ sont isomorphes.
  \label{prop:condageDoncIso}
 \end{prop}
 
@@ -2195,6 +2215,6 @@ En revanche le temps de détection pour l'algorithme par parcours dépend du nom
 Notre analyse est la suivante. Dans un contexte de détection pour implémenter un détecteur de programmes malveillants les deux algorithmes peuvent être utilisés pour apprendre l'ensemble des programmes du corpus en un temps raisonnable à condition d'optimiser les algorithmes pour améliorer le facteur linéaire.
 Il est par contre important que le temps de détection ne dépende pas trop du nombre de programmes dans le corpus, ce qui n'est pas le cas pour l'algorithme par parcours. Une approche incomplète comme SIDT remplit cette condition sur le temps de détection.
 
-\section*{Conclusion}
+\section{Conclusion}
 Nous avons formalisé le problème de la détection d'isomorphismes de graphes et de sous-graphes adapté à l'analyse morphologique et proposé deux approches algorithmiques tirant partie des spécificités des graphes de flot et des sites.
 La première, cherchant à reproduire des parcours de sites au sein d'un graphe de flot, donne des résultats exacts tandis que la seconde, fonctionnant par simple comparaison des sites, n'est pas exacte mais est beaucoup plus rapide : le temps de détection avec l'algorithme SIDT ne dépend pas du nombre de programmes dans le corpus.
