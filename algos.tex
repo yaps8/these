@@ -1207,7 +1207,11 @@ Graphe de flot & Numérotation en profondeur & Numérotation en largeur\\
 \KwResult{Le codage du parcours en profondeur de ce site}
 \SetKwProg{Fn}{}{}{}
 \SetKwFunction{FRecurs}{parcoursProfondeur}
-\Fn(\tcc*[h]{s: sommet, i: dernier numéro attribué, E: sommets déjà explorés, etiq: associe une étiquette à un sommet, num: associe un sommet à son numéro}){\FRecurs{s, i, E, etiq, num}}{
+~\\
+$(i, c)\leftarrow parcoursProfondeur(R, 1, \emptyset, etiq, \emptyset)$\\
+\Return c\\
+~\\
+\Fn(\tcc*[h]{s: sommet, i: premier numéro non attribué, E: sommets déjà explorés, etiq: associe une étiquette à un sommet, num: associe un sommet à son numéro}){\FRecurs{s, i, E, etiq, num}}{
 % \Fn(// s: sommet, i: dernier numéro attribué, E: sommets déjà explorés){\FRecurs{s, i, E}}{
      \eIf{$s\notin E$}{
       $E\leftarrow E\cup\{s\}$\\
@@ -1222,13 +1226,12 @@ Graphe de flot & Numérotation en profondeur & Numérotation en largeur\\
 	$C\leftarrow C+ "\xrightarrow{R} num(s)"$\\
 	}
       }
-      	$retourner (i, C)$\\
+      	\Return $(i, C)$\\
      }
      {
-     $retourner (i, "num(s)")$\\
+     \Return $(i, "num(s)")$\\
      }
 }
-parcoursProfondeur(R, 1, $\emptyset$, etiq, $\emptyset$)
 \label{algo:codageProf}
 \end{algorithm}
 \end{figure}
@@ -1329,13 +1332,14 @@ Ajout du sommet 1 d'étiquette L qui est la racine du site et devient le sommet 
   \For{chaque mot de type $\xrightarrow{\alpha}i[:L]$}{
   \eIf{$\alpha$ est un entier k}{
   Ajout du sommet i d'étiquette L s'il n'existait pas\\
-  Ajout d'un arc entre le sommet courant et le sommet i\\
+  Ajout d'un arc d'étiquette $k$ entre le sommet courant et le sommet i\\
   Le sommet i devient le sommet courant
   }
   {
   Le sommet i devient le sommet courant
   }
   }
+  \Return le site reconstitué
 }
 \label{algo:siteDepuisCodage}
 \end{algorithm}
@@ -1422,14 +1426,40 @@ On voudrait maintenant prouver l'équivalence entre l'existence d'un isomorphism
 \FloatBarrier
 
 \begin{prop}
- Si P est un site isomorphe à un sous-site S d'un graphe de flot T alors tout codage de P peut être parcouru dans T à partir de la racine de S.
+ Si P est un site isomorphe à un sous-site S d'un graphe de flot T alors tout codage de P peut être parcouru dans T à partir d'une racine de S.
  \label{prop:isoDoncCodage}
 \end{prop}
 
 \begin{pr}
-Soit $C$ un codage de parcours bien formé de $P$.
-Chacun des algorithmes \ref{algo:siteDepuisCodage} et \ref{algo:parcoursSiteDepuisCodage} prenent le codage $C$ en entrée et traitent les mots qui le composent un par un.
-Nous montrons qu'à la fin du traitement dans chaque mot les sommet courant du site $P$ dans l'algorithme \ref{algo:siteDepuisCodage} est le correspondant, au sens de l'isomorphisme de graphes de flot, du sommet courant du site $S$ dans l'algorithme \ref{algo:parcoursSiteDepuisCodage}.
+Soit $P$ un site isomorphe à une sous-site $S$ d'un graphe de flot $T$ et $C$ un codage de parcours bien formé de $P$.
+$C$ est un codage de $P$ donc l'application de l'algorithme \ref{algo:siteDepuisCodage} à $C$ fournit le site $P$.
+Chacun des algorithmes \ref{algo:siteDepuisCodage} et \ref{algo:parcoursSiteDepuisCodage} prennent le codage $C$ en entrée et traitent les mots qui le composent un par un.
+Nous montrons qu'à la fin du traitement de chaque mot le sommet courant du site $P$ dans l'algorithme \ref{algo:siteDepuisCodage} est le correspondant, au sens de l'isomorphisme de graphes de flot (définition \ref{def:iso-go}), du sommet courant du site $S$ dans l'algorithme \ref{algo:parcoursSiteDepuisCodage}.
+Comme l'algorithme \ref{algo:siteDepuisCodage} renvoie $P$ et qu'il crée exactement un sommet par entier $i$ présent dans les mots de la forme $\xrightarrow{\alpha}i[:L]$ de $C$, on peut associer chaque entier $i$ du codage à son sommet correspondant, $p_i$ dans $P$.
+Nous notons $s_1, ..., s_n$ les sommets de $S$ tels que $p_i$ est associé à $s_i$ au sens de l'isomorphisme. En particulier $p_i$ et $s_i$ ont la même étiquette.
+Nous parcourons le graphe de flot $T$ à l'aide de l'algorithme \ref{algo:parcoursSiteDepuisCodage} à partir de $C$, et $T$ et de $s_1$.
+Nous opérons une démonstration par récurrence sur le nombre $n$ de mots traités, l'hypothèse de récurrence est la suivante : 
+le traitement de jusqu'à $n$ mots n'a pas provoqué d'erreur dans l'algorithme \ref{algo:parcoursSiteDepuisCodage} et quels que soit $l\le n$, si le sommet courant à la fin du traitement de $l$ mots dans l'algorithme \ref{algo:siteDepuisCodage} est $p_i$ alors celui dans l'algorithme \ref{algo:parcoursSiteDepuisCodage} est $s_i$.
+
+$C$ est un codage de parcours bien formé : il est de la forme $m_1(m_2)*$. Le traitement du mot $m_1=1:L$ par l'algorithme \ref{algo:siteDepuisCodage} crée un site constitué de sa seule racine, le sommet $p_1$ d'étiquette L et $p_1$ devient alors le sommet courant.
+Parallèlement le traitement du mot $m_1$ par l'algorithme \ref{algo:parcoursSiteDepuisCodage} à partir du sommet $s_1$ ayant la même étiquette que $p_1$, soit $L$, numérote $s_1$ par 1 et le $s_1$ devient le sommet courant.
+L'hypothèse de récurrence est donc vérifiée initialement.
+
+Supposons que l'hypothèse de récurrence est vraie pour $n$.
+S'il n'y avait que $n$ mots dans $C$ les algorithmes s'arrêtent et l'algorithme \ref{algo:parcoursSiteDepuisCodage} n'a pas rencontré d'erreur et renvoie bien un site : on a montré que $C$ peut être parcouru dans T à partir de la racine de S.
+
+Dans le cas contraire on s'intéresse au traitement du mot $n+1$ de type $m_2=\xrightarrow{\alpha}i[:L]$.
+Plusieurs cas sont possibles.
+\begin{itemize}
+ \item $\alpha$ est un entier $k$ et il n'existe pas de sommet $i$ déjà ajouté dans l'algorithme \ref{algo:siteDepuisCodage} : dans l'algorithme \ref{algo:siteDepuisCodage} le sommet $p_i$ d'étiquette $L$ est ajouté et un arc d'étiquette $k$ est créé entre le sommet courant $p$ et le sommet $p_{i}$ qui devient le sommet courant.
+ Dans l'algorithme \ref{algo:parcoursSiteDepuisCodage} le sommet courant $s$ a nécessairement un fils numéroté $k$ car $P$ et $S$ sont isomorphes de telle manière que $p$ et $s$ correspondent. Par définition d'un graphe de flot il y a au plus un fils de $s$ numéroté $k$ : il ne peut s'agir que de $s_i$ dont l'étiquette est $L$. De plus aucun sommet ne peut être déjà étiqueté par $i$ : cela signifierait qu'un mot précédent aurait déjà ajouté un sommet $i$ dans l'algorithme \ref{algo:siteDepuisCodage}.
+ Nous sommes donc dans le premier cas de l'algorithme \ref{algo:parcoursSiteDepuisCodage} : le fils $k$ de $s$ est numéroté $i$. Ce fils est le sommet $s_i$ et devient le fils courant.
+ \item $\alpha$ est un entier $k$ et un sommet $i$ a déjà été ajouté dans l'algorithme \ref{algo:siteDepuisCodage} : le codage de parcours étant bien formé le sommet $i$ précédemment ajouté avait nécessairement l'étiquette $L$. Un arc d'étiquette $k$ est ajouté entre le sommet courant $p$ et le sommet $p_i$. Lorsque le sommet $p_i$ a été ajouté dans l'algorithme \ref{algo:siteDepuisCodage}, on était dans le cas précédent et le sommet $s_i$ a également été ajouté dans l'algorithme \ref{algo:parcoursSiteDepuisCodage}. De plus on vient d'ajouter un arc numéroté $k$ entre le sommet courant $p$ et $p_i$. Comme $P$ et $S$ sont isomorphes un arc numéroté $k$ existe entre le sommet courant $s$ et $s_i$ et il est unique. On est dans le second cas de l'algorithme \ref{algo:parcoursSiteDepuisCodage} : le sommet $s_i$ devient le sommet courant.
+ \item $\alpha$ est R : dans l'algorithme \ref{algo:siteDepuisCodage} le sommet $p_i$ devient le sommet courant. Dans l'algorithme \ref{algo:parcoursSiteDepuisCodage} le sommet précédemment numéroté $i$ doit devenir le sommet courant. Un sommet $s$ a été numéroté $i$ depuis un mot précédent de la forme $\xrightarrow{k}i:L$ car $C$ est un codage de parcours bien formé et ce mot conduit dans l'algorithme \ref{algo:siteDepuisCodage} à la création du sommet $p_i$ et donc, selon l'hypothèse de récurrence, $s$ est $s_i$.
+\end{itemize}
+
+On a montré qu'aucun cas ne mène à une erreur dans l'algorithme \ref{algo:parcoursSiteDepuisCodage} : le codage $C$ peut être parcouru dans $T$ à partir de la racine $s_1$ de $S$.
+
 
 % On va montrer que l'algorithme \ref{algo:parcoursSiteDepuisCodage} appliqué au codage $C_P$, au graphe T, à partir de la racine de S produit un site S' isomorphe à S et P. \\
 % Le graphe composé uniquement de la racine de P est isomorphe à celui composé de la racine de S ajoutée au graphe à construire dans l'algorithme \ref{algo:parcoursSiteDepuisCodage}. \\
