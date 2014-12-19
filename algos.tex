@@ -1309,7 +1309,7 @@ Par la suite on ne parlera que de codages bien formés sans l'expliciter.
  \item Il est de la forme $m_1(m_2)^*$
  \item L'étiquette de chaque sommet $i$ est spécifiée une unique fois, lors la première référence à ce sommet : à $i$ fixé, si un mot de la forme $[\xrightarrow{\alpha}]i:L$ est présent alors aucun mot le précédent n'est de la forme $[\xrightarrow{\alpha}]i[:L]$ et aucun mot suivant n'est de la forme $\xrightarrow{\alpha}i:L$
 %  \item S'il y a deux mots de la forme $i:L_1$ et $i:L_2$ alors $L_1=L_2$
- \item Pour tout mot de la forme $\xrightarrow{R}i[:L]$, un mot $i:L$ est présent précédemment dans le codage
+ \item Pour tout mot de la forme $\xrightarrow{R}i$, un mot $i:L$ est présent précédemment dans le codage
  \item Chaque fils de chaque sommet est défini au plus une fois : à $i$ et $k$ fixés, il ne doit y avoir qu'au plus une occurrence du mot $i[:L]\xrightarrow{k}$
 %  \item Toute suite incluse dans le codage de la forme $1:L(\xrightarrow{\alpha}i[:L])*$ est également un parcours
 \end{enumerate} 
@@ -1349,13 +1349,39 @@ Ajout du sommet 1 d'étiquette L qui est la racine du site et devient le sommet 
 \end{defi}
 
 \begin{prop}
- Le codage du parcours en profondeur founi par l'algorithme \ref{algo:codageProf} à partir de n'importe quel site $S$ est un codage de $S$.
+ Le codage du parcours en profondeur fourni par l'algorithme \ref{algo:codageProf} à partir de n'importe quel site $S$ est un codage de $S$.
+\end{prop}
+
+\begin{pr}
+ Soit un site $S$ (non vide) de racine $R$.
+ Nous prouvons d'abord que l'algorithme \ref{algo:codageProf} appliqué à $S$ fournit un codage de parcours bien formé.
+ La sortie de la fonction \emph{parcoursProfondeur} est de la forme $i[:L](\xrightarrow{\alpha}i[:L])*$ et le mot $1:etiq(R)$ est présent au début de la sortie de l'algorithme. La sortie de l'algorithme est donc bien de la forme $m_1(m_2)*$.
+ 
+ L'étiquette de chaque sommet est spécifiée au moins une fois parce qu'en partant de la racine de $S$ le parcours en profondeur atteint tous les sommets de $S$ et si le sommet $s$ n'a pas encore été traité, un mot de la forme $i:etiq(s)$ est ajouté. L'étiquette ne peut être ajoutée que si $s$ n'a pas encore été parcouru et donc elle est spécifiée au plus une fois.
+ 
+ Les mots de la forme $\xrightarrow{R}i$ ne sont ajoutés qu'avec $i$ étant la numérotation du site $s$ en cours de traitement et dont l'étiquette a déjà été définie.
+ 
+ Chaque sommet n'est traité qu'une seule fois et les mots de la forme $\xrightarrow{k}i$ définissant ses fils ne sont donc ajoutés qu'une seule fois.
+ 
+ Nous cherchons maintenant à prouver que pour tout site $S$ le codage fourni par l'algorithme \ref{algo:codageProf} de parcours en profondeur permet de reconstruire, à l'aide de l'algorithme \ref{algo:siteDepuisCodage}, le site~$S$.
+ Notons $s_1, s_2, ..., s_n$ les sommets de $S$ numérotés selon l'algorithme de parcours en profondeur. 
+ Chaque site $s_i$ est atteint par le parcours en profondeur et est donc ajouté au codage sous la forme d'un mot $i:L$. 
+ De plus chaque arête sortant de $s_i$ vers un fils $s_{i'}$ est représentée par un mot de la forme $\xrightarrow{k}i'[:L]$ s'il suit directement le mot définissant le sommet ou $\xrightarrow{R}i\xrightarrow{k}i'[:L]$ dans le cas contraire.
+ Lors de la reconstruction dans l'algorithme \ref{algo:siteDepuisCodage}, le mot $i:L$ crée le site $s_i$ et ce site $s_i$ devient le sommet courant. S'il y a un premier fils, le mot $\xrightarrow{k}i'[:L]$ suit directement et crée une arête entre le sommet $s_i$
+ courant et le sommet $s_i'$ qui sera à son tour créé s'il n'existe pas. Les fils suivants de $s_i$, codés par des mots de la forme $\xrightarrow{R}i\xrightarrow{k}i'[:L]$, ramènent le sommet courant à $s_i$ puis créent à nouveau une arête entre $s_i$ et $s_i'$.
+ 
+ Nous avons montré que tous les sommets et les arêtes du site $S$ se retrouvent dans le site recréé à partir du codage.
+ Nous avons en fait utilisé tous les mots écrits par l'algorithme \ref{algo:codageProf} de parcours en profondeur et ces mots n'ont pas d'autre effet dans la reconstruction effectuée par l'algorithme \ref{algo:siteDepuisCodage}.
+ Ainsi le site reconstruit est exactement le site $S$ d'origine. 
+\end{pr}
+
+\begin{prop}
+ Le codage du parcours en largeur fourni par l'algorithme \ref{algo:codageLarg} à partir de n'importe quel site $S$ est un codage de $S$.
 \end{prop}
 
 \begin{pr}
  \itodo{todo}
 \end{pr}
-
 
 
 % \begin{prop}
@@ -1474,8 +1500,6 @@ On a montré qu'aucun cas ne mène à une erreur dans l'algorithme \ref{algo:par
  Soit $C$ un codage de parcours bien formé, $S_C$ son site associé par l'algorithme \ref{algo:siteDepuisCodage} et T un graphe de flot. Si $C$ peut être parcouru dans $T$, en nommant $S$ le site résultant, alors $S_C$ et $S$ sont isomorphes.
  \label{prop:condageDoncIso}
 \end{prop}
-
-\itodo{revoir la preuve + on a prouvé quoi ?}
 
 \begin{pr}
  Supposons que l'on dispose d'un parcours de $T$ à partir de $R$ qui renvoie, par l'algorithme \ref{algo:parcoursSiteDepuisCodage}, un site $S$. Nous notons $S_C$ le site associé, par l'algorithme \ref{algo:siteDepuisCodage}, au codage de parcours $C$. Nous effectuons la preuve par récurrence.
