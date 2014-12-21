@@ -1252,7 +1252,7 @@ $s_c\leftarrow \epsilon$\tcc*[H]{Le sommet courant devient $\epsilon$.}
 % $num(R)\leftarrow 1$\tcc*[H]{Il est numéroté 1.}
 $i\leftarrow 1$\tcc*[H]{On numérote à partir de 1.}
 $C\leftarrow ""$\\
-$A\leftarrow [(\epsilon, 0, R)]$\tcc*[H]{A contient les sommets à visiter.}
+$A\leftarrow [(\epsilon, 0, R)]$\tcc*[H]{A contient les arcs à ajouter.}
 $E\leftarrow \{\}$\tcc*[H]{E est l'ensemble des sommets déjà visités.}
 \While{il y a un premier élément a=(p, k, s) dans A}{
   Retirer le premier élément de A\\
@@ -1274,9 +1274,9 @@ $E\leftarrow \{\}$\tcc*[H]{E est l'ensemble des sommets déjà visités.}
     $s_c\leftarrow s$\\
     \For{fils f numéro k' du sommet s}
     {  
-      $A\leftarrow A + (s, k', f)$
+      $A\leftarrow A + (s_c, k', f)$
     }
-    $E\leftarrow E\cup \{s\}$\\
+    $E\leftarrow E\cup \{s_c\}$\\
   }
   {
     $C\leftarrow C+ "\xrightarrow{k} num(s)"$\\
@@ -1291,8 +1291,7 @@ $E\leftarrow \{\}$\tcc*[H]{E est l'ensemble des sommets déjà visités.}
 
 \FloatBarrier
 On peut reconstruire le site à partir du codage précédent en procédant de manière incrémentale (algorithme \ref{algo:siteDepuisCodage}) si le codage est bien formé (définitions \ref{def-mot-bien-forme} et \ref{def-codage-bien-forme}).
-Par la suite on ne parlera que de codages bien formés sans l'expliciter.
-\itodo{non, on explicite + à prouver pour le parcours en profondeur}
+% Par la suite on ne parlera que de codages bien formés sans l'expliciter.
 
 \begin{defi}
  Un mot de parcours est soit:
@@ -1346,6 +1345,7 @@ Ajout du sommet 1 d'étiquette L qui est la racine du site et devient le sommet 
 
 \begin{defi}
  On appelle codage d'un site $S$ tout codage de parcours bien formé dont le site associé par l'algorithme \ref{algo:siteDepuisCodage} est $S$.
+\label{prop:codageProf}
 \end{defi}
 
 \begin{prop}
@@ -1355,7 +1355,7 @@ Ajout du sommet 1 d'étiquette L qui est la racine du site et devient le sommet 
 \begin{pr}
  Soit un site $S$ (non vide) de racine $R$.
  Nous prouvons d'abord que l'algorithme \ref{algo:codageProf} appliqué à $S$ fournit un codage de parcours bien formé.
- La sortie de la fonction \emph{parcoursProfondeur} est de la forme $i[:L](\xrightarrow{\alpha}i[:L])*$ et le mot $1:etiq(R)$ est présent au début de la sortie de l'algorithme. La sortie de l'algorithme est donc bien de la forme $m_1(m_2)*$.
+ La sortie de la fonction \emph{parcoursProfondeur} est de la forme $i[:L](\xrightarrow{\alpha}i[:L])*$ et le mot $1:etiq(R)$ est présent au début de la sortie de l'algorithme. La sortie de l'algorithme est donc bien de la forme $m_1(m_2)^*$.
  
  L'étiquette de chaque sommet est spécifiée au moins une fois parce qu'en partant de la racine de $S$ le parcours en profondeur atteint tous les sommets de $S$ et si le sommet $s$ n'a pas encore été traité, un mot de la forme $i:etiq(s)$ est ajouté. L'étiquette ne peut être ajoutée que si $s$ n'a pas encore été parcouru et donc elle est spécifiée au plus une fois.
  
@@ -1377,10 +1377,37 @@ Ajout du sommet 1 d'étiquette L qui est la racine du site et devient le sommet 
 
 \begin{prop}
  Le codage du parcours en largeur fourni par l'algorithme \ref{algo:codageLarg} à partir de n'importe quel site $S$ est un codage de $S$.
+\label{prop:codageLarg}
 \end{prop}
 
 \begin{pr}
- \itodo{todo}
+La preuve est similaire à celle de la proposition \ref{prop:codageProf}. 
+Tout d'abord on montre que l'algorithme \ref{algo:codageLarg} fournit un codage de parcours bien formé à partir d'un site $S$ de racine $R$.
+Le premier élément traité est $R$ et conduit à l'ajout du mot $1:L$ où $L$ est l'étiquette de $R$. 
+Il s'agit de la seule occurrence de ce mot car la variable $p$ ne peut plus être égale à $\emptyset$. Le traitement de tout autre sommet conduit à l'ajout d'un mot de la forme $[\xrightarrow{R}i]\xrightarrow{k}i':L$ ou d'un mot de la forme $[\xrightarrow{R}i]\xrightarrow{k}i'$. 
+Le mot donné en sortie de l'algorithme est donc de la forme $m_1(m_2)^*$.
+
+On parcourt un site en largeur à partir de sa racine donc on visite chaque sommet exactement une fois et c'est lors de cette visite qu'on spécifie son étiquette : l'étiquette de chaque sommet est spécifiée une unique fois.
+
+On n'ajoute un mot de la forme $\xrightarrow{R}i$ que lorsque l'on connaît le sommet père du sommet courant dans le parcours en largeur. 
+Ce sommet père a forcément été visité au préalable et son étiquette a été spécifiée sous la forme d'un mot $i:L$.
+
+À $p$ et $k$ fixé, il y a donc au plus un élément $(p, k, s)$ ajouté à $A$ lors du parcours. 
+Pour tout mot de la forme $i[:L]\xrightarrow{k}$ présent dans la sortie de l'algorithme, l'ajout du mot contenant $i$ a l'effet suivant : le sommet courant devient le sommet numéroté $i$. 
+L'ajout du mot $\xrightarrow{k}$ intervient au traitement de l'élément $(p, k, s)$ de $A$ lorsque le sommet courant est $p$. 
+Les éléments de la forme $(p, k, s)$ sont ajoutés à $A$ une unique fois lors du parcours du site $p$ et ce site $p$ a, pour chaque entier $k$, au maximum un fils $s$ numéroté $k$.
+À un sommet $p$ et un entier $k$ est donc associé un unique mot de la forme $num(p)\xrightarrow{k}$.
+
+Nous cherchons maintenant à prouver que pour tout site $S$ le codage fourni par l'algorithme \ref{algo:codageLarg} de parcours en largeur permet de reconstruire, à l'aide de l'algorithme \ref{algo:siteDepuisCodage}, le site~$S$.
+Notons $s_1, s_2, ..., s_n$ les sommets de $S$ numérotés selon l'algorithme de parcours en largeur. 
+Chaque site $s_i$ est atteint par le parcours en largeur et est donc ajouté au codage sous la forme d'un mot $i:L$. 
+De plus chaque arête numéroté $k$ sortant de $s_i$ vers un fils $s_{i'}$ est représentée dans l'algorithme par l'ajout à $A$ d'un élément $(s_i, k, s_{i'})$ qui provoque, lors de son traitement, l'ajout d'un mot de la forme $\xrightarrow{k}i'[:L]$ s'il suit directement le mot définissant le sommet ou $\xrightarrow{R}i\xrightarrow{k}i'[:L]$ dans le cas contraire.
+Lors de la reconstruction dans l'algorithme \ref{algo:siteDepuisCodage}, le mot $i:L$ crée le site $s_i$ et ce site $s_i$ devient le sommet courant. S'il y a un premier fils, le mot $\xrightarrow{k}i'[:L]$ suit directement et crée une arête entre le sommet $s_i$
+courant et le sommet $s_i'$ qui sera à son tour créé s'il n'existe pas. Les fils suivants de $s_i$, codés par des mots de la forme $\xrightarrow{R}i\xrightarrow{k}i'[:L]$, ramènent le sommet courant à $s_i$ puis créent à nouveau une arête entre $s_i$ et $s_i'$.
+
+Nous avons montré que tous les sommets et les arêtes du site $S$ se retrouvent dans le site recréé à partir du codage.
+Nous avons en fait utilisé tous les mots écrits par l'algorithme \ref{algo:codageLarg} de parcours en largeur et ces mots n'ont pas d'autre effet dans la reconstruction effectuée par l'algorithme \ref{algo:siteDepuisCodage}.
+Ainsi le site reconstruit est exactement le site $S$ d'origine. 
 \end{pr}
 
 
