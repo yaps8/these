@@ -1345,11 +1345,12 @@ Ajout du sommet 1 d'étiquette L qui est la racine du site et devient le sommet 
 
 \begin{defi}
  On appelle codage d'un site $S$ tout codage de parcours bien formé dont le site associé par l'algorithme \ref{algo:siteDepuisCodage} est $S$.
-\label{prop:codageProf}
+\label{def:codageSite}
 \end{defi}
 
 \begin{prop}
  Le codage du parcours en profondeur fourni par l'algorithme \ref{algo:codageProf} à partir de n'importe quel site $S$ est un codage de $S$.
+\label{prop:codageProf}
 \end{prop}
 
 \begin{pr}
@@ -1439,8 +1440,8 @@ L'algorithme \ref{algo:parcoursSiteDepuisCodage} tente de trouver le sous-site d
 \SetKwFunction{FRecurs}{reconstructionSousSite}
 \Fn(\tcp*[h]{Le codage est de la forme $1:L(\xrightarrow{\alpha}i[:L])*$}){\FRecurs{codage, T, R}}{
 \eIf{le sommet R a l'étiquette L}{
-  On numérote R par 1.\\
-  Le sommet numéroté 1 devient le sommet courant.
+  On numérote R par 1\\
+  Le sommet numéroté 1 devient le sommet courant
 }
 {
   \Return FAIL
@@ -1448,11 +1449,13 @@ L'algorithme \ref{algo:parcoursSiteDepuisCodage} tente de trouver le sous-site d
   \For{chaque suite de symboles de type $\xrightarrow{\alpha}i[:L]$}{
   \eIf{$\alpha$ est un entier k}{
   \uIf{le sommet courant a un fils k non numéroté, d'étiquette L, et aucun sommet n'est numéroté i}{
-  On numérote ce fils k par i.\\
-  Le sommet numéroté i devient le sommet courant.
+  On numérote ce fils k par i\\
+  On marque l'arc k entre le sommet courant et le sommet numéroté i\\
+  Le sommet numéroté i devient le sommet courant
   }
   \uElseIf{le sommet courant a un fils k numéroté i}{
-  Le sommet numéroté i devient le sommet courant.
+  On marque l'arc k entre le sommet courant et le sommet numéroté i\\
+  Le sommet numéroté i devient le sommet courant
   }
   \Else{
   \tcp{Le parcours n'est pas possible si :\\ un autre sommet est déjà numéroté i,  ou\\ si le sommet à numéroter a déjà une autre numérotation,  ou\\ si l'étiquette n'est pas la bonne, ou\\ s'il n'y a pas de fils k}
@@ -1460,10 +1463,10 @@ L'algorithme \ref{algo:parcoursSiteDepuisCodage} tente de trouver le sous-site d
   }
   }
   {
-  Le sommet i devient le sommet courant
+  Le sommet i devient le sommet courant\\
   }
   }
-  \Return le site constitué des sommets numérotés et des arcs empruntés.
+  \Return le site constitué des sommets numérotés et des arcs marqués
 }
 \label{algo:parcoursSiteDepuisCodage}
 \end{algorithm}
@@ -1529,29 +1532,49 @@ On a montré qu'aucun cas ne mène à une erreur dans l'algorithme \ref{algo:par
 \end{prop}
 
 \begin{pr}
- Supposons que l'on dispose d'un parcours de $T$ à partir de $R$ qui renvoie, par l'algorithme \ref{algo:parcoursSiteDepuisCodage}, un site $S$. Nous notons $S_C$ le site associé, par l'algorithme \ref{algo:siteDepuisCodage}, au codage de parcours $C$. Nous effectuons la preuve par récurrence.
- 
- Les sous-sites restreints à leur racine sont isomorphes (un seul sommet avec la même étiquette), numérotés de la même manière et le sommet courant est le même.
- Supposons que les sous-sites de $S_C$ et $S$ restreints aux sommets présents dans le sous-parcours de $C$ représenté par le codage $1:L_1\xrightarrow{\alpha_1}i_2[:L_2]\xrightarrow{\alpha_2} ...\xrightarrow{\alpha_{p-1}}i_{p}[:L_{p}]$ sont isomorphes.
- 
- Lors de l'étape suivante du parcours le mot $\xrightarrow{\alpha}i[:L]$ est présent.
- Comme l'algorithme \ref{algo:parcoursSiteDepuisCodage} a renvoyé un site, deux cas sont possibles.
- \begin{itemize}
-  \item $\alpha$ est un entier $k$ : le sommet courant devient le fils $k$, d'étiquette $L$, du fils courant et ce sommet devient le fils courant. Si aucun site n'était numéroté $i$ ce sommet est également numéroté $i$.
-  \item $\alpha$ est $R$ : le sommet courant devient le sommet précédemment numéroté $i$.
- \end{itemize}
+Soit $C$ un codage de parcours bien formé, $S_C$ son site associé par l'algorithme \ref{algo:siteDepuisCodage} et T un graphe de flot. Supposons que $C$ peut être parcouru d'un sommet $R$ du graphe de flot $T$ : on nomme $S$ le site résultant de l'application de l'algorithme \ref{algo:parcoursSiteDepuisCodage} à $C$, $T$ et $R$.
+Le codage $C$ est de la forme $m_1(m_2)^*$ 
+et les algorithmes \ref{algo:siteDepuisCodage} et \ref{algo:parcoursSiteDepuisCodage} traitent le codage $C$ un mot (de type $m_1$ ou $m_2$) à la fois.
+Nous notons $C$ = $w_1, ..., w_n$ où $w_1$ est un mot de type $m_1$ et $w_i$ avec $i\geq 2$ des mots de type $m_2$.
+Nous allons montrer que pour chaque entier $1\leq l\leq n$, le site $S_{C,l}$ reconstruit par l'algorithme \ref{algo:siteDepuisCodage} à partir du codage de parcours bien formé $C_l=w_1, ..., w_l$ est isomorphe au site $S_l$ reconstruit par l'algorithme \ref{algo:parcoursSiteDepuisCodage} à partir du même codage de parcours bien formé $w_1, ..., w_l$.
+Nous effectuons la preuve par récurrence à partir de l'hypothèse de récurrence suivante sur $l$ à prouver pour $1\leq l\leq n$ : l'application des algorithmes \ref{algo:siteDepuisCodage} et \ref{algo:parcoursSiteDepuisCodage} au codage de parcours bien formé $C_l$ fournit deux sites isomorphes, les dernier sommets courants dans chaque des deux algorithmes correspondent dans l'isomorphisme et les numérotations effectuées par les deux algorithmes sont telles que, quel que soit $i$, le sommet numéroté $i$ dans l'algorithme \ref{algo:siteDepuisCodage} correspond, au sens de l'isomorphisme, au sommet numéroté $i$ dans l'algorithme \ref{algo:parcoursSiteDepuisCodage}.
 
- 
- 
- 
-%  un sommet est nouvellement numéroté uniquement si
-%  Dans le premier cas $\alpha$ est un entier $k$ et si le sommet courant dans T a un fils k non numéroté d'étiquette L et si aucun sommet n'est déjà numéroté i. Dans ce cas un sommet est ajouté au site créé par l'algorithme \ref{algo:siteDepuisCodage} à partir du sommet courant.
-%  Le second cas possible est si le sommet courant a un fils k déjà numéroté i et d'étiquette L. Dans ce cas ce sommet a déjà été ajouté au site créé par l'algorithme \ref{algo:siteDepuisCodage}, il n'y a ni numérotation ni ajout de site et le sommet courant devient le fils k.
- Dans les deux cas la numérotation est la même que celle effectuée dans l'algorithme \ref{algo:siteDepuisCodage} et le sommet courant devient le sommet qui vient d'être numéroté ou ajouté.
-  Les arcs sont nécessairement les mêmes puisque les parcours appliqués dans les deux algorithmes sont identiques.
-%  Tous les autres cas provoquent un arrêt du parcours par un FAIL. \\
+Prenons $l=1$ et $C_1=w_1=1:L$. L'algorithme \ref{algo:siteDepuisCodage} crée un site $S_{C,1}$ réduit à une racine d'étiquette $L$, numérotée $1$ et qui devient le sommet courant. L'algorithme \ref{algo:parcoursSiteDepuisCodage} renvoie un site donc on est dans le cas où le sommet $R$ a pour étiquette $L$ : il est numéroté $1$, devient le sommet courant et le site $S_1$ renvoyé est le site restreint au seul sommet $R$. Ces deux sites sont restreints à un unique sommet ayant la même étiquette : ils sont isomorphes. Les derniers sommets courants et les seuls sommets numérotés dans les deux algorithmes sont ce sommet unique : ils correspondent dans l'isomorphisme.
 
- On a bien montré que dans les cas ne provoquant pas d'erreur, les deux sites restreints aux sommets du parcours sont isomorphes.
+Prenons $1\leq l\leq n-1$ et $C_{l+1}=w_1, ..., w_{l+1}$ en supposant l'hypothèse de récurrence vraie pour $l$.
+L'application de l'algorithme \ref{algo:siteDepuisCodage} à $C_l$ fournit un site $S_{C,l}$ isomorphe au site $S_l$ fourni par l'application de l'algorithme \ref{algo:parcoursSiteDepuisCodage}. Le sommet courant $s_{C,l}$ de $S_{C,l}$ correspond au sommet courant $s_l$ de $S_l$. Traitons le mot $w_l=\xrightarrow{\alpha}i[:L]$.
+On distingue trois cas pour la forme du mot $w_l$.
+\begin{itemize}
+ \item $w_{l+1}=\xrightarrow{k}i:L$ avec $k$ un entier : $C$ est un codage de parcours bien formé donc il s'agit de la première occurrence de $i$ et l'algorithme \ref{algo:siteDepuisCodage} crée un sommet numéroté $i$ d'étiquette $L$ et un arc entre le sommet courant et ce sommet qui devient le sommet courant. L'algorithme \ref{algo:parcoursSiteDepuisCodage}, qui n'échoue pas et, car $C$ est un codage de parcours bien formé, n'a pas encore numéroté de sommet $i$ donc il est dans le premier cas de la boucle : le sommet courant a un fils $k$ non numéroté, d'étiquette $L$, qui est numéroté $i$ et devient le sommet courant. L'arc entre le sommet courant et le sommet numéroté $i$ est marqué. Les deux sommets ont la même étiquette $L$, l'arc ajouté à $S_{C,l+1}$ est numéroté $k$ et relie le sommet $s_{C,l}$ au nouveau sommet numéroté $i$ tandis que l'arc marqué dans $T$ et ajouté dans $S_{l+1}$ est numéroté $k$ et relie le sommet $s_l$ au nouveau sommet numéroté $i$ : les sites $S_{C,l+1}$ et $S_{l+1}$ sont isomorphes, les nouveaux sommets courants ainsi que les sommets nouvellement ajoutés correspondent dans l'isomorphisme.
+ \item $w_l=\xrightarrow{k}i$ avec $k$ un entier : $C$ est codage de parcours bien formé donc un mot de la forme $i:L$ a été présent traité précédemment. Un sommet numéroté $i$ est présent dans $S_{C,l}$ et le traitement du mot $w_l$ provoque l'ajout d'un arc numéroté $k$ entre le sommet courant et ce sommet numéroté $i$ qui devient le sommet courant. Dans l'algorithme \ref{algo:parcoursSiteDepuisCodage} on est dans le second cas de la boucle : le sommet courant a un fils $k$ numéroté $i$. On ajoute alors un arc entre le sommet courant et ce sommet numéroté $i$ qui devient le sommet courant. Par hypothèse de récurrence les sommets courants ainsi que les sommets numérotés $i$ correspondent dans l'isomorphisme donc l'ajout d'un arc dans chacun des sites préserve l'isomorphisme et les nouveaux sommets courants correspondent.
+ \item $w_l=\xrightarrow{R}i$ : dans chacun des deux algorithme un sommet a déjà été numéroté $i$ et devient le sommet courant. Par hypothèse de récurrence les sites, non modifiés, sont toujours isomorphes et les nouveaux sommets courants correspondent dans l'isomorphisme.
+\end{itemize}
+On a montré que dans tous les cas l'hypothèse de récurrence est également vérifiée au rang $l+1$.
+
+
+%  Supposons que l'on dispose d'un parcours de $T$ à partir de $R$ qui renvoie, par l'algorithme \ref{algo:parcoursSiteDepuisCodage}, un site $S$. Nous notons $S_C$ le site associé, par l'algorithme \ref{algo:siteDepuisCodage}, au codage de parcours $C$. Nous effectuons la preuve par récurrence.
+%  
+%  Les sous-sites restreints à leur racine sont isomorphes (un seul sommet avec la même étiquette), numérotés de la même manière et le sommet courant est le même.
+%  Supposons que les sous-sites de $S_C$ et $S$ restreints aux sommets présents dans le sous-parcours de $C$ représenté par le codage $1:L_1\xrightarrow{\alpha_1}i_2[:L_2]\xrightarrow{\alpha_2} ...\xrightarrow{\alpha_{p-1}}i_{p}[:L_{p}]$ sont isomorphes.
+%  
+%  Lors de l'étape suivante du parcours le mot $\xrightarrow{\alpha}i[:L]$ est présent.
+%  Comme l'algorithme \ref{algo:parcoursSiteDepuisCodage} a renvoyé un site, deux cas sont possibles.
+%  \begin{itemize}
+%   \item $\alpha$ est un entier $k$ : le sommet courant devient le fils $k$, d'étiquette $L$, du fils courant et ce sommet devient le fils courant. Si aucun site n'était numéroté $i$ ce sommet est également numéroté $i$.
+%   \item $\alpha$ est $R$ : le sommet courant devient le sommet précédemment numéroté $i$.
+%  \end{itemize}
+% 
+%  
+%  
+%  
+% %  un sommet est nouvellement numéroté uniquement si
+% %  Dans le premier cas $\alpha$ est un entier $k$ et si le sommet courant dans T a un fils k non numéroté d'étiquette L et si aucun sommet n'est déjà numéroté i. Dans ce cas un sommet est ajouté au site créé par l'algorithme \ref{algo:siteDepuisCodage} à partir du sommet courant.
+% %  Le second cas possible est si le sommet courant a un fils k déjà numéroté i et d'étiquette L. Dans ce cas ce sommet a déjà été ajouté au site créé par l'algorithme \ref{algo:siteDepuisCodage}, il n'y a ni numérotation ni ajout de site et le sommet courant devient le fils k.
+%  Dans les deux cas la numérotation est la même que celle effectuée dans l'algorithme \ref{algo:siteDepuisCodage} et le sommet courant devient le sommet qui vient d'être numéroté ou ajouté.
+%   Les arcs sont nécessairement les mêmes puisque les parcours appliqués dans les deux algorithmes sont identiques.
+% %  Tous les autres cas provoquent un arrêt du parcours par un FAIL. \\
+% 
+%  On a bien montré que dans les cas ne provoquant pas d'erreur, les deux sites restreints aux sommets du parcours sont isomorphes.
 \end{pr}
 
 \begin{theo}
@@ -1578,8 +1601,8 @@ On a montré qu'aucun cas ne mène à une erreur dans l'algorithme \ref{algo:par
  \begin{itemize}
 %  \renewcommand{\labelitemi}{$\bullet$}
   \item Si P est isomorphe à un sous-site de T, on peut appliquer la proposition \ref{prop:isoDoncCodage}, ce qui donne directement le résultat suivant : tout codage de parcours bien formé de P peut être parcouru dans T.
-  \item Si tout codage de parcours bien formé de P est un parcours possible dans T alors le parcours en profondeur (qui existe) vérifie également cette propriété.
-  \item S'il existe un codage de parcours de P que l'on peut également parcourir dans T, alors on construit son site associé avec l'algorithme \ref{algo:siteDepuisCodage} et on applique la proposition \ref{prop:condageDoncIso} qui montre l'existence d'un sous-site de T isomorphe à P.
+  \item Si tout codage de parcours bien formé de P peut être parcouru dans T alors l'algorithme \ref{algo:codageProf} de parcours en profondeur fournit un codage de parcours bien formé de P (proposition \ref{prop:codageProf}) qui peut être parcouru dans T.
+  \item S'il existe un codage de parcours bien formé de P que l'on peut parcourir dans T, alors on construit son site associé avec l'algorithme \ref{algo:siteDepuisCodage} et on applique la proposition \ref{prop:condageDoncIso} qui montre l'existence d'un sous-site de T isomorphe à P.
  \end{itemize}
 \end{pr}
 
