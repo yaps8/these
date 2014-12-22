@@ -3,14 +3,19 @@
 % \itodo{pb 1: analyse du chevauchement de code}
 % \itodo{pb 2: analyse/désassemblage des programmes sms}
 
-Nous avons contribué à l’analyse de programmes obscurcis de plusieurs manières. 
-D’une part nous avons décrit un langage assembleur disposant d’une sémantique concrète compatible avec l’exécution de programmes auto-modifiants.
-Nous avons étendu BAP, une plateforme d’analyse de binaires existante, pour lui permettre d’évaluer des programmes auto-modifiants.
-Nous avons également formalisé le problème du chevauchement de code et étudié l’usage que les programmes obscurcis font de cette méthode de protection. 
-D’autre part nous avons proposé une technique de désassemblage consistant à effectuer une analyse dynamique que l’on complète à l’aide de techniques d’analyse statique. 
+Notre contribution à l’analyse de programmes obscurcis s'est concentrée sur l'analyse de deux techniques de protection : l'auto-modification et le chevauchement de code.
+Nous avons décrit un langage assembleur disposant d’une sémantique concrète compatible avec l’exécution de programmes auto-modifiants.
+Nous avons étendu BAP, une plateforme d’analyse de binaires existante, pour lui permettre d’évaluer des programmes auto-modifiants et de séparer des programmes simples en différentes vagues d'exécution.
+Nous avons formalisé le problème du chevauchement de code et étudié l’usage que les programmes obscurcis font de cette méthode de protection. 
+Enfin nous avons proposé une technique de désassemblage consistant à effectuer une analyse dynamique que l’on complète à l’aide de techniques d’analyse statique. 
 Cette technique a pour objectif de reconstruire un graphe de flot de contrôle dont nous avons défini la forme idéale.
+Nous avons implémenté un détecteur réalisant l'analyse dynamique à l'aide de l'outil d'instrumentation Pin et reconstruisant le graphe de flot de contrôle paramétré par cette exécution.
+La pertinence de cet outil a été démontrée lors de l'analyse de programmes obscurcis.
 
-Nous avons contribué à l’analyse morphologique en formalisant le sous-problème d’isomorphisme de sous-graphes qu’elle cherche à résoudre. Nous avons développé et implémenté un algorithme correct et plus rapide que l'approche existante pour résoudre ce problème ainsi qu’un algorithme incorrect mais de temps d’exécution constant. Nous avons enfin proposé une application de la technique d’analyse morphologique au domaine de la détection de similarités logicielles \cite{REAT12,mal12} et appliqué cette méthode pour analyser quelques logiciels malveillants spécifiques \cite{sstic13,mal13}.
+Notre contribution à l’analyse morphologique consiste en la formalisant du sous-problème d’isomorphisme de sous-graphes qu’elle cherche à résoudre.
+Nous avons proposé une alternative à l'algorithme d'Ullmann, fonctionnant par recherche de parcours au sein d'un graphe de flot.
+Cette approche est aussi précise que les approches existantes mais est beaucoup plus rapide. Nous l'avons implémentée et avons également décrit et implémenté un second algorithme, incorrect, mais dont le temps d’exécution constant ne dépend pas du nombre de programmes présents dans la base de détection.
+Nous avons enfin proposé une application de la technique d’analyse morphologique au domaine de la détection de similarités logicielles \cite{REAT12,mal12} et appliqué cette méthode pour analyser quelques logiciels malveillants spécifiques dont Duqu et Stuxnet \cite{sstic13,mal13}.
 
 % Les programmes malveillants obscurcis sont notre objet d'étude principal.
 % Notre objectif principal a été le désassemblage et la reconstruction du graphe de flot de contrôle d'un programme malveillant obscurci.
@@ -66,11 +71,12 @@ Notre approche ne permet donc pas de gérer les sauts dynamiques qui n'ont pas �
 Nous voudrions utiliser des techniques d’interprétation abstraite pour reconstruire plus précisément les vagues et éventuellement être capables de déterminer les potentielles vagues suivantes à partir de la vague courante.
 D'autre part nous nous sommes concentrés sur l'analyse d'une unique trace d'exécution pour approximer le graphe de flot de contrôle parfait : nous voudrions être capables d'incorporer plusieurs traces différentes dans l'analyse afin de couvrir plus de code potentiellement exécuté.
 
-L'analyse morphologique produit des résultats prometteurs pour la détection de programmes malveillants et de similarités logicielles mais ne prend en compte dans les graphes de flot de contrôle que l'enchaînement des instructions. D'autres critères pourraient être intégrés dans ces graphes traduisant l'utilisation de certaines méthodes d'obscurcissement : on pourrait ajouter les arcs entre deux sommets illustrant un chevauchement de code.
+L'analyse morphologique produit des résultats prometteurs pour la détection de programmes malveillants et de similarités logicielles mais ne prend en compte dans les graphes de flot de contrôle que l'enchaînement des instructions. D'autres critères pourraient être intégrés dans ces graphes, traduisant l'utilisation de certaines méthodes d'obscurcissement : on pourrait ajouter les arcs entre deux sommets illustrant un chevauchement de code.
 D'autre part nous avons vu que notre méthode réduit la complexité du problème à résoudre, le rendant polynomial, au prix d'une perte de flexibilité dans les résultats qu'elle produit.
 En particulier, l'inversion de certaines branches  dans un graphe conduit à une non détection, ce qui n'aurait pas été le cas si l'on avait gardé le problème d'isomorphisme de sous-graphes.
 Nous souhaiterions développer et analyser des techniques de réduction et de détection des graphes de flot de contrôle plus résistantes à ces modifications, afin d'être capables de détecter plus de programmes similaires sans trop perdre en vitesse de détection.
-Nous souhaitons montrer que notre modèle, avec ces modifications, permet de construire un détecteur de logiciels malveillants efficace, à la fois précis et rapide lors de la détection, capable de fonctionner sur l'ordinateur d'un utilisateur final.
+Il serait alors crucial d'étudier de manière détaillée la précision de notre technique de détection dans des réels cas d'utilisation ainsi que sa résistance à des techniques d'obscurcissement spécifiquement élaborées pour la déjouer.
+Nous souhaiterions donc déterminer si notre modèle, avec ces modifications, permet de construire un détecteur de logiciels malveillants efficace, précis et rapide lors de la détection, capable de fonctionner sur l'ordinateur d'un utilisateur final.
 
 % \itodo{pb 3: prendre en compte + de choses dans les GFC : chevauchements, liens entre vagues, etc ?}
 

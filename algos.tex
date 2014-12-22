@@ -3,7 +3,7 @@ Dans ce chapitre nous décrivons le fonctionnement du détecteur par analyse mor
 Nous définissons ce qu'est un graphe de flot, notion plus spécifique que la notion générale de graphe, au sein duquel les fils d'un sommet sont ordonnés.
 Cette restriction rend le problème de la recherche d'isomorphisme de sous-graphes de flot solvable en temps polynômial alors qu'il est NP-complet dans le cas général.
 
-\section{Analyse d'un détecteur par analyse morphologique}
+\section{Détection par analyse morphologique}
 \subsection{Graphes de flot}
 Nous avons vu que les graphes de flot de contrôle sur lesquels nous travaillons sont étiquetés (définition \ref{def:graphe-oriente}) et, une fois réduits, les étiquettes possibles sont les suivantes : $INST$, $JMP$, $JCC$, $CALL$, $RET$, $HLT$ et $UNDEF$.
 Le nombre de fils d'un sommet est sa valence (définition \ref{def:valence}) ; à chaque étiquette est associée une valence maximale. Par exemple les instructions de saut conditionnel $JCC$ ont au maximum deux successeurs.
@@ -1090,7 +1090,7 @@ La complexité de la recherche d'un sous-graphe de T (de taille $n_T$) isomorphe
 \label{prop:complexite_ullmann}
 \end{prop}
 
-% \FloatBarrier
+\FloatBarrier
 \subsection{Revue de littérature}
 \paragraph{Optimisation de l'algorithme d'Ullmann.}
 Foggia, Vento, Sansone et Cordella \cite{VF99} proposent des améliorations à l'algorithme d'Ullmann au sein d'un nouvel algorithme appelé VF.
@@ -1141,7 +1141,7 @@ On appelle parcours d'un site $S$ tout parcours bijectif du graphe représenté 
 Le parcours en profondeur d'un site à partir d'un sommet est récursif. Il part de ce sommet (à l'origine la racine numérotée 1), numérote le site à partir du fils 1 du sommet, puis numérote le site à partir du fils 2... jusqu'au dernier fils du sommet.
 Le parcours en largeur d'un site numérote la racine puis ses fils directs, puis les fils du premier fils, les fils du second, etc.
 Un exemple de parcours en profondeur d'un graphe de flot est donné en figure \ref{fig:ex_graphe_parcours}.
-Nous exploitons donc le fait que les fils d'un graphe de flot sont numérotés.
+Nous exploitons donc le fait que les fils des sommets d'un graphe de flot sont numérotés.
 
 \begin{figure}[h]
 \begin{center}
@@ -1163,10 +1163,9 @@ Graphe de flot & Numérotation en profondeur & Numérotation en largeur\\
 \label{fig:ex_graphe_parcours}
 \end{figure}
 
-On peut représenter le parcours en profondeur de ce site de la manière suivante : On commence par la racine, que l'on numérote 1, c'est un JCC, puis le premier fils nous amène à un nouveau sommet, numéroté 2, c'est un CALL. Son premier fils nous amène à numéroter 3: INST qui amène, par son premier fils, à 4: RET. Une fois au $4^e$ sommet, on retourne au sommet 2 pour prendre le second fils que l'on numérote 5: RET. On remonte au sommet 1, on numérote le second fils : c'est le sommet 6: JCC puis on prend son seul fils (fils 2) et on numérote 7: INST. De là on prend le premier fils pour retourner sur le fils 2. Le parcours s'arrête puisque l'on a visité tous les arcs du site.\\
+On peut représenter le parcours en profondeur de ce site de la manière suivante. On commence par la racine, que l'on numérote 1, c'est un JCC, puis le premier fils nous amène à un nouveau sommet, numéroté 2, c'est un CALL. Son premier fils nous amène à numéroter 3: INST qui amène, par son premier fils, à 4: RET. Une fois au $4^e$ sommet, on retourne au sommet 2 pour prendre le second fils que l'on numérote 5: RET. On remonte au sommet 1, on numérote le second fils : c'est le sommet 6: JCC puis on prend son seul fils (fils 2) et on numérote 7: INST. De là on prend le premier fils pour retourner sur le fils 2. Le parcours s'arrête puisque l'on a visité tous les arcs du site.\\
 On peut noter le parcours ainsi (avec l'algorithme \ref{algo:codageProf}) :\\
 $1: JCC\xrightarrow{1} 2: CALL \xrightarrow{1} 3: INST \xrightarrow{1} 4: RET \xrightarrow{R} 2 \xrightarrow{2} 5: RET \xrightarrow{R} 1 \xrightarrow{2} 6: JCC \xrightarrow{2}~7:INST \xrightarrow{1} 2$.\\
-En fait, décrit de cette manière, le parcours définit un site unique que l'on peut reconstruire puisque l'on sait quelle est l'étiquette de chaque sommet et l'on connaît tous les arcs entre les sommets à l'aide du choix des fils fait lors du parcours (ici en profondeur).\\
 De même, le parcours en largeur du site peut être décrit ainsi (avec l'algorithme \ref{algo:codageLarg}) :\\
 $1: JCC\xrightarrow{1} 2: CALL\xrightarrow{R} 1\xrightarrow{2} 3: JCC\xrightarrow{R} 2\xrightarrow{1} 4: INST\xrightarrow{R} 2\xrightarrow{2} 5: RET \xrightarrow{R} 3 \xrightarrow{2}~6:~INST \xrightarrow{R} 4\xrightarrow{1} 7: RET$.\\
 % \overset{def}
@@ -1290,8 +1289,10 @@ $E\leftarrow \{\}$\tcc*[H]{E est l'ensemble des sommets déjà visités.}
 
 
 \FloatBarrier
-On peut reconstruire le site à partir du codage précédent en procédant de manière incrémentale (algorithme \ref{algo:siteDepuisCodage}) si le codage est bien formé (définitions \ref{def-mot-bien-forme} et \ref{def-codage-bien-forme}).
+En fait, codé de cette manière, un parcours définit un site unique que l'on peut reconstruire puisque l'on sait quelle est l'étiquette de chaque sommet et l'on connaît tous les arcs entre les sommets à l'aide du choix des fils fait lors du parcours (ici en profondeur).
+On définit les mots constituant un codage de parcours et un parcours bien formé  (définitions \ref{def-mot-bien-forme} et \ref{def-codage-bien-forme}) afin que l'on puisse reconstruire un site à partir de n'importe quel codage de parcours bien formé (algorithme \ref{algo:siteDepuisCodage}).
 % Par la suite on ne parlera que de codages bien formés sans l'expliciter.
+
 
 \begin{defi}
  Un mot de parcours est soit:
@@ -1306,7 +1307,7 @@ On peut reconstruire le site à partir du codage précédent en procédant de ma
  On appelle codage de parcours bien formé tout mot vérifiant les quatre conditions suivantes.
 \begin{enumerate}
  \item Il est de la forme $m_1(m_2)^*$
- \item L'étiquette de chaque sommet $i$ est spécifiée une unique fois, lors la première référence à ce sommet : à $i$ fixé, si un mot de la forme $[\xrightarrow{\alpha}]i:L$ est présent alors aucun mot le précédent n'est de la forme $[\xrightarrow{\alpha}]i[:L]$ et aucun mot suivant n'est de la forme $\xrightarrow{\alpha}i:L$
+ \item L'étiquette de chaque sommet $i$ est spécifiée une unique fois, lors la première référence à ce sommet : à $i$ fixé, si un mot de la forme $[\xrightarrow{\alpha}]i:L$ est présent alors aucun mot $i$ ne le précède et aucun mot suivant n'est de la forme $i:L$
 %  \item S'il y a deux mots de la forme $i:L_1$ et $i:L_2$ alors $L_1=L_2$
  \item Pour tout mot de la forme $\xrightarrow{R}i$, un mot $i:L$ est présent précédemment dans le codage
  \item Chaque fils de chaque sommet est défini au plus une fois : à $i$ et $k$ fixés, il ne doit y avoir qu'au plus une occurrence du mot $i[:L]\xrightarrow{k}$
@@ -1342,6 +1343,9 @@ Ajout du sommet 1 d'étiquette L qui est la racine du site et devient le sommet 
 }
 \label{algo:siteDepuisCodage}
 \end{algorithm}
+
+Un codage de parcours bien formé est le codage d'un site $S$ si $S$ est le site que l'on reconstruit à partir du codage (définition \ref{def:codageSite}). Les algorithmes donnant le codage d'un site selon un parcours en profondeur ou en largeur fournissent bien un codage de ce site (propositions \ref{prop:codageProf} et \ref{prop:codageLarg}).
+
 
 \begin{defi}
  On appelle codage d'un site $S$ tout codage de parcours bien formé dont le site associé par l'algorithme \ref{algo:siteDepuisCodage} est $S$.
@@ -1428,7 +1432,13 @@ Ainsi le site reconstruit est exactement le site $S$ d'origine.
 % (c'est faux)
 % \end{prop}
 % 
-L'algorithme \ref{algo:parcoursSiteDepuisCodage} tente de trouver le sous-site désigné par un codage dans un graphe de flot T, à partir d'un sommet donné. S'il ne renvoie pas FAIL, il fournit un site qui est effectivement un sous-site du graphe (les sommets et les arcs sont forcément dans T, et ils sont accessibles à partir de la racine vu qu'il s'agit d'un parcours).
+
+On sait alors reconstruire un site depuis un codage de parcours bien formé et on dispose d'algorithmes de parcours fournissant des codages pour les sites que l'on étudie.
+On cherche maintenant à définir le parcours d'un site au sein d'un graphe de flot : si ce parcours est possible alors le site parcouru est un sous-site de ce graphe de flot.
+Ce parcours peut à nouveau être représenté sous la forme d'un codage de parcours bien formé.
+
+L'algorithme \ref{algo:parcoursSiteDepuisCodage} détermine (s'il existe) le sous-site désigné par un codage dans un graphe de flot T, à partir d'un sommet donné. S'il ne renvoie pas FAIL, il fournit un site qui est effectivement un sous-site du graphe (les sommets et les arcs sont forcément dans T, et ils sont accessibles à partir de la racine vu qu'il s'agit d'un parcours).
+On explicite à l'aide de cet algorithme le parcours d'un codage de parcours bien formé au sein d'un graphe de flot (définition \ref{def:parcours_site_gf}).
 
 % \begin{figure}[h]
 \begin{algorithm}[h] %or another one check
@@ -1472,11 +1482,12 @@ L'algorithme \ref{algo:parcoursSiteDepuisCodage} tente de trouver le sous-site d
 \end{algorithm}
 % \end{figure}
 
-On voudrait maintenant prouver l'équivalence entre l'existence d'un isomorphisme de sous-site entre un site P et un graphe de flot T d'une part, et la possibilité d'appliquer un parcours bien formé quelconque de P à partir d'un sommet de T d'autre part. Les deux propositions suivantes vont permettre d'établir l'équivalence statuée au théorème \ref{theo:eqIsoCodage}.
+On voudrait maintenant prouver l'équivalence entre l'existence d'un isomorphisme de sous-site entre un site P et un graphe de flot T d'une part, et la possibilité d'appliquer un parcours bien formé de P à partir d'un sommet de T d'autre part. Les deux propositions \ref{prop:isoDoncCodage} et \ref{prop:condageDoncIso} vont permettre d'établir l'équivalence statuée au théorème \ref{theo:eqIsoCodage}.
 
 
 \begin{defi}
  On dit que le codage $C$ d'un parcours bien formé peut être parcouru dans un graphe de flot $T$ si et seulement si il existe un sommet $R$ de $T$ tel que l'algorithme \ref{algo:parcoursSiteDepuisCodage} appliqué à $C$, $T$ et $R$ renvoie un site. On appelle site résultant le site alors renvoyé par cet algorithme.
+\label{def:parcours_site_gf}
 \end{defi}
 
 \FloatBarrier
@@ -1510,20 +1521,13 @@ Plusieurs cas sont possibles.
  \item $\alpha$ est un entier $k$ et il n'existe pas de sommet $i$ déjà ajouté dans l'algorithme \ref{algo:siteDepuisCodage} : dans l'algorithme \ref{algo:siteDepuisCodage} le sommet $p_i$ d'étiquette $L$ est ajouté et un arc d'étiquette $k$ est créé entre le sommet courant $p$ et le sommet $p_{i}$ qui devient le sommet courant.
  Dans l'algorithme \ref{algo:parcoursSiteDepuisCodage} le sommet courant $s$ a nécessairement un fils numéroté $k$ car $P$ et $S$ sont isomorphes de telle manière que $p$ et $s$ correspondent. Par définition d'un graphe de flot il y a au plus un fils de $s$ numéroté $k$ : il ne peut s'agir que de $s_i$ dont l'étiquette est $L$. De plus aucun sommet ne peut être déjà étiqueté par $i$ : cela signifierait qu'un mot précédent aurait déjà ajouté un sommet $i$ dans l'algorithme \ref{algo:siteDepuisCodage}.
  Nous sommes donc dans le premier cas de l'algorithme \ref{algo:parcoursSiteDepuisCodage} : le fils $k$ de $s$ est numéroté $i$. Ce fils est le sommet $s_i$ et devient le fils courant.
- \item $\alpha$ est un entier $k$ et un sommet $i$ a déjà été ajouté dans l'algorithme \ref{algo:siteDepuisCodage} : le codage de parcours étant bien formé le sommet $i$ précédemment ajouté avait nécessairement l'étiquette $L$. Un arc d'étiquette $k$ est ajouté entre le sommet courant $p$ et le sommet $p_i$. Lorsque le sommet $p_i$ a été ajouté dans l'algorithme \ref{algo:siteDepuisCodage}, on était dans le cas précédent et le sommet $s_i$ a également été ajouté dans l'algorithme \ref{algo:parcoursSiteDepuisCodage}. De plus on vient d'ajouter un arc numéroté $k$ entre le sommet courant $p$ et $p_i$. Comme $P$ et $S$ sont isomorphes un arc numéroté $k$ existe entre le sommet courant $s$ et $s_i$ et il est unique. On est dans le second cas de l'algorithme \ref{algo:parcoursSiteDepuisCodage} : le sommet $s_i$ devient le sommet courant.
+ \item $\alpha$ est un entier $k$ et un sommet $i$ a déjà été ajouté dans l'algorithme \ref{algo:siteDepuisCodage} : le codage de parcours étant bien formé le sommet $i$ précédemment ajouté avait nécessairement l'étiquette $L$. 
+ Un arc d'étiquette $k$ est ajouté entre le sommet courant $p$ et le sommet $p_i$. Lorsque le sommet $p_i$ a été ajouté dans l'algorithme \ref{algo:siteDepuisCodage}, on était dans le cas précédent et le sommet $s_i$ a également été ajouté dans l'algorithme \ref{algo:parcoursSiteDepuisCodage}. De plus on vient d'ajouter un arc numéroté $k$ entre le sommet courant $p$ et $p_i$. 
+ Comme $P$ et $S$ sont isomorphes un arc numéroté $k$ existe entre le sommet courant $s$ et $s_i$ et il est unique. On est dans le second cas de l'algorithme \ref{algo:parcoursSiteDepuisCodage} : le sommet $s_i$ devient le sommet courant.
  \item $\alpha$ est R : dans l'algorithme \ref{algo:siteDepuisCodage} le sommet $p_i$ devient le sommet courant. Dans l'algorithme \ref{algo:parcoursSiteDepuisCodage} le sommet précédemment numéroté $i$ doit devenir le sommet courant. Un sommet $s$ a été numéroté $i$ depuis un mot précédent de la forme $\xrightarrow{k}i:L$ car $C$ est un codage de parcours bien formé et ce mot conduit dans l'algorithme \ref{algo:siteDepuisCodage} à la création du sommet $p_i$ et donc, selon l'hypothèse de récurrence, $s$ est $s_i$.
 \end{itemize}
 
 On a montré qu'aucun cas ne mène à une erreur dans l'algorithme \ref{algo:parcoursSiteDepuisCodage} : le codage $C$ peut être parcouru dans $T$ à partir de la racine $s_1$ de $S$.
-
-
-% On va montrer que l'algorithme \ref{algo:parcoursSiteDepuisCodage} appliqué au codage $C_P$, au graphe T, à partir de la racine de S produit un site S' isomorphe à S et P. \\
-% Le graphe composé uniquement de la racine de P est isomorphe à celui composé de la racine de S ajoutée au graphe à construire dans l'algorithme \ref{algo:parcoursSiteDepuisCodage}. \\
-% Supposons que les sous-sites restreints aux sommets du parcours $1:L_1\xrightarrow{\alpha_1}i_2[:L_2]\xrightarrow{\alpha_2} ...\xrightarrow{\alpha_{p-1}}i_{p}[:L_{p}]$ sont isomorphes et que les numérotations correspondent à l'isomorphisme.\\
-% Lors de l'étape suivante du parcours ($\xrightarrow{\alpha}i[:L]$), un sommet n'est ajouté dans l'algorithme \ref{algo:siteDepuisCodage} que si $\alpha$ est un entier $k$ et si le sommet $i$ n'a pas déjà été créé. Dans le parcours de T (algorithme \ref{algo:parcoursSiteDepuisCodage}), cela implique qu'aucun sommet n'est déjà numéroté $i$. Puisque le sommet courant dans P a un fils $k$, que les sommets courants de P et S' correspondent dans l'isomorphisme et que P et S sont isomorphes, le sommet courant dans S' a un fils $k$ (d'étiquette $L$). Puisque le codage est bien formé, il n'y a qu'un fils $k$ du sommet courant. Ce fils $k$ n'a pas déjà été numéroté, sinon il aurait déjà été créé précédemment dans l'algorithme \ref{algo:siteDepuisCodage}. On est donc nécessairement dans le cas où on numérote le fils $k$ du sommet courant par i, le sommet ajouté dans l'algorithme \ref{algo:siteDepuisCodage} porte le même numéro que celui numéroté dans le parcours de T : ils se correspondent dans un isomorphisme de 
-% sites.\\
-% Dans le cas contraire où aucun fils n'est ajouté, comme précédemment le sommet courant a nécessairement un fils $k$ qui a déjà été numéroté puisque c'est le cas dans la reconstruction du site P. Dans les deux cas aucun site n'est ajouté mais le fils $k$ devient le sommet courant.\\
-% On en déduit que les sommets ajoutés sont toujours deux sommets correspondants dans un isomorphisme et que les arcs ajoutés sont également les mêmes.
 \end{pr}
 
 \begin{prop}
@@ -1545,36 +1549,13 @@ Prenons $1\leq l\leq n-1$ et $C_{l+1}=w_1, ..., w_{l+1}$ en supposant l'hypothè
 L'application de l'algorithme \ref{algo:siteDepuisCodage} à $C_l$ fournit un site $S_{C,l}$ isomorphe au site $S_l$ fourni par l'application de l'algorithme \ref{algo:parcoursSiteDepuisCodage}. Le sommet courant $s_{C,l}$ de $S_{C,l}$ correspond au sommet courant $s_l$ de $S_l$. Traitons le mot $w_l=\xrightarrow{\alpha}i[:L]$.
 On distingue trois cas pour la forme du mot $w_l$.
 \begin{itemize}
- \item $w_{l+1}=\xrightarrow{k}i:L$ avec $k$ un entier : $C$ est un codage de parcours bien formé donc il s'agit de la première occurrence de $i$ et l'algorithme \ref{algo:siteDepuisCodage} crée un sommet numéroté $i$ d'étiquette $L$ et un arc entre le sommet courant et ce sommet qui devient le sommet courant. L'algorithme \ref{algo:parcoursSiteDepuisCodage}, qui n'échoue pas et, car $C$ est un codage de parcours bien formé, n'a pas encore numéroté de sommet $i$ donc il est dans le premier cas de la boucle : le sommet courant a un fils $k$ non numéroté, d'étiquette $L$, qui est numéroté $i$ et devient le sommet courant. L'arc entre le sommet courant et le sommet numéroté $i$ est marqué. Les deux sommets ont la même étiquette $L$, l'arc ajouté à $S_{C,l+1}$ est numéroté $k$ et relie le sommet $s_{C,l}$ au nouveau sommet numéroté $i$ tandis que l'arc marqué dans $T$ et ajouté dans $S_{l+1}$ est numéroté $k$ et relie le sommet $s_l$ au nouveau sommet numéroté $i$ : les sites $S_{C,l+1}$ et $S_{l+1}$ sont isomorphes, les nouveaux sommets courants ainsi que les sommets nouvellement ajoutés correspondent dans l'isomorphisme.
+ \item $w_{l+1}=\xrightarrow{k}i:L$ avec $k$ un entier : $C$ est un codage de parcours bien formé donc il s'agit de la première occurrence de $i$ et l'algorithme \ref{algo:siteDepuisCodage} crée un sommet numéroté $i$ d'étiquette $L$ et un arc entre le sommet courant et ce sommet qui devient le sommet courant. 
+ L'algorithme \ref{algo:parcoursSiteDepuisCodage}, qui n'échoue pas et, car $C$ est un codage de parcours bien formé, n'a pas encore numéroté de sommet $i$ donc il est dans le premier cas de la boucle : le sommet courant a un fils $k$ non numéroté, d'étiquette $L$, qui est numéroté $i$ et devient le sommet courant. L'arc entre le sommet courant et le sommet numéroté $i$ est marqué. 
+ Les deux sommets ont la même étiquette $L$, l'arc ajouté à $S_{C,l+1}$ est numéroté $k$ et relie le sommet $s_{C,l}$ au nouveau sommet numéroté $i$ tandis que l'arc marqué dans $T$ et ajouté dans $S_{l+1}$ est numéroté $k$ et relie le sommet $s_l$ au nouveau sommet numéroté $i$ : les sites $S_{C,l+1}$ et $S_{l+1}$ sont isomorphes, les nouveaux sommets courants ainsi que les sommets nouvellement ajoutés correspondent dans l'isomorphisme.
  \item $w_l=\xrightarrow{k}i$ avec $k$ un entier : $C$ est codage de parcours bien formé donc un mot de la forme $i:L$ a été présent traité précédemment. Un sommet numéroté $i$ est présent dans $S_{C,l}$ et le traitement du mot $w_l$ provoque l'ajout d'un arc numéroté $k$ entre le sommet courant et ce sommet numéroté $i$ qui devient le sommet courant. Dans l'algorithme \ref{algo:parcoursSiteDepuisCodage} on est dans le second cas de la boucle : le sommet courant a un fils $k$ numéroté $i$. On ajoute alors un arc entre le sommet courant et ce sommet numéroté $i$ qui devient le sommet courant. Par hypothèse de récurrence les sommets courants ainsi que les sommets numérotés $i$ correspondent dans l'isomorphisme donc l'ajout d'un arc dans chacun des sites préserve l'isomorphisme et les nouveaux sommets courants correspondent.
  \item $w_l=\xrightarrow{R}i$ : dans chacun des deux algorithme un sommet a déjà été numéroté $i$ et devient le sommet courant. Par hypothèse de récurrence les sites, non modifiés, sont toujours isomorphes et les nouveaux sommets courants correspondent dans l'isomorphisme.
 \end{itemize}
 On a montré que dans tous les cas l'hypothèse de récurrence est également vérifiée au rang $l+1$.
-
-
-%  Supposons que l'on dispose d'un parcours de $T$ à partir de $R$ qui renvoie, par l'algorithme \ref{algo:parcoursSiteDepuisCodage}, un site $S$. Nous notons $S_C$ le site associé, par l'algorithme \ref{algo:siteDepuisCodage}, au codage de parcours $C$. Nous effectuons la preuve par récurrence.
-%  
-%  Les sous-sites restreints à leur racine sont isomorphes (un seul sommet avec la même étiquette), numérotés de la même manière et le sommet courant est le même.
-%  Supposons que les sous-sites de $S_C$ et $S$ restreints aux sommets présents dans le sous-parcours de $C$ représenté par le codage $1:L_1\xrightarrow{\alpha_1}i_2[:L_2]\xrightarrow{\alpha_2} ...\xrightarrow{\alpha_{p-1}}i_{p}[:L_{p}]$ sont isomorphes.
-%  
-%  Lors de l'étape suivante du parcours le mot $\xrightarrow{\alpha}i[:L]$ est présent.
-%  Comme l'algorithme \ref{algo:parcoursSiteDepuisCodage} a renvoyé un site, deux cas sont possibles.
-%  \begin{itemize}
-%   \item $\alpha$ est un entier $k$ : le sommet courant devient le fils $k$, d'étiquette $L$, du fils courant et ce sommet devient le fils courant. Si aucun site n'était numéroté $i$ ce sommet est également numéroté $i$.
-%   \item $\alpha$ est $R$ : le sommet courant devient le sommet précédemment numéroté $i$.
-%  \end{itemize}
-% 
-%  
-%  
-%  
-% %  un sommet est nouvellement numéroté uniquement si
-% %  Dans le premier cas $\alpha$ est un entier $k$ et si le sommet courant dans T a un fils k non numéroté d'étiquette L et si aucun sommet n'est déjà numéroté i. Dans ce cas un sommet est ajouté au site créé par l'algorithme \ref{algo:siteDepuisCodage} à partir du sommet courant.
-% %  Le second cas possible est si le sommet courant a un fils k déjà numéroté i et d'étiquette L. Dans ce cas ce sommet a déjà été ajouté au site créé par l'algorithme \ref{algo:siteDepuisCodage}, il n'y a ni numérotation ni ajout de site et le sommet courant devient le fils k.
-%  Dans les deux cas la numérotation est la même que celle effectuée dans l'algorithme \ref{algo:siteDepuisCodage} et le sommet courant devient le sommet qui vient d'être numéroté ou ajouté.
-%   Les arcs sont nécessairement les mêmes puisque les parcours appliqués dans les deux algorithmes sont identiques.
-% %  Tous les autres cas provoquent un arrêt du parcours par un FAIL. \\
-% 
-%  On a bien montré que dans les cas ne provoquant pas d'erreur, les deux sites restreints aux sommets du parcours sont isomorphes.
 \end{pr}
 
 \begin{theo}
@@ -1587,15 +1568,6 @@ On a montré que dans tous les cas l'hypothèse de récurrence est également v�
 \label{theo:eqIsoCodage}
 \end{theo}
 
-% \begin{pr}
-% ~
-%  \begin{itemize}
-% %  \renewcommand{\labelitemi}{$\bullet$}
-%   \item Si P est isomorphe à un sous-site de T, on peut appliquer la proposition \ref{prop:isoDoncCodage} au parcours en profondeur, ce qui donne directement le résultat.
-%   \item S'il existe un codage C de parcours de P que l'on peut également parcourir dans T, alors on construit son site associé avec l'algorithme \ref{algo:siteDepuisCodage} et on applique la proposition \ref{prop:condageDoncIso} qui donne le résultat.
-%  \end{itemize}
-% \end{pr}
-
 \begin{pr}
 ~
  \begin{itemize}
@@ -1606,12 +1578,27 @@ On a montré que dans tous les cas l'hypothèse de récurrence est également v�
  \end{itemize}
 \end{pr}
 
+Ce résultat permet de montrer l'équivalence entre un isomorphisme de sous-site et la possibilité d'un parcours en profondeur du codage du site (corollaire \ref{cor:gf}).
+L'équivalence tient également avec le parcours en largeur défini précédemment ou tout parcours pour lequel on dispose d'un algorithme fournissant, à partir d'un site, un codage de ce site.
+
+\begin{cor}
+ Soit P un site et T un graphe de flot. Les trois propositions suivantes sont équivalentes.
+ \begin{itemize}
+  \item P est isomorphe à un sous-site de T.
+  \item Le codage de parcours en profondeur de P peut être parcouru dans T.
+  \item Le codage de parcours en largeur de P peut être parcouru dans T.
+ \end{itemize}
+\label{cor:gf}
+\end{cor}
+
 L'intérêt de cette équivalence est qu'elle donne un algorithme simple et bien plus efficace que celui d'Ullmann pour résoudre le problème \ref{pbisosg} d'isomorphisme de sous-site entre un site de motif et un graphe de flot de test.
+
 
 \subsubsection{Application directe}
 \paragraph{Résolution des problèmes d'isomorphisme.}
 L'équivalence entre isomorphisme et parcours permet de résoudre le problème \ref{pbisog} de la manière suivante :
-deux sites sont isomorphes si et seulement si leurs codages de parcours en profondeur\footnote{On peut substituer le parcours en profondeur par un parcours en largeur ou n'importe quel codage de parcours bien formé} sont identiques.
+deux sites sont isomorphes si et seulement si le codage de parcours en profondeur de l'un\footnote{On peut substituer le parcours en profondeur par un parcours en largeur ou n'importe quel parcours fournissant un codage d'un site.} peut être parcouru dans l'autre.
+% deux sites sont isomorphes si et seulement si leurs codages de parcours en profondeur\footnote{On peut substituer le parcours en profondeur par un parcours en largeur ou n'importe quel parcours fournissant un codage d'un site.} sont identiques.
 
 Le problème \ref{pbisosg} de l'existence d'un isomorphisme entre un site et un sous-site d'un site peut être résolu ainsi :
 il existe un sous-site de T isomorphe au site P si et seulement si il existe un sommet de T à partir duquel le codage du parcours en profondeur\footnotemark[\value{footnote}] de P est possible.
@@ -1738,7 +1725,8 @@ child {node {}
 \end{figure}
 
 % \paragraph{Complexité.}
-L'ajout d'un site à la base consiste à ajouter un codage de parcours dans l'arbre de décision, cette opération nécessite un nombre de comparaison en $W\times f$ où $f$ est le nombre de fils maximum de chaque sommet de l'arbre. Vu que les étiquettes des arcs de l'arbre sont de la forme $[\xrightarrow{\alpha}]i[:L]$, en notant $k=2$ le nombre de fils maximum de chaque sommet dans un site et $l\leq 10$ le nombre d'étiquettes différentes pour les sommets des sites, $f\leq (k+2)\times W\times l$, l'ajout d'un site à la base se fait en $O(W^2)$ (proposition \ref{prop:complexite_tarjan_ajout}).
+L'ajout d'un site à la base consiste à ajouter un codage de parcours dans l'arbre de décision, cette opération nécessite un nombre de comparaison en $W\times f$ où $f$ est le nombre de fils maximum de chaque sommet de l'arbre. 
+Vu que les étiquettes des arcs de l'arbre sont de la forme $[\xrightarrow{\alpha}]i[:L]$, en notant $k=2$ le nombre de fils maximum de chaque sommet dans un site et $l\leq 10$ le nombre d'étiquettes différentes pour les sommets des sites, $f\leq (k+2)\times W\times l$, l'ajout d'un site à la base se fait en $O(W^2)$ (proposition \ref{prop:complexite_tarjan_ajout}).
 
 \begin{prop}
  La complexité de l'ajout d'un site de taille $W$ à une base, pour l'algorithme par parcours, se fait en $O(W^2)$.

@@ -18,7 +18,7 @@ On souhaite également ne pas affecter de manière importante les performances d
 Deux formes d'obscurcissement formelles sont décrites dans la littérature \cite{BR13} :
 \begin{itemize}
  \item L'obscurcissement de type boîte noire : $\mathcal{T}$ est un opérateur d'obscurcissement de type boîte noire si, quel que soit le programme $P$, l'analyse de $\mathcal{T}(P)$ ne fournit pas plus d'informations que ce à quoi aurait accès un oracle pouvant simplement utiliser $P$ sur des entrées et en observer les sorties.
- \item L'obscurcissement indistinguable : $\mathcal{T}$ est un opérateur d'obscurcissement indistinguable si, pour toute classe de programmes $P_1, P_2, ...$ équivalents fonctionnellement, les programmes obscurcis $\mathcal{T}(P_1)$, $\mathcal{T}(P_2)$, ... sont indistinguables, c'est à dire identiques dans le cas de programmes assembleur.
+ \item L'obscurcissement indistinguable : $\mathcal{T}$ est un opérateur d'obscurcissement indistinguable si, pour toute classe de programmes $P_1, P_2, ...$ équivalents fonctionnellement, les programmes obscurcis $\mathcal{T}(P_1)$, $\mathcal{T}(P_2)$, ... sont indistinguables.%, c'est à dire identiques dans le cas de programmes assembleur.
 \end{itemize}
 
 
@@ -28,11 +28,10 @@ Deux formes d'obscurcissement formelles sont décrites dans la littérature \cit
 
 L'obscurcissement indistinguable est plus faible que l'obscurcissement de type boîte noire.
 L'obscurcissement de type boîte noire a été prouvé possible pour les programmes implémentant une fonction point \cite{LPS04}, c'est à dire renvoyant toujours la même valeur sauf en un point particulier : c'est le cas des fonctions vérifiant des mots de passe. 
-Inversement il a été montré qu'il n'existe pas d'opérateur d'obscurcissement de type boîte noire fonctionnant pour n'importe quelle fonction de complexité polynomiale \cite{BGI12}.
+Inversement il a été montré que certaines fonctions ne peuvent pas subir d'obscurcissement de type boîte noire \cite{BGI12} : il n'existe donc pas d'opérateur d'obscurcissement de type boîte noire universel.
 % Une implémentation de cet obscurcissement peut utiliser une fonction calculant un haché cryptographique.
-
-Garg, Gentry, Halevi, Raykova, Sahai et Waters \cite{GGH13} ont montré la possibilité de construire un opérateur d'obscurcissement indistinguable pour toute fonction de complexité polynomiale en utilisant le chiffrement homomorphe.
-\\
+Garg, Gentry, Halevi, Raykova, Sahai et Waters \cite{GGH13} ont montré la possibilité de construire un opérateur d'obscurcissement indistinguable pour toute fonction représentée par un circuit de taille polynomiale. Ils utilisent pour cela des opérateurs de chiffrement homomorphe.
+% \\
 
 % Afin d'évaluer l'efficacité des protections il est nécessaire de définir les actifs que l'on cherche à protéger. 
 % Il peut s'agir de quelques algorithmes centraux au programme, de clé de chiffrement, du nom des fonctions et des variables utilisées, etc.
