@@ -1,1 +1,143 @@
  
+\documentclass{beamer}
+
+\usepackage[utf8x]{inputenc}
+\usepackage{default}
+
+\usepackage{graphicx} % pour insérer des images
+%\usepackage{graphics} % pour insérer des images vectorielles (ps, eps)
+\usepackage{epstopdf}
+
+% les figure imbriquées
+\usepackage{epsfig}
+\usepackage{subfigure}
+
+
+% \newtheorem{de}{Définition}
+\setbeamertemplate{navigation symbols}{}
+\newtheorem{prop}{Property}
+
+% \usetheme{Warsaw}
+ \usetheme{Frankfurt}
+% \setbeamertemplate{footnote}{%
+%   \hangpara{2em}{1}%
+%   \makebox[2em][l]{\insertfootnotemark}\footnotesize\insertfootnotetext\par%
+% }
+
+
+\mode<presentation>{
+\setbeamertemplate{footline}[frame number] %les numéros de page
+\setbeamertemplate{bibliography item}[text]
+} 
+\title[Recognition of binary patterns by Morphological Analysis]{Recognition of binary patterns by Morphological Analysis}
+\author{\textbf{Aurélien Thierry} (aurelien.thierry@inria.fr), Guillaume Bonfante, Joan Calvet, Jean-Yves Marion, Fabrice Sabatier}
+%\institute{INRIA, Loria}
+\date{Recon 2012-06-16}
+% \titlegraphic{\includegraphics[width=0.1\textwidth]{../images/loria.jpg}}
+% \titlegraphic{\includegraphics[width=0.1\textwidth]{../images/logo_inria.jpg}}
+
+
+\begin{document}
+\makeatletter
+  \@ifundefined{inserttotalframenumbernew}{
+    \gdef\inserttotalframenumbernew{1}
+  }{}
+  \gdef\inserttotalframenumber{\inserttotalframenumbernew}
+\makeatother
+
+\section{Introduction}
+\begin{frame}
+\titlepage
+\begin{figure}[ht]
+\begin{center}
+  \subfigure{
+\label{fig:CFGConstr}
+\epsfig{figure=TUL/Inria.png,height=1.2cm}}\quad
+  \subfigure{
+\label{fig:CFGNorm}
+\epsfig{figure=TUL/tulloria.pdf,height=1.3cm}}\
+\subfigure{
+\label{fig:CFGConstr}
+\epsfig{figure=TUL/tulul.pdf,height=1.0cm}}\quad
+\end{center}
+\label{fig:CFGConstrNorm}
+% \caption{Virut.a without (99 nodes) and with (41 nodes) reduction}
+\end{figure}
+\end{frame}
+
+
+ \begin{frame}{Introduction}
+
+\begin{itemize}
+%  \item Identify librairies used by binaries
+ \item Binary analysis
+%  \item Waledac uses cryptography : which algorithms / librairies ?
+%  \item Duqu shares code with Stuxnet ? Which parts ?
+ \begin{figure}
+\end{figure}
+ \item<2-> Identify librairies that do not need to be reversed
+\end{itemize}
+% \pause
+\only<3->{
+Our approach :
+\begin{itemize}
+ \item Control flow graph comparison
+ \item Import results in IDA
+\end{itemize}
+}
+\end{frame}
+
+
+
+\begin{frame}{Duqu / Stuxnet : summary}
+\begin{itemize}
+ \item From the decrypted and unpacked DLLs from Stuxnet, we are able to automatically find code shared with Duqu
+ \item Before reversing, we identify standard (msvcr80.dll) subroutines
+ \item With IDA, we can identify and browse matching subroutines
+\end{itemize}
+\end{frame}
+
+\section{Conclusion}
+
+\begin{frame}{Conclusion}
+\begin{itemize}
+\item Identify used librairies
+\item Show code similarities
+\item IDA UI for browsing matched code
+\end{itemize}
+% Still to be done :
+\pause
+\begin{itemize}
+\item Thank you
+\item Any question ? (aurelien.thierry@inria.fr)
+% \item Loop detection and comparison for dynamic analysis
+% \item Better reductions to detect through obfuscation
+% \item Smoother UI for the IDA plugin
+\end{itemize}
+\end{frame}
+
+
+
+\makeatletter
+  \immediate\write\@mainaux{\string\gdef\string\inserttotalframenumbernew{\insertframenumber}}
+\makeatother
+\appendix
+
+
+% \begin{frame}[allowframebreaks]
+% \section*{}
+% {
+% \frametitle{Références}
+% \bibliography{../rapportbib}
+% \bibliographystyle{alpha}
+% }
+% \end{frame}
+
+% % suppléments :
+% \begin{frame}{More}
+% \end{frame}
+
+
+
+
+\end{document}
