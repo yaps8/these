@@ -15,10 +15,17 @@
 
 % \newtheorem{de}{Définition}
 \setbeamertemplate{navigation symbols}{}
+% \setbeamercolor{structure}{fg=black!90}
+% \setbeamercolor*{palette primary}{use=structure,fg=white,bg=gray!60}
+% \setbeamercolor*{palette quaternary}{fg=white,bg=gray!30!black}
 \newtheorem{prop}{Property}
 
 % \usetheme{Warsaw}
  \usetheme{Frankfurt}
+ \setbeamertemplate{title page}[default][rounded=false]
+ \setbeamertemplate{frametitle}[default][colsep=-3bp,rounded=false,shadow=false]
+% \usecolortheme{wolverine}
+%   \usetheme{Berlin}
 % \setbeamertemplate{footnote}{%
 %   \hangpara{2em}{1}%
 %   \makebox[2em][l]{\insertfootnotemark}\footnotesize\insertfootnotetext\par%
@@ -29,10 +36,10 @@
 \setbeamertemplate{footline}[frame number] %les numéros de page
 \setbeamertemplate{bibliography item}[text]
 } 
-\title[Recognition of binary patterns by Morphological Analysis]{Recognition of binary patterns by Morphological Analysis}
-\author{\textbf{Aurélien Thierry} (aurelien.thierry@inria.fr), Guillaume Bonfante, Joan Calvet, Jean-Yves Marion, Fabrice Sabatier}
+\title[Désassemblage et détection de logiciels malveillants auto-modifiants]{Désassemblage et détection de logiciels malveillants auto-modifiants}
+\author{Aurélien \textsc{Thierry}}% (aurelien@athierry.fr)\\ Équipe CARTE\\ Sous la direction de Jean-Yves Marion}
 %\institute{INRIA, Loria}
-\date{Recon 2012-06-16}
+\date{11 mars 2015}
 % \titlegraphic{\includegraphics[width=0.1\textwidth]{../images/loria.jpg}}
 % \titlegraphic{\includegraphics[width=0.1\textwidth]{../images/logo_inria.jpg}}
 
@@ -45,8 +52,8 @@
   \gdef\inserttotalframenumber{\inserttotalframenumbernew}
 \makeatother
 
-\section{Introduction}
-\begin{frame}
+
+\begin{frame}[plain]
 \titlepage
 \begin{figure}[ht]
 \begin{center}
@@ -65,6 +72,7 @@
 \end{figure}
 \end{frame}
 
+\section{Introduction}
 
  \begin{frame}{Introduction}
 
@@ -109,7 +117,7 @@ Our approach :
 \pause
 \begin{itemize}
 \item Thank you
-\item Any question ? (aurelien.thierry@inria.fr)
+\item Any question ? (aurelien@athierry.fr)
 % \item Loop detection and comparison for dynamic analysis
 % \item Better reductions to detect through obfuscation
 % \item Smoother UI for the IDA plugin

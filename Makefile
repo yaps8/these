@@ -17,7 +17,7 @@ TEXCOMP = latexmk -pdf
 
 #default: $(pdf_from_dot) these.bbl these.pdf
 #default: $(pdf_from_dot) $(tex_from_dot) $(cropped0_pdf) $(cropped5_pdf) $(cropped10_pdf) these.pdf
-default: $(pdf_from_dot) $(cropped0_pdf) $(cropped5_pdf) $(cropped10_pdf) these.pdf these_tk.pdf
+default: $(pdf_from_dot) $(cropped0_pdf) $(cropped5_pdf) $(cropped10_pdf) these.pdf these_tk.pdf soutenance.pdf
 
 all: default chap.pdf
 
@@ -30,6 +30,10 @@ chap.pdf: *.tex chap.bib $(pdf_from_dot)
 these.pdf: *.tex these.bib $(pdf_from_dot) annexes/*.table supports/plots/*.pdf
 	$(TEXCOMP) these.tex
 	if [ -d ~/lectures ]; then cp these.pdf ~/lectures/; fi
+
+soutenance.pdf: *.tex these.bib $(pdf_from_dot) annexes/*.table supports/plots/*.pdf
+	$(TEXCOMP) soutenance.tex
+	if [ -d ~/lectures ]; then cp soutenance.pdf ~/lectures/; fi
 
 these_tk.pdf: these.pdf
 	pdftk these.pdf output these_tk.pdf
