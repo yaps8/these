@@ -521,7 +521,7 @@ Chaque instantané est enregistré sous la forme d'un fichier exécutable (PE so
 Le désassembleur fonctionnant par analyse statique et récursive a été codé en 3500 lignes de C++. Il utilise l'outil XED d'Intel \cite{xed} fournissant les informations sémantiques suffisantes, comme détaillé au chapitre \ref{chap:semantique}.
 
 % \section{Résultats}
-\section{Expérience sur \hostname\ empaqueté}
+\section{Expérience sur \hostname\ empaqueté\label{sec:experience_hostname}}
 Afin de valider notre approche nous avons testé notre désassembleur sur une version protégée d'un binaire existant.
 Cette expérience permet de montrer que l'on arrive a récupérer les parties utiles du programme d'origine dans le binaire protégé.
 % Dans un second temps, afin d'obtenir des statistiques sur l'utilisation de certaines méthodes de protection, nous avons utilisé notre désassembleur pour analyser un grand nombre de programmes malveillants.
@@ -544,7 +544,7 @@ Nous avons analysé chaque niveau d'exécution et reconstruit chaque vague ainsi
  \item Le nombre de \layers\ de code, d'une part en ne prenant en compte que les instructions de la trace, d'autre part en prenant toutes les instructions désassemblées, selon l'algorithme \ref{algo:ajout_inst_layers} du chapitre précédent.
  \item Le nombre de sauts entre des \layers\ de code différentes, d'une part en ne comptant que ceux provenant de la trace, d'autre part en comptant tous les sauts du graphe de flot de contrôle reconstruit par le désassembleur.
 %  \item Le nombre d'appels (\call) non standard
- \item Le part du graphe de flot de contrôle du programme \hostname\ d'origine que l'on retrouve dans le GFC partiel de chaque niveau d'exécution : $100\%$ indique que l'intégralité du graphe de flot de contrôle de \hostname\ est retrouvé dans le graphe de flot de contrôle partiel. Cette métrique sera formalisée dans la partie suivante de cette thèse.
+ \item Le part du graphe de flot de contrôle du programme \hostname\ d'origine que l'on retrouve dans le GFC partiel de chaque niveau d'exécution : $100\%$ indique que l'intégralité du graphe de flot de contrôle de \hostname\ est retrouvé dans le graphe de flot de contrôle partiel. Cette métrique sera formalisée dans la partie suivante de cette thèse, au chapitre \ref{chap:algos}.
  \item Le statut : cette colonne indique si l'instrumentation a été un échec (\checkf), si le désassemblage est un succès complet (\checkv) ou si le désassemblage a rencontré des erreurs (``partiel'').
 \end{itemize}
 Les données résultant de cette expérience sont données en annexe \ref{annex:packers} et un extrait donnant les résultats sur le fichier d'origine, celui protégé par tElock99 et celui protégé par \upx\ est donné en figure \ref{fig:packers_extrait}.

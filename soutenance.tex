@@ -1,16 +1,16 @@
- 
 \documentclass{beamer}
 
-\usepackage[utf8x]{inputenc}
-\usepackage{default}
+\input{include_soutenance}
+% \usepackage{default}
 
-\usepackage{graphicx} % pour insérer des images
+% \usepackage{graphicx} % pour insérer des images
 %\usepackage{graphics} % pour insérer des images vectorielles (ps, eps)
-\usepackage{epstopdf}
+% \usepackage{epstopdf}
 
 % les figure imbriquées
-\usepackage{epsfig}
-\usepackage{subfigure}
+% \usepackage{epsfig}
+% \usepackage{subfigure}
+
 
 
 % \newtheorem{de}{Définition}
@@ -18,7 +18,7 @@
 % \setbeamercolor{structure}{fg=black!90}
 % \setbeamercolor*{palette primary}{use=structure,fg=white,bg=gray!60}
 % \setbeamercolor*{palette quaternary}{fg=white,bg=gray!30!black}
-\newtheorem{prop}{Property}
+% \newtheorem{prop}{Property}
 
 % \usetheme{Warsaw}
  \usetheme{Frankfurt}
@@ -73,51 +73,161 @@
 \end{frame}
 
 \section{Introduction}
-
- \begin{frame}{Introduction}
-
+% Les deux problèmes que l'on aborde dans cette thèse
+% Todo : séparer le pb du domaine de ce qu'on a fait ?
+\begin{frame}{Introduction}
+Analyse de programmes binaires obscurcis
 \begin{itemize}
-%  \item Identify librairies used by binaries
- \item Binary analysis
-%  \item Waledac uses cryptography : which algorithms / librairies ?
-%  \item Duqu shares code with Stuxnet ? Which parts ?
- \begin{figure}
-\end{figure}
- \item<2-> Identify librairies that do not need to be reversed
+ \item Désassemblage : séparation du code et des données
+ \item Reconstruction du graphe de flot de contrôle (GFC)
 \end{itemize}
-% \pause
-\only<3->{
-Our approach :
+
+Détection de programmes malveillants et analyse de similarités logicielles
 \begin{itemize}
- \item Control flow graph comparison
- \item Import results in IDA
+ \item Comparaison des graphes de flot de contrôle
+ \item Formalisation et optimisation
 \end{itemize}
-}
+
 \end{frame}
 
+% \begin{frame}{Analyse de binaires}
+% \begin{itemize}
+%  \item 
+% \end{itemize}
+% \end{frame}
 
+% \begin{frame}{Détection de similarités}
+% \begin{itemize}
+%  \item 
+% \end{itemize}
+% \end{frame}
+% 
+% \begin{frame}{Organisation et contributions}
+% 
+% \end{frame}
 
-\begin{frame}{Duqu / Stuxnet : summary}
-\begin{itemize}
- \item From the decrypted and unpacked DLLs from Stuxnet, we are able to automatically find code shared with Duqu
- \item Before reversing, we identify standard (msvcr80.dll) subroutines
- \item With IDA, we can identify and browse matching subroutines
-\end{itemize}
+\section{Obscurcissement et désassemblage}
+\subsection{Difficultés}
+
+\lstdefinestyle{verbo}{
+    basicstyle=\scriptsize\ttfamily,
+    breaklines=true,
+    breakatwhitespace=true,
+    tabsize=1,
+    resetmargins=true,
+    xleftmargin=0pt,
+    frame=none,
+    showspaces=false,
+    showstringspaces=false
+}
+
+\begin{frame}[fragile]{Compilation et binairea}
+\begin{block}{Code C}
+\begin{lstlisting}[language={C}, style=verbo]
+printf("Hello, world.");
+\end{lstlisting}
+\end{block}
+
+\begin{center}
+\scalebox{1}{
+\begin{tikzpicture}[->,scale=1,>=stealth',thick]
+\newcommand\espace{0.3cm}
+\node[state] (PC) {Programme C};
+\node[state, right=2.5cm of PC] (BIN) {Programme binaire};
+
+% \draw [-] (PC) -- (BIN) {Compilation};
+\draw (PC) -- node[above]{Compilation} (BIN);
+\end{tikzpicture}}
+\end{center}
+\end{frame}
+
+\begin{frame}{}
+
+\begin{frame}{Graphe de flot de contrôle}
+
+\end{frame}
+
+\begin{frame}{Chevauchement de code}
+
+\end{frame}
+
+\begin{frame}{Auto-modification}
+
+\end{frame}
+
+\subsection{Sémantiques}
+\begin{frame}{Traitement de l'auto-modification}
+
+\end{frame}
+
+\begin{frame}{Traitement du chevauchement de code (original)}
+
+\end{frame}
+
+\subsection{Notre approche}
+\begin{frame}{Graphe de flot de contrôle parfait}
+
+\end{frame}
+
+\begin{frame}{Graphe de flot de contrôle paramêtré}
+
+\end{frame}
+
+\begin{frame}{Codisasm}
+
+\end{frame}
+
+\section{Algorithmes de comparaison}
+\subsection{Analyse morphologique}
+\begin{frame}{Détection de similarités logicielles}
+
+\end{frame}
+
+\subsection{Formalisation et simplification}
+\begin{frame}{Isomorphisme appliqué aux graphes de flot}
+
+\end{frame}
+
+\subsection{Algorithmes et implémentation}
+\begin{frame}{Algorithme par parcours}
+
+\end{frame}
+
+\begin{frame}{SIDT}
+
+\end{frame}
+
+\begin{frame}{Comparaison des performances}
+
+\end{frame}
+
+\begin{frame}{Implémentations}
+
+\end{frame}
+
+\section{Exemples d'application}
+
+\begin{frame}{OpenSSL / Waledac}
+
+\end{frame}
+
+\begin{frame}{Duqu / Stuxnet}
+
 \end{frame}
 
 \section{Conclusion}
 
 \begin{frame}{Conclusion}
 \begin{itemize}
-\item Identify used librairies
-\item Show code similarities
-\item IDA UI for browsing matched code
+\item Analyse et désassemblage de programmes binaires obscurcis
+\item Détection de similarités par comparaison des graphes de flot de contrôle
+\item Application sur quelques cas de programmes malveillants
 \end{itemize}
 % Still to be done :
 \pause
 \begin{itemize}
-\item Thank you
-\item Any question ? (aurelien@athierry.fr)
+\item Merci
+\item Des questions ? (aurelien@athierry.fr)
 % \item Loop detection and comparison for dynamic analysis
 % \item Better reductions to detect through obfuscation
 % \item Smoother UI for the IDA plugin
