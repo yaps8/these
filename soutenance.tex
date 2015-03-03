@@ -22,8 +22,51 @@
 
 % \usetheme{Warsaw}
  \usetheme{Frankfurt}
+%  \setbeamertemplate{mini frames}{}
+% \useoutertheme[subsection=false]{miniframes}
+
+
+\makeatletter
+\beamer@compressfalse
+\AtBeginDocument{
+%     \usebeamerfont*{headline}
+    \colorlet{global.bg}{bg}
+\pgfdeclareverticalshading{beamer@barshade}{\the\paperwidth}{%
+%          color(0ex)=(global.bg);%
+         color(0ex)=(section in head/foot.bg);
+         color(2ex)=(section in head/foot.bg)% HERE
+  }
+}
+\setbeamertemplate{headline}
+{%
+  \pgfuseshading{beamer@barshade}%
+%   \ifbeamer@sb@subsection%
+    \vskip-1.33ex%
+%   \else%
+%     \vskip-9ex% HERE
+%   \fi%
+  \begin{beamercolorbox}[ignorebg,ht=0ex,dp=3.75ex]{section in head/foot}
+    \insertnavigation{\paperwidth}
+% \insertsectionnavigationhorizontal{\paperwidth}{}{\hfill\hfill}
+  \end{beamercolorbox}%
+%   \ifbeamer@sb@subsection%
+%     \begin{beamercolorbox}[ignorebg,ht=2.125ex,dp=1.125ex,%
+%       leftskip=.3cm,rightskip=.3cm plus1fil]{subsection in head/foot}
+%       \usebeamerfont{subsection in head/foot}\insertsubsectionhead
+%     \end{beamercolorbox}%
+%   \fi%
+  \vskip-3ex% HERE
+}%
+
+\makeatother
+
  \setbeamertemplate{title page}[default][rounded=false]
- \setbeamertemplate{frametitle}[default][colsep=-1bp,rounded=false,shadow=false]
+ \setbeamertemplate{frametitle}[default][colsep=-2bp,rounded=false,shadow=false]
+ \setbeamertemplate{blocks}[default]%[rounded=false, shadow=false] 
+ \setbeamertemplate{itemize items}[default]
+\setbeamertemplate{enumerate items}[default]
+%  \setbeamertemplate{frametitle}{\insertframetitle}
+
 % \usecolortheme{wolverine}
 %   \usetheme{Berlin}
 % \setbeamertemplate{footnote}{%
@@ -74,7 +117,8 @@
 \end{figure}
 \end{frame}
 
-\section{Introduction}
+
+% \section{Introduction}
 % Les deux problèmes que l'on aborde dans cette thèse
 % Todo : séparer le pb du domaine de ce qu'on a fait ?
 
@@ -233,25 +277,28 @@ Adresse & Octets & Instruction\\
 \end{center}
 \end{frame}
 
-\begin{frame}{Objectifs}
+\begin{frame}{Plan et \underline{contributions}}
 Analyse de programmes binaires obscurcis
 \begin{itemize}
- \item Désassemblage : séparation du code et des données
- \item Reconstruction du graphe de flot de contrôle (GFC)
+ \item Désassemblage et obscurcissement
+ \item \underline{Analyse statique du chevauchement de code}
+ \item Analyse dynamique de l'auto-modification
+ \item \underline{Graphe de flot de contrôle pour programmes auto-modifiants}
+ \item Présentation d'un désassembleur hybride
 \end{itemize}
 
 Détection de programmes malveillants et analyse de similarités logicielles
 \begin{itemize}
  \item Comparaison des graphes de flot de contrôle
- \item Formalisation et optimisation
+ \item \underline{Formalisation et optimisation}
 \end{itemize}
 
 \end{frame}
 
-\section{Obscurcissement et désassemblage}
-\subsection{Difficultés}
+\section{Analyse statique}
+% \subsection{Difficultés}
 
-\begin{frame}{Stratégies de désassemblage, obscurcissement}
+\begin{frame}{Stratégies de désassemblage}
 \begin{minipage}{.5\textwidth}
   \centering
   \begin{table}
@@ -275,9 +322,10 @@ Détection de programmes malveillants et analyse de similarités logicielles
 \end{minipage}%
 \begin{minipage}{.45\textwidth}
   \centering
-  \includegraphics[width=1.0\textwidth]{supports/eax-cfg/eax2_cropped0.pdf}
+  \includegraphics[width=0.8\textwidth]{supports/eax-cfg/eax2_cropped0.pdf}
 \end{minipage}
 
+\only<1>{
 Désassemblage linéaire :
 \begin{itemize}
 %  \item Parcourt la première instruction du binaire puis l'instruction à l'adresse suivante
@@ -289,8 +337,55 @@ Désassemblage récursif :
 %  \item Parcourt le point d'entrée puis les instructions pouvant potentiellement la suivre à l'exécution
  \item Donne une sur-approximation des instructions potentiellement exécutées
 \end{itemize}
+}
+
+\only<2>{
+\frametitle{Désassemblage récursif : graphe de flot de contrôle (GFC)}
+% Graphe de flot de contrôle (GFC) :
+% \begin{itemize}
+%  \item Donne une sur-approximation des instructions potentiellement exécutées
+% \end{itemize}
+\begin{defi}
+ Le graphe de flot de contrôle parfait est le graphe orienté $(V, E)$ tel que :
+ \begin{itemize}
+  \item V est l'ensemble des couples (adresse, instruction) atteignables
+  \item $(a, b)\in E$ ssi il existe un chemin d'exécution au sein duquel l'adresse $b$ suit immédiatement l'adresse $a$
+ \end{itemize}
+\label{def:cfg_parfait_nsm}
+\end{defi}
+
+}
 \end{frame}
 
+% \begin{frame}{Désassemblage récursif et graphe de flot de contrôle}
+% \begin{minipage}{.5\textwidth}
+%   \centering
+%   \begin{table}
+% %   \tiny
+%   \begin{tabular}[b]{|l|}
+%   \hline
+%   Instructions\\ 
+%   \hline
+%   mov    eax,0x0 \\
+%   jmp    0x8048073 \\
+%   mov    eax,0x3 \\
+%   cmp    eax,0x0 \\
+%   je     0x804807e \\
+%   mov    eax,0x1 \\
+%   ret     \\
+%   mov    eax,0x2 \\
+%   ret     \\
+%   \hline
+%   \end{tabular}
+%   \end{table}
+% \end{minipage}%
+% \begin{minipage}{.45\textwidth}
+%   \centering
+%   \includegraphics[width=0.8\textwidth]{supports/eax-cfg/eax2_cropped0.pdf}
+% \end{minipage}
+% 
+% 
+% \end{frame}
 
 \begin{frame}{Obscurcissement}
 \begin{itemize}
@@ -363,9 +458,9 @@ Octets & eb & ff & c9 & 7f & e6\\
 
 
 \begin{frame}[fragile]{Chevauchement de code : \underline{sémantique}}
-\only<1-2>{
+% \only<1-2>{
  \begin{defi}
- Une \layer\ de code $L$ est un ensemble d'instructions qui ne se chevauchent pas : $\forall D_1, D_2\in L,\ \mdc{I_1}\cap\mdc{I_2}=\emptyset$.
+ Une \layer\ de code $L$ est un ensemble d'instructions qui ne se chevauchent pas : $\forall D_1, D_2\in L,\ \mdc{D_1}\cap\mdc{D_2}=\emptyset$.
 \label{def:layer}
 \end{defi}
 
@@ -373,16 +468,17 @@ Octets & eb & ff & c9 & 7f & e6\\
  Étant donné un ensemble d'instructions $E$, un découpage cohérent est un ensemble de \layers\ deux à deux disjointes et recouvrant l'ensemble des instructions de $E$.
 \label{def:decoupage}
 \end{defi}
-}
+% }
 
-\only<2>{
+\pause
+% \only<2>{
 Quelle stratégie pour construire les couches de code ?
 \begin{itemize}
  \item Couches linéaires
  \item Couches désassemblées par parcours
 \end{itemize}
 
-}
+% }
 \end{frame}
 
 \begin{frame}{Chevauchement de code : couches linéraires}
@@ -416,13 +512,12 @@ Octets & eb & ff & c9 & 7f & e6\\
 \end{center}
 \end{frame}
 
-\begin{frame}{Chevauchement de code : couches désassemblées par parcours}
+\begin{frame}{Couches désassemblées par parcours récursif}
 % Couches linéaires :
 \begin{itemize}
- \item Une couche démarre à chaque adresse et consiste en un désassemblage linéaire
- \item Les couches redondantes sont éliminées
- \item La première couche correspond au désassemblage linéaire
- \item L'ensemble des couches est une généralisation du désassemblage linéaire
+ \item On suit le parcours réalisé lors du désassemblage
+ \item On ajoute chaque instruction désassemblée à la couche la plus basse pouvant la contenir, ou à une nouvelle couche
+ \item Permet d'observer les difficultés liées au chevauchement de code lors du désassemblage récursif
 \end{itemize}
 
 \begin{center}
@@ -432,92 +527,652 @@ Adresses & 01006e7d & 01006e7e & 01006e7f & 01006e80 & 01006e81\\
 \hline
 Octets & eb & ff & c9 & 7f & e6\\
 \hline
-\Layer\ 1 & \multicolumn{2}{c|}{jmp +1} & leave & \multicolumn{2}{|c|}{jg 0x1006e68}\\
+\Layer\ 1 & \multicolumn{2}{c|}{jmp +1} & \cnoir & \multicolumn{2}{c|}{jg 0x1006e68}\\
 \hline
-\Layer\ 2 & \cnoir & \multicolumn{2}{c|}{dec ecx} & \multicolumn{2}{|c|}{jg 0x1006e68 \cgris} \\
-\hline
-\Layer\ 3 & \multicolumn{2}{c|}{\cnoir} & leave \cgris & \multicolumn{2}{|c|}{jg 0x1006e68 \cgris} \\
-\hline
-\Layer\ 4 & \multicolumn{3}{c|}{\cnoir} & \multicolumn{2}{|c|}{jg 0x1006e68 \cgris} \\
-\hline
-\Layer\ 5 & \multicolumn{4}{|c|}{\cnoir} & (invalide) \\
-\hline
+\Layer\ 2 & \cnoir & \multicolumn{2}{c|}{dec ecx} & \multicolumn{2}{c|}{\cnoir} \\
+ \hline
 % \\
 \end{tabular}
 \end{center}
 \end{frame}
 
+\begin{frame}[t]{Chevauchement de code : Caractérisation et GFC}
+\begin{center}
+\begin{tabular}{|l|c|c|c|c|c|}
+\hline
+Adresses & 01006e7d & 01006e7e & 01006e7f & 01006e80 & 01006e81\\
+\hline
+Octets & eb & ff & c9 & 7f & e6\\
+\hline
+\Layer\ 1 & \multicolumn{2}{c|}{jmp +1} & \cnoir & \multicolumn{2}{c|}{jg 0x1006e68}\\
+\hline
+\Layer\ 2 & \cnoir & \multicolumn{2}{c|}{dec ecx} & \multicolumn{2}{c|}{\cnoir} \\
+ \hline
+% \\
+\end{tabular}
+\end{center}
+
+\only<1>{
+Métriques :
+\begin{itemize}
+ \item Un binaire n'utilisant pas de chevauchement aura un désassemblage récursif constitué d'une seul couche
+ \item Le nombre de couches indique la complexité des chevauchements
+ \item Le nombre de sauts de changement de couches indique la fréquence d'utilisation de cette technique
+\end{itemize}
+}
+
+\only<2>{
+ \begin{center}
+\includegraphics[width=0.9\textwidth]{supports/disasm/telock/telock_cropped0.pdf}
+\end{center}
+}
+\end{frame}
+% 
+% \begin{frame}{Chevauchement de code : graphe de flot de contrôle}
+% % \begin{minipage}{.5\textwidth}
+% \begin{center}
+% \begin{tabular}{|l|c|c|c|c|c|}
+% \hline
+% Adresses & 01006e7d & 01006e7e & 01006e7f & 01006e80 & 01006e81\\
+% \hline
+% Octets & eb & ff & c9 & 7f & e6\\
+% \hline
+% \Layer\ 1 & \multicolumn{2}{c|}{jmp +1} & \cnoir & \multicolumn{2}{c|}{jg 0x1006e68}\\
+% \hline
+% \Layer\ 2 & \cnoir & \multicolumn{2}{c|}{dec ecx} & \multicolumn{2}{c|}{\cnoir} \\
+%  \hline
+% % \\
+% \end{tabular}
+% \end{center}
+% % \end{minipage}
+% 
+% 
+% % \begin{minipage}{.5\textwidth}
+% 
+% % \end{minipage}
+% \end{frame}
+
+
+\section{Analyse dynamique}
 \begin{frame}{Auto-modification}
+Problème : les programmes se modifient pendant l'exécution
+\begin{itemize}
+ \item Utilisation d'une analyse dynamique (exécution)
+ \item Découpage en vagues (Reynaud, Calvet)
+\end{itemize}
+
+\begin{center}
+\includegraphics[width=0.8\textwidth]{supports/automodification/phases2_final_test.pdf}
+\end{center}
+\end{frame}
+
+\begin{frame}{Auto-modification : graphe de flot de contrôle parfait}
+Sans auto-modification :
+\begin{itemize}
+ \item On dispose de l'ensemble des traces possibles
+ \item Sommet : (adresse, instruction)
+ \item Arc : s'il existe une trace dans laquelle les instructions se suivent
+\end{itemize}
+Avec auto-modification :
+\begin{itemize}
+ \item On dispose de l'ensemble des traces possibles et de leur découpage en vagues
+ \item On veut représenter les vagues dans le GFC
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Auto-modification : exemple}
+\begin{center}
+% \subfigure[]{
+\begin{tabular}[b]{|l|l|l|l|}
+\hline
+Adresse & Octets & Instruction & Écriture\\ 
+\hline
+ 8048060 (debut)  &  31 ff             &  xor    edi,edi		& \\
+ 8048062  &  40                        &  inc    eax			& \\
+ 8048063  &  74 07                     &  je     804806c (si\_zero) 	& \\
+ 	  &			       &				& \\
+ 8048065  &  bf 02 00 00 00            &  mov    edi, 0x2 		& \\
+ 804806a  &  eb f4                     &  jmp    8048060 (debut) 	& \\
+	  &			       &				& \\
+ 804806c (si\_zero) &  bf 01 00 00 00  &  mov    edi, 0x1 		& \\
+ 8048071  &  bb 60 80 04 08            &  mov    ebx, 0x8048060 	& \\
+ 8048076  &  66 c7 03 47 00            &  mov    [ebx], 0x47 		& inc edi\\
+ 804807b  &  66 c7 43 01 47 00         &  mov    [ebx+0x1], 0x47	& inc edi \\
+ 8048081  &  66 c7 43 03 c3 00         &  mov    [ebx+0x3], 0xc3	& ret \\
+ 8048087  &  eb d7                     &  jmp    8048060 (debut) 	& \\
+\hline
+\end{tabular}
+\end{center}
+\end{frame}
+
+\begin{frame}{Auto-modification : graphe de flot de contrôle simple}
+\begin{center}
+ \includegraphics[width=0.7\textwidth]{supports/disas_sm/ex2_parfait_cropped0.pdf}
+ \end{center}
+\end{frame}
+
+\begin{frame}{Auto-modification : graphe de flot de contrôle paramêtré}
+\begin{center}
+ \includegraphics[width=0.48\textwidth]{supports/disas_sm/ex2_vagues_cropped0.pdf}
+\end{center}
+\end{frame}
+
+
+% \subsection{Notre approche}
+\begin{frame}[t]{Graphe de flot de contrôle parfait}
+On doit considérer toutes les exécutions possibles.
+\begin{itemize}
+ \item Enchaînement d'instantanés de la mémoire et de vagues
+ \only<2>{
+ \item Sommet : (niveau d'exécution, instantané, adresse, instruction)
+ \item Todo : illustration interactive dans plusieurs directions
+ }
+\end{itemize}
+\only<1>{
+\begin{center}
+\scalebox{0.9}{
+\begin{tikzpicture}[
+%   tlabel/.style={pos=0.4,right=-1pt},
+%   every node/.style={color=black, circle, minimum size=10mm, draw=black, align=center},
+%   edge from parent/.style={->, draw=black},
+  level 1/.style={sibling distance=15mm, level distance=15mm},
+  thick
+]
+\node (ROOT) {$s_1$}
+% \node (S11){Site 1};
+child {node (S2) {$s_2$}
+child{node (S3) {$s_1$}
+child {node (S4) {$s_5$}
+  child {node (S6) {$s_6$}}
+}
+}
+child{node (S7) {$s_3$}
+child {node (S8) {$s_4$}
+}
+}
+child {node (S9) {$s_4$}}
+};
+% \draw (S4) -> (S5);
+\path (ROOT) edge [->] (S2);
+\path (S2) edge [->] (S3);
+\path (S2) edge [->] (S7);
+\path (S2) edge [->] (S9);
+\path (S3) edge [->] (S4);
+\path (S4) edge [->] (S6);
+\path (S7) edge [->] (S8);
+\path (S7) edge [->] (S4);
+\node[draw=none, left=2.5cm of ROOT.west, anchor=east, text width=5cm, minimum size=1cm] (V1){Niveau d'exécution (X) 1};
+\node[draw=none, left=2.5cm of S2.west, anchor=east, text width=5cm, minimum size=1cm] (V2){Niveau d'exécution (X) 2};
+\node[draw=none, left=2.5cm of S7.west, anchor=east, text width=5cm, minimum size=1cm] (V3){Niveau d'exécution (X) 3};
+\node[draw=none, left=2.5cm of S8.west, anchor=east, text width=5cm, minimum size=1cm] (V4){Niveau d'exécution (X) 4};
+\node[draw=none, left=1cm of S6.west, anchor=east, text width=5cm, minimum size=1cm] (V5){Niveau d'exécution (X) 5};
+% \node[draw=none, left=4cm of ROOT.west, anchor=east, text width=1.1cm, minimum size=1.2cm] (V1){Vague 1};
+% \node[draw=none, left=4cm of ROOT.west, anchor=east, text width=1.1cm, minimum size=1.2cm] (V1){Vague 1};
+% \node[draw=none, left=4cm of ROOT.west, anchor=east, text width=1.1cm, minimum size=1.2cm] (V1){Vague 1};
+\end{tikzpicture}
+}
+\end{center}
+}
+
+\only<2>{
+\begin{center}
+  \includegraphics[width=1.0\textwidth]{supports/disas_sm/plus_que_parfait_cropped0.pdf}
+\end{center}
+}
 
 \end{frame}
 
-\subsection{Sémantiques}
-\begin{frame}{Traitement de l'auto-modification}
+\begin{frame}{Désassemblage hybride}
+Analyse dynamique puis statique
+\begin{itemize}
+ \item Utilisation d'une trace
+ \item Construction des couches de code
+\end{itemize}
+
+\begin{center}
+\scalebox{0.8}{
+\begin{tikzpicture}[->,scale=1,>=stealth',thick]
+\newcommand\espace{0.3cm}
+\node[state] (BIN){Binaire};
+\node[state, above right=2cm and 3.8cm of BIN] (TRACE) {Trace};
+\node[state, below=1.8cm of TRACE.west, anchor=west] (I0) {Instantané 1};
+\node[state, below=3.0cm of TRACE.west, anchor=west] (I1) {Instantané 2};
+\node[state, below=4.2cm of TRACE.west, anchor=west] (Ip) {Instantané ...};
+\node[state, below=5.4cm of TRACE.west, anchor=west] (In) {Instantané n};
+% \node[state, right=1.4cm  of BIN] (ASM){ASM};
+% \node[state, right=1.4cm of ASM] (IR){LI};
+
+\node[state, right=4cm of I0] (V0) {Vague 1};
+\node[state, below=1.2 of V0.west, anchor=west] (V1) {Vague 2};
+\node[state, below=2.4 of V0.west, anchor=west] (Vp) {Vague ...};
+\node[state, below=3.6 of V0.west, anchor=west] (Vn) {Vague n};
+
+\coordinate [right=2cm of BIN.east] (DYN);
+\coordinate [right=1.6cm of TRACE.east] (C0);
+\coordinate [right=0.5cm of C0] (C1);
+\coordinate [right=0.5cm of C1] (Cp);
+\coordinate [right=0.5cm of Cp] (Cn);
+% \coordinate [above=0.1cm of C1] (C10m);
+% \coordinate [below=0.1cm of C1] (C10p);
+\draw [-] (TRACE.east) -- (C0);
+\draw [-] (C0) -- (C1);
+\draw [-] (C1) -- (Cp);
+\draw [-] (Cp) -- (Cn);
+\draw (C0) -- ($(C0)+(0, -1.8cm)$);
+\draw (C1) -- ($(C1)+(0, -3cm)$);
+\draw (Cp) -- ($(Cp)+(0, -4.2cm)$);
+\draw (Cn) -- ($(Cn)+(0, -5.4cm)$);
+% \draw (C1) -- (C10m);
+% \draw (C10p) -- ($(C1)+(0, -1.8cm)$);
+\draw [-] (BIN.east) -- node[below left=3.0cm and -3.2cm, text width=4cm](DYNAMIC){Analyse dynamique} (DYN);
+\draw (DYN) |- (TRACE.west);
+\draw (DYN) |- (I0.west);
+\draw (DYN) |- (I1.west);
+\draw (DYN) |- (Ip.west);
+\draw (DYN) |- (In.west);
+\draw (I0) -- (V0);
+\draw (I1) -- (V1);
+\draw (Ip) -- (Vp);
+\draw (In) -- node[below right=0.5cm and -1.8cm, text width=4cm](STATIC){Analyse statique} (Vn);
+\node [fit={($(V0.north west) + (-0.2, 0)$) ($(V1) + (0.0, 0)$) ($(Vp) + (0.0, 0)$) ($(Vn.south east) + (0.3, 0)$)}, draw, label=GFC paramétré par la trace] {};
+\end{tikzpicture}
+}
+\end{center}
+\end{frame}
+
+\begin{frame}{Expériences ?}
 
 \end{frame}
 
-\begin{frame}{Traitement du chevauchement de code (original)}
-
-\end{frame}
-
-\subsection{Notre approche}
-\begin{frame}{Graphe de flot de contrôle parfait}
-
-\end{frame}
-
-\begin{frame}{Graphe de flot de contrôle paramêtré}
-
-\end{frame}
-
-\begin{frame}{Codisasm}
-
+\begin{frame}{Rappels}
+\begin{itemize}
+ \item Désassemblage et analyse de codes protégés
+ \item Traitement du chevauchement de code (analyse statique)
+ \item Traitement de l'auto-modification (analyse dynamique)
+ \item Combinaison des deux afin de reconstruire un graphe de flot de contrôle cohérent
+\end{itemize}
 \end{frame}
 
 \section{Algorithmes de comparaison}
-\subsection{Analyse morphologique}
-\begin{frame}{Détection de similarités logicielles}
+\begin{frame}{Détection et analyse morphologique}
+%  Analyse morphologique
+ \begin{itemize}
+  \item Approche de détection par signatures
+ \end{itemize}
+\begin{center}
+
+\scalebox{0.9}{
+\begin{tikzpicture}[->,scale=1,>=stealth',thick]
+\newcommand\espace{0.3cm}
+\node[state] (BIN){Binaire};
+\node[state, right=3.8cm of BIN.west, anchor=west] (CODE) {Code};
+\node[state, above=1.2cm of CODE.west, anchor=west] (TRACE) {Traces};
+\node[state, below=1.2cm of CODE.west, anchor=west] (GFC) {GFC};
+\coordinate [right=1cm of BIN.east] (DYN);
+\coordinate [right=4cm of DYN] (CLASS);
+\coordinate [right=1cm of CLASS] (IN);
+\coordinate [right=1cm of IN] (OUT);
+% \node[state, above=2cm of IN] (COMP) {Liste de comportements};
+\node[state, above=2cm of IN] (SIG) {Corpus de programmes classés};
+\node[state, above right=1cm and 1cm of OUT, anchor=west] (MAL) {Malveillant};
+\node[state, below right=1cm and 1cm of OUT, anchor=west] (LEG) {Légitime};
+\draw [-] (BIN.east) -- node[below left=1.6cm and -3.2cm, text width=4cm](DYNAMIC){Extraction} (DYN);
+\draw [-] (CLASS) -- (IN);
+\draw [-] (IN) -- node[below right=1.6cm and -1.8cm, text width=4cm](STATIC){Classification} (OUT);
+\draw (DYN) |- (TRACE.west);
+\draw (DYN) |- (CODE.west);
+\draw (DYN) |- (GFC.west);
+\draw (OUT) -- (MAL.west);
+\draw (OUT) -- (LEG.west);
+% \draw (COMP.south) -- (IN);
+\draw (SIG.south) -- (IN);
+\draw [-] (TRACE.east) -| (CLASS);
+\draw [-] (CODE.east) -| (CLASS);
+\draw [-] (GFC.east) -| (CLASS);
+% \draw (In) --  (Vn);
+% \node [fit={($(V0.north west) + (-0.2, 0)$) ($(V1) + (0.0, 0)$) ($(Vp) + (0.0, 0)$) ($(Vn.south east) + (0.3, 0)$)}, draw, label=GFC paramétré par la trace] {};
+\end{tikzpicture}
+}
+\end{center}
+
+\begin{itemize}
+\item Les signatures sont des graphes de flot de contrôle
+\item On cherche des isomorphismes de sous-graphes
+\end{itemize}
 
 \end{frame}
 
-\subsection{Formalisation et simplification}
 \begin{frame}{Isomorphisme appliqué aux graphes de flot}
+\only<1>{
+Isomorphisme de sous-graphes :
+\begin{itemize}
+ \item Appliqué entre de graphes de flot extraits d'un malware (signatures) et le graphe à analyse
+ \item Problème NP complet
+ \item Algorithmes existants (Ullmann, VF2) trop lents
+\end{itemize}
+}
 
+\only<1-2>{
+Simplification :
+\begin{itemize}
+ \item Les graphes de flot ont été construits par analyse hybride
+ \item On génère des petits sous-graphes (sites)
+\end{itemize}
+}
+
+\only<2-3>{
+\begin{block}{Définition : Graphe de flot}
+Un graphe de flot est un graphe orienté et étiqueté $(V, L, l, E)$ vérifiant :
+\begin{enumerate}
+%  \item Chaque sommet a une étiquette, et
+%  \begin{enumerate}
+%   \item La valence d'un sommet est son nombre de fils
+\item À chaque étiquette est associée une arité dans $\mathbb{N}$ : il s'agit de la valence maximale pour tous les sommets ayant cette étiquette
+ \item Les fils de chaque sommet sont ordonnés :
+%  les arcs ont pour label l'ordre i du fils (où i est un entier compris entre 1 et la valence du sommet)\\
+%        l'ensemble des arcs est $E\subset V\times \mathbb{N}\times V$. 
+       les éléments $(t, i, h)$ de $E$ vérifient
+       \begin{itemize}
+        \item $1\leq i\leq a$ où $a$ est l'arité de l'étiquette de t, et
+%         \item il y a un arc numeroté i entre le sommet t et le sommet h, et
+        \item il n'y a pas d'autre fils de $t$ numéroté i.% : $\{(t, i, h')\in E, h'\ne h\}=\emptyset$.
+       \end{itemize}
+%  \item La valence de ses sommets est bornée
+\end{enumerate}
+\end{block}
+}
+
+\only<3>{
+\begin{block}{Définition : Site}\label{def-site}
+Un site P est un graphe de flot ayant une racine : un sommet à partir duquel on peut atteindre n'importe quel autre sommet de P.
+\end{block}
+}
+
+\only<4>{
+\begin{center}
+% \def\imagetop#1{\vtop{\null\hbox{#1}}}
+\begin{tabular}[t]{|c|c|}
+\hline
+Graphe de flot & Signature : ensemble de sites\\
+% \hline
+\includegraphics[width=0.25\textwidth]{supports/algos/g1gf_cropped10.pdf}
+&
+\includegraphics[width=0.6\textwidth]{supports/algos/g1_sites_cropped10.pdf}
+% &
+% \imagetop{\includegraphics[width=0.2\textwidth]{supports/algos/g1_prof_cropped10.pdf}}
+\\
+\hline
+\end{tabular}
+\end{center}
+}
 \end{frame}
 
-\subsection{Algorithmes et implémentation}
-\begin{frame}{Algorithme par parcours}
 
+\begin{frame}[t]{Algorithme par parcours}
+\begin{center}
+\begin{tabular}[t]{|c|c|c|}
+\hline
+Graphe de flot & Numérotation  & Numérotation\\
+ & en profondeur & en largeur\\
+\hline
+\includegraphics[width=0.25\textwidth]{supports/algos/g1_cropped0.pdf}
+&
+\includegraphics[height=0.37\textwidth]{supports/algos/g1_prof_cropped0.pdf}
+&
+\includegraphics[height=0.37\textwidth]{supports/algos/g1_larg_cropped0.pdf}
+\\
+\hline
+\end{tabular}
+\end{center}
+
+\only<2>{
+Parcours en profondeur :\\
+$1: JCC\xrightarrow{1} 2: CALL \xrightarrow{1} 3: INST \xrightarrow{1} 4: RET \xrightarrow{R} 2 \xrightarrow{2} 5: RET \xrightarrow{R} 1 \xrightarrow{2} 6: JCC \xrightarrow{2}~7:INST \xrightarrow{1} 2$.
+}
+
+\only<3>{
+Parcours en largeur :\\
+$1: JCC\xrightarrow{1} 2: CALL\xrightarrow{R} 1\xrightarrow{2} 3: JCC\xrightarrow{R} 2\xrightarrow{1} 4: INST\xrightarrow{R} 2\xrightarrow{2} 5: RET \xrightarrow{R} 3 \xrightarrow{2}~6:~INST \xrightarrow{R} 4\xrightarrow{1} 7: RET$.
+}
 \end{frame}
+
+\begin{frame}{Codage de parcours}
+\only<1>{
+\begin{block}{Définition : Mot de parcours}
+ Un mot de parcours est soit :
+ \begin{itemize}
+  \item de type $m_1$, c'est à dire $1:L$ où L est une étiquette, ou
+  \item de type $m_2$, c'est à dire $\xrightarrow{\alpha}i[:L]$ où i est un entier, L est une étiquette et $\alpha$ est soit un entier k, soit R.
+ \end{itemize}
+ \label{def-mot-bien-forme}
+\end{block}
+
+\begin{block}{Définition : Codage de parcours bien formé}
+ On appelle codage de parcours bien formé tout mot vérifiant :
+\begin{enumerate}
+ \item Il est de la forme $m_1(m_2)^*$
+ \item L'étiquette de chaque sommet $i$ est spécifiée une unique fois, lors la première référence à ce sommet
+%  \item S'il y a deux mots de la forme $i:L_1$ et $i:L_2$ alors $L_1=L_2$
+ \item Pour tout mot de la forme $\xrightarrow{R}i$, un mot $i:L$ est présent précédemment dans le codage
+ \item Chaque fils de chaque sommet est défini au plus une fois
+%  \item Toute suite incluse dans le codage de la forme $1:L(\xrightarrow{\alpha}i[:L])*$ est également un parcours
+\end{enumerate} 
+\label{def-codage-bien-forme}
+\end{block}
+}
+
+\only<2>{
+\begin{itemize}
+ \item Les algorithmes fournissant les parcours en profondeur et en largeur sont très simples
+ \item Ils produisent des codages de parcours bien formés
+ \item On peut reconstruire le site d'origine à partir du codage de parcours bien formé
+\end{itemize}
+}
+\end{frame}
+
+
+\begin{frame}{Codages et isomorphisme de sous-graphes}
+\begin{theo}
+ Soit P un site et T un graphe de flot. Les trois propositions suivantes sont équivalentes.
+ \begin{itemize}
+  \item P est isomorphe à un sous-site de T.
+  \item Tout codage de parcours bien formé de P peut être parcouru dans T.
+  \item Il existe un codage de parcours bien formé de P qui peut être parcouru dans T.
+ \end{itemize}
+\end{theo}
+\pause
+\begin{cor}
+ Soit P un site et T un graphe de flot. Les trois propositions suivantes sont équivalentes.
+ \begin{itemize}
+  \item P est isomorphe à un sous-site de T.
+  \item Le codage de parcours en profondeur de P peut être parcouru dans T.
+  \item Le codage de parcours en largeur de P peut être parcouru dans T.
+ \end{itemize}
+\label{cor:gf}
+\end{cor}
+\end{frame}
+
+\begin{frame}{Algorithmes de détection d'isomorphismes par parcours}
+ \begin{itemize}
+  \item Todo : GF + sites : comment savoir si site sg de GF ?
+ \end{itemize}
+\end{frame}
+
+
+\begin{frame}{Algorithmes de détection d'isomorphismes par parcours}
+\begin{minipage}{.5\textwidth}
+ \begin{center}
+ \scalebox{0.6}{
+\begin{tikzpicture}[
+  tlabel/.style={pos=0.4,right=-1pt,font=\footnotesize\color{black!70!black} },
+  every node/.style={color=black!25!black, circle, minimum size=6mm, draw=black!75, align=center},
+  edge from parent/.style={draw=black!50,thick},
+  level 1/.style={sibling distance=50mm, level distance=12mm},
+]
+\node[rectangle, rounded corners]{$racine$}
+child {node {}
+       child{node {}
+	     child {node {}
+	            child {node {}
+		           child {node {}
+		                  child {node {}
+		                         child {node {}
+		                                child {node {}
+		                                       child {node {a}
+		                                              child {node {b}
+								edge from parent node[tlabel,pos=0.2, left=15pt,draw=none] {$\xrightarrow{1} 2$}
+		                                              }
+		                                              child {node {c}
+								edge from parent node[tlabel,pos=0.2, right=11pt,draw=none] {$\xrightarrow{1} 3$}
+		                                              }
+		                                              edge from parent node[tlabel,pos=0.3,draw=none] {$\xrightarrow{2} 7:INST$}
+		                                       }
+		                                       edge from parent node[tlabel,pos=0.3,draw=none] {$\xrightarrow{2} 6: JCC$}
+		                                }
+		                                edge from parent node[tlabel,pos=0.3,draw=none] {$\xrightarrow{R} 1$}
+		                         }
+		                         edge from parent node[tlabel,pos=0.3,draw=none] {$\xrightarrow{2} 5: RET$}
+		                  }
+		                  edge from parent node[tlabel,pos=0.3,draw=none] {$\xrightarrow{R} 2$}
+		           }
+		           edge from parent node[tlabel,pos=0.3,draw=none] {$\xrightarrow{1} 4: RET$}
+	            }
+	            edge from parent node[tlabel,pos=0.3,draw=none] {$\xrightarrow{1} 3: INST$}
+	     }
+	     edge from parent node[tlabel,pos=0.1, left=15pt,draw=none] {$\xrightarrow{1} 2: CALL$}
+       }
+       child{node {}
+	     child {node {}
+	            child {node {}
+		           child {node {}
+		                  child {node {}
+		                         child {node {}
+		                                child {node {}
+		                                       child {node {}
+		                                              child {node {d}
+		                                              edge from parent node[tlabel,pos=0.3,draw=none] {$\xrightarrow{2} 7: RET$}
+		                                              }
+		                                              edge from parent node[tlabel,pos=0.3,draw=none] {$\xrightarrow{R} 5$}
+		                                       }
+		                                       edge from parent node[tlabel,pos=0.3,draw=none] {$\xrightarrow{1} 2$}
+		                                }
+		                                edge from parent node[tlabel,pos=0.3,draw=none] {$\xrightarrow{1} 6: INST$}
+		                         }
+		                         edge from parent node[tlabel,pos=0.3,draw=none] {$\xrightarrow{1} 5: CALL$}
+		                  }
+		                  edge from parent node[tlabel,pos=0.3,draw=none] {$\xrightarrow{2} 4: INST$}
+		           }
+		           edge from parent node[tlabel,pos=0.3,draw=none] {$\xrightarrow{2} 3: JCC$}
+	            }
+	            edge from parent node[tlabel,pos=0.3,draw=none] {$\xrightarrow{R} 1$}
+	     }
+	     edge from parent node[tlabel,pos=0.1, right=5pt,draw=none] {$~~~\xrightarrow{1} 2: RET$}
+       }
+       edge from parent node[tlabel,pos=0.5,draw=none] {$1: JCC$}
+};
+\end{tikzpicture}
+}
+\end{center}
+\end{minipage}
+\begin{minipage}{.4\textwidth}
+ \begin{itemize}
+  \item Algorithme plus rapide
+  \item Certains chemins sont factorisés
+  \item Mais aussi lent dans le pire des cas
+  \item Dépend (au pire) linéairement du nombre de sites dans la base
+ \end{itemize}
+\end{minipage}
+\end{frame}
+
 
 \begin{frame}{SIDT}
-
+Autre approche :
+ \begin{itemize}
+  \item Découper également le GFC du programme à analyser en sites
+  \item Recherche des isomorphismes de graphes
+ \end{itemize}
+Dans ce cas :
+\begin{itemize}
+ \item Un site a une représentation unique
+ \item On peut ranger les sites dans un arbre de hauteur fixe
+ \item La complexité de la détection ne dépend pas du nombre de sites dans la base
+ \item Mais l'algorithme n'est pas complet
+\end{itemize}
 \end{frame}
 
-\begin{frame}{Comparaison des performances}
 
+\begin{frame}{Comparaison des performances}
+\begin{itemize}
+ \item n : taille du graphe de flot
+ \item S : nombre de graphe de flot dans la base
+ \item W : taille des sites considérés (en pratique 24)
+\end{itemize}
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|}
+ \hline
+ Algorithme & Ajout d'un & Analyse d'un & Complet\\
+   & graphe de flot & graphe de flot & \\
+ \hline
+ Recherche exhaustive & / & $O(S.n^3.n!)$ & Oui\\
+ Ullmann & / & $O(S.(n/3)^W)$ & Oui \\
+ Parcours & $O(n.W^2)$ & $O(S.n.W)$ & Oui\\
+ SIDT & $O(n.W^3)$ & $O(n.W^2)$ & Non\\
+ \hline
+\end{tabular} 
+\end{center}
 \end{frame}
 
 \begin{frame}{Implémentations}
+Détection de 5 programmes (18160 sites) en fonction du nombre de sites appris
+% \begin{figure}[h]
+\begin{center}
+\includegraphics[width=0.9\textwidth]{supports/plots/plotScan.pdf}
+\end{center}
+% \caption{}
+% \label{fig:scan}
+% \end{figure}
+\end{frame}
+
+\section{Exemple d'application}
+\begin{frame}{\hostname\ protégé}
+\begin{itemize}
+ \item Utilisation d'un binaire (\hostname) et de 34 versions protégées
+ \item Extraction des graphes de flot de contrôle par analyse hybride
+ \item Comparaison des graphes de flot par analyse morphologique
+\end{itemize}
+
+\pause
+Résultats :
+\begin{itemize}
+ \item 6 binaires n'ont pas pu être analysés dynamiquement
+ \item Dans la plupart (combien?) des cas, on détecte plus de 80\% (?) des sites de \hostname\ dans la version protégée
+\end{itemize}
+
+\pause
+Comparaison des algorithmes :
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+ Algorithme & Apprentissage & Détection & Sites uniques détectés\\
+ \hline
+ Ullmann & $\infty$ & $\infty$ & (6739)\\
+ Parcours & $<$ 1 seconde & 70 secondes & 6739\\
+ SIDT & $<$ seconde & 1.6 seconde & 6045\\
+ \hline
+\end{tabular}
+\end{center}
 
 \end{frame}
 
-\section{Exemples d'application}
-
-\begin{frame}{OpenSSL / Waledac}
-
-\end{frame}
-
-\begin{frame}{Duqu / Stuxnet}
-
-\end{frame}
-
-\section{Conclusion}
-
+\section{}
 \begin{frame}{Conclusion}
 \begin{itemize}
 \item Analyse et désassemblage de programmes binaires obscurcis
+\item Traitement du chevauchement de code par analyse statique
+\item Définition d'un graphe de flot de contrôle pour programmes auto-modifiants et analyse hybride
 \item Détection de similarités par comparaison des graphes de flot de contrôle
-\item Application sur quelques cas de programmes malveillants
+% \item Application sur quelques cas de programmes malveillants
 \end{itemize}
 % Still to be done :
 \pause

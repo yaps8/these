@@ -12,14 +12,14 @@
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    id="svg2"
    version="1.1"
-   inkscape:version="0.48.4 r9939"
+   inkscape:version="0.48.5 r10040"
    width="1252.3483"
    height="554.40289"
    xml:space="preserve"
-   sodipodi:docname="phases2.pdf"><metadata
+   sodipodi:docname="phases2.svg"><metadata
      id="metadata8"><rdf:RDF><cc:Work
          rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
-           rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title></dc:title></cc:Work></rdf:RDF></metadata><defs
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title /></cc:Work></rdf:RDF></metadata><defs
      id="defs6"><marker
        inkscape:stockid="Arrow1Lend"
        orient="auto"
@@ -89,16 +89,16 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="1676"
-     inkscape:window-height="1027"
+     inkscape:window-width="1440"
+     inkscape:window-height="876"
      id="namedview4"
      showgrid="true"
      inkscape:zoom="0.5209501"
      inkscape:cx="539.00995"
      inkscape:cy="55.202616"
-     inkscape:window-x="1920"
-     inkscape:window-y="19"
-     inkscape:window-maximized="0"
+     inkscape:window-x="1280"
+     inkscape:window-y="24"
+     inkscape:window-maximized="1"
      inkscape:current-layer="g12"
      fit-margin-top="5"
      fit-margin-left="10"
@@ -468,7 +468,7 @@
            sodipodi:role="line"
            id="tspan3945"
            x="-76.011078"
-           y="20.631569">Vague 0</tspan></text>
+           y="20.631569">Vague 1</tspan></text>
 <rect
          style="color:#000000;fill:none;stroke:#000000;stroke-width:0.99212599;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
          id="rect3167-3"
@@ -501,7 +501,7 @@
            sodipodi:role="line"
            id="tspan3945-7"
            x="159.46553"
-           y="20.953838">Vague 1</tspan></text>
+           y="20.953838">Vague 2</tspan></text>
 <text
          xml:space="preserve"
          style="font-size:25.60000038px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
