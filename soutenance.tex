@@ -118,27 +118,6 @@
 \end{frame}
 
 
-% \section{Introduction}
-% Les deux problèmes que l'on aborde dans cette thèse
-% Todo : séparer le pb du domaine de ce qu'on a fait ?
-
-
-% \begin{frame}{Analyse de binaires}
-% \begin{itemize}
-%  \item 
-% \end{itemize}
-% \end{frame}
-
-% \begin{frame}{Détection de similarités}
-% \begin{itemize}
-%  \item 
-% \end{itemize}
-% \end{frame}
-% 
-% \begin{frame}{Organisation et contributions}
-% 
-% \end{frame}
-
 \lstdefinestyle{verbo}{
 %     basicstyle=\scriptsize\ttfamily,
     basicstyle=\small\ttfamily,
@@ -153,13 +132,6 @@
 }
 
 \begin{frame}[fragile]{Compilation et binaires}
-\begin{block}{Code C}
-\begin{lstlisting}[language={C}, style=verbo,aboveskip=0pt,belowskip=0pt]
-printf("Hello, world.");
-\end{lstlisting}
-\end{block}
-\pause
-
 \begin{center}
 \scalebox{1}{
 \begin{tikzpicture}[->,scale=1,>=stealth',thick]
@@ -172,6 +144,13 @@ printf("Hello, world.");
 \draw (ASM) -- node[above=0.5cm]{Assemblage} (BIN);
 \end{tikzpicture}}
 \end{center}
+\pause
+
+\begin{block}{Code C}
+\begin{lstlisting}[language={C}, style=verbo,aboveskip=0pt,belowskip=0pt]
+printf("Hello, world.");
+\end{lstlisting}
+\end{block}
 \pause
 
 \begin{block}{Code assembleur}
@@ -193,14 +172,24 @@ int     0x80        ; ~Appel système (Write)~
 \begin{tikzpicture}[->,scale=1,>=stealth',thick,every text node part/.style={align=center}]
 \node[state,draw=none] (PC) {};
 % \node[state, right=1.0cm of PC] (ASM) {\begin{tiny} AB\\BA \end{tiny}};
-\node[state, right=1.0cm of PC,text width=1.3cm] (ASM) {\tiny 4d 5a 4b 9c 10 50 00 02 90 21 6d 6e .. .. .. .. 74 50 43 12 00 45 90 00};
+\node[state, right=1.0cm of PC, text width=1.3cm] (ASM) {\tiny 4d 5a 4b 9c 10 50 00 02 90 21 6d 6e .. .. .. .. 74 50 43 12 00 45 90 00};
+\node[state, right=0.1cm of ASM.east, draw=none, anchor = west] (EQ) {=};
+\node[state, right=0.8cm of ASM.north east, text width=1.3cm, anchor = north west,minimum size=0.926cm] (HEADER) {Entêtes};
+\node[state, below=-0.035cm of HEADER, text width=1.3cm, minimum size=0.926cm] (TEXT) {.text};
+\node[state, below=-0.035cm of TEXT, text width=1.3cm, minimum size=0.926cm] (DATA) {.data};
+
+\node[state, right=0.8cm of TEXT.east, anchor = west, draw=none] (PRINTF) {$\sim$\ printf()};
+\node[state, right=0.8cm of DATA.east, anchor = west, draw=none] (HELLO) {``Hello, World''};
 % \node[state, right=1.0cm of ASM] (BIN) {Fichier binaire};
 % \draw [-] (PC) -- (BIN) {Compilation};
 \draw (PC) -- node[left=0.7cm]{Assemblage} (ASM);
+\draw [-] (TEXT) -- (PRINTF);
+\draw [-] (DATA) -- (HELLO);
 % \draw (ASM) -- node[above=0.5cm]{Assemblage} (BIN);
 \end{tikzpicture}}
 \end{center}
 
+\pause
 % \begin{tabular}[b]{|l|}
 % \hline
 % Entêtes\\
@@ -216,9 +205,11 @@ int     0x80        ; ~Appel système (Write)~
 Désassemblage :
 \begin{itemize}
  \item Opération inverse de l'assemblage
+ \item Code et données peuvent être présents dans les mêmes sections
  \item Difficile de séparer les données du code
 \end{itemize}
 
+\pause
 \begin{defi}
  Le désassemblage parfait d'un programme binaire est la donnée de l'ensemble de ses instructions atteignables.
 \end{defi}
@@ -252,19 +243,19 @@ Adresse & Octets & Instruction\\
   \centering
   \begin{table}
 %   \tiny
-  \begin{tabular}[b]{|l|}
+  \begin{tabular}[b]{|l|l|}
   \hline
-  Instructions\\ 
+  Adresses & Instructions\\ 
   \hline
-  mov    eax,0x0 \\
-  jmp    0x8048073 \\
-  mov    eax,0x3 \\
-  cmp    eax,0x0 \\
-  je     0x804807e \\
-  mov    eax,0x1 \\
-  ret     \\
-  mov    eax,0x2 \\
-  ret     \\
+ 8048067  &  mov    eax,0x0 \\
+ 804806c  &  jmp    0x8048073 \\
+ 804806e  &  mov    eax,0x3 \\
+ 8048073  &  cmp    eax,0x0 \\
+ 8048076  &  je     0x804807e \\
+ 8048078  &  mov    eax,0x1 \\
+ 804807d  &  ret     \\
+ 804807e  &  mov    eax,0x2 \\
+ 8048083  &  ret     \\
   \hline
   \end{tabular}
   \end{table}
@@ -284,7 +275,7 @@ Analyse de programmes binaires obscurcis
  \item \underline{Analyse statique du chevauchement de code}
  \item Analyse dynamique de l'auto-modification
  \item \underline{Graphe de flot de contrôle pour programmes auto-modifiants}
- \item Présentation d'un désassembleur hybride
+ \item \underline{Présentation d'un désassembleur hybride}
 \end{itemize}
 
 Détection de programmes malveillants et analyse de similarités logicielles
@@ -303,19 +294,19 @@ Détection de programmes malveillants et analyse de similarités logicielles
   \centering
   \begin{table}
 %   \tiny
-  \begin{tabular}[b]{|l|}
+  \begin{tabular}[b]{|l|l|}
   \hline
-  Instructions\\ 
+  Adresses & Instructions\\ 
   \hline
-  mov    eax,0x0 \\
-  jmp    0x8048073 \\
-  mov    eax,0x3 \\
-  cmp    eax,0x0 \\
-  je     0x804807e \\
-  mov    eax,0x1 \\
-  ret     \\
-  mov    eax,0x2 \\
-  ret     \\
+ 8048067  &  mov    eax,0x0 \\
+ 804806c  &  jmp    0x8048073 \\
+ 804806e  &  mov    eax,0x3 \\
+ 8048073  &  cmp    eax,0x0 \\
+ 8048076  &  je     0x804807e \\
+ 8048078  &  mov    eax,0x1 \\
+ 804807d  &  ret     \\
+ 804807e  &  mov    eax,0x2 \\
+ 8048083  &  ret     \\
   \hline
   \end{tabular}
   \end{table}
@@ -329,13 +320,14 @@ Détection de programmes malveillants et analyse de similarités logicielles
 Désassemblage linéaire :
 \begin{itemize}
 %  \item Parcourt la première instruction du binaire puis l'instruction à l'adresse suivante
- \item Ne suit par le flot des instructions
+ \item Ne suit pas le flot des instructions
 \end{itemize}
 
 Désassemblage récursif :
 \begin{itemize}
 %  \item Parcourt le point d'entrée puis les instructions pouvant potentiellement la suivre à l'exécution
  \item Donne une sur-approximation des instructions potentiellement exécutées
+ \item Problème des sauts dynamiques : \texttt{jmp eax}
 \end{itemize}
 }
 
@@ -389,12 +381,13 @@ Désassemblage récursif :
 
 \begin{frame}{Obscurcissement}
 \begin{itemize}
- \item Ensemble de techniques utilisées pour rendre un binaire plus difficile à comprendre, analyser et désassembler
- \item En pratique appliquées par un logiciel d'empaquetage
+ \item But : rendre un binaire plus difficile à analyser et désassembler
+ \item Compression, chiffrement, ajout de code inutile, prédicats opaques...
+ \item En pratique appliqué par un logiciel d'empaquetage
 \end{itemize}
 
 \begin{center}
-\scalebox{0.95}{
+\scalebox{0.8}{
 \begin{tikzpicture}[->,scale=1,>=stealth',thick]
 \node[state, text width=3cm, minimum size=3cm] (BIN){Binaire d'origine};
 \node[state, below right = -0.5cm and 4cm of BIN.east, text width=3cm, minimum size=3cm] (BINO){Données :\\Binaire d'origine caché};
@@ -411,7 +404,8 @@ Désassemblage récursif :
 
 \begin{frame}[fragile]{Chevauchement de code}
 \begin{itemize}
- \item Technique d'obscurcissement statique
+%  \item Technique d'obscurcissement statique
+ \item En assembleur \xq\ la taille des instructions est variable (entre 1 et 15 octets)
  \item Plusieurs instructions peuvent être codées sur des adresses qui se chevauchent
  \item Les techniques d'analyse font généralement l'hypothèse que ce n'est pas possible
 \end{itemize}
@@ -423,10 +417,15 @@ Octets à désassembler : \texttt{eb ff c9 7f e6}
 01006e7e       ff c9        dec ecx
 01006e80    7f e6           jg 01006e68
 \end{lstlisting}
+\pause
 \end{block}
+\begin{itemize}
+ \item Possibilité de cacher une séquence de code de longueur arbitraire au milieu d'un autre code (Jämthagen, Lantz et Hell, 2013)
+\end{itemize}
+
 \end{frame}
 
-\begin{frame}[fragile]{Chevauchement de code : \underline{sémantique}}
+\begin{frame}[fragile]{Chevauchement de code : sémantique}
 \begin{block}{Exemple (\telock)}
 Octets à désassembler : \texttt{eb ff c9 7f e6}
 \begin{lstlisting}[language={[x86masm]Assembler}, escapechar=~]
@@ -435,6 +434,11 @@ Octets à désassembler : \texttt{eb ff c9 7f e6}
 01006e80    7f e6           jg 01006e68
 \end{lstlisting}
 \end{block}
+
+\begin{itemize}
+ \item Séparation des instructions en couches de code
+\end{itemize}
+
 
 \begin{center}
 \begin{table}
@@ -457,10 +461,10 @@ Octets & eb & ff & c9 & 7f & e6\\
 
 
 
-\begin{frame}[fragile]{Chevauchement de code : \underline{sémantique}}
+\begin{frame}[fragile]{Chevauchement de code : sémantique}
 % \only<1-2>{
  \begin{defi}
- Une \layer\ de code $L$ est un ensemble d'instructions qui ne se chevauchent pas : $\forall D_1, D_2\in L,\ \mdc{D_1}\cap\mdc{D_2}=\emptyset$.
+ Une \layer\ de code $L$ est un ensemble d'instructions qui ne se chevauchent pas. %: $\forall D_1, D_2\in L,\ \mdc{D_1}\cap\mdc{D_2}=\emptyset$.
 \label{def:layer}
 \end{defi}
 
@@ -481,15 +485,16 @@ Quelle stratégie pour construire les couches de code ?
 % }
 \end{frame}
 
-\begin{frame}{Chevauchement de code : couches linéraires}
+\begin{frame}[t]{Chevauchement de code : couches linéraires}
 % Couches linéaires :
 \begin{itemize}
  \item Une couche démarre à chaque adresse et consiste en un désassemblage linéaire
- \item Les couches redondantes sont éliminées
+ \item Les couches inférieures redondantes sont supprimées
  \item La première couche correspond au désassemblage linéaire
  \item L'ensemble des couches est une généralisation du désassemblage linéaire
 \end{itemize}
 
+\only<1>{
 \begin{center}
 \begin{tabular}{|l|c|c|c|c|c|}
 \hline
@@ -510,6 +515,23 @@ Octets & eb & ff & c9 & 7f & e6\\
 % \\
 \end{tabular}
 \end{center}
+}
+\only<2>{
+\begin{center}
+\begin{tabular}{|l|c|c|c|c|c|}
+\hline
+Adresses & 01006e7d & 01006e7e & 01006e7f & 01006e80 & 01006e81\\
+\hline
+Octets & eb & ff & c9 & 7f & e6\\
+\hline
+\Layer\ 1 & \multicolumn{2}{c|}{jmp +1} & leave & \multicolumn{2}{|c|}{jg 0x1006e68}\\
+\hline
+\Layer\ 2 & \cnoir & \multicolumn{2}{c|}{dec ecx} & \multicolumn{2}{|c|}{jg 0x1006e68 \cgris} \\
+\hline
+% \\
+\end{tabular}
+\end{center}
+}
 \end{frame}
 
 \begin{frame}{Couches désassemblées par parcours récursif}
@@ -595,7 +617,7 @@ Métriques :
 
 \section{Analyse dynamique}
 \begin{frame}{Auto-modification}
-Problème : les programmes se modifient pendant l'exécution
+Problème : certains programmes se modifient pendant l'exécution
 \begin{itemize}
  \item Utilisation d'une analyse dynamique (exécution)
  \item Découpage en vagues (Reynaud, Calvet)
@@ -665,7 +687,7 @@ On doit considérer toutes les exécutions possibles.
  \item Enchaînement d'instantanés de la mémoire et de vagues
  \only<2>{
  \item Sommet : (niveau d'exécution, instantané, adresse, instruction)
- \item Todo : illustration interactive dans plusieurs directions
+%TODO : illustration interactive dans plusieurs directions
  }
 \end{itemize}
 \only<1>{
@@ -715,6 +737,7 @@ child {node (S9) {$s_4$}}
 }
 
 \only<2>{
+\vskip10ex
 \begin{center}
   \includegraphics[width=1.0\textwidth]{supports/disas_sm/plus_que_parfait_cropped0.pdf}
 \end{center}
@@ -723,10 +746,10 @@ child {node (S9) {$s_4$}}
 \end{frame}
 
 \begin{frame}{Désassemblage hybride}
-Analyse dynamique puis statique
+Analyse dynamique puis statique par parcours récursif
 \begin{itemize}
- \item Utilisation d'une trace
- \item Construction des couches de code
+ \item Utilisation d'une trace séparée en vagues
+ \item Construction des couches de code (chevauchement)
 \end{itemize}
 
 \begin{center}
@@ -780,9 +803,9 @@ Analyse dynamique puis statique
 \end{center}
 \end{frame}
 
-\begin{frame}{Expériences ?}
-
-\end{frame}
+% \begin{frame}{Implémentation ?}
+% 
+% \end{frame}
 
 \begin{frame}{Rappels}
 \begin{itemize}
@@ -909,8 +932,8 @@ Graphe de flot & Signature : ensemble de sites\\
 
 
 \begin{frame}[t]{Algorithme par parcours}
-\begin{center}
-\begin{tabular}[t]{|c|c|c|}
+% \begin{center}
+\begin{tabular}{|c|c|c|}
 \hline
 Graphe de flot & Numérotation  & Numérotation\\
  & en profondeur & en largeur\\
@@ -923,21 +946,23 @@ Graphe de flot & Numérotation  & Numérotation\\
 \\
 \hline
 \end{tabular}
-\end{center}
+% \end{center}
 
 \only<2>{
-Parcours en profondeur :\\
-$1: JCC\xrightarrow{1} 2: CALL \xrightarrow{1} 3: INST \xrightarrow{1} 4: RET \xrightarrow{R} 2 \xrightarrow{2} 5: RET \xrightarrow{R} 1 \xrightarrow{2} 6: JCC \xrightarrow{2}~7:INST \xrightarrow{1} 2$.
+\vskip1ex
+Codage de parcours en profondeur :\\
+$1: JCC\xrightarrow{1} 2: CALL \xrightarrow{1} 3: INST \xrightarrow{1} 4: RET \xrightarrow{R} 2 \xrightarrow{2} 5: RET \xrightarrow{R} 1 \xrightarrow{2} 6:~JCC \xrightarrow{2}~7:INST \xrightarrow{1} 2$.
 }
 
 \only<3>{
-Parcours en largeur :\\
+\vskip1ex
+Codage de parcours en largeur :\\
 $1: JCC\xrightarrow{1} 2: CALL\xrightarrow{R} 1\xrightarrow{2} 3: JCC\xrightarrow{R} 2\xrightarrow{1} 4: INST\xrightarrow{R} 2\xrightarrow{2} 5: RET \xrightarrow{R} 3 \xrightarrow{2}~6:~INST \xrightarrow{R} 4\xrightarrow{1} 7: RET$.
 }
 \end{frame}
 
-\begin{frame}{Codage de parcours}
-\only<1>{
+\begin{frame}[t]{Codage de parcours}
+\only<1-2>{
 \begin{block}{Définition : Mot de parcours}
  Un mot de parcours est soit :
  \begin{itemize}
@@ -946,22 +971,22 @@ $1: JCC\xrightarrow{1} 2: CALL\xrightarrow{R} 1\xrightarrow{2} 3: JCC\xrightarro
  \end{itemize}
  \label{def-mot-bien-forme}
 \end{block}
+}
 
+\only<2>{
 \begin{block}{Définition : Codage de parcours bien formé}
  On appelle codage de parcours bien formé tout mot vérifiant :
 \begin{enumerate}
  \item Il est de la forme $m_1(m_2)^*$
  \item L'étiquette de chaque sommet $i$ est spécifiée une unique fois, lors la première référence à ce sommet
-%  \item S'il y a deux mots de la forme $i:L_1$ et $i:L_2$ alors $L_1=L_2$
  \item Pour tout mot de la forme $\xrightarrow{R}i$, un mot $i:L$ est présent précédemment dans le codage
  \item Chaque fils de chaque sommet est défini au plus une fois
-%  \item Toute suite incluse dans le codage de la forme $1:L(\xrightarrow{\alpha}i[:L])*$ est également un parcours
 \end{enumerate} 
 \label{def-codage-bien-forme}
 \end{block}
 }
 
-\only<2>{
+\only<3>{
 \begin{itemize}
  \item Les algorithmes fournissant les parcours en profondeur et en largeur sont très simples
  \item Ils produisent des codages de parcours bien formés
@@ -970,8 +995,38 @@ $1: JCC\xrightarrow{1} 2: CALL\xrightarrow{R} 1\xrightarrow{2} 3: JCC\xrightarro
 }
 \end{frame}
 
+\begin{frame}{Parcours d'un codage au sein d'un graphe de flot}
+Le parcours d'un codage bien formé est-il possible dans un graphe de flot ?
 
-\begin{frame}{Codages et isomorphisme de sous-graphes}
+\begin{minipage}{0.5\textwidth}
+$1: JCC\xrightarrow{1} 2: CALL\xrightarrow{R} 1\xrightarrow{2} 3: JCC$%\\
+% $1: CALL\xrightarrow{1} 2: INST\xrightarrow{R} 1\xrightarrow{2} 3: RET$
+\end{minipage}
+\begin{minipage}{0.4\textwidth}
+\begin{center}
+\includegraphics[width=0.7\textwidth]{supports/algos/g1p_cropped0.pdf}
+\end{center}
+\end{minipage}
+
+\pause
+\begin{itemize}
+\item On part de chaque sommet du graphe à analyser
+\item On cherche à réaliser le parcours à partir de ce sommet
+\item Le codage est traité mot après mots
+\end{itemize}
+
+\pause
+Exemple supplémentaire :\\
+$1: CALL\xrightarrow{1} 2: INST\xrightarrow{R} 1\xrightarrow{2} 3: RET$
+\end{frame}
+
+\begin{frame}{Codages et isomorphisme de sous-sites}
+% \only<1->{
+Lien entre isomorphisme de sous-sites et parcours dans un graphe de flot ?
+% }
+
+\pause
+% \only<2->{
 \begin{theo}
  Soit P un site et T un graphe de flot. Les trois propositions suivantes sont équivalentes.
  \begin{itemize}
@@ -980,7 +1035,10 @@ $1: JCC\xrightarrow{1} 2: CALL\xrightarrow{R} 1\xrightarrow{2} 3: JCC\xrightarro
   \item Il existe un codage de parcours bien formé de P qui peut être parcouru dans T.
  \end{itemize}
 \end{theo}
+% }
+
 \pause
+% \only<3->{
 \begin{cor}
  Soit P un site et T un graphe de flot. Les trois propositions suivantes sont équivalentes.
  \begin{itemize}
@@ -990,19 +1048,53 @@ $1: JCC\xrightarrow{1} 2: CALL\xrightarrow{R} 1\xrightarrow{2} 3: JCC\xrightarro
  \end{itemize}
 \label{cor:gf}
 \end{cor}
+% }
 \end{frame}
 
-\begin{frame}{Algorithmes de détection d'isomorphismes par parcours}
- \begin{itemize}
-  \item Todo : GF + sites : comment savoir si site sg de GF ?
- \end{itemize}
+\begin{frame}{Détection d'isomorphismes par parcours de codage}
+% \begin{center}
+% \def\imagetop#1{\vtop{\null\hbox{#1}}}
+\begin{tabular}{|c|c|}
+\hline
+Sites de la base & Graphe de flot à analyser\\
+\includegraphics[width=0.6\textwidth]{supports/algos/g1_sites_cropped5.pdf}
+&
+\includegraphics[width=0.25\textwidth]{supports/algos/g1p_cropped5.pdf}
+% &
+% \imagetop{\includegraphics[width=0.2\textwidth]{supports/algos/g1_prof_cropped10.pdf}}
+\\
+\hline
+\end{tabular}
+% \end{center}
+
+\pause
+\only<2>{
+\vskip1ex
+Parcours en profondeur :
+\begin{itemize}
+\item $1: JCC\xrightarrow{1} 2: CALL\xrightarrow{R} 1\xrightarrow{2} 3: JCC$
+\item $1: CALL\xrightarrow{1} 2: INST\xrightarrow{R} 1\xrightarrow{2} 3: RET$
+\item $1: JCC\xrightarrow{2} 2: INST \xrightarrow{1} 3: CALL$
+\item $1: INST\xrightarrow{1} 2: CALL \xrightarrow{1} 3: INST$
+\end{itemize}
+}
+\only<3->{
+$1: JCC\xrightarrow{1} 2: CALL\xrightarrow{R} 1\xrightarrow{2} 3: JCC$
+\begin{itemize}
+\item La possibilité du parcours d'un codage indique s'il y a un isomorphisme
+\item Chaque site est testé indépendemment des autres
+\end{itemize}
+}
+% \only<4>{
+% $1: CALL\xrightarrow{1} 2: INST\xrightarrow{R} 1\xrightarrow{2} 3: RET$
+% }
 \end{frame}
 
 
-\begin{frame}{Algorithmes de détection d'isomorphismes par parcours}
-\begin{minipage}{.5\textwidth}
- \begin{center}
- \scalebox{0.6}{
+\begin{frame}{Détection d'isomorphismes par parcours de codage}
+\begin{minipage}{.40\textwidth}
+%  \begin{center}
+ \scalebox{0.50}{
 \begin{tikzpicture}[
   tlabel/.style={pos=0.4,right=-1pt,font=\footnotesize\color{black!70!black} },
   every node/.style={color=black!25!black, circle, minimum size=6mm, draw=black!75, align=center},
@@ -1072,13 +1164,13 @@ child {node {}
 };
 \end{tikzpicture}
 }
-\end{center}
+% \end{center}
 \end{minipage}
-\begin{minipage}{.4\textwidth}
+\begin{minipage}{.55\textwidth}
+Codages rangés dans un arbre :
  \begin{itemize}
-  \item Algorithme plus rapide
   \item Certains chemins sont factorisés
-  \item Mais aussi lent dans le pire des cas
+  \item Même complexité dans le pire des cas
   \item Dépend (au pire) linéairement du nombre de sites dans la base
  \end{itemize}
 \end{minipage}
@@ -1089,22 +1181,22 @@ child {node {}
 Autre approche :
  \begin{itemize}
   \item Découper également le GFC du programme à analyser en sites
-  \item Recherche des isomorphismes de graphes
+  \item Recherche des isomorphismes de sites
  \end{itemize}
 Dans ce cas :
 \begin{itemize}
- \item Un site a une représentation unique
+ \item Un site a une représentation unique (matricielle)
  \item On peut ranger les sites dans un arbre de hauteur fixe
- \item La complexité de la détection ne dépend pas du nombre de sites dans la base
+ \item La complexité ne dépend pas du nombre de sites dans la base
  \item Mais l'algorithme n'est pas complet
 \end{itemize}
 \end{frame}
 
 
-\begin{frame}{Comparaison des performances}
+\begin{frame}{Complexité temporelle dans le pire des cas}
 \begin{itemize}
  \item n : taille du graphe de flot
- \item S : nombre de graphe de flot dans la base
+ \item S : nombre de sites dans la base
  \item W : taille des sites considérés (en pratique 24)
 \end{itemize}
 
@@ -1146,44 +1238,66 @@ Détection de 5 programmes (18160 sites) en fonction du nombre de sites appris
 Résultats :
 \begin{itemize}
  \item 6 binaires n'ont pas pu être analysés dynamiquement
- \item Dans la plupart (combien?) des cas, on détecte plus de 80\% (?) des sites de \hostname\ dans la version protégée
+ \item Dans la plupart (24/28) des autres cas, on détecte plus de 75\% des sites de \hostname\ dans la version protégée
 \end{itemize}
 
 \pause
-Comparaison des algorithmes :
-\begin{center}
+Comparaison des algorithmes de détection :
+\vskip1ex
+% \begin{center}
 \begin{tabular}{|c|c|c|c|c|}
 \hline
- Algorithme & Apprentissage & Détection & Sites uniques détectés\\
+ Algorithme & Apprentissage & Détection & Sites uniques & Détection\\
+   &  &  & détectés & à + de 75\%\\
  \hline
- Ullmann & $\infty$ & $\infty$ & (6739)\\
- Parcours & $<$ 1 seconde & 70 secondes & 6739\\
- SIDT & $<$ seconde & 1.6 seconde & 6045\\
+%  Ullmann & $\infty$ & $\infty$ & (6739) & (24)\\
+ Parcours & $<$ 1 seconde & 70 secondes & 6739 & 24/28\\
+ SIDT & $<$ 1 seconde & 1.6 seconde & 6045 & 22/28\\
  \hline
 \end{tabular}
-\end{center}
-
+% \end{center}
 \end{frame}
 
 \section{}
+
 \begin{frame}{Conclusion}
+Désassemblage :
 \begin{itemize}
 \item Analyse et désassemblage de programmes binaires obscurcis
 \item Traitement du chevauchement de code par analyse statique
-\item Définition d'un graphe de flot de contrôle pour programmes auto-modifiants et analyse hybride
-\item Détection de similarités par comparaison des graphes de flot de contrôle
-% \item Application sur quelques cas de programmes malveillants
+\item Graphe de flot de contrôle pour programmes auto-modifiants
+\item Implémentation d'une approximation par analyse hybride
 \end{itemize}
-% Still to be done :
-\pause
+
+Détection :
 \begin{itemize}
-\item Merci
-\item Des questions ? (aurelien@athierry.fr)
-% \item Loop detection and comparison for dynamic analysis
-% \item Better reductions to detect through obfuscation
-% \item Smoother UI for the IDA plugin
+\item Détection de similarités par comparaison des graphes de flot de contrôle
+\item Formalisation et optimisation de l'analyse morphologique
 \end{itemize}
 \end{frame}
+
+\begin{frame}{Perspectives}
+Désassemblage :
+\begin{itemize}
+ \item Utiliser des techniques d'interprêtation abstraite
+ \item Incorporer plusieurs traces dans le mêmes GFC
+\end{itemize}
+
+Analyse morphologique :
+\begin{itemize}
+ \item Utiliser d'autres critères du GFC (chevauchements)
+ \item Développer des méthodes de réductions résistantes à certains obscurcissements
+ \item Étudier en détail la précision (faux positifs, faux négatifs)
+\end{itemize}
+\end{frame}
+
+\begin{frame}%[plain]
+\begin{center}	
+  \Huge Merci !
+\end{center}
+\end{frame}
+
+
 
 
 

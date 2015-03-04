@@ -50,7 +50,7 @@ clean:
 	rm -f *.aux *.bbl *.blg *.log *.nav *.out *.snm *.toc these.pdf *.idf *.maf *.mtc *.idx *.lof *.glo *.bcf chap.pdf *.mtc* *.flg *.xml *.fls *.dvi *.ilg *.ind *.old *latexmk soutenance.pdf
 
 cleansoutenance:
-	rm -f soutenance.aux soutenance.bbl soutenance.blg soutenance.log soutenance.nav soutenance.out soutenance.snm soutenance.toc these.pdf soutenance.idf soutenance.maf soutenance.mtc soutenance.idx soutenance.lof soutenance.glo soutenance.bcf chap.pdf soutenance.mtcsoutenance soutenance.flg soutenance.xml soutenance.fls soutenance.dvi soutenance.ilg soutenance.ind soutenance.old soutenancelatexmk soutenance.pdf
+	rm -f soutenance.aux soutenance.bbl soutenance.blg soutenance.log soutenance.nav soutenance.out soutenance.snm soutenance.toc soutenance.idf soutenance.maf soutenance.mtc soutenance.idx soutenance.lof soutenance.glo soutenance.bcf soutenance.mtcsoutenance soutenance.flg soutenance.xml soutenance.fls soutenance.dvi soutenance.ilg soutenance.ind soutenance.old soutenancelatexmk soutenance.pdf
 
 obliterate: clean
 	find . -name "*_cropped*" -type f -exec rm '{}' \;
