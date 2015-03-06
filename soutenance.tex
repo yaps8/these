@@ -1323,7 +1323,57 @@ Comparaison des algorithmes de détection :
 % \end{center}
 \end{frame}
 
+\begin{frame}{Similarité logicielle : Waledac et OpenSSL\footnote{Bonfante, Calvet, Marion, Sabatier, Thierry (REcon 2012, Malware 2012)}}
+ Problème :
+\begin{itemize}
+  \item Analyser un binaire : Waledac
+  \item Pas d'informations de compilation (nom des fonctions)
+  \item Qui utilise OpenSSL
+\end{itemize}
+
+\pause
+Notre approche :
+\begin{itemize}
+  \item Correspondance fine entre instructions
+  \item Identification de fonctions
+\end{itemize}
+
+\pause
+\vskip1ex
+\begin{tabular}{|p{7cm}|l|}
+\hline
+Fonctions 					& Fonctionnalité 			\\
+\hline
+AES\_set\_encrypt\_key, AES\_set\_decrypt\_key 	& Chiffrement AES 			\\
+RSA\_free, DSA\_size, DSA\_new\_method 		& Chiffrement RSA / DSA 		\\
+ X509\_PUBKEY\_set, X509\_PUBKEY\_get 		& Certificats X509 			\\
+BN\_is\_prime\_fasttest\_ex, BN\_ctx\_new	& Gestion des grands entiers	\\
+CRYPTO\_lock, CRYPTO\_malloc 			& Fonctions génériques 	\\
+\hline
+\end{tabular}
+
+\end{frame}
+
+\begin{frame}{Similarité logicielle : Duqu et Stuxnet\footnote{Bonfante, Marion, Sabatier, Thierry (SSTIC 2013, Malware 2013)}}
+Application à Duqu (2011) et Stuxnet (2010)
+\begin{itemize}
+ \item Code en commun ?
+ \pause
+ \item 26.5\% des sites de \duqu\ proviennent de \stux
+ \item 60.3\% des sommets du graphe de flot de \duqu\ correspondent à des sommets de \stux
+\end{itemize}
+
+\pause
+Rétroingénierie du pilote de \duqu\
+\begin{itemize}
+ \item Construction d'une version défensive
+ \item Capable de détecter une infection par Duqu
+\end{itemize}
+\end{frame}
+
+
 \section{}
+\titre{Conclusion}
 
 \begin{frame}{Conclusion}
 Désassemblage :
