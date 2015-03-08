@@ -308,7 +308,7 @@ L'instruction qui doit être exécutée ensuite est celle présente à l'adresse
 \node[state, above=1cm of INST.north] (CFG){GFC};
 \node[state, rectangle split, rectangle split parts=2, draw, below left=1.5cm and -0.5cm of INST, label=État interne, text width=2cm] (ETAT_MEM){Registres \nodepart{second} Mémoire};
 
-\draw (BIN) --  node[above=0.5cm]{\small Désassemblage} (ASM);-1
+\draw (BIN) --  node[above=0.5cm]{\small Désassemblage} (ASM);
 \draw (ASM) -- node[above=0.5cm]{\small Compilation} (IR);
 \draw (IR) -- node[above]{Décodage} (INST);
 \draw (INST) -- node[right=.2cm]{Ajout} (CFG);

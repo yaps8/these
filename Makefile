@@ -17,7 +17,7 @@ TEXCOMP = latexmk -pdf
 
 #default: $(pdf_from_dot) these.bbl these.pdf
 #default: $(pdf_from_dot) $(tex_from_dot) $(cropped0_pdf) $(cropped5_pdf) $(cropped10_pdf) these.pdf
-default: $(pdf_from_dot) $(cropped0_pdf) $(cropped5_pdf) $(cropped10_pdf) these.pdf these_tk.pdf
+default: $(pdf_from_dot) $(cropped0_pdf) $(cropped5_pdf) $(cropped10_pdf) these.pdf these_tk.pdf soutenance.pdf
 
 all: default chap.pdf
 
@@ -31,6 +31,10 @@ these.pdf: *.tex these.bib $(pdf_from_dot) annexes/*.table supports/plots/*.pdf
 	$(TEXCOMP) these.tex
 	if [ -d ~/lectures ]; then cp these.pdf ~/lectures/; fi
 
+soutenance.pdf: *.tex these.bib $(pdf_from_dot) annexes/*.table supports/plots/*.pdf
+	$(TEXCOMP) soutenance.tex
+	if [ -d ~/lectures ]; then cp soutenance.pdf ~/lectures/; fi
+
 these_tk.pdf: these.pdf
 	pdftk these.pdf output these_tk.pdf
 
@@ -43,7 +47,10 @@ these_tk.pdf: these.pdf
 #	biber chap
 
 clean:
-	rm -f *.aux *.bbl *.blg *.log *.nav *.out *.snm *.toc these.pdf *.idf *.maf *.mtc *.idx *.lof *.glo *.bcf chap.pdf *.mtc* *.flg *.xml *.fls *.dvi *.ilg *.ind *.old *latexmk
+	rm -f *.aux *.bbl *.blg *.log *.nav *.out *.snm *.toc these.pdf *.idf *.maf *.mtc *.idx *.lof *.glo *.bcf chap.pdf *.mtc* *.flg *.xml *.fls *.dvi *.ilg *.ind *.old *latexmk soutenance.pdf
+
+cleansoutenance:
+	rm -f soutenance.aux soutenance.bbl soutenance.blg soutenance.log soutenance.nav soutenance.out soutenance.snm soutenance.toc soutenance.idf soutenance.maf soutenance.mtc soutenance.idx soutenance.lof soutenance.glo soutenance.bcf soutenance.mtcsoutenance soutenance.flg soutenance.xml soutenance.fls soutenance.dvi soutenance.ilg soutenance.ind soutenance.old soutenancelatexmk soutenance.pdf
 
 obliterate: clean
 	find . -name "*_cropped*" -type f -exec rm '{}' \;

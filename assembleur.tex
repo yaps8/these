@@ -622,13 +622,13 @@ En pratique nous ne disposons pas de la liste exhaustive de tous les chemins d'e
 % On a vu que le problème du désassemblage tient dans la difficulté de séparer les parties de code potentiel des parties de données.
 Si on cherche à séparer le code des données alors le but du désassemblage d'un programme P est de résoudre le problème suivant. On se limite dans un premier temps à un programme P non auto-modifiant.
 \begin{pb*}
-Soit \adr{a} une adresse, existe-t-il une entrée I de P telle que P(I) atteint \adr{a} ?
+Soit $a$ une adresse, existe-t-il une entrée I de P telle que P(I) atteint $a$ ?
 \end{pb*}
 
 Nous reprenons ici un argument tiré de la thèse de Joan Calvet \cite{Calvet2013} montrant le caractère indécidable de ce problème en réduisant le problème de l'arrêt à celui-ci.
 
 % Supposons que le problème soit décidable. 
-Notons CODE le programme vérifiant, pour tout programme P et adresse \adr{a}, CODE(P, \adr{a}) = 1 si et seulement si il existe une entrée I de P telle que P(I) atteint \adr{a}. Dans le cas contraire CODE (P, \adr{a}) = 0.
+Notons CODE le programme vérifiant, pour tout programme P et adresse $a$, CODE(P, $a$) = 1 si et seulement si il existe une entrée I de P telle que P(I) atteint $a$. Dans le cas contraire CODE (P, $a$) = 0.
 
 Soit P un programme ne prenant pas d'entrée et ayant un unique point d'arrêt indiqué par l'instruction \halt\ à l'adresse $\alpha$.
 CODE(P, $\alpha$) = 1 si et seulement si P atteint l'adresse $\alpha$, c'est à dire si et seulement si P termine.
