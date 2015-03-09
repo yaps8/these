@@ -162,7 +162,7 @@
 \draw (ASM) -- node[above=0.5cm]{Assemblage} (BIN);
 \end{tikzpicture}}
 \end{center}
-\pause
+% \pause
 
 \begin{block}{Code C}
 \begin{lstlisting}[language={C}, style=verbo,aboveskip=0pt,belowskip=0pt]
@@ -308,6 +308,7 @@ Analyse de programmes binaires obscurcis
 %  \item \underline{Présentation d'un désassembleur hybride}
 \end{itemize}
 
+\vspace{1cm}
 Détection de programmes malveillants
 \begin{itemize}
  \item Comparaison des graphes de flot de contrôle
@@ -318,7 +319,7 @@ Détection de programmes malveillants
 \end{frame}
 
 \section{Analyse statique}
-\titre{Analyse statique, obscurcissement et chevauchement de code}
+\titre{Analyse statique et chevauchement de code}
 % \subsection{Difficultés}
 
 \begin{frame}{Stratégies de désassemblage}
@@ -359,8 +360,8 @@ Désassemblage récursif :
 \begin{itemize}
 %  \item Suit le flot de contrôle des instructions
 %  \item Parcourt le point d'entrée puis les instructions pouvant potentiellement la suivre à l'exécution
- \item Donne une sur-approximation des instructions potentiellement exécutées
- \item Problème des sauts dynamiques : \texttt{jmp eax}
+ \item Donne une approximation des instructions potentiellement exécutées
+%  \item Problème des sauts dynamiques : \texttt{jmp eax}
 \end{itemize}
 }
 
@@ -370,14 +371,14 @@ Désassemblage récursif :
 % \begin{itemize}
 %  \item Donne une sur-approximation des instructions potentiellement exécutées
 % \end{itemize}
-\begin{defi}
- Le graphe de flot de contrôle parfait est le graphe orienté $(V, E)$ tel que :
+% \begin{defi}
+ Graphe de flot de contrôle parfait :
  \begin{itemize}
-  \item V : ensemble des couples (adresse, instruction) atteignables
-  \item $(a, b)\in E$ ssi il existe un chemin d'exécution au sein duquel $b$ suit immédiatement $a$
+  \item Sommets : ensemble des couples (adresse, instruction) atteignables
+  \item Arc entre $a$ et $b$ ssi il existe un chemin d'exécution au sein duquel $b$ suit immédiatement $a$
  \end{itemize}
 \label{def:cfg_parfait_nsm}
-\end{defi}
+% \end{defi}
 
 }
 \end{frame}
@@ -413,17 +414,18 @@ Désassemblage récursif :
 % \end{frame}
 
 \begin{frame}{Obscurcissement}
+But : rendre un binaire plus difficile à analyser et désassembler
 \begin{itemize}
- \item But : rendre un binaire plus difficile à analyser et désassembler
- \item Compression, chiffrement, ajout de code inutile, prédicats opaques...
+ \item Compression, chiffrement, ajout de code inutile...
+ \item Chevauchement de code, auto-modification
  \item En pratique appliqué par un logiciel d'empaquetage
 \end{itemize}
 
 \begin{center}
 \scalebox{0.8}{
 \begin{tikzpicture}[->,scale=1,>=stealth',thick]
-\node[state, text width=3cm, minimum size=3cm] (BIN){Binaire d'origine};
-\node[state, below right = -0.5cm and 4cm of BIN.east, text width=3cm, minimum size=3cm] (BINO){Données :\\Binaire d'origine caché};
+\node[state, text width=3cm, minimum size=2cm] (BIN){Binaire d'origine};
+\node[state, below right = -0.5cm and 4cm of BIN.east, text width=3cm, minimum size=2cm] (BINO){Données :\\Binaire d'origine caché};
 \node[state, below = -2cm of BINO.north, text width=3cm, minimum size=2cm] (UNPACK){Code :\\Routine de dépaquetage};
 % \draw ($(BIN.north west) + (-0.8, -0.1) $) -- node[left=0.3cm]{Point d'entrée} ($(BIN.north west) + (0, -0.1) $);
 % \draw ($(UNPACK.north east) + (0.8, -0.1) $) -- node[right=0.3cm]{Point d'entrée} ($(UNPACK.north east) + (0, -0.1) $);
@@ -436,6 +438,7 @@ Désassemblage récursif :
 
 
 \begin{frame}[fragile]{Chevauchement de code}
+\vskip-2ex
 \begin{itemize}
 %  \item Technique d'obscurcissement statique
  \item En assembleur \xq\ la taille des instructions est variable (entre 1 et 15 octets)
@@ -443,6 +446,7 @@ Désassemblage récursif :
  \item Les techniques d'analyse font généralement l'hypothèse que ce n'est pas le cas
 \end{itemize}
 
+\vskip-2ex
 \begin{block}{Exemple (\telock)}
 Octets à désassembler : \texttt{eb ff c9 7f e6}
 \begin{lstlisting}[language={[x86masm]Assembler}, escapechar=~]
@@ -452,9 +456,12 @@ Octets à désassembler : \texttt{eb ff c9 7f e6}
 \end{lstlisting}
 \pause
 \end{block}
+
+\vskip-2ex
 \begin{itemize}
- \item Possibilité de cacher une séquence de code de longueur arbitraire au milieu d'un autre code (Jämthagen, Lantz et Hell, 2013)
+ \item Possibilité de cacher une séquence de code de longueur arbitraire au milieu d'un autre code\only<2>{\footnote{Jämthagen, Lantz et Hell (2013)}}
 \end{itemize}
+
 
 \end{frame}
 
@@ -622,7 +629,7 @@ Octets & eb & ff & c9 & 7f & e6\\
 
 \end{frame}
 
-\begin{frame}[t]{Chevauchement de code : Caractérisation et GFC}
+\begin{frame}[t]{Chevauchement de code : Caractérisation}
 \begin{center}
 \begin{tabular}{|l|c|c|c|c|c|}
 \hline
@@ -647,11 +654,11 @@ Métriques :
 \end{itemize}
 }
 
-\only<2>{
- \begin{center}
-\includegraphics[width=0.7\textwidth]{supports/disasm/telock/telock_cropped0.pdf}
-\end{center}
-}
+% \only<2>{
+%  \begin{center}
+% \includegraphics[width=0.7\textwidth]{supports/disasm/telock/telock_cropped0.pdf}
+% \end{center}
+% }
 \end{frame}
 % 
 % \begin{frame}{Chevauchement de code : graphe de flot de contrôle}
@@ -982,52 +989,78 @@ Empaqueteur & Vague & \multicolumn{2}{c|}{Instructions} & \multicolumn{2}{c|}{In
 \section{Algorithmes de comparaison}
 \titre{Analyse morphologique et algorithmes de comparaison de graphes}
 
-\begin{frame}{Détection et analyse morphologique}
-%  Analyse morphologique
- \begin{itemize}
-  \item Approche de détection par signatures
- \end{itemize}
-\begin{center}
-
-\scalebox{0.9}{
-\begin{tikzpicture}[->,scale=1,>=stealth',thick]
-\newcommand\espace{0.3cm}
-\node[state] (BIN){Binaire};
-\node[state, right=3.8cm of BIN.west, anchor=west] (CODE) {Code};
-\node[state, above=1.2cm of CODE.west, anchor=west] (TRACE) {Traces};
-\node[state, below=1.2cm of CODE.west, anchor=west] (GFC) {GFC};
-\coordinate [right=1cm of BIN.east] (DYN);
-\coordinate [right=4cm of DYN] (CLASS);
-\coordinate [right=1cm of CLASS] (IN);
-\coordinate [right=1cm of IN] (OUT);
-% \node[state, above=2cm of IN] (COMP) {Liste de comportements};
-\node[state, above=2cm of IN] (SIG) {Corpus de programmes classés};
-\node[state, above right=1cm and 1cm of OUT, anchor=west] (MAL) {Malveillant};
-\node[state, below right=1cm and 1cm of OUT, anchor=west] (LEG) {Légitime};
-\draw [-] (BIN.east) -- node[below left=1.6cm and -3.2cm, text width=4cm](DYNAMIC){Extraction} (DYN);
-\draw [-] (CLASS) -- (IN);
-\draw [-] (IN) -- node[below right=1.6cm and -1.8cm, text width=4cm](STATIC){Classification} (OUT);
-\draw (DYN) |- (TRACE.west);
-\draw (DYN) |- (CODE.west);
-\draw (DYN) |- (GFC.west);
-\draw (OUT) -- (MAL.west);
-\draw (OUT) -- (LEG.west);
-% \draw (COMP.south) -- (IN);
-\draw (SIG.south) -- (IN);
-\draw [-] (TRACE.east) -| (CLASS);
-\draw [-] (CODE.east) -| (CLASS);
-\draw [-] (GFC.east) -| (CLASS);
-% \draw (In) --  (Vn);
-% \node [fit={($(V0.north west) + (-0.2, 0)$) ($(V1) + (0.0, 0)$) ($(Vp) + (0.0, 0)$) ($(Vn.south east) + (0.3, 0)$)}, draw, label=GFC paramétré par la trace] {};
-\end{tikzpicture}
-}
-\end{center}
-
+\begin{frame}{Analyse morphologique et similarité logicielle\footnote{Bonfante, Calvet, Marion, Sabatier, Thierry (REcon 2012, Malware 2012)}}
+Problème : Waledac et OpenSSL
+ 
 \begin{itemize}
-\item Les signatures sont des graphes de flot de contrôle
-\item On cherche des isomorphismes de sous-graphes
+  \item Analyser un binaire : Waledac
+  \item Pas d'informations de compilation (nom des fonctions)
+  \item Qui utilise OpenSSL
 \end{itemize}
+
+\pause
+Objectif :
+\begin{itemize}
+  \item Correspondance fine entre instructions
+  \item Identification automatique des fonctions
+\end{itemize}
+
+\pause
+Analyse morphologique :
+\begin{itemize}
+\item Comparaison des graphes de flot de contrôle
+\item Recherche d'isomorphismes de sous-graphes
+\item Détection de logiciels malveillants (par signature)
+\end{itemize}
+Comment formaliser et optimiser cette approche ?
 \end{frame}
+
+% \begin{frame}{Détection et analyse morphologique}
+% %  Analyse morphologique
+%  \begin{itemize}
+%   \item Approche de détection par signatures
+%  \end{itemize}
+% \begin{center}
+% 
+% \scalebox{0.9}{
+% \begin{tikzpicture}[->,scale=1,>=stealth',thick]
+% \newcommand\espace{0.3cm}
+% \node[state] (BIN){Binaire};
+% \node[state, right=3.8cm of BIN.west, anchor=west] (CODE) {Code};
+% \node[state, above=1.2cm of CODE.west, anchor=west] (TRACE) {Traces};
+% \node[state, below=1.2cm of CODE.west, anchor=west] (GFC) {GFC};
+% \coordinate [right=1cm of BIN.east] (DYN);
+% \coordinate [right=4cm of DYN] (CLASS);
+% \coordinate [right=1cm of CLASS] (IN);
+% \coordinate [right=1cm of IN] (OUT);
+% % \node[state, above=2cm of IN] (COMP) {Liste de comportements};
+% \node[state, above=2cm of IN] (SIG) {Corpus de programmes classés};
+% \node[state, above right=1cm and 1cm of OUT, anchor=west] (MAL) {Malveillant};
+% \node[state, below right=1cm and 1cm of OUT, anchor=west] (LEG) {Légitime};
+% \draw [-] (BIN.east) -- node[below left=1.6cm and -3.2cm, text width=4cm](DYNAMIC){Extraction} (DYN);
+% \draw [-] (CLASS) -- (IN);
+% \draw [-] (IN) -- node[below right=1.6cm and -1.8cm, text width=4cm](STATIC){Classification} (OUT);
+% \draw (DYN) |- (TRACE.west);
+% \draw (DYN) |- (CODE.west);
+% \draw (DYN) |- (GFC.west);
+% \draw (OUT) -- (MAL.west);
+% \draw (OUT) -- (LEG.west);
+% % \draw (COMP.south) -- (IN);
+% \draw (SIG.south) -- (IN);
+% \draw [-] (TRACE.east) -| (CLASS);
+% \draw [-] (CODE.east) -| (CLASS);
+% \draw [-] (GFC.east) -| (CLASS);
+% % \draw (In) --  (Vn);
+% % \node [fit={($(V0.north west) + (-0.2, 0)$) ($(V1) + (0.0, 0)$) ($(Vp) + (0.0, 0)$) ($(Vn.south east) + (0.3, 0)$)}, draw, label=GFC paramétré par la trace] {};
+% \end{tikzpicture}
+% }
+% \end{center}
+% 
+% \begin{itemize}
+% \item Les signatures sont des graphes de flot de contrôle
+% \item On cherche des isomorphismes de sous-graphes
+% \end{itemize}
+% \end{frame}
 
 \begin{frame}{Isomorphisme appliqué aux graphes de flot}
 % \begin{itemize}
@@ -1039,12 +1072,14 @@ Empaqueteur & Vague & \multicolumn{2}{c|}{Instructions} & \multicolumn{2}{c|}{In
  \end{itemize}
 % \end{itemize}
 
+\pause
  Isomorphisme de sous-graphes :
 \begin{itemize}
  \item Appliqué entre des graphes de flot extraits d'un malware (signatures) et le graphe à analyser
  \item Problème NP complet
- \item Algorithmes classiques (Ullmann, VF2) trop lents
+ \item Algorithmes classiques (Ullmann\only<2>{\footnote{J.R. Ullmann, ``An algorithm for Subgraph Isomorphism'' (1976)}}, VF2) trop lents
 \end{itemize}
+On va s'inspirer du parcours en profondeur initié par Tarjan\only<2>{\footnote{R. Tarjan, ``Depth-first search and linear graph algorithms'' (1971)}}.
 \end{frame}
 
 \begin{frame}{Simplification : graphes de flot et sites}
@@ -1205,9 +1240,9 @@ $1: JCC\xrightarrow{1} 2: CALL\xrightarrow{R} 1\xrightarrow{2} 3: JCC$%\\
 % $1: CALL\xrightarrow{1} 2: INST\xrightarrow{R} 1\xrightarrow{2} 3: RET$
 \end{frame}
 
-\begin{frame}{Codages et isomorphisme de sous-sites}
+\begin{frame}{Codages et isomorphisme de sous-graphes}
 % \only<1->{
-Lien entre isomorphisme de sous-sites et parcours dans un graphe de flot ?
+Lien entre isomorphisme de sous-graphes et parcours dans un graphe de flot ?
 % }
 
 \pause
@@ -1275,7 +1310,7 @@ $1: JCC\xrightarrow{1} 2: CALL\xrightarrow{R} 1\xrightarrow{2} 3: JCC$
 \begin{itemize}
 \item La possibilité du parcours d'un codage indique s'il y a un isomorphisme
 \item Chaque site est testé indépendamment des autres
-\item La complexité temporelle est polynomiale
+% \item La complexité temporelle est polynomiale
 \end{itemize}
 }
 % \only<4>{
@@ -1370,7 +1405,7 @@ Codages rangés dans un arbre :
 \end{frame}
 
 
-\begin{frame}{SIDT}
+\begin{frame}{Approche par découpage}
 Autre approche :
  \begin{itemize}
   \item Découper également le graphe de flot du programme à analyser en sites
@@ -1394,7 +1429,7 @@ Conséquences :
 \end{frame}
 
 
-\begin{frame}{Complexité temporelle dans le pire des cas}
+\begin{frame}{Complexité en temps dans le pire des cas}
 \begin{itemize}
  \item n : taille du graphe de flot
  \item S : nombre de sites dans la base
@@ -1410,15 +1445,15 @@ Conséquences :
  Recherche exhaustive & / & $O(S.n^3.n!)$ & Oui\\
  Ullmann & / & $O(S.(n/3)^W)$ & Oui \\
  Parcours & $O(n.W^2)$ & $O(S.n.W)$ & Oui\\
- SIDT & $O(n.W^3)$ & $O(n.W^2)$ & Non\\
+ Découpage & $O(n.W^3)$ & $O(n.W^2)$ & Non\\
  \hline
 \end{tabular} 
 \end{center}
 \end{frame}
 
-\begin{frame}[t]{Implémentations}
+\begin{frame}[t]{Implémentations : performance}
 \begin{itemize}
- \item Base : 17044 programmes contenant 4452219 sites uniques
+ \item Base de 17044 programmes malveillants : 4 452 219 sites uniques
 %  \only<2->{
  \item Apprentissage : croissance linéaire, $<$ 6 minutes
 %  }
@@ -1432,10 +1467,40 @@ Conséquences :
 % \only<2>{\includegraphics[width=0.65\textwidth]{supports/plots/plotLearn.pdf}}
 \only<2>{\includegraphics[width=0.65\textwidth]{supports/plots/plotScan-plus-GTSI.pdf}}
 \end{center}
-\only<2>{\vskip-1ex SIDT : $<$ 1 seconde}
+\only<2>{\vskip-1ex Découpage : $<$ 1 seconde}
 % \caption{}
 % \label{fig:scan}
 % \end{figure}
+\end{frame}
+
+\begin{frame}{Implémentations : Waledac et OpenSSL\footnote{Bonfante, Calvet, Marion, Sabatier, Thierry (REcon 2012, Malware 2012)}}
+ Problème :
+\begin{itemize}
+  \item Analyser un binaire : Waledac
+  \item Pas d'informations de compilation (nom des fonctions)
+  \item Qui utilise OpenSSL
+\end{itemize}
+
+% \pause
+Analyse morphologique :
+\begin{itemize}
+  \item Correspondance fine entre instructions
+  \item Identification automatique de fonctions
+\end{itemize}
+
+\pause
+\vskip1ex
+\begin{tabular}{|p{7cm}|l|}
+\hline
+Fonctions                                      & Fonctionnalité                        \\
+\hline
+AES\_set\_encrypt\_key, AES\_set\_decrypt\_key         & Chiffrement AES                       \\
+RSA\_free, DSA\_size, DSA\_new\_method                 & Chiffrement RSA / DSA                 \\
+X509\_PUBKEY\_set, X509\_PUBKEY\_get 				& Certificats X509 			\\
+BN\_is\_prime\_fasttest\_ex, BN\_ctx\_new	& Gestion des grands entiers	\\
+CRYPTO\_lock, CRYPTO\_malloc                   & Fonctions génériques  \\
+\hline
+\end{tabular}
 \end{frame}
 
 \section{Exemples d'application}
@@ -1466,41 +1531,10 @@ Comparaison des algorithmes de détection :
  \hline
 %  Ullmann & $\infty$ & $\infty$ & (6739) & (24)\\
  Parcours & $<$ 1 seconde & 70 secondes & 6739 & 24/28\\
- SIDT & $<$ 1 seconde & 1.6 seconde & 6045 & 22/28\\
+ Découpage & $<$ 1 seconde & 1.6 seconde & 6045 & 22/28\\
  \hline
 \end{tabular}
 % \end{center}
-\end{frame}
-
-\begin{frame}{Similarité logicielle : Waledac et OpenSSL\footnote{Bonfante, Calvet, Marion, Sabatier, Thierry (REcon 2012, Malware 2012)}}
- Problème :
-\begin{itemize}
-  \item Analyser un binaire : Waledac
-  \item Pas d'informations de compilation (nom des fonctions)
-  \item Qui utilise OpenSSL
-\end{itemize}
-
-\pause
-Notre approche :
-\begin{itemize}
-  \item Correspondance fine entre instructions
-  \item Identification automatique de fonctions
-\end{itemize}
-
-\pause
-\vskip1ex
-\begin{tabular}{|p{7cm}|l|}
-\hline
-Fonctions 					& Fonctionnalité 			\\
-\hline
-AES\_set\_encrypt\_key, AES\_set\_decrypt\_key 	& Chiffrement AES 			\\
-RSA\_free, DSA\_size, DSA\_new\_method 		& Chiffrement RSA / DSA 		\\
- X509\_PUBKEY\_set, X509\_PUBKEY\_get 		& Certificats X509 			\\
-BN\_is\_prime\_fasttest\_ex, BN\_ctx\_new	& Gestion des grands entiers	\\
-CRYPTO\_lock, CRYPTO\_malloc 			& Fonctions génériques 	\\
-\hline
-\end{tabular}
-
 \end{frame}
 
 \begin{frame}{Similarité logicielle : Duqu et Stuxnet\footnote{Bonfante, Marion, Sabatier, Thierry (SSTIC 2013, Malware 2013)}}
