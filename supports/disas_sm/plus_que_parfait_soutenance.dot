@@ -1,0 +1,81 @@
+digraph G{
+fontname=cmr10;
+fontsize=28;
+rankdir=LR;
+"1_1" [label=""]
+"1_2" [label=""]
+"2_1" [label=""]
+"2_2" [label=""]
+"2_3" [label=""]
+"1_1" -> "1_2" [color=black]
+"1_2" -> "2_1" [color=red]
+"3_1" [label=""]
+"3_2" [label=""]
+"4_1" [label=""]
+"4_2" [label=""]
+"4_3" [label=""]
+"5_1" [label=""]
+"6_1" [label=""]
+"6_2" [label=""]
+"7_1" [label=""]
+"2_1" -> "2_2" [color=black]
+"2_2" -> "2_3" [color=black]
+"2_2" -> "5_1" [color=red]
+"2_3" -> "3_1" [color=red]
+"2_3" -> "4_1" [color=black]
+"3_1" -> "3_2" [color=black]
+"3_2" -> "6_1" [color=red]
+"4_1" -> "4_2" [color=black]
+"4_1" -> "4_3" [color=red]
+"4_3" -> "4_2" [color=red]
+"4_2" -> "6_1" [color=red]
+"4_2" -> "7_1" [color=black]
+"6_1" -> "6_2" [color=black]
+"8_1" [label=""]
+"8_2" [label=""]
+"6_2" -> "8_1" [color=red]
+"8_1" -> "8_2" [color=black]
+
+rank=same; "3_1"; "4_1"; "5_1"
+
+subgraph cluster1{
+label="X1, s1"
+"1_1" [style="bold, filled", fillcolor=orange]
+"1_2"
+}
+subgraph cluster2{
+label="X2, s2"
+"2_1"
+"2_2"
+"2_3"
+}
+subgraph cluster3{
+label="X3, s7"
+"3_1"
+"3_2"
+}
+subgraph cluster4{
+label="X3, s3"
+"4_1"
+"4_2"
+"4_3"
+}
+subgraph cluster5{
+label="X3, s4"
+"5_1" [style="bold, filled", fillcolor=lightblue]
+}
+subgraph cluster6{
+label="X4, s5"
+"6_1"
+"6_2"
+}
+subgraph cluster7{
+label="X4, s4"
+"7_1" [style="bold, filled", fillcolor=lightblue]
+}
+subgraph cluster8{
+label="X5, s6"
+"8_1"
+"8_2" [style="bold, filled", fillcolor=lightblue]
+}
+}
