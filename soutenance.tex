@@ -185,6 +185,18 @@ int     0x80        ; ~Appel système (Write)~
 \end{frame}
 
 \begin{frame}{Binaires et désassemblage}
+
+% \scalebox{1}{
+% \begin{tikzpicture}[->,scale=1,>=stealth',thick]
+% \node[state] (PC) {Programme C};
+% \node[state, right=1.0cm of PC] (ASM) {Programme assembleur};
+% \node[state, right=1.0cm of ASM] (BIN) {Fichier binaire};
+% 
+% % \draw [-] (PC) -- (BIN) {Compilation};
+% \draw (PC) -- node[above=0.5cm]{Compilation} (ASM);
+% \draw (ASM) -- node[above=0.5cm]{Assemblage} (BIN);
+% \end{tikzpicture}}
+
 \begin{center}
 \scalebox{1}{
 \begin{tikzpicture}[->,scale=1,>=stealth',thick,every text node part/.style={align=center}]
@@ -293,14 +305,14 @@ Analyse de programmes binaires obscurcis
  \item \underline{Analyse statique du chevauchement de code}
  \item Analyse dynamique de l'auto-modification
  \item \underline{Graphe de flot de contrôle pour programmes auto-modifiants}
- \item \underline{Présentation d'un désassembleur hybride}
+%  \item \underline{Présentation d'un désassembleur hybride}
 \end{itemize}
 
-Détection de programmes malveillants et analyse de similarités logicielles
+Détection de programmes malveillants
 \begin{itemize}
  \item Comparaison des graphes de flot de contrôle
  \item \underline{Formalisation et optimisation}
- \item Exemples d'application
+ \item \underline{Exemples d'application}
 \end{itemize}
 
 \end{frame}
@@ -484,20 +496,40 @@ Octets & eb & ff & c9 & 7f & e6\\
 
 \begin{frame}[fragile]{Chevauchement de code : sémantique}
 % \only<1-2>{
- \begin{defi}
- Une \layer\ de code $L$ est un ensemble d'instructions qui ne se chevauchent pas. %: $\forall D_1, D_2\in L,\ \mdc{D_1}\cap\mdc{D_2}=\emptyset$.
-\label{def:layer}
-\end{defi}
+% \begin{table}
+% \small
+% \begin{tabular}{|l|c|c|c|c|c|}
+% \hline
+% Adresses & 01006e7d & 01006e7e & 01006e7f & 01006e80 & 01006e81\\
+% \hline
+% Octets & eb & ff & c9 & 7f & e6\\
+% \hline
+% \Layer\ 1 & \multicolumn{2}{c|}{jmp +1} & \cnoir & \multicolumn{2}{c|}{jg 0x1006e68}\\
+% \hline
+% \Layer\ 2 & \cnoir & \multicolumn{2}{c|}{dec ecx} & \multicolumn{2}{c|}{\cnoir} \\
+%  \hline
+% % \\
+% \end{tabular}
+% \end{table}
+
+Couche de code :
+\begin{itemize}
+ \item Ensemble d'instructions qui ne se chevauchent pas.
+\end{itemize}
 
 \begin{defi}
- Étant donné un ensemble d'instructions $E$, un découpage cohérent est un ensemble de \layers\ deux à deux disjointes et recouvrant l'ensemble des instructions de $E$.
+ Étant donné un ensemble d'instructions $E$, un découpage cohérent est un ensemble de \layers\
+ \begin{itemize}
+  \item deux à deux disjointes,
+  \item recouvrant l'ensemble des instructions $E$.
+ \end{itemize}
 \label{def:decoupage}
 \end{defi}
 % }
 
 \pause
 % \only<2>{
-Quelle stratégie pour construire les couches de code ?
+Quelle stratégie pour construire un découpage cohérent en couches ?
 \begin{itemize}
  \item Couches linéaires
  \item Couches désassemblées par parcours
@@ -738,8 +770,8 @@ Adresse & Octets & Instruction & Écriture\\
 \begin{itemize}
 %  \item Une trace + analyse statique
  \item Sommet : (niveau d'exécution, adresse, instruction)
-\pause
- \item Intégrer plusieurs traces ?
+% \pause
+%  \item S'il y a plusieurs traces 
 \end{itemize}
 \end{minipage}
 \end{frame}
@@ -1074,15 +1106,15 @@ Graphe de flot & Signature : ensemble de sites\\
 \\
 \hline
 \end{tabular}
-\pause
-\vskip1ex
-Isomorphisme entre un site et un sous-site d'un graphe de flot ?
+% \pause
+% \vskip1ex
+% Isomorphisme entre un site et un sous-site d'un graphe de flot ?
 % \end{center}
 % }
 \end{frame}
 
 
-\begin{frame}[t]{Algorithme par parcours}
+\begin{frame}[t]{Parcours d'un site}
 % \begin{center}
 \begin{tabular}{|c|c|c|}
 \hline
@@ -1112,8 +1144,10 @@ $1: JCC\xrightarrow{1} 2: CALL\xrightarrow{R} 1\xrightarrow{2} 3: JCC\xrightarro
 }
 \end{frame}
 
-\begin{frame}[t]{Codage de parcours}
-\only<1-2>{
+\begin{frame}{Codage de parcours}
+Codage de parcours en largeur :\\
+$1: JCC\xrightarrow{1} 2: CALL\xrightarrow{R} 1\xrightarrow{2} 3: JCC\xrightarrow{R} 2\xrightarrow{1} 4: INST\xrightarrow{R} 2\xrightarrow{2} 5: RET \xrightarrow{R} 3 \xrightarrow{2}~6:~INST \xrightarrow{R} 4\xrightarrow{1} 7: RET$.
+
 \begin{block}{Définition : Mot de parcours}
  Un mot de parcours est soit :
  \begin{itemize}
@@ -1122,28 +1156,28 @@ $1: JCC\xrightarrow{1} 2: CALL\xrightarrow{R} 1\xrightarrow{2} 3: JCC\xrightarro
  \end{itemize}
  \label{def-mot-bien-forme}
 \end{block}
-}
+Un codage de parcours est de la forme $m_1(m_2)^*$.
+\end{frame}
 
-\only<2>{
+\begin{frame}{Codage de parcours}
+% Codage de parcours en largeur :\\
+% $1: JCC\xrightarrow{1} 2: CALL\xrightarrow{R} 1\xrightarrow{2} 3: JCC\xrightarrow{R} 2\xrightarrow{1} 4: INST\xrightarrow{R} 2\xrightarrow{2} 5: RET \xrightarrow{R} 3 \xrightarrow{2}~6:~INST \xrightarrow{R} 4\xrightarrow{1} 7: RET$.
+
 \begin{block}{Définition : Codage de parcours bien formé}
- On appelle codage de parcours bien formé tout mot vérifiant :
+ Un codage de parcours est dit bien formé s'il vérifie :
 \begin{enumerate}
- \item Il est de la forme $m_1(m_2)^*$
  \item L'étiquette de chaque sommet $i$ est spécifiée une unique fois, lors la première référence à ce sommet
  \item Pour tout mot de la forme $\xrightarrow{R}i$, un mot $i:L$ est présent précédemment dans le codage
  \item Chaque fils de chaque sommet est défini au plus une fois
 \end{enumerate} 
 \label{def-codage-bien-forme}
 \end{block}
-}
 
-\only<3>{
 \begin{itemize}
  \item Les algorithmes fournissant les parcours en profondeur et en largeur sont simples
  \item Ils produisent des codages de parcours bien formés
  \item On peut reconstruire le site d'origine à partir du codage de parcours bien formé
 \end{itemize}
-}
 \end{frame}
 
 \begin{frame}{Parcours d'un codage au sein d'un graphe de flot}
@@ -1385,18 +1419,20 @@ Conséquences :
 \begin{frame}[t]{Implémentations}
 \begin{itemize}
  \item Base : 17044 programmes contenant 4452219 sites uniques
- \only<2->{\item Apprentissage : croissance linéaire}
- \only<3->{\item Détection de 5 programmes (18160 sites) en fonction du nombre de sites appris}
+%  \only<2->{
+ \item Apprentissage : croissance linéaire, $<$ 6 minutes
+%  }
+ \only<2->{\item Détection de 5 programmes (18160 sites) en fonction du nombre de sites appris}
 \end{itemize}
 
 % \begin{figure}[h]
-\only<3>{Parcours :}
+\only<2>{Parcours :}
 \begin{center}
 % \includegraphics[width=0.9\textwidth]{supports/plots/plotScan.pdf}
-\only<2>{\includegraphics[width=0.65\textwidth]{supports/plots/plotLearn.pdf}}
-\only<3>{\includegraphics[width=0.65\textwidth]{supports/plots/plotScan-plus-GTSI.pdf}}
+% \only<2>{\includegraphics[width=0.65\textwidth]{supports/plots/plotLearn.pdf}}
+\only<2>{\includegraphics[width=0.65\textwidth]{supports/plots/plotScan-plus-GTSI.pdf}}
 \end{center}
-\only<3>{\vskip-1ex SIDT : $<$ 1 seconde}
+\only<2>{\vskip-1ex SIDT : $<$ 1 seconde}
 % \caption{}
 % \label{fig:scan}
 % \end{figure}
@@ -1492,14 +1528,14 @@ Rétroingénierie du pilote de \duqu\
 Désassemblage :
 \begin{itemize}
 \item Analyse et désassemblage de programmes binaires obscurcis
-\item Traitement du chevauchement de code par analyse statique
+\item Traitement du chevauchement de code
 \item Graphe de flot de contrôle pour programmes auto-modifiants
-\item Implémentation d'une approximation par analyse hybride
+\item Implémentation d'un désassembleur hybride
 \end{itemize}
 
 Détection :
 \begin{itemize}
-\item Détection de similarités par comparaison des graphes de flot de contrôle
+\item Comparaison des graphes de flot de contrôle
 \item Formalisation et optimisation de l'analyse morphologique
 \item Application à la détection de similarités logicielles
 \end{itemize}
