@@ -181,6 +181,7 @@ Seconde étape :
 \begin{itemize}
  \item Utilisation de l'analyse morphologique
  \item Formalisation et optimisation de la méthode
+ \item Adaptation à la détection de similarités logicielles
 \end{itemize}
 \end{frame}
 
@@ -513,7 +514,7 @@ Adresses & 01006e7d & 01006e7e & 01006e7f & 01006e80 & 01006e81\\
 \hline
 Octets & eb & ff & c9 & 7f & e6\\
 \hline
-\Layer\ 1 & \multicolumn{2}{c|}{jmp +1} & \cnoir & \multicolumn{2}{c|}{jg 0x1006e68}\\
+\Layer\ 1 & \multicolumn{2}{c|}{jmp +1} & leave & \multicolumn{2}{c|}{jg 0x1006e68}\\
 \hline
 \Layer\ 2 & \cnoir & \multicolumn{2}{c|}{dec ecx} & \multicolumn{2}{c|}{\cnoir} \\
  \hline
@@ -672,9 +673,9 @@ Octets & eb & ff & c9 & 7f & e6\\
 \only<1>{
 Métriques :
 \begin{itemize}
- \item Un binaire n'utilisant pas de chevauchement aura un désassemblage récursif constitué d'une seul couche
- \item Le nombre de couches indique la complexité des chevauchements
- \item Le nombre de sauts de changement de couches indique la fréquence d'utilisation de cette technique
+ \item Binaire non obscurci : désassemblage récursif constitué d'une seul couche
+ \item Nombre de couches : indique la complexité des chevauchements
+ \item Nombre de sauts de changement de couches : indique la fréquence d'utilisation de cette technique
 \end{itemize}
 }
 
@@ -767,6 +768,7 @@ Adresse & Octets & Instruction & Écriture\\
 \hline
 \end{tabular}
 % \end{center}
+\vskip-0.5ex
 \begin{itemize}
  \item Valeur de \edi\ lorsque \ret\ est atteint ?
 \end{itemize}
@@ -1002,12 +1004,12 @@ Empaqueteur & Vague & \multicolumn{2}{c|}{Instructions} & \multicolumn{2}{c|}{In
 
 \only<3>{
 \begin{itemize}
- \item 22/28 ont plusieurs couches de code dans le désassemblage :
+ \item 22/28 ont plusieurs couches de code dans le désassemblage
  \begin{itemize}
   \item de 2 à 4 couches
   \item de nombreux sauts entre couches (jusqu'à 1817 pour jdpack)
  \end{itemize}
-\vskip2ex
+\vskip4ex
  \item 9/28 (\telock, \upx, pespin) exécutent réellement des instructions en chevauchement
  \begin{itemize}
   \item uniquement 2 couches
@@ -1545,17 +1547,19 @@ Problème :
 %  \only<2->{
  \item Apprentissage : croissance linéaire, $<$ 6 minutes
 %  }
- \only<2->{\item Détection de 5 programmes (18160 sites) en fonction du nombre de sites appris}
+ \pause
+ \item Détection de 5 programmes (18160 sites) en fonction du nombre de sites appris
 \end{itemize}
 
 % \begin{figure}[h]
-\only<2>{Parcours :}
+
+Parcours :
 \begin{center}
 % \includegraphics[width=0.9\textwidth]{supports/plots/plotScan.pdf}
 % \only<2>{\includegraphics[width=0.65\textwidth]{supports/plots/plotLearn.pdf}}
-\only<2>{\includegraphics[width=0.65\textwidth]{supports/plots/plotScan-plus-GTSI.pdf}}
+\includegraphics[width=0.65\textwidth]{supports/plots/plotScan-plus-GTSI.pdf}
 \end{center}
-\only<2>{\vskip-1.5ex Découpage : $<$ 1 seconde}
+\vskip-1.5ex Découpage : $<$ 1 seconde
 % \caption{}
 % \label{fig:scan}
 % \end{figure}
@@ -1596,25 +1600,62 @@ Comparaison des algorithmes de détection :
 \end{frame}
 
 \section{Similarité logicielle}
-\titre{Application : détection de similarités}
+\titre{Détection de similarités logicielles}
 
-\begin{frame}{Implémentations : Waledac et OpenSSL\footnote{Bonfante, Calvet, Marion, Sabatier, Thierry (REcon 2012, Malware 2012)}}
- Problème :
+\begin{frame}[t]{Similarité logicielle}
+Problème : comparaison de deux programmes\\
+\vskip1ex
+Objectif : détecter de parties de code en commun
+
+\pause
+\vskip2ex
+Analyse morphologique :
 \begin{itemize}
-  \item Analyser un binaire : Waledac
-  \item Pas d'informations de compilation (nom des fonctions)
-  \item Utilise OpenSSL : bibliothèque logicielle libre
+  \item Découpage entre sites
+  \item Correspondance entre sites
 \end{itemize}
 
 \pause
-Analyse morphologique :
+\vskip2ex
+Adaptation :
 \begin{itemize}
   \item Correspondance fine entre instructions
   \item Identification automatique de fonctions
 \end{itemize}
 
-\pause
-\vskip1ex
+\vskip2ex
+Implémentation :
+\begin{itemize}
+ \item Avec l'algorithme par découpages
+ \item Plugin pour IDA : affiche les similarités détectées
+\end{itemize}
+
+
+\end{frame}
+
+
+\begin{frame}[t]{Waledac et OpenSSL\only<3>{\footnote{Bonfante, Calvet, Marion, Sabatier, Thierry (REcon 2012, Malware 2012)}}}
+\only<1,3>{
+ Problème :
+\begin{itemize}
+  \item Analyser un programme malveillant : Waledac
+  \item Pas d'informations de compilation (nom des fonctions)
+  \item Utilise OpenSSL : Quelles fonctions sont utilisées ?
+\end{itemize}
+}
+
+\only<2>{
+\begin{center}
+\includegraphics[width=0.8\textwidth]{supports/libs/WalSSLIDAAESgraph.png}
+\end{center}
+\begin{itemize}
+ \item IDA : OpenSSL à gauche, Waledac à droite
+\end{itemize}
+
+}
+
+\only<3>{
+\vskip3ex
 \begin{tabular}{|p{7cm}|l|}
 \hline
 Fonctions                                      & Fonctionnalité                        \\
@@ -1626,7 +1667,9 @@ BN\_is\_prime\_fasttest\_ex, BN\_ctx\_new	& Gestion des grands entiers	\\
 CRYPTO\_lock, CRYPTO\_malloc                   & Fonctions génériques  \\
 \hline
 \end{tabular}
+}
 \end{frame}
+
 
 \begin{frame}[t]{Similarité logicielle : Duqu et Stuxnet\footnote{Bonfante, Marion, Sabatier, Thierry (SSTIC 2013, Malware 2013)}}
 Application à Duqu (2011) et Stuxnet (2010)
@@ -1697,9 +1740,6 @@ Analyse morphologique :
   \Huge Merci !
 \end{center}
 \end{frame}
-
-
-
 
 
 \makeatletter
