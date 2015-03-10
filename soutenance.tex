@@ -392,15 +392,18 @@ Désassemblage récursif :
  \end{itemize}
 \label{def:cfg_parfait_nsm}
 % \end{defi}
+}
 
+\only<4>{
+\vskip5ex
+Objectif : désassemblage et reconstruction automatique du GFC
 }
 \end{frame}
 
 \begin{frame}{Obscurcissement}
-But : rendre un binaire plus difficile à analyser et désassembler
+But de l'attaquant : rendre le désassemblage plus difficile
 \begin{itemize}
  \item Compression, chiffrement, ajout de code inutile...
- \item Chevauchement de code, auto-modification
  \pause
  \item En pratique appliqué par un logiciel d'empaquetage
 \end{itemize}
@@ -418,6 +421,12 @@ But : rendre un binaire plus difficile à analyser et désassembler
 \end{tikzpicture}
 }
 \end{center}
+
+\telock\ :
+\begin{itemize}
+ \item Chevauchement de code, auto-modification
+\end{itemize}
+
 \end{frame}
 
 % \begin{frame}{Désassemblage récursif et graphe de flot de contrôle}
@@ -717,6 +726,7 @@ Problème : certains programmes se modifient pendant l'exécution
 
 \begin{itemize}
  \item Au sein d'une vague, il n'y pas d'auto-modification
+ \item Instantané $i$ : état de la mémoire au début de la vague $i$
 \end{itemize}
 \end{frame}
 
@@ -817,8 +827,8 @@ Adresse & Octets & Instruction & Écriture\\
 Niveau d'exécution & 1 & 2 & 3 & 4 & 5 & \\
 \cline{1-6}
 Trace 1 & $s_1$ & $s_2$ & $s_3$ & $s_4$ & & \\
-Trace 2 & $s_1$ & $s_2$ & $s_7$ & $s_5$ & $s_6$ & Instantanés de la mémoire\\
-Trace 3 & $s_1$ & $s_2$ & $s_3$ & $s_5$ & $s_6$ & \\
+Trace 2 & $s_1$ & $s_2$ & $s_3$ & $s_5$ & $s_6$ & Instantanés de la mémoire\\
+Trace 3 & $s_1$ & $s_2$ & $s_7$ & $s_5$ & $s_6$ & \\
 Trace 4 & $s_1$ & $s_2$ & $s_4$ &       & & \\
 \cline{1-6}
 \end{tabular}
@@ -994,7 +1004,7 @@ Empaqueteur & Vague & \multicolumn{2}{c|}{Instructions} & \multicolumn{2}{c|}{In
 \begin{itemize}
  \item 22/28 ont plusieurs couches de code dans le désassemblage :
  \begin{itemize}
-  \item de 2 à 4 couches lors du désassemblage
+  \item de 2 à 4 couches
   \item de nombreux sauts entre couches (jusqu'à 1817 pour jdpack)
  \end{itemize}
 \vskip2ex
@@ -1025,31 +1035,82 @@ Empaqueteur & Vague & \multicolumn{2}{c|}{Instructions} & \multicolumn{2}{c|}{In
 \section{Algorithmes de comparaison}
 \titre{Analyse morphologique et algorithmes de comparaison de graphes}
 
-\begin{frame}{Analyse morphologique et similarité logicielle\footnote{Bonfante, Calvet, Marion, Sabatier, Thierry (REcon 2012, Malware 2012)}}
-Problème : Waledac et OpenSSL
- 
+\begin{frame}{Analyse morphologique}
+% Analyse morphologique :
 \begin{itemize}
-  \item Analyser un binaire : Waledac
-  \item Pas d'informations de compilation (nom des fonctions)
-  \item Utilise OpenSSL
+ \item Comparaison des graphes de flot de contrôle
+ \item Détection par signatures
 \end{itemize}
 
-\pause
-Objectif :
+\begin{center}
+\scalebox{0.8}{
+\begin{tikzpicture}[->,scale=1,>=stealth',thick]
+\newcommand\espace{0.3cm}
+\node[state] (BIN){Binaire};
+\node[state, right=3.8cm of BIN.west, anchor=west] (CODE) {Code};
+\node[state, above=1.2cm of CODE.west, anchor=west] (TRACE) {Traces};
+\node[state, below=1.2cm of CODE.west, anchor=west] (GFC) {GFC};
+\coordinate [right=1cm of BIN.east] (DYN);
+\coordinate [right=4cm of DYN] (CLASS);
+\coordinate [right=1cm of CLASS] (IN);
+\coordinate [right=1cm of IN] (OUT);
+% \node[state, above=2cm of IN] (COMP) {Liste de comportements};
+\node[state, above=2cm of IN] (SIG) {Corpus de programmes classés};
+\node[state, above right=1cm and 1cm of OUT, anchor=west] (MAL) {Malveillant};
+\node[state, below right=1cm and 1cm of OUT, anchor=west] (LEG) {Légitime};
+\draw [-] (BIN.east) -- node[below left=1.6cm and -3.2cm, text width=4cm](DYNAMIC){Extraction} (DYN);
+\draw [-] (CLASS) -- (IN);
+\draw [-] (IN) -- node[below right=1.6cm and -1.8cm, text width=4cm](STATIC){Classification} (OUT);
+\draw (DYN) |- (TRACE.west);
+\draw (DYN) |- (CODE.west);
+\draw (DYN) |- (GFC.west);
+\draw (OUT) -- (MAL.west);
+\draw (OUT) -- (LEG.west);
+% \draw (COMP.south) -- (IN);
+\draw (SIG.south) -- (IN);
+\draw [-] (TRACE.east) -| (CLASS);
+\draw [-] (CODE.east) -| (CLASS);
+\draw [-] (GFC.east) -| (CLASS);
+% \draw (In) --  (Vn);
+% \node [fit={($(V0.north west) + (-0.2, 0)$) ($(V1) + (0.0, 0)$) ($(Vp) + (0.0, 0)$) ($(Vn.south east) + (0.3, 0)$)}, draw, label=GFC paramétré par la trace] {};
+\end{tikzpicture}
+}
+\end{center}
+
 \begin{itemize}
-  \item Correspondance fine entre instructions
-  \item Identification automatique des fonctions
+ \item Les signatures sont des graphes de flot de contrôle
+ \item On cherche des isomorphismes de sous-graphes
 \end{itemize}
 
-\pause
-Analyse morphologique :
-\begin{itemize}
-\item Comparaison des graphes de flot de contrôle
-\item Recherche d'isomorphismes de sous-graphes
-\item Détection de logiciels malveillants (par signature)
-\end{itemize}
-Comment formaliser et optimiser cette approche ?
 \end{frame}
+
+
+
+% \begin{frame}{Analyse morphologique et similarité logicielle\footnote{Bonfante, Calvet, Marion, Sabatier, Thierry (REcon 2012, Malware 2012)}}
+% Problème : Waledac et OpenSSL
+%  
+% \begin{itemize}
+%   \item Analyser un binaire : Waledac
+%   \item Pas d'informations de compilation (nom des fonctions)
+%   \item Utilise OpenSSL
+% \end{itemize}
+% 
+% \pause
+% Objectif :
+% \begin{itemize}
+%   \item Correspondance fine entre instructions
+%   \item Identification automatique des fonctions
+% \end{itemize}
+% 
+% \pause
+% Analyse morphologique :
+% \begin{itemize}
+% \item Comparaison des graphes de flot de contrôle
+% \item Recherche d'isomorphismes de sous-graphes
+% \item Détection de logiciels malveillants (par signature)
+% \end{itemize}
+% Comment formaliser et optimiser cette approche ?
+% \end{frame}
 
 % \begin{frame}{Détection et analyse morphologique}
 % %  Analyse morphologique
@@ -1103,7 +1164,8 @@ Comment formaliser et optimiser cette approche ?
 %  \item 
  Les graphes sont réduits :
  \begin{itemize}
-  \item Instructions génériques : \texttt{call eax} $\rightarrow$ \texttt{CALL}
+  \item But : rendre les signatures plus génériques
+  \item Instructions : \texttt{call eax} $\rightarrow$ \texttt{CALL}
   \item Regroupement des instructions séquentielles : bloc $\rightarrow$ \texttt{INST}
  \end{itemize}
 % \end{itemize}
@@ -1114,10 +1176,10 @@ Isomorphisme de sous-graphes :
 \begin{itemize}
  \item Appliqué entre des graphes de flot extraits d'un malware (signatures) et le graphe à analyser
  \item Problème NP complet
- \item Algorithmes classiques (Ullmann\only<2>{\footnote{J.R. Ullmann, ``An algorithm for Subgraph Isomorphism'' (1976)}}, VF2) trop lents
+ \item Algorithme classique (Ullmann\only<2>{\footnote{J.R. Ullmann, ``An algorithm for Subgraph Isomorphism'' (1976)}}) trop lent
 \end{itemize}
 \vskip3ex
-But : définir un sous-problème $\rightarrow$ solutions en temps polynomial ?
+Objectif : définir un sous-problème $\rightarrow$ solutions en temps polynomial ?
 \end{frame}
 
 \begin{frame}{Simplification : graphes de flot et sites}
@@ -1358,88 +1420,67 @@ $1: JCC\xrightarrow{1} 2: CALL\xrightarrow{R} 1\xrightarrow{2} 3: JCC$
 
 
 \begin{frame}{Détection d'isomorphismes par parcours de codage}
-\begin{minipage}{.40\textwidth}
-%  \begin{center}
- \scalebox{0.50}{
+% \begin{minipage}{.40\textwidth}
+ \begin{center}
+ \scalebox{0.6}{
 \begin{tikzpicture}[
   tlabel/.style={pos=0.4,right=-1pt,font=\footnotesize\color{black!70!black} },
   every node/.style={color=black!25!black, circle, minimum size=6mm, draw=black!75, align=center},
   edge from parent/.style={draw=black!50,thick},
-  level 1/.style={sibling distance=50mm, level distance=12mm},
+  level 1/.style={sibling distance=27mm, level distance=18mm},
 ]
 \node[rectangle, rounded corners]{$racine$}
 child {node {}
        child{node {}
 	     child {node {}
 	            child {node {}
-		           child {node {}
-		                  child {node {}
-		                         child {node {}
-		                                child {node {}
-		                                       child {node {a}
-		                                              child {node {b}
-								edge from parent node[tlabel,pos=0.2, left=15pt,draw=none] {$\xrightarrow{1} 2$}
-		                                              }
-		                                              child {node {c}
-								edge from parent node[tlabel,pos=0.2, right=11pt,draw=none] {$\xrightarrow{1} 3$}
-		                                              }
-		                                              edge from parent node[tlabel,pos=0.3,draw=none] {$\xrightarrow{2} 7:INST$}
-		                                       }
-		                                       edge from parent node[tlabel,pos=0.3,draw=none] {$\xrightarrow{2} 6: JCC$}
-		                                }
-		                                edge from parent node[tlabel,pos=0.3,draw=none] {$\xrightarrow{R} 1$}
-		                         }
-		                         edge from parent node[tlabel,pos=0.3,draw=none] {$\xrightarrow{2} 5: RET$}
-		                  }
-		                  edge from parent node[tlabel,pos=0.3,draw=none] {$\xrightarrow{R} 2$}
-		           }
-		           edge from parent node[tlabel,pos=0.3,draw=none] {$\xrightarrow{1} 4: RET$}
-	            }
-	            edge from parent node[tlabel,pos=0.3,draw=none] {$\xrightarrow{1} 3: INST$}
-	     }
-	     edge from parent node[tlabel,pos=0.1, left=15pt,draw=none] {$\xrightarrow{1} 2: CALL$}
-       }
-       child{node {}
-	     child {node {}
-	            child {node {}
-		           child {node {}
-		                  child {node {}
-		                         child {node {}
-		                                child {node {}
-		                                       child {node {}
-		                                              child {node {d}
-		                                              edge from parent node[tlabel,pos=0.3,draw=none] {$\xrightarrow{2} 7: RET$}
-		                                              }
-		                                              edge from parent node[tlabel,pos=0.3,draw=none] {$\xrightarrow{R} 5$}
-		                                       }
-		                                       edge from parent node[tlabel,pos=0.3,draw=none] {$\xrightarrow{1} 2$}
-		                                }
-		                                edge from parent node[tlabel,pos=0.3,draw=none] {$\xrightarrow{1} 6: INST$}
-		                         }
-		                         edge from parent node[tlabel,pos=0.3,draw=none] {$\xrightarrow{1} 5: CALL$}
-		                  }
-		                  edge from parent node[tlabel,pos=0.3,draw=none] {$\xrightarrow{2} 4: INST$}
-		           }
 		           edge from parent node[tlabel,pos=0.3,draw=none] {$\xrightarrow{2} 3: JCC$}
 	            }
 	            edge from parent node[tlabel,pos=0.3,draw=none] {$\xrightarrow{R} 1$}
 	     }
-	     edge from parent node[tlabel,pos=0.1, right=5pt,draw=none] {$~~~\xrightarrow{1} 2: RET$}
+	     edge from parent node[tlabel,pos=0.1, left=5pt,draw=none] {$\xrightarrow{1} 2: CALL$}
        }
-       edge from parent node[tlabel,pos=0.5,draw=none] {$1: JCC$}
+       child{node {}
+	     child {node {}
+	            edge from parent node[tlabel,pos=0.3, right=-28pt, draw=none] {$\xrightarrow{1} 3: CALL$}
+	     }
+	     edge from parent node[tlabel,pos=0.1, right=-10pt,draw=none] {$~~~\xrightarrow{1} 2: INST$}
+       }
+       edge from parent node[tlabel,pos=0.3, left, draw=none] {$1: JCC$}
+}
+child {node {}
+       child{node {}
+	     child {node {}
+	            child {node {}
+		           edge from parent node[tlabel,pos=0.3,draw=none] {$\xrightarrow{2} 3: RET$}
+	            }
+	            edge from parent node[tlabel,pos=0.3,draw=none] {$\xrightarrow{R} 1$}
+	     }
+	     edge from parent node[tlabel,pos=0.3,draw=none] {$\xrightarrow{1} 2: INST$}
+       }
+       edge from parent node[tlabel,pos=0.7,draw=none] {$1: CALL$}
+}
+child {node {}
+       child{node {}
+	     child {node {}
+	            edge from parent node[tlabel,pos=0.3,draw=none] {$\xrightarrow{1} 3: INST$}
+	     }
+	     edge from parent node[tlabel,pos=0.3,draw=none] {$\xrightarrow{1} 2: CALL$}
+       }
+       edge from parent node[tlabel,pos=0.1, right=5pt, draw=none] {$1: INST$}
 };
 \end{tikzpicture}
 }
-% \end{center}
-\end{minipage}
-\begin{minipage}{.55\textwidth}
+\end{center}
+% \end{minipage}
+% \begin{minipage}{.7\textwidth}
 Codages rangés dans un arbre :
  \begin{itemize}
   \item Certains parcours sont factorisés
   \item Même complexité dans le pire des cas
-  \item Dépend (au pire) linéairement du nombre de sites dans la base
+%   \item Dépend (au pire) linéairement du nombre de sites dans la base
  \end{itemize}
-\end{minipage}
+% \end{minipage}
 \end{frame}
 
 
@@ -1520,39 +1561,6 @@ Problème :
 % \end{figure}
 \end{frame}
 
-\begin{frame}{Implémentations : Waledac et OpenSSL\footnote{Bonfante, Calvet, Marion, Sabatier, Thierry (REcon 2012, Malware 2012)}}
- Problème :
-\begin{itemize}
-  \item Analyser un binaire : Waledac
-  \item Pas d'informations de compilation (nom des fonctions)
-  \item Utilise OpenSSL
-\end{itemize}
-
-% \pause
-Analyse morphologique :
-\begin{itemize}
-  \item Correspondance fine entre instructions
-  \item Identification automatique de fonctions
-\end{itemize}
-
-\pause
-\vskip1ex
-\begin{tabular}{|p{7cm}|l|}
-\hline
-Fonctions                                      & Fonctionnalité                        \\
-\hline
-AES\_set\_encrypt\_key, AES\_set\_decrypt\_key         & Chiffrement AES                       \\
-RSA\_free, DSA\_size, DSA\_new\_method                 & Chiffrement RSA / DSA                 \\
-X509\_PUBKEY\_set, X509\_PUBKEY\_get 				& Certificats X509 			\\
-BN\_is\_prime\_fasttest\_ex, BN\_ctx\_new	& Gestion des grands entiers	\\
-CRYPTO\_lock, CRYPTO\_malloc                   & Fonctions génériques  \\
-\hline
-\end{tabular}
-\end{frame}
-
-\section{Exemples d'application}
-\titre{Exemples d'application}
-
 \begin{frame}{Retour sur \hostname\ protégé}
 \vskip-3ex
 \begin{itemize}
@@ -1585,6 +1593,39 @@ Comparaison des algorithmes de détection :
  \hline
 \end{tabular}
 % \end{center}
+\end{frame}
+
+\section{Similarité logicielle}
+\titre{Application : détection de similarités}
+
+\begin{frame}{Implémentations : Waledac et OpenSSL\footnote{Bonfante, Calvet, Marion, Sabatier, Thierry (REcon 2012, Malware 2012)}}
+ Problème :
+\begin{itemize}
+  \item Analyser un binaire : Waledac
+  \item Pas d'informations de compilation (nom des fonctions)
+  \item Utilise OpenSSL : bibliothèque logicielle libre
+\end{itemize}
+
+\pause
+Analyse morphologique :
+\begin{itemize}
+  \item Correspondance fine entre instructions
+  \item Identification automatique de fonctions
+\end{itemize}
+
+\pause
+\vskip1ex
+\begin{tabular}{|p{7cm}|l|}
+\hline
+Fonctions                                      & Fonctionnalité                        \\
+\hline
+AES\_set\_encrypt\_key, AES\_set\_decrypt\_key         & Chiffrement AES                       \\
+RSA\_free, DSA\_size, DSA\_new\_method                 & Chiffrement RSA / DSA                 \\
+X509\_PUBKEY\_set, X509\_PUBKEY\_get 				& Certificats X509 			\\
+BN\_is\_prime\_fasttest\_ex, BN\_ctx\_new	& Gestion des grands entiers	\\
+CRYPTO\_lock, CRYPTO\_malloc                   & Fonctions génériques  \\
+\hline
+\end{tabular}
 \end{frame}
 
 \begin{frame}[t]{Similarité logicielle : Duqu et Stuxnet\footnote{Bonfante, Marion, Sabatier, Thierry (SSTIC 2013, Malware 2013)}}
