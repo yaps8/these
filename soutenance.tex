@@ -235,7 +235,7 @@ Seconde étape :
 % \end{tabular}
 Désassemblage :
 \begin{itemize}
- \item Opération inverse de l'assemblage
+ \item Programme binaire $\rightarrow$ code assembleur
  \item Code et données peuvent être présents dans les mêmes sections
  \item Difficile de séparer les données du code
 \end{itemize}
@@ -564,7 +564,7 @@ Couche de code :
 Quelle stratégie pour construire un découpage cohérent en couches ?
 \begin{itemize}
  \item Couches linéaires
- \item Couches désassemblées par parcours
+ \item Couches désassemblées par parcours récursif
 \end{itemize}
 
 % }
@@ -726,22 +726,22 @@ Problème : certains programmes se modifient pendant l'exécution
 \end{center}
 
 \begin{itemize}
- \item Au sein d'une vague, il n'y pas d'auto-modification
  \item Instantané $i$ : état de la mémoire au début de la vague $i$
+ \item Au sein d'une vague, il n'y pas d'auto-modification
 \end{itemize}
 \end{frame}
 
 \begin{frame}{Auto-modification : graphe de flot de contrôle parfait}
 Sans auto-modification :
 \begin{itemize}
- \item On dispose de l'ensemble des traces possibles
+ \item Donnée : ensemble des traces possibles
  \item Sommet : (adresse, instruction)
  \item Arc : s'il existe une trace dans laquelle les instructions se suivent
 \end{itemize}
 Avec auto-modification :
 \begin{itemize}
- \item On dispose de l'ensemble des traces possibles et de leur découpage en niveaux d'exécution
- \item On veut représenter les niveaux d'exécution dans le GFC
+ \item Données : ensemble des traces possibles et découpées en niveaux d'exécution
+ \item Représenter les niveaux d'exécution dans le GFC ?
 \end{itemize}
 \end{frame}
 
@@ -1007,7 +1007,7 @@ Empaqueteur & Vague & \multicolumn{2}{c|}{Instructions} & \multicolumn{2}{c|}{In
  \item 22/28 ont plusieurs couches de code dans le désassemblage
  \begin{itemize}
   \item de 2 à 4 couches
-  \item de nombreux sauts entre couches (jusqu'à 1817 pour jdpack)
+  \item de nombreux sauts entre couches (jusqu'à 1 817 pour jdpack)
  \end{itemize}
 \vskip4ex
  \item 9/28 (\telock, \upx, pespin) exécutent réellement des instructions en chevauchement
@@ -1229,7 +1229,7 @@ On génère des sous-graphes (sites) par parcours en largeur de taille fixe
 % \only<2>{
 % \begin{center}
 % \def\imagetop#1{\vtop{\null\hbox{#1}}}
-\pause
+% \pause
 \vskip1ex
 \begin{tabular}{|c|c|}
 \hline
@@ -1293,7 +1293,7 @@ $1: JCC\xrightarrow{1} 2: CALL\xrightarrow{R} 1\xrightarrow{2} 3: JCC\xrightarro
  \end{itemize}
  \label{def-mot-bien-forme}
 \end{block}
-Un codage de parcours est de la forme $m_1(m_2)^*$.
+Un codage de parcours est de la forme $m_1(m_2)^*$
 \end{frame}
 
 \begin{frame}{Codage de parcours}
@@ -1479,7 +1479,7 @@ child {node {}
 Codages rangés dans un arbre :
  \begin{itemize}
   \item Certains parcours sont factorisés
-  \item Même complexité dans le pire des cas
+  \item On doit parcourir tous les sommets de l'arbre
 %   \item Dépend (au pire) linéairement du nombre de sites dans la base
  \end{itemize}
 % \end{minipage}
@@ -1548,7 +1548,7 @@ Problème :
  \item Apprentissage : croissance linéaire, $<$ 6 minutes
 %  }
  \pause
- \item Détection de 5 programmes (18160 sites) en fonction du nombre de sites appris
+ \item Détection de 5 programmes (18 160 sites) en fonction du nombre de sites appris
 \end{itemize}
 
 % \begin{figure}[h]
@@ -1592,8 +1592,8 @@ Comparaison des algorithmes de détection :
    &  &  & détectés & à + de 75\%\\
  \hline
 %  Ullmann & $\infty$ & $\infty$ & (6739) & (24)\\
- Parcours & $<$ 1 seconde & 70 secondes & 6739 & 24/28\\
- Découpage & $<$ 1 seconde & 1.6 seconde & 6045 & 22/28\\
+ Parcours & $<$ 1 seconde & 70 secondes & 6 739 & 24/28\\
+ Découpage & $<$ 1 seconde & 1.6 seconde & 6 045 & 22/28\\
  \hline
 \end{tabular}
 % \end{center}
@@ -1645,6 +1645,11 @@ Implémentation :
 }
 
 \only<2>{
+\vskip-2ex
+\begin{itemize}
+ \item Analyse morphologique et alignement du code
+\end{itemize}
+\vskip1ex
 \begin{center}
 \includegraphics[width=0.8\textwidth]{supports/libs/WalSSLIDAAESgraph.png}
 \end{center}
