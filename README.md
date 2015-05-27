@@ -6,7 +6,7 @@ Thèse soutenue le 11 mars 2015 au Loria.
 - these.pdf
 - soutenance.pdf
 
-# Comment compiler ?
+# Compiler
 Requis pour compiler:
 - pdflatex
 - biber
@@ -18,9 +18,11 @@ Requis pour compiler:
 - pdftk
 
 Installer ces paquets sur Ubuntu / Debian :
+
 `sudo apt-get install texlive-full texlive-extra-utils biber latexmk make graphviz pdftk`
 
 Compiler:
+
 `make`
 
 # Jury
