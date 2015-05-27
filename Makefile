@@ -36,6 +36,7 @@ soutenance.pdf: *.tex these.bib $(pdf_from_dot) annexes/*.table supports/plots/*
 	if [ -d ~/lectures ]; then cp soutenance.pdf ~/lectures/; fi
 
 these_tk.pdf: these.pdf
+	# Create more "valid" pdf file
 	pdftk these.pdf output these_tk.pdf
 
 #these.bbl: these.bib
