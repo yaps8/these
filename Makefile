@@ -39,13 +39,13 @@ these_tk.pdf: these.pdf
 	# Create more "valid" pdf file
 	pdftk these.pdf output these_tk.pdf
 
-#these.bbl: these.bib
+these.bbl: these.bib
 #	$(TEXCOMP) these.tex
-#	biber these
+	biber these
 
-#chap.bbl: chap.bib
+chap.bbl: chap.bib
 #	$(TEXCOMP) chap.tex
-#	biber chap
+	biber chap
 
 clean:
 	rm -f *.aux *.bbl *.blg *.log *.nav *.out *.snm *.toc these.pdf *.idf *.maf *.mtc *.idx *.lof *.glo *.bcf chap.pdf *.mtc* *.flg *.xml *.fls *.dvi *.ilg *.ind *.old *latexmk soutenance.pdf

@@ -131,7 +131,7 @@ Le sous-graphe induit d'un graphe de flot $T=(V_T, L_T, l_T, E_T)$ à partir de 
 % Notre problème
 % consiste donc, à partir du graphe de flot T à analyser, à déterminer si un de ses sous-graphes est isomorphe à un des graphes de flot de la base.
 Notre problème consiste donc, à partir d'un graphe de flot P connu et d'un graphe de flot T à analyser, à déterminer si P est isomorphe à un sous-graphe de flot de T.
-Par exemple sur la figure \ref{fig:ex-gf-sous-gf}, le graphe P est isomorphe au sous-graphe de T induit par les sommets $\{d, e, a\}$ comme à celui formé induit par les sommets $\{b, d, a\}$.
+Par exemple sur la figure \ref{fig:ex-gf-sous-gf}, le graphe P est isomorphe au sous-graphe de T induit par les sommets $\{d, e, a\}$ comme à celui induit par les sommets $\{b, d, a\}$.
 
 
 \begin{figure}[ht]
@@ -1290,7 +1290,7 @@ $E\leftarrow \{\}$\tcc*[H]{E est l'ensemble des sommets déjà visités.}
 
 \FloatBarrier
 En fait, codé de cette manière, un parcours définit un site unique que l'on peut reconstruire puisque l'on sait quelle est l'étiquette de chaque sommet et l'on connaît tous les arcs entre les sommets à l'aide du choix des fils fait lors du parcours (ici en profondeur).
-On définit les mots constituant un codage de parcours et un parcours bien formé  (définitions \ref{def-mot-bien-forme} et \ref{def-codage-bien-forme}) afin que l'on puisse reconstruire un site à partir de n'importe quel codage de parcours bien formé (algorithme \ref{algo:siteDepuisCodage}).
+On définit les mots constituant un codage de parcours et un parcours bien formé (définitions \ref{def-mot-bien-forme} et \ref{def-codage-bien-forme}) afin que l'on puisse reconstruire un site à partir de n'importe quel codage de parcours bien formé (algorithme \ref{algo:siteDepuisCodage}).
 % Par la suite on ne parlera que de codages bien formés sans l'expliciter.
 
 
