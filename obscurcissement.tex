@@ -51,7 +51,7 @@ De nombreuses techniques d'obscurcissement sont utilisées en pratique, nous en 
 Insérer du code non atteignable (ou code mort) peut forcer un désassembleur par parcours linéaire à se désaligner avec le code réellement exécuté et à favoriser le code mort au détriment du code légitime.
 L'exemple donné en figure \ref{fig:junk_right} montre du code assembleur avec deux octets de données placés à la suite d'une instruction \jmp. Ces deux octets aux adresses $0x08048062$ et $0x08048063$ ne sont pas atteignables. Pourtant un désassembleur linéaire (Figure \ref{fig:junk_fooled}) chercherait à les désassembler et serait alors incapable de voir une partie des instructions réellement exécutées.
 
-\begin{figure}[H]
+\begin{figure}[h]
 \begin{lstlisting}[language={[x86masm]Assembler}, escapechar=~]
 jmp suite
 db    0a 05	; ~Octets non atteignables~
@@ -65,7 +65,7 @@ mov ebx, 0x2 ;  0x00000002
 \end{figure}
 
 
-\begin{figure}[H]
+\begin{figure}[h]
 \begin{lstlisting}[language={[x86masm]Assembler}, escapechar=~]
 08048060    eb 02               jmp 0x8048064
 08048062    0a 05 83 f9 02 74   or al, [0x7402f983]
