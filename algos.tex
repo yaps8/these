@@ -191,7 +191,7 @@ On appelle sous-site d'un graphe de flot $T$ tout site étant un sous-graphe de 
 \label{fig:ex-gf-site}
 \end{figure}
 
-Générer les site de manière homogène, toujours à l'aide d'un parcours en largeur de taille fixe, permet d'obtenir automatiquement des signatures pour les programmes du corpus.
+Générer les sites de manière homogène, toujours à l'aide d'un parcours en largeur de taille fixe, permet d'obtenir automatiquement des signatures pour les programmes du corpus.
 Nous choisissons le parcours en largeur parce qu'il donne rapidement une structure au site construit tandis qu'un parcours en profondeur donne souvent de longs chemins sans branchements, par exemple.
 L'algorithme \ref{algo:generation_site_largeur} détermine, s'il existe, le site d'un graphe de flot généré par parcours en largeur à partir d'un sommet spécifié et limité à un certain nombre de sommets. L'algorithme \ref{algo:generation_sites_largeur} donne l'ensemble des sites d'un graphe de flot obtenus par parcours en largeur limité à un W sommets.
 
@@ -1639,11 +1639,11 @@ On peut générer les codages de parcours en profondeur de chaque site de la bas
 \label{fig:troisProf4}
 \includegraphics[height=0.35\textheight]{supports/algos/g3prof_cropped0.pdf}}
 \end{center}
-\caption{Trois sites numérotés selon un parcours en profondeur}
+\caption{Quatre sites numérotés selon un parcours en profondeur}
 \label{fig:troisProf}
 \end{figure}
 
-L'arbre de décision créé à partir de ces trois codages est donné en figure \ref{fig:arbreDecTarjan}. L'ajout d'un codage à l'arbre de décision est standard et ne sera pas détaillé.
+L'arbre de décision créé à partir de ces quatre codages est donné en figure \ref{fig:arbreDecTarjan}. L'ajout d'un codage à l'arbre de décision est standard et ne sera pas détaillé.
 Un parcours est terminé par un sommet final ayant une étiquette unique identifiant ce parcours.
 Il est à noter que les sommets finaux ne sont pas nécessairement tous des feuilles de l'arbre de décision.
 
